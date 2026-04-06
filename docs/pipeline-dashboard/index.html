@@ -2735,7 +2735,7 @@ async function loadPendingActions(){
       if(count===0)continue;
 
       // Fetch creators for this status
-      var data=await apiFetch('/pipeline/creators/?status='+encodeURIComponent(stg.status)+'&limit=50');
+      var data=await apiFetch('/pipeline/creators/?status='+encodeURIComponent(stg.status)+'&limit=50&region=us');
       var creators=data.results||[];
       if(!creators.length)continue;
 
@@ -2852,7 +2852,7 @@ async function updatePreview(){
         var page=1;var hasMore=true;
         var dateParam=(_config&&_config.update_date)?'&discovery_date='+_config.update_date:'';
         while(hasMore){
-          var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page+dateParam);
+          var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=500&page='+page+dateParam+'&region=us');
           var items=data.results||[];
           creators=creators.concat(items);
           hasMore=items.length===500;
@@ -2871,6 +2871,8 @@ async function updatePreview(){
     var htAll=creators.filter(function(c){return c.outreach_type==='HT'});
     var ltAll=creators.filter(function(c){return c.outreach_type!=='HT'});
     var ltWithEmail=ltAll.filter(_hasRealEmail);
+    // Remove business accounts (same as Feature Toggle)
+    ltWithEmail=ltWithEmail.filter(function(c){return !c.is_business_account});
     var ltNoEmail=ltAll.length-ltWithEmail.length;
 
     // RAG Dedup — check LT real emails only
@@ -4836,6 +4838,8 @@ async function execBatchStep(step){
       populateConfigForm(_config);loadConfigHistory();
       if(data.start_from_beginning){renderVintageBreakdown();document.getElementById('vintage-breakdown').style.display=''}
       result.innerHTML='<span class="b g">&#x2705; Saved</span>';
+      // Auto-fill brand allocation after saving config
+      if(typeof autoFillAllocation==='function'){try{await autoFillAllocation()}catch(e){}}
 
     }else if(step===2){
       // Update Preview (reuses existing updatePreview logic)
@@ -4847,11 +4851,16 @@ async function execBatchStep(step){
       var whAction=step===3?'draft_gen':'send';
       var whUrl=WEBHOOK_MAP[whAction];
       if(!whUrl){result.innerHTML='<span class="b r">No webhook</span>';return}
+      // Pre-check: verify eligible US creators exist before Generate Drafts
+      if(step===3){
+        try{var preCheck=await apiFetch('/pipeline/creators/filter-stats/?region=us');
+        if((preCheck.lt_with_email||0)===0){result.innerHTML='<span class="b r">&#x274C; No eligible US creators (lt_with_email=0)</span>';return}}catch(e){}
+      }
       // Snapshot stats before
       var prevSt={};try{var ps=await apiFetch('/pipeline/creators/stats/');prevSt=ps.by_status||{}}catch(e){}
       btn.innerHTML='<span class="spin-icon">&#x2699;</span>';btn.classList.add('btn-running');
       result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Running...</span>';
-      var wRes=await fetch(whUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:whAction,config:_config,timestamp:new Date().toISOString()})});
+      var wRes=await fetch(whUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:whAction,config:_config,filters:{region:'us',us_only:!!(document.getElementById('ft-us-only')||{}).checked,business_filter:!!(document.getElementById('ft-business')||{}).checked,rag_dedup:!!(document.getElementById('ft-rag-dedup')||{}).checked},timestamp:new Date().toISOString()})});
       if(!wRes.ok)throw new Error('Webhook HTTP '+wRes.status);
       // Poll for changes
       var found=false;
