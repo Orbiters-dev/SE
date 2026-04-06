@@ -126,6 +126,16 @@ AMZ_ADS_CLIENT_ID = os.getenv("AMZ_ADS_CLIENT_ID", "")
 AMZ_ADS_CLIENT_SECRET = os.getenv("AMZ_ADS_CLIENT_SECRET", "")
 AMZ_ADS_REFRESH_TOKEN = os.getenv("AMZ_ADS_REFRESH_TOKEN", "")
 
+# Amazon JP Ads (separate OAuth app)
+AMZ_ADS_JP_CLIENT_ID = os.getenv("AMZ_ADS_JP_CLIENT_ID", "")
+AMZ_ADS_JP_CLIENT_SECRET = os.getenv("AMZ_ADS_JP_CLIENT_SECRET", "")
+AMZ_ADS_JP_REFRESH_TOKEN = os.getenv("AMZ_ADS_JP_REFRESH_TOKEN", "")
+AMZ_ADS_JP_PROFILE_ID = os.getenv("AMZ_ADS_JP_PROFILE_ID", "3736142261021843")
+
+# Meta JP Ads
+META_JP_ACCESS_TOKEN = os.getenv("META_JP_ACCESS_TOKEN", "")
+META_JP_AD_ACCOUNT_ID = os.getenv("META_JP_AD_ACCOUNT_ID", "")
+
 # Amazon SP-API
 AMZ_SP_CLIENT_ID = os.getenv("AMZ_SP_CLIENT_ID", "")
 AMZ_SP_CLIENT_SECRET = os.getenv("AMZ_SP_CLIENT_SECRET", "")
@@ -604,8 +614,15 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
                           ad_product="SPONSORED_PRODUCTS",
                           report_type_id="spCampaigns",
                           columns=None,
-                          base_url="https://advertising-api.amazon.com"):
-    """Submit, poll, download a single Amazon Ads report chunk."""
+                          base_url="https://advertising-api.amazon.com",
+                          headers_fn=None):
+    """Submit, poll, download a single Amazon Ads report chunk.
+
+    headers_fn: optional callable() -> base headers dict for token refresh during polling.
+                Defaults to _fresh_amz_ads_headers (US). Pass JP equivalent for JP endpoint.
+    """
+    if headers_fn is None:
+        headers_fn = _fresh_amz_ads_headers
     if columns is None:
         columns = ["date", "campaignId", "impressions", "clicks",
                    "cost", "sales14d", "purchases14d"]
@@ -633,7 +650,7 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
         # Poll (refresh headers each iteration to avoid token expiry)
         for _ in range(40):  # 40 * 15s = 10min max
             time.sleep(15)
-            headers = {**_fresh_amz_ads_headers(),
+            headers = {**headers_fn(),
                        "Amazon-Advertising-API-Scope": profile_id}
             r2 = requests.get(
                 f"{base_url}/reporting/reports/{report_id}",
@@ -2958,6 +2975,195 @@ def collect_amazon_autocomplete(date_from, date_to):
 # MAIN ORCHESTRATOR
 # ══════════════════════════════════════════════════════════════════════════
 
+def _get_amz_ads_jp_token() -> str:
+    """Get fresh Amazon Ads JP access token."""
+    resp = requests.post("https://api.amazon.com/auth/o2/token", data={
+        "grant_type": "refresh_token",
+        "client_id": AMZ_ADS_JP_CLIENT_ID,
+        "client_secret": AMZ_ADS_JP_CLIENT_SECRET,
+        "refresh_token": AMZ_ADS_JP_REFRESH_TOKEN,
+    }, timeout=30)
+    resp.raise_for_status()
+    return resp.json()["access_token"]
+
+
+def _fresh_amz_ads_jp_headers() -> dict:
+    """Get fresh base headers for Amazon JP Ads API (used for token refresh during polling)."""
+    token = _get_amz_ads_jp_token()
+    return {
+        "Amazon-Advertising-API-ClientId": AMZ_ADS_JP_CLIENT_ID,
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+
+
+def collect_amazon_ads_jp(date_from: str, date_to: str) -> list[dict]:
+    """Collect Amazon JP Ads campaign daily metrics (FE endpoint, single profile)."""
+    if not AMZ_ADS_JP_REFRESH_TOKEN:
+        print("[Amazon Ads JP] SKIP — no AMZ_ADS_JP_REFRESH_TOKEN")
+        return []
+    print("[Amazon Ads JP] Collecting...")
+    FE_BASE = "https://advertising-api-fe.amazon.com"
+    pid = AMZ_ADS_JP_PROFILE_ID
+
+    token = _get_amz_ads_jp_token()
+    headers = {
+        "Amazon-Advertising-API-ClientId": AMZ_ADS_JP_CLIENT_ID,
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "Amazon-Advertising-API-Scope": pid,
+    }
+
+    # Campaign name map
+    campaign_names = {}
+    try:
+        h_sp = {**headers, "Content-Type": "application/vnd.spCampaign.v3+json",
+                "Accept": "application/vnd.spCampaign.v3+json"}
+        r = requests.post(f"{FE_BASE}/sp/campaigns/list", headers=h_sp,
+                          json={"maxResults": 5000}, timeout=20)
+        r.raise_for_status()
+        camps = r.json() if isinstance(r.json(), list) else r.json().get("campaigns", [])
+        for c in camps:
+            campaign_names[str(c.get("campaignId", ""))] = c.get("name", "")
+    except Exception as e:
+        print(f"  [WARN] JP campaign list: {e}")
+
+    all_rows = []
+    d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+    d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+    total_days = (d_to - d_from).days
+    chunk_days = 30 if total_days > 60 else 6
+
+    AD_TYPES = [
+        ("SP", "SPONSORED_PRODUCTS", "spCampaigns",
+         ["date", "campaignId", "impressions", "clicks", "cost", "sales14d", "purchases14d"],
+         {"sales": "sales14d", "purchases": "purchases14d"}),
+        ("SB", "SPONSORED_BRANDS", "sbCampaigns",
+         ["date", "campaignId", "impressions", "clicks", "cost", "sales", "purchases"],
+         {"sales": "sales", "purchases": "purchases"}),
+        ("SD", "SPONSORED_DISPLAY", "sdCampaigns",
+         ["date", "campaignId", "impressions", "clicks", "cost", "sales", "unitsSold"],
+         {"sales": "sales", "purchases": "unitsSold"}),
+    ]
+    for ad_type, ad_product, report_type_id, cols, field_map in AD_TYPES:
+        cur = d_from
+        type_rows = 0
+        while cur <= d_to:
+            chunk_end = min(cur + timedelta(days=chunk_days), d_to)
+            token = _get_amz_ads_jp_token()
+            h = {**headers, "Authorization": f"Bearer {token}"}
+            report_rows = _fetch_amz_ads_report(
+                h, pid, cur.isoformat(), chunk_end.isoformat(),
+                ad_product=ad_product, report_type_id=report_type_id,
+                columns=cols, base_url=FE_BASE,
+                headers_fn=_fresh_amz_ads_jp_headers,
+            )
+            for row in report_rows:
+                cid = str(row.get("campaignId", ""))
+                all_rows.append({
+                    "date": row.get("date", ""),
+                    "profile_id": pid,
+                    "brand": "Grosmimi JP",
+                    "campaign_id": cid,
+                    "campaign_name": campaign_names.get(cid, cid),
+                    "ad_type": ad_type,
+                    "impressions": int(row.get("impressions", 0)),
+                    "clicks": int(row.get("clicks", 0)),
+                    "spend": float(row.get("cost", 0)),
+                    "sales": float(row.get(field_map["sales"], 0)),
+                    "purchases": int(row.get(field_map["purchases"], 0)),
+                })
+                type_rows += 1
+            cur = chunk_end + timedelta(days=1)
+        if type_rows:
+            print(f"  GROSMIMI JAPAN {ad_type}: {type_rows} rows")
+    print(f"  [Amazon Ads JP] Total: {len(all_rows)} rows")
+    return all_rows
+
+
+def collect_meta_ads_jp(date_from: str, date_to: str) -> list[dict]:
+    """Collect Meta JP Ads ad-level daily insights (KRW currency)."""
+    if not META_JP_ACCESS_TOKEN or not META_JP_AD_ACCOUNT_ID:
+        print("[Meta Ads JP] SKIP — no META_JP_ACCESS_TOKEN or META_JP_AD_ACCOUNT_ID")
+        return []
+    print("[Meta Ads JP] Collecting...")
+    token = META_JP_ACCESS_TOKEN
+    acct = META_JP_AD_ACCOUNT_ID if META_JP_AD_ACCOUNT_ID.startswith("act_") else f"act_{META_JP_AD_ACCOUNT_ID}"
+    base = f"https://graph.facebook.com/v18.0/{acct}"
+
+    # Campaign objectives
+    objectives = {}
+    url = f"{base}/campaigns?fields=id,name,objective,status&limit=500&access_token={token}"
+    while url:
+        r = requests.get(url, timeout=30)
+        r.raise_for_status()
+        data = r.json()
+        for c in data.get("data", []):
+            objectives[c["id"]] = {"name": c.get("name", ""), "objective": c.get("objective", "")}
+        url = data.get("paging", {}).get("next")
+    print(f"  JP Campaigns: {len(objectives)}")
+
+    # Daily insights
+    all_rows = []
+    d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+    d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+    cur = d_from
+    while cur <= d_to:
+        chunk_end = min(cur + timedelta(days=14), d_to)
+        url = (f"{base}/insights?level=ad&time_increment=1"
+               f"&time_range={{\"since\":\"{cur.isoformat()}\",\"until\":\"{chunk_end.isoformat()}\"}}"
+               f"&fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,adset_name,"
+               f"impressions,clicks,spend,reach,frequency,actions,action_values"
+               f"&limit=500&access_token={token}")
+        page_count = 0
+        while url:
+            r = requests.get(url, timeout=60)
+            r.raise_for_status()
+            data = r.json()
+            for row in data.get("data", []):
+                cid = row.get("campaign_id", "")
+                obj = objectives.get(cid, {}).get("objective", "")
+                ctype = "traffic" if obj in (
+                    "LINK_CLICKS", "POST_ENGAGEMENT", "REACH", "BRAND_AWARENESS", "VIDEO_VIEWS"
+                ) else "cvr"
+                purchases = 0
+                purchase_value = 0.0
+                for a in (row.get("actions") or []):
+                    if a.get("action_type") == "purchase":
+                        purchases = int(a.get("value", 0))
+                for av in (row.get("action_values") or []):
+                    if av.get("action_type") == "purchase":
+                        purchase_value = float(av.get("value", 0))
+                all_rows.append({
+                    "date": row.get("date_start", ""),
+                    "ad_id": row.get("ad_id", ""),
+                    "ad_name": row.get("ad_name", ""),
+                    "campaign_id": cid,
+                    "campaign_name": row.get("campaign_name", ""),
+                    "adset_id": row.get("adset_id", ""),
+                    "adset_name": row.get("adset_name", ""),
+                    "brand": "Grosmimi JP",
+                    "campaign_type": ctype,
+                    "objective": obj,
+                    "impressions": int(row.get("impressions", 0)),
+                    "clicks": int(row.get("clicks", 0)),
+                    "spend": float(row.get("spend", 0)),
+                    "reach": int(row.get("reach", 0)),
+                    "frequency": float(row.get("frequency", 0)),
+                    "purchases": purchases,
+                    "purchase_value": purchase_value,
+                    "landing_url": "",
+                    "region": "jp",
+                    "currency": "KRW",
+                })
+            url = data.get("paging", {}).get("next")
+            page_count += 1
+        print(f"  JP {cur} ~ {chunk_end}: {page_count} pages")
+        cur = chunk_end + timedelta(days=1)
+    print(f"  [Meta Ads JP] Total: {len(all_rows)} rows")
+    return all_rows
+
+
 CHANNEL_COLLECTORS = {
     "amazon_ads": ("amazon_ads_daily", collect_amazon_ads),
     "amazon_ads_search_terms": ("amazon_ads_search_terms", collect_amazon_ads_search_terms),
@@ -2965,7 +3171,9 @@ CHANNEL_COLLECTORS = {
     "amazon_sales": ("amazon_sales_daily", collect_amazon_sales),
     "amazon_brand_analytics": ("amazon_brand_analytics", collect_amazon_brand_analytics),
     "amazon_campaigns": ("amazon_campaigns", collect_amazon_campaigns),
+    "amazon_ads_jp": ("amazon_ads_daily", collect_amazon_ads_jp),
     "meta": ("meta_ads_daily", collect_meta_ads),
+    "meta_jp": ("meta_ads_daily", collect_meta_ads_jp),
     "meta_campaigns": ("meta_campaigns", collect_meta_campaigns),
     "google": ("google_ads_daily", collect_google_ads),
     "google_ads_search_terms": ("google_ads_search_terms", collect_google_ads_search_terms),
