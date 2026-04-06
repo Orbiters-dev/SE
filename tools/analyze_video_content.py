@@ -33,64 +33,71 @@ from ci.downloader import get_cdn_url, extract_audio_and_frames
 from ci.whisper_transcriber import transcribe, detect_product_mention, analyze_script
 from ci.vision_tagger import analyze_frames
 
-ORBITOOLS_URL = os.getenv("ORBITOOLS_URL", "https://orbitools.orbiters.co.kr")
-ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "admin")
-ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
+DB_HOST = os.getenv("DB_HOST", "172.31.13.240")
+DB_NAME = os.getenv("DB_NAME", "export_calculator_db")
+DB_USER = os.getenv("DB_USER", "es_db_user")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "orbit1234")
 
 
-def _auth():
-    return "Basic " + base64.b64encode(f"{ORBITOOLS_USER}:{ORBITOOLS_PASS}".encode()).decode()
+def _get_conn():
+    import psycopg2
+    return psycopg2.connect(host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD)
 
 
 def fetch_video_posts(region: str, vision_only: bool = False) -> list[dict]:
-    """PG에서 영상 포스트 가져오기.
-    vision_only=True: transcript 있고 brand_fit_score 없는 것 (Vision pass만 필요)
-    vision_only=False: transcript 없는 것 (전체 파이프라인 필요)
-    """
-    url = f"{ORBITOOLS_URL}/api/onzenna/discovery/posts/?region={region}&limit=5000"
-    req = urllib.request.Request(url)
-    req.add_header("Authorization", _auth())
-    with urllib.request.urlopen(req, timeout=30) as r:
-        data = json.loads(r.read())
-    posts = data.get("results", [])
+    """PG에서 영상 포스트 가져오기 (direct DB query)."""
+    conn = _get_conn()
+    cur = conn.cursor()
 
     if vision_only:
-        video_posts = [
-            p for p in posts
-            if p.get("transcript")
-            and not p.get("brand_fit_score")
-            and p.get("url")
-        ]
-        print(f"[FETCH] {len(posts)} total, {len(video_posts)} with transcript but no brand_fit (Vision-only)")
+        cur.execute("""
+            SELECT post_id, username, url, views_30d, post_date, platform, transcript
+            FROM gk_content_posts
+            WHERE region = %s
+              AND transcript IS NOT NULL AND LENGTH(transcript) > 0
+              AND (brand_fit_score IS NULL OR brand_fit_score = 0)
+              AND url IS NOT NULL AND url != ''
+            ORDER BY views_30d DESC NULLS LAST
+        """, (region,))
     else:
-        video_posts = [
-            p for p in posts
-            if (p.get("content_type") or "").lower() in ("video", "reel")
-            and not p.get("transcript")  # 아직 처리 안 된 것만
-            and p.get("url")
-        ]
-        print(f"[FETCH] {len(posts)} total posts, {len(video_posts)} videos to analyze (IG+TT)")
-    return video_posts
+        cur.execute("""
+            SELECT post_id, username, url, views_30d, post_date, platform, transcript
+            FROM gk_content_posts
+            WHERE region = %s
+              AND (transcript IS NULL OR transcript = '')
+              AND url IS NOT NULL AND url != ''
+            ORDER BY views_30d DESC NULLS LAST
+        """, (region,))
+
+    rows = cur.fetchall()
+    conn.close()
+
+    posts = []
+    for post_id, username, url, views, post_date, platform, transcript in rows:
+        posts.append({
+            "post_id": post_id,
+            "handle": username or "",
+            "url": url,
+            "views": views or 0,
+            "post_date": str(post_date) if post_date else None,
+            "platform": platform or "instagram",
+            "transcript": transcript or "",
+        })
+
+    if vision_only:
+        print(f"[FETCH] {len(posts)} posts with transcript but no brand_fit (Vision-only)")
+    else:
+        print(f"[FETCH] {len(posts)} posts needing transcript")
+    return posts
 
 
 def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
-    """분석 결과를 PG에 upsert."""
+    """분석 결과를 PG에 upsert (direct DB update)."""
     if dry_run:
         print(f"  [DRY-RUN] Would update: {json.dumps(results, ensure_ascii=False)[:100]}")
         return True
 
-    # Core CI fields (individual columns)
-    post_payload = {
-        "url": post_url,
-        "transcript": results.get("transcript", ""),
-        "scene_fit": results.get("scene_fit", ""),
-        "has_subtitles": results.get("has_subtitles", False),
-        "brand_fit_score": results.get("brand_fit_score", 0),
-        "scene_tags": ",".join(results.get("scene_tags", [])),
-        "product_mention": results.get("product_mention", False),
-        "subject_age": results.get("subject_age", ""),
-    }
-    # Extended analysis → ci_analysis JSON
+    # Build ci_analysis JSON
     ci = {}
     for k in ("hook_score", "hook_type", "storytelling_score", "authenticity_score",
               "delivery_score", "emotional_tone", "demo_present", "cta_present",
@@ -99,24 +106,36 @@ def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
               "repeat_watchability", "reasoning"):
         if k in results:
             ci[k] = results[k]
-    if ci:
-        post_payload["ci_analysis"] = ci
-    if results.get("handle"):
-        post_payload["handle"] = results["handle"]
-    if results.get("views") is not None:
-        post_payload["views"] = results["views"]
-    body = json.dumps({"posts": [post_payload]}).encode()
-
-    req = urllib.request.Request(
-        f"{ORBITOOLS_URL}/api/onzenna/discovery/posts/",
-        data=body, method="POST"
-    )
-    req.add_header("Authorization", _auth())
-    req.add_header("Content-Type", "application/json")
 
     try:
-        with urllib.request.urlopen(req, timeout=15) as r:
-            return r.status < 300
+        conn = _get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE gk_content_posts SET
+                transcript = %s,
+                scene_fit = %s,
+                has_subtitles = %s,
+                brand_fit_score = %s,
+                scene_tags = %s,
+                product_mention = %s,
+                subject_age = %s,
+                ci_analysis = %s
+            WHERE url = %s
+        """, (
+            results.get("transcript", ""),
+            results.get("scene_fit", ""),
+            results.get("has_subtitles", False),
+            results.get("brand_fit_score", 0),
+            ",".join(results.get("scene_tags", [])),
+            results.get("product_mention", False),
+            results.get("subject_age", ""),
+            json.dumps(ci, ensure_ascii=False) if ci else None,
+            post_url,
+        ))
+        conn.commit()
+        updated = cur.rowcount > 0
+        conn.close()
+        return updated
     except Exception as e:
         print(f"  [PG] Update failed: {e}")
         return False
