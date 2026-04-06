@@ -2380,7 +2380,7 @@ function importFromDiscovery() {
 
   var u = localStorage.getItem('dk_user') || 'admin';
   var p = localStorage.getItem('dk_pass') || 'orbit1234';
-  fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-from-discovery/', {
+  fetch('https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-discovery/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(u + ':' + p) },
     body: JSON.stringify({ region: 'jp', limit: 200, min_followers: 1000 })
