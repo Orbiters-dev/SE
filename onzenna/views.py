@@ -835,6 +835,8 @@ def bulk_check_gmail_contacts(request):
         return JsonResponse({"error": "emails array required"}, status=400)
 
     emails_lower = [e.strip().lower() for e in emails if isinstance(e, str)]
+
+    # 1. Gmail RAG check (affiliates@onzenna + hello@zezebaebae)
     found = GmailContact.objects.filter(email__in=emails_lower)
     found_map = {}
     for c in found:
@@ -844,6 +846,22 @@ def bulk_check_gmail_contacts(request):
             "total_sent": c.total_sent,
             "last_contact_date": c.last_contact_date.isoformat() if c.last_contact_date else None,
         }
+
+    # 2. ManyChat cross-check — is_manychat_contact=True in pipeline_creators
+    manychat_emails = set(
+        PipelineCreator.objects.filter(
+            is_manychat_contact=True,
+            email__in=emails_lower,
+        ).values_list("email", flat=True)
+    )
+    for e in manychat_emails:
+        if e not in found_map:
+            found_map[e] = {
+                "name": "",
+                "account": "manychat",
+                "total_sent": 0,
+                "last_contact_date": None,
+            }
 
     results = {}
     for e in emails_lower:
@@ -1026,6 +1044,10 @@ def pipeline_creators_list(request):
     status = request.GET.get("status")
     if status:
         qs = qs.filter(pipeline_status=status)
+
+    region = request.GET.get("region")
+    if region:
+        qs = qs.filter(region__iexact=region)
 
     brand = request.GET.get("brand")
     if brand:
