@@ -3,6 +3,7 @@ name: Apify Content Daily Pipeline
 on:
   schedule:
     - cron: '0 23 * * *'   # KST Daily 08:00 (= UTC 23:00)
+    - cron: '0 22 * * 0'   # KST Monday 07:00 (= UTC Sunday 22:00) — weekly reels
   workflow_dispatch:
     inputs:
       region:
@@ -162,11 +163,12 @@ jobs:
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
         run: |
-          DOW=$(date -u +%u)  # 1=Mon ... 7=Sun
-          if [ "$DOW" = "1" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          DOW=$(date -u +%u)  # UTC: 1=Mon...7=Sun — cron runs UTC 23:00 = KST next day 08:00
+          # UTC Sunday(7) = KST Monday 08:00
+          if [ "$DOW" = "7" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             python -u tools/weekly_reels_scraper.py --min-views 5000
           else
-            echo "[SKIP] Weekly reels scraper runs on Mondays only (today: DOW=$DOW)"
+            echo "[SKIP] Weekly reels scraper runs KST Mondays only (UTC DOW=$DOW)"
           fi
         continue-on-error: true
 
