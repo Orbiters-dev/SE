@@ -7,7 +7,7 @@ on:
   workflow_dispatch:         # manual trigger
     inputs:
       channel:
-        description: 'Channel to collect (all, amazon_ads, amazon_ads_search_terms, amazon_ads_keywords, amazon_brand_analytics, amazon_sales, meta, google, google_ads_search_terms, ga4, klaviyo, shopify, gsc, dataforseo)'
+        description: 'Channel to collect (all, amazon_ads, amazon_ads_jp, amazon_ads_search_terms, amazon_ads_keywords, amazon_brand_analytics, amazon_sales, meta, meta_jp, google, google_ads_search_terms, ga4, klaviyo, shopify, gsc, dataforseo, rakuten)'
         required: false
         default: 'all'
       days:
@@ -62,6 +62,17 @@ jobs:
           AMZ_SP_MARKETPLACE_ID=ATVPDKIKX0DER
           META_ACCESS_TOKEN=${{ secrets.META_ACCESS_TOKEN }}
           META_AD_ACCOUNT_ID=${{ secrets.META_AD_ACCOUNT_ID }}
+          META_JP_ACCESS_TOKEN=${{ secrets.META_JP_ACCESS_TOKEN }}
+          META_JP_AD_ACCOUNT_ID=${{ secrets.META_JP_AD_ACCOUNT_ID }}
+          AMZ_ADS_JP_CLIENT_ID=${{ secrets.AMZ_ADS_JP_CLIENT_ID }}
+          AMZ_ADS_JP_CLIENT_SECRET=${{ secrets.AMZ_ADS_JP_CLIENT_SECRET }}
+          AMZ_ADS_JP_REFRESH_TOKEN=${{ secrets.AMZ_ADS_JP_REFRESH_TOKEN }}
+          AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP=${{ secrets.AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP }}
+          AMZ_SP_GROSMIMI_JP_CLIENT_ID=${{ secrets.AMZ_SP_GROSMIMI_JP_CLIENT_ID }}
+          AMZ_SP_GROSMIMI_JP_CLIENT_SECRET=${{ secrets.AMZ_SP_GROSMIMI_JP_CLIENT_SECRET }}
+          AMZ_SP_GROSMIMI_JP_SELLER_ID=${{ secrets.AMZ_SP_GROSMIMI_JP_SELLER_ID }}
+          RAKUTEN_SERVICE_SECRET=${{ secrets.RAKUTEN_SERVICE_SECRET }}
+          RAKUTEN_LICENSE_KEY=${{ secrets.RAKUTEN_LICENSE_KEY }}
           SHOPIFY_SHOP=${{ secrets.SHOPIFY_SHOP }}
           SHOPIFY_ACCESS_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}
           GOOGLE_ADS_DEVELOPER_TOKEN=${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
