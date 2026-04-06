@@ -3743,11 +3743,9 @@ async function onDiscoveryDateSelect(val){
   var group=_weekGroups.find(function(g){return g.key===val});
   if(group){
     var cnt=group.count;
-    document.getElementById('f-creators-contacted').value=cnt;
-    var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
-    updateAllocation();
+    // Batch Size는 사용자가 직접 설정 — 자동으로 덮어쓰지 않음
     if(hintEl){
-      hintEl.textContent='\u2713 '+group.label+' \u2014 '+cnt+'\uBA85 ('+group.dates.length+'\uC77C\uAC04 \uBC1C\uACAC) \u2192 Batch Size \uC790\uB3D9 \uC124\uC815';
+      hintEl.textContent='\u2713 '+group.label+' \u2014 '+cnt+'\uBA85 ('+group.dates.length+'\uC77C\uAC04 \uBC1C\uACAC)';
       hintEl.style.color='var(--g)';hintEl.style.display='block';
     }
     // Fetch HT/LT split from server (all dates in week group)
@@ -3757,9 +3755,6 @@ async function onDiscoveryDateSelect(val){
   // Fallback: raw date
   if(_dateCountMap[val]!==undefined){
     var cnt=_dateCountMap[val];
-    document.getElementById('f-creators-contacted').value=cnt;
-    var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
-    updateAllocation();
     if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.display='block'}
     _fetchHtLtSplit([val]);
     return;
@@ -3769,9 +3764,6 @@ async function onDiscoveryDateSelect(val){
     var data=await apiFetch('/pipeline/creators/?status=Not+Started&discovery_date='+val+'&limit=1');
     var cnt=data.total||data.count||0;
     _dateCountMap[val]=cnt;
-    document.getElementById('f-creators-contacted').value=cnt;
-    var l=document.getElementById('alloc-batch-label');if(l)l.textContent=cnt;
-    updateAllocation();
     if(hintEl){hintEl.textContent='\u2713 '+val+' \u2014 Not Started '+cnt+'\uBA85';hintEl.style.color='var(--g)';hintEl.style.display='block'}
     _fetchHtLtSplit([val]);
   }catch(e){if(hintEl){hintEl.textContent='\uC870\uD68C \uC2E4\uD328';hintEl.style.color='var(--r)'}}
