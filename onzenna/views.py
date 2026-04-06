@@ -3290,6 +3290,46 @@ def sync_transcripts(request):
     }))
 
 
+# --- GK Transcripts (for brand keyword matching) ---
+
+@csrf_exempt
+def gk_transcripts(request):
+    """POST: return concatenated transcripts per username from gk_content_posts."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    usernames = body.get("usernames", [])
+    if not usernames or not isinstance(usernames, list):
+        return _cors_headers(request, JsonResponse({"results": {}, "total": 0}))
+
+    # Limit to 500 usernames
+    usernames = usernames[:500]
+    placeholders = ",".join(["%s"] * len(usernames))
+
+    from django.db import connection
+    with connection.cursor() as cur:
+        cur.execute(f"""
+            SELECT LOWER(username), STRING_AGG(COALESCE(transcript, '') || ' ' || COALESCE(caption, ''), ' ')
+            FROM gk_content_posts
+            WHERE LOWER(username) IN ({placeholders})
+            GROUP BY LOWER(username)
+        """, [u.lower() for u in usernames])
+        rows = cur.fetchall()
+
+    results = {}
+    for username, text in rows:
+        if text and text.strip():
+            results[username] = text.strip()[:2000]  # cap at 2000 chars per user
+
+    return _cors_headers(request, JsonResponse({
+        "results": results,
+        "total": len(results),
+    }))
+
+
 # --- Email Verify (basic syntax + @discovered.* check) ---
 
 @csrf_exempt

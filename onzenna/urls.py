@@ -77,6 +77,7 @@ urlpatterns = [
     path("pipeline/creators/sync-transcripts/", views.sync_transcripts, name="sync_transcripts"),
     path("pipeline/creators/transcript-lang-check/", views.transcript_lang_check, name="transcript_lang_check"),
     path("pipeline/creators/email-verify/", views.email_verify, name="email_verify"),
+    path("pipeline/creators/gk-transcripts/", views.gk_transcripts, name="gk_transcripts"),
 
     # Email Reply Config (n8n + dashboard)
     path("pipeline/email-config/", views.email_config_list, name="email_config_list"),
