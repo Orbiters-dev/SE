@@ -54,6 +54,7 @@ VALID_TABLES = [
     "ga4_daily", "klaviyo_daily",
     "gsc_daily", "dataforseo_keywords",
     "content_posts", "content_metrics_daily", "influencer_orders",
+    "rakuten_orders_daily",
 ]
 
 

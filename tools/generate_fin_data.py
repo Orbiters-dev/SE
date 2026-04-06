@@ -4081,6 +4081,7 @@ def generate():
         "weekly": weekly_data,
         "hero_products": hero_data,
         "search_ranking": _build_search_ranking_data(),
+        "jp": _build_jp_data(amazon_sales, dk),
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
@@ -4202,6 +4203,64 @@ def _build_autocomplete_data() -> dict:
     all_dates = sorted(set(r.get("date", "") for r in rows))
     print(f"  [autocomplete] {len(rows)} rows, {len(all_dates)} dates, {len(latest)} brands")
     return {"latest": latest, "trends": trends, "dates": all_dates}
+
+
+def _build_jp_data(amazon_sales: list, dk) -> dict:
+    """Build JP marketplace data for dashboard JP tab.
+
+    Returns:
+    {
+      "amazon": {"months": [...], "revenue": [...], "orders": [...], "units": [...]},
+      "rakuten": {"months": [...], "revenue": [...], "orders": [...], "units": [...]}
+    }
+    Revenue in JPY (as-is from API).
+    """
+    from collections import defaultdict
+
+    # ── Amazon JP ─────────────────────────────────────────────────────────────
+    JP_SELLER_ID = "A1A01CME113JSP"
+    amz_monthly = defaultdict(lambda: {"revenue": 0.0, "orders": 0, "units": 0})
+    for r in amazon_sales:
+        if r.get("seller_id") == JP_SELLER_ID:
+            m = (r.get("date") or "")[:7]
+            if m:
+                amz_monthly[m]["revenue"] += float(r.get("net_sales") or 0)
+                amz_monthly[m]["orders"] += int(r.get("orders") or 0)
+                amz_monthly[m]["units"] += int(r.get("units") or 0)
+
+    amz_months = sorted(amz_monthly.keys())
+    amz_out = {
+        "months": amz_months,
+        "revenue": [round(amz_monthly[m]["revenue"]) for m in amz_months],
+        "orders": [amz_monthly[m]["orders"] for m in amz_months],
+        "units": [amz_monthly[m]["units"] for m in amz_months],
+    }
+
+    # ── Rakuten ───────────────────────────────────────────────────────────────
+    rak_rows = []
+    try:
+        rak_rows = dk.get("rakuten_orders_daily", days=500) or []
+    except Exception:
+        pass
+
+    rak_monthly = defaultdict(lambda: {"revenue": 0.0, "orders": 0, "units": 0})
+    for r in rak_rows:
+        m = (r.get("date") or "")[:7]
+        if m:
+            rak_monthly[m]["revenue"] += float(r.get("revenue") or 0)
+            rak_monthly[m]["orders"] += int(r.get("orders") or 0)
+            rak_monthly[m]["units"] += int(r.get("units") or 0)
+
+    rak_months = sorted(rak_monthly.keys())
+    rak_out = {
+        "months": rak_months,
+        "revenue": [round(rak_monthly[m]["revenue"]) for m in rak_months],
+        "orders": [rak_monthly[m]["orders"] for m in rak_months],
+        "units": [rak_monthly[m]["units"] for m in rak_months],
+    }
+
+    print(f"  [JP] Amazon JP: {len(amz_months)} months, Rakuten: {len(rak_months)} months")
+    return {"amazon": amz_out, "rakuten": rak_out}
 
 
 def _build_search_ranking_data() -> dict:
