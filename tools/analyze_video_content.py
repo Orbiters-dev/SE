@@ -110,28 +110,39 @@ def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
     try:
         conn = _get_conn()
         cur = conn.cursor()
+
+        # Build dynamic SET clause — only update columns that exist
+        set_parts = ["transcript = %s"]
+        params = [results.get("transcript", "")]
+
+        # Check which CI columns exist in the table
         cur.execute("""
-            UPDATE gk_content_posts SET
-                transcript = %s,
-                scene_fit = %s,
-                has_subtitles = %s,
-                brand_fit_score = %s,
-                scene_tags = %s,
-                product_mention = %s,
-                subject_age = %s,
-                ci_analysis = %s
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'gk_content_posts'
+              AND column_name IN ('scene_fit','has_subtitles','brand_fit_score',
+                                  'scene_tags','product_mention','subject_age','ci_analysis')
+        """)
+        existing_cols = {r[0] for r in cur.fetchall()}
+
+        col_map = {
+            "scene_fit": results.get("scene_fit", ""),
+            "has_subtitles": results.get("has_subtitles", False),
+            "brand_fit_score": results.get("brand_fit_score", 0),
+            "scene_tags": ",".join(results.get("scene_tags", [])),
+            "product_mention": results.get("product_mention", False),
+            "subject_age": results.get("subject_age", ""),
+            "ci_analysis": json.dumps(ci, ensure_ascii=False) if ci else None,
+        }
+        for col, val in col_map.items():
+            if col in existing_cols:
+                set_parts.append(f"{col} = %s")
+                params.append(val)
+
+        params.append(post_url)
+        cur.execute(f"""
+            UPDATE gk_content_posts SET {', '.join(set_parts)}
             WHERE url = %s
-        """, (
-            results.get("transcript", ""),
-            results.get("scene_fit", ""),
-            results.get("has_subtitles", False),
-            results.get("brand_fit_score", 0),
-            ",".join(results.get("scene_tags", [])),
-            results.get("product_mention", False),
-            results.get("subject_age", ""),
-            json.dumps(ci, ensure_ascii=False) if ci else None,
-            post_url,
-        ))
+        """, params)
         conn.commit()
         updated = cur.rowcount > 0
         conn.close()
