@@ -311,7 +311,21 @@ def generate():
     meta_ads = dk.get("meta_ads_daily", days=days_back)
     google_ads = dk.get("google_ads_daily", days=days_back)
     ga4 = dk.get("ga4_daily", days=days_back)
-    search_terms = dk.get("amazon_ads_search_terms", days=30, limit=50000)
+    # Fetch search terms per brand + weekly chunks to avoid 10k API limit truncation
+    search_terms = []
+    _st_start = (today - timedelta(days=30))
+    for _st_brand in ["Grosmimi", "CHA&MOM", "Naeiae"]:
+        _st_cur = _st_start
+        _st_brand_total = 0
+        while _st_cur <= today:
+            _st_end = min(_st_cur + timedelta(days=6), today)
+            _st = dk.get("amazon_ads_search_terms", date_from=_st_cur.isoformat(),
+                         date_to=_st_end.isoformat(), limit=50000, brand=_st_brand)
+            search_terms.extend(_st)
+            _st_brand_total += len(_st)
+            _st_cur = _st_end + timedelta(days=1)
+        print(f"    Search terms [{_st_brand}]: {_st_brand_total} rows")
+    print(f"    Search terms total: {len(search_terms)} rows")
     gsc = dk.get("gsc_daily", days=30)
     shopify_sku = dk.get("shopify_orders_sku_daily", date_from="2025-06-01")
     amazon_sku = dk.get("amazon_sales_sku_daily", days=days_back)
