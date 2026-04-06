@@ -3584,7 +3584,7 @@ function addResource(){
 
 // ========== ELIGIBLE ALLOCATION ==========
 function updateAllocation(){
-  var batch=parseInt(document.getElementById('f-creators-contacted').value)||10;
+  var batch=_lastEligible||parseInt(document.getElementById('f-creators-contacted').value)||10;
   var g=parseInt(document.getElementById('alloc-grosmimi').value)||0;
   var c=parseInt(document.getElementById('alloc-chaenmom').value)||0;
   var n=parseInt(document.getElementById('alloc-naeiae').value)||0;
@@ -4395,6 +4395,7 @@ var _ftCache=null; // cached Not Started creators (filtered by selected week)
 var _ftCacheWeek=null; // which week key was cached
 var _ftResults={}; // cached per-feature results
 var _ftServerStats=null; // server-side filter stats (accurate totals)
+var _lastEligible=0; // eligible count from last filter check (used by Brand Allocation)
 
 async function ensureFtCache(){
   // Get selected week from dropdown
@@ -4769,7 +4770,9 @@ function updateFtSummary(){
 
   document.getElementById('ft-eligible-count').textContent=ltEligible;
   document.getElementById('ft-total-count').textContent=totalAll;
-  // Batch Size는 사용자가 직접 설정 — eligible count로 덮어쓰지 않음
+  // Brand Allocation은 eligible 기준으로 계산
+  _lastEligible=ltEligible;
+  document.getElementById('alloc-batch-label').textContent=ltEligible;
   updateAllocation();
   // Show server stats accuracy note if client loaded fewer than server total
   var clientLoaded=all.length;
