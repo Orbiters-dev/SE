@@ -1378,7 +1378,7 @@ def pipeline_filter_stats(request):
 
     total = qs.count()
     with_email = qs.exclude(
-        Q(email__endswith='@discovered.syncly') | Q(email='')
+        Q(email__contains='@discovered.') | Q(email='') | Q(email__isnull=True)
     ).count()
     no_email = total - with_email
     business = qs.filter(is_business_account=True).count()
