@@ -797,6 +797,12 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <span style="font-weight:700;color:var(--g)">Grosmimi</span>
             <span style="font-size:9px;color:var(--dim);padding:3px 0">&#x2190; default (&#xC704; &#xB450; &#xBE0C;&#xB79C;&#xB4DC;&#xC5D0; &#xD574;&#xB2F9; &#xC548; &#xB418;&#xBA74; &#xC804;&#xBD80; Grosmimi)</span>
           </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:9px;font-weight:700;color:var(--dim);white-space:nowrap">키워드 느슨도</span>
+            <input type="range" id="kw-looseness" min="1" max="4" value="2" step="1" style="width:100px;accent-color:var(--a)" oninput="updateLoosenessLabel(this.value)">
+            <span id="kw-looseness-label" style="font-size:9px;font-weight:700;color:var(--a);min-width:80px">Normal (2)</span>
+            <span id="kw-looseness-desc" style="font-size:8px;color:var(--dim)">키워드 전체 포함 시 매칭</span>
+          </div>
         </div>
 
         <!-- Brand Allocation -->
@@ -1972,6 +1978,26 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   html+=_row(HT_STAGES,htCounts,HIL_HT);
   html+='</div>';
   html+='</div>';
+
+  // Archived trash bin — separate from pipeline
+  var archivedCount=statusCounts['Archived']||0;
+  var declinedCount=statusCounts['Declined']||0;
+  var isArchActive=('Archived'===activeStatus)?' on':'';
+  var isDecActive=('Declined'===activeStatus)?' on':'';
+  if(archivedCount||declinedCount){
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:6px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;border-style:dashed">';
+    html+='<span style="font-size:11px;color:#dc2626;opacity:.6">&#x1F5D1;</span>';
+    html+='<span style="font-size:9px;color:#dc2626;font-weight:700;opacity:.7">제외됨</span>';
+    if(archivedCount){
+      html+='<div class="fn'+isArchActive+'" onclick="filterByStatus(\'Archived\')" style="border:1px dashed #fca5a5;background:#fff5f5;padding:3px 8px;min-width:auto">';
+      html+='<div class="fi" style="font-size:12px;color:#dc2626">'+archivedCount+'</div><div class="ft" style="font-size:7px;color:#dc2626">Archived</div></div>';
+    }
+    if(declinedCount){
+      html+='<div class="fn'+isDecActive+'" onclick="filterByStatus(\'Declined\')" style="border:1px dashed #fca5a5;background:#fff5f5;padding:3px 8px;min-width:auto">';
+      html+='<div class="fi" style="font-size:12px;color:#dc2626">'+declinedCount+'</div><div class="ft" style="font-size:7px;color:#dc2626">Declined</div></div>';
+    }
+    html+='</div>';
+  }
 
   el.innerHTML=html;
 }
@@ -4272,6 +4298,22 @@ function executeRemoteCommand(cmd){
   else{console.log('[Remote] Unknown action:',a)}
 }
 // ========== BRAND AUTO-ALLOCATION ==========
+function updateLoosenessLabel(v){
+  v=parseInt(v);
+  var labels={1:'Strict (1)',2:'Normal (2)',3:'Loose (3)',4:'Very Loose (4)'};
+  var descs={
+    1:'DB 브랜드 태그만 사용, 키워드 무시',
+    2:'키워드 전체 포함 시 매칭',
+    3:'키워드 내 단어 하나라도 포함 시 매칭',
+    4:'키워드 단어 앞 4글자 prefix 매칭'
+  };
+  var colors={1:'#6b7280',2:'var(--a)',3:'#f59e0b',4:'#ef4444'};
+  var el=document.getElementById('kw-looseness-label');
+  var desc=document.getElementById('kw-looseness-desc');
+  if(el){el.textContent=labels[v]||v;el.style.color=colors[v]||'var(--a)'}
+  if(desc)desc.textContent=descs[v]||'';
+}
+
 async function autoFillAllocation(){
   var creators=_ftCache;
   if(!creators){
@@ -4282,24 +4324,35 @@ async function autoFillAllocation(){
     }catch(e){showToast('Failed to load creators: '+e.message,'err');return}
   }
 
-  // Read keyword rules from inputs
+  // Read keyword rules + looseness level
   var naeKw=(document.getElementById('brand-kw-naeiae').value||'').toLowerCase().split(',').map(function(s){return s.trim()}).filter(Boolean);
   var chamKw=(document.getElementById('brand-kw-chaenmom').value||'').toLowerCase().split(',').map(function(s){return s.trim()}).filter(Boolean);
+  var looseness=parseInt(document.getElementById('kw-looseness').value)||2;
+
+  // matchKw: returns true if text matches keywords at given looseness level
+  // L1=DB tag only (no fallback), L2=exact substring, L3=any word in phrase, L4=prefix(5chars)
+  function matchKw(text,kws){
+    if(looseness===1)return false; // strict: DB tag only, no keyword fallback
+    return kws.some(function(kw){
+      if(looseness===2) return text.includes(kw);           // exact phrase
+      if(looseness===3) return kw.split(' ').some(function(w){return w.length>2&&text.includes(w)}); // any word
+      if(looseness===4) return kw.split(' ').some(function(w){return w.length>2&&text.includes(w.slice(0,4))}); // prefix 4chars
+      return text.includes(kw);
+    });
+  }
 
   // Classify each creator by content/hashtag keywords
   var counts={Grosmimi:0,'CHA&MOM':0,Naeiae:0};
   creators.forEach(function(c){
-    var brand=c.brand||'';
-    // If already classified by the API, use that
-    if(brand==='Naeiae'){counts.Naeiae++;return}
-    if(brand==='CHA&MOM'||brand==='cha&mom'){counts['CHA&MOM']++;return}
-    if(brand==='Grosmimi'){counts.Grosmimi++;return}
-    // Fallback: check content text for keyword classification
-    var text=((c.ig_handle||'')+(c.tiktok_handle||'')+(c.notes||'')).toLowerCase();
-    var isNae=naeKw.some(function(kw){return text.includes(kw)});
-    if(isNae){counts.Naeiae++;return}
-    var isCham=chamKw.some(function(kw){return text.includes(kw)});
-    if(isCham){counts['CHA&MOM']++;return}
+    var brand=(c.brand||'').toLowerCase();
+    // If already classified by the API, use that (case-insensitive)
+    if(brand==='naeiae'){counts.Naeiae++;return}
+    if(brand==='cha&mom'){counts['CHA&MOM']++;return}
+    if(brand==='grosmimi'){counts.Grosmimi++;return}
+    // Fallback: check handle + notes + transcript + caption for keyword classification
+    var text=((c.ig_handle||'')+(c.tiktok_handle||'')+(c.notes||'')+(c.top_post_transcript||'')+(c.top_post_caption||'')+(c.apify_posted_brands||'')).toLowerCase();
+    if(matchKw(text,naeKw)){counts.Naeiae++;return}
+    if(matchKw(text,chamKw)){counts['CHA&MOM']++;return}
     // Default: Grosmimi
     counts.Grosmimi++;
   });
@@ -4536,8 +4589,24 @@ async function checkFeatureImpact(feature){
       expand.textContent='';expand.appendChild(el);expand.style.display=(nonEngCreators.length||noTranscript.length)?'block':'none';
 
     }else if(feature==='email'){
-      // Email Validity: syntax check + MX record via backend
-      var emails=creators.map(function(c){return c.email||''}).filter(function(e){return e&&!e.includes('@discovered.')});
+      // Email Validity: run only on eligible creators (after US Only + Business filters applied)
+      // Start from LT creators, then subtract non-English (US Only) and business accounts
+      var eligibleCreators=creators.slice();
+      if(_ftResults.us&&_ftResults.us.list){
+        var nonUsIds=new Set(_ftResults.us.list.map(function(c){return c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase()}));
+        eligibleCreators=eligibleCreators.filter(function(c){
+          var id=c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase();
+          return !nonUsIds.has(id);
+        });
+      }
+      if(_ftResults.brand&&_ftResults.brand.list){
+        var bizIds=new Set(_ftResults.brand.list.map(function(c){return c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase()}));
+        eligibleCreators=eligibleCreators.filter(function(c){
+          var id=c.id||String(c.ig_handle||c.tiktok_handle||'').toLowerCase();
+          return !bizIds.has(id);
+        });
+      }
+      var emails=eligibleCreators.map(function(c){return c.email||''}).filter(function(e){return e&&!e.includes('@discovered.')});
       badge.innerHTML='<span style="color:var(--dim);font-size:9px">verifying '+emails.length+' emails...</span>';
       var verifyResults={};
       try{
@@ -4546,10 +4615,14 @@ async function checkFeatureImpact(feature){
       }catch(e){console.warn('Email verify failed:',e)}
 
       var validList=[],invalidList=[],unknownList=[];
-      creators.forEach(function(c){
+      eligibleCreators.forEach(function(c){
         var e=c.email||'';
-        if(!e||e.includes('@discovered.')){return}
-        var r=verifyResults[e];
+        if(!e||e.includes('@discovered.')){
+          // No real email — treat as invalid, will be excluded from draft gen
+          invalidList.push({c:c,email:'(이메일 없음)',reason:'no real email (@discovered.syncly)'});
+          return;
+        }
+        var r=verifyResults[e]||verifyResults[e.toLowerCase()];
         if(!r){unknownList.push({c:c,email:e,reason:'no result'});return}
         if(r.valid===true){validList.push({c:c,email:e})}
         else if(r.valid===false){invalidList.push({c:c,email:e,reason:r.reason||'invalid'})}
