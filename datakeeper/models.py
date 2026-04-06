@@ -373,6 +373,21 @@ class ContentPosts(models.Model):
     region = models.CharField(max_length=10, default="us")  # us, jp
     source = models.CharField(max_length=20, default="syncly")  # syncly, apify
     collected_at = models.DateTimeField(auto_now=True)
+    # CI Vision/Whisper raw signals
+    scene_fit = models.CharField(max_length=10, blank=True, default="")  # HIGH/MED/LOW
+    has_subtitles = models.BooleanField(default=False)
+    brand_fit_score = models.IntegerField(default=0)  # 0-10
+    scene_tags = models.CharField(max_length=500, blank=True, default="")  # comma-separated
+    product_mention = models.BooleanField(default=False)
+    subject_age = models.CharField(max_length=20, blank=True, default="")  # infant/toddler/child/none
+    ci_analysis = models.JSONField(null=True, blank=True)  # full CI analysis JSON
+    # Composite scores (score_calculator v1.0)
+    engagement_rate = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    virality_coeff = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    content_quality_score = models.IntegerField(default=0)  # 0-100
+    creator_fit_score = models.IntegerField(default=0)  # 0-100
+    scoring_version = models.CharField(max_length=10, blank=True, default="")
+    scored_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = "gk_content_posts"

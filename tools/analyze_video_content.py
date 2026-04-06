@@ -32,6 +32,7 @@ load_env()
 from ci.downloader import get_cdn_url, extract_audio_and_frames
 from ci.whisper_transcriber import transcribe, detect_product_mention, analyze_script
 from ci.vision_tagger import analyze_frames
+from ci.score_calculator import calculate_scores
 
 DB_HOST = os.getenv("DB_HOST", "172.31.13.240")
 DB_NAME = os.getenv("DB_NAME", "export_calculator_db")
@@ -120,10 +121,14 @@ def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
             SELECT column_name FROM information_schema.columns
             WHERE table_name = 'gk_content_posts'
               AND column_name IN ('scene_fit','has_subtitles','brand_fit_score',
-                                  'scene_tags','product_mention','subject_age','ci_analysis')
+                                  'scene_tags','product_mention','subject_age','ci_analysis',
+                                  'engagement_rate','virality_coeff',
+                                  'content_quality_score','creator_fit_score',
+                                  'scoring_version','scored_at')
         """)
         existing_cols = {r[0] for r in cur.fetchall()}
 
+        from datetime import datetime as _dt
         col_map = {
             "scene_fit": results.get("scene_fit", ""),
             "has_subtitles": results.get("has_subtitles", False),
@@ -132,6 +137,12 @@ def push_results(post_url: str, results: dict, dry_run: bool) -> bool:
             "product_mention": results.get("product_mention", False),
             "subject_age": results.get("subject_age", ""),
             "ci_analysis": json.dumps(ci, ensure_ascii=False) if ci else None,
+            "engagement_rate": results.get("engagement_rate", 0),
+            "virality_coeff": results.get("virality_coeff", 0),
+            "content_quality_score": results.get("content_quality_score", 0),
+            "creator_fit_score": results.get("creator_fit_score", 0),
+            "scoring_version": results.get("scoring_version", "v1.0"),
+            "scored_at": _dt.now().isoformat(),
         }
         for col, val in col_map.items():
             if col in existing_cols:
@@ -237,7 +248,33 @@ def main():
             else:
                 print("  Script: skipped (no transcript)")
 
-            # Step 6: PG upsert
+            # Step 6: Composite scoring
+            followers = 0
+            try:
+                conn_f = _get_conn()
+                cur_f = conn_f.cursor()
+                cur_f.execute("""
+                    SELECT MAX(followers) FROM gk_content_posts
+                    WHERE username = %s AND followers IS NOT NULL AND followers > 0
+                """, (post.get("handle", ""),))
+                row_f = cur_f.fetchone()
+                if row_f and row_f[0]:
+                    followers = row_f[0]
+                conn_f.close()
+            except Exception:
+                pass
+
+            scores = calculate_scores(
+                results,
+                followers=followers,
+                views=post.get("views", 0) or 0,
+                likes=0,  # not available at scrape time
+                comments=0,
+            )
+            results.update(scores)
+            print(f"  Score: quality={scores['content_quality_score']}/100 fit={scores['creator_fit_score']}/100 ER={scores['engagement_rate']}%")
+
+            # Step 7: PG upsert
             if push_results(url, results, args.dry_run):
                 success += 1
             else:
