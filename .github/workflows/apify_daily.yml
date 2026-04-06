@@ -120,6 +120,29 @@ jobs:
             || echo "[JP Discovery] import failed (non-fatal)"
         continue-on-error: true
 
+      - name: Trigger JP CI pipeline (Whisper transcripts)
+        id: jp_ci
+        run: |
+          curl -s -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/run-ci/" \
+            -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
+            -H "Content-Type: application/json" \
+            -d '{"region": "jp", "max": 20, "min_views": 3000}' \
+            | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'[JP CI] {d.get(\"status\",\"?\")} pid={d.get(\"pid\",\"?\")} max={d.get(\"max\",\"?\")} min_views={d.get(\"min_views\",\"?\")}')" \
+            || echo "[JP CI] trigger failed (non-fatal)"
+        continue-on-error: true
+
+      - name: Sync JP transcripts to pipeline creators
+        id: jp_sync_transcripts
+        run: |
+          sleep 120  # wait 2 min for CI pipeline to process some posts
+          curl -s -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/sync-transcripts/" \
+            -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
+            -H "Content-Type: application/json" \
+            -d '{"region": "jp", "limit": 300, "min_length": 20}' \
+            | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'[JP Transcripts] updated: {d.get(\"updated\",0)}, checked: {d.get(\"checked\",0)}, matched: {d.get(\"matched\",0)}')" \
+            || echo "[JP Transcripts] sync failed (non-fatal)"
+        continue-on-error: true
+
       - name: Update USA_LLM tab + Content Intelligence
         id: usa_llm
         run: python -u tools/update_usa_llm.py
