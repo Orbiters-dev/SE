@@ -4312,7 +4312,7 @@ async function autoFillAllocation(){
   var creators=_ftCache;
   if(!creators){
     try{
-      var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000');
+      var data=await apiFetch('/pipeline/creators/?status=Not+Started&limit=5000&region=us');
       creators=data.results||[];
       _ftCache=creators;
     }catch(e){showToast('Failed to load creators: '+e.message,'err');return}
@@ -4366,7 +4366,7 @@ async function autoFillAllocation(){
   var total=counts.Grosmimi+counts['CHA&MOM']+counts.Naeiae;
   if(total===0){showToast('No creators to allocate','err');return}
 
-  var batch=parseInt(document.getElementById('f-creators-contacted').value)||10;
+  var batch=_lastEligible||parseInt(document.getElementById('f-creators-contacted').value)||10;
 
   // Proportional allocation (round, ensure sum <= batch)
   var naeRatio=counts.Naeiae/total;
