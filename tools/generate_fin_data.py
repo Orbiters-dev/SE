@@ -980,12 +980,18 @@ def generate():
             out[brand] = {"top": top, "worst": worst}
         return out
 
-    def _kw_date_filter(days):
-        """Include rows where the reporting period's end date is within last N days of latest_end."""
-        cutoff = (datetime.strptime(latest_end[:10], "%Y-%m-%d") - timedelta(days=days - 1)).strftime("%Y-%m-%d")
+    # Build sorted list of unique data dates (not calendar days — actual dates with data)
+    _all_data_dates = sorted(set(
+        _parse_st_end_date(r.get("date", ""))[:10]
+        for r in search_terms if r.get("date")
+    ), reverse=True)  # newest first
+
+    def _kw_date_filter(n_data_days):
+        """Include rows from the most recent N dates that actually have data."""
+        keep = set(_all_data_dates[:n_data_days])
         def _f(d):
             end = _parse_st_end_date(d)[:10]
-            return end >= cutoff
+            return end in keep
         return _f
 
     kw_all = _kw_top_worst(_kw_agg_by_brand_period(search_terms))
