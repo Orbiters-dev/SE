@@ -4769,9 +4769,7 @@ function updateFtSummary(){
 
   document.getElementById('ft-eligible-count').textContent=ltEligible;
   document.getElementById('ft-total-count').textContent=totalAll;
-  // Sync Brand Allocation to eligible count
-  document.getElementById('alloc-batch-label').textContent=ltEligible;
-  document.getElementById('f-creators-contacted').value=ltEligible;
+  // Batch Size는 사용자가 직접 설정 — eligible count로 덮어쓰지 않음
   updateAllocation();
   // Show server stats accuracy note if client loaded fewer than server total
   var clientLoaded=all.length;
