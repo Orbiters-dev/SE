@@ -992,6 +992,19 @@ def generate():
     kw_latest = _kw_top_worst(_kw_agg_by_brand_period(search_terms, date_filter=_kw_date_filter(7)))
     kw_2w = _kw_top_worst(_kw_agg_by_brand_period(search_terms, date_filter=_kw_date_filter(14)))
 
+    # Compute actual date coverage per period for UI display
+    def _kw_actual_dates(date_filter=None):
+        dates_in = set()
+        for r in search_terms:
+            d = r.get("date", "")
+            if date_filter and not date_filter(d):
+                continue
+            dates_in.add(_parse_st_end_date(d)[:10])
+        if not dates_in:
+            return {"from": "", "to": "", "days": 0}
+        sd = sorted(dates_in)
+        return {"from": sd[0], "to": sd[-1], "days": len(sd)}
+
     # Brands: Grosmimi always first
     kw_brands = sorted(set(
         r.get("brand", "") for r in search_terms if r.get("brand") and r.get("brand") != "test"
@@ -1002,9 +1015,9 @@ def generate():
 
     keyword_performance = {
         "periods": {
-            "7d": {"label": "Latest 7D", "data": kw_latest},
-            "14d": {"label": "Latest 14D", "data": kw_2w},
-            "30d": {"label": "All (~30D)", "data": kw_all},
+            "7d": {"label": "Latest 7D", "data": kw_latest, "actual": _kw_actual_dates(_kw_date_filter(7))},
+            "14d": {"label": "Latest 14D", "data": kw_2w, "actual": _kw_actual_dates(_kw_date_filter(14))},
+            "30d": {"label": "All (~30D)", "data": kw_all, "actual": _kw_actual_dates()},
         },
         "brands": kw_brands,
         "date_range": f"{st_dates[0] if st_dates else '?'} to {st_dates[-1] if st_dates else '?'}",

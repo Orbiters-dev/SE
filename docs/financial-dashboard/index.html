@@ -3507,13 +3507,10 @@ function buildKeywordPerformance(F){
     });
     // Show actual data coverage info
     var totalSpend=kws.reduce(function(a,k){return a+k.spend;},0);
+    var actual=(window.KP_DATA[window.KP_PERIOD]||{}).actual||{};
     var h='<div style="font-size:9px;color:var(--muted);margin-bottom:4px">'
       +kws.length+' keywords · $'+totalSpend.toFixed(0)+' total spend';
-    // Check if periods have identical data (common when data gap exists)
-    var allSame=window.KP_PERIOD_KEYS.length>1;
-    var refCount=periodCounts[window.KP_PERIOD_KEYS[0]]||0;
-    window.KP_PERIOD_KEYS.forEach(function(pk){if(periodCounts[pk]!==refCount) allSame=false;});
-    if(allSame && refCount>0 && window.KP_PERIOD_KEYS.length>1) h+=' · <span style="color:var(--am)">⚠ All periods show same data (collection gap)</span>';
+    if(actual.from) h+=' · '+actual.from+' ~ '+actual.to+' ('+actual.days+' days)';
     h+='</div>';
     h+='<div style="overflow-x:auto"><table><thead><tr>';
     h+='<th>#</th><th>Keyword</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th>';
