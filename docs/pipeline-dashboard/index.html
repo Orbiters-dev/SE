@@ -676,7 +676,7 @@ Shopify                         Apify / Syncly                   Gmail RAG
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('us')" id="ft-btn-us" style="font-size:10px">&#x1F50D; Check</button>
             <span id="ft-badge-us"></span>
           </div>
-          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Syncly Language=en &#xD544;&#xD130;. &#xBE44;&#xC601;&#xC5B4;&#xAD8C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC81C;&#xC678; &#x2192; LT &#xD480;&#xC5D0;&#xC11C; &#xBE60;&#xC9D0;</div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">Transcript ASCII &#xBE44;&#xC728; &#xD544;&#xD130; (&#x2265;80% &#xC601;&#xC5B4; = &#xD1B5;&#xACFC;). &#xBE44;&#xC601;&#xC5B4;&#xAD8C; &#xD06C;&#xB9AC;&#xC5D0;&#xC774;&#xD130; &#xC81C;&#xC678; &#x2192; LT &#xD480;&#xC5D0;&#xC11C; &#xBE60;&#xC9D0;</div>
           <div id="ft-expand-us" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
@@ -693,10 +693,23 @@ Shopify                         Apify / Syncly                   Gmail RAG
           <div id="ft-expand-brand" style="display:none;margin:4px 0 0 28px"></div>
         </div>
 
-        <!-- Step 2: RAG Email Dedup (strongest, runs last) -->
+        <!-- Step 2: Email Validity Check -->
+        <div class="ft-step" id="fts-email" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:11px;font-weight:800;color:#7c3aed;font-family:var(--mono);min-width:16px">&#x2461;</span>
+            <span style="font-weight:700;min-width:120px">Email Validity</span>
+            <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-email-verify" onchange="updateFtSummary()"><span class="slider"></span></label>
+            <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('email')" id="ft-btn-email" style="font-size:10px">&#x1F50D; Check</button>
+            <span id="ft-badge-email"></span>
+          </div>
+          <div style="margin:2px 0 0 28px;font-size:9px;color:var(--dim)">이메일 도메인 MX 레코드 체크 &#x2192; 발송 불가 이메일 제외 (syntax + DNS 검증)</div>
+          <div id="ft-expand-email" style="display:none;margin:4px 0 0 28px"></div>
+        </div>
+
+        <!-- Step 3: RAG Email Dedup (strongest, runs last) -->
         <div class="ft-step" id="fts-rag" style="padding:10px 0;border-bottom:1px solid #f1f5f9">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2461;</span>
+            <span style="font-size:11px;font-weight:800;color:var(--r);font-family:var(--mono);min-width:16px">&#x2462;</span>
             <span style="font-weight:700;min-width:120px">RAG Email Dedup</span>
             <label class="toggle" style="min-width:auto"><input type="checkbox" id="f-rag-dedup" onchange="updateFtSummary()"><span class="slider"></span></label>
             <button class="btn btn-sm btn-secondary" onclick="checkFeatureImpact('rag')" id="ft-btn-rag" style="font-size:10px">&#x1F50D; Check</button>
@@ -1350,6 +1363,7 @@ var AUTH_USERS={
   'SY':'02055f756ae94496a7f3a8eb3ee14454d9231b5689e15b60945fe8f3e7166964',
   'LK':'deacf4810dbd04dbfe9cb54a3e767067d40e7d50f1973f59e6c8ed7135d7e16a',
   'JH':'9b6b725c547356d40e3ce5dd1a985f1a4b35076792d621c76e356c13a531ec7b',
+  'SE':'9346ed77d5684897c51838d0c98db23867810a7e4b120c1226a15b834f4af459',
   'WC':'1f3d8a8b4c971a06b1064ce6388ebf34e936e69f766014f5102e514ac13571bd'
 };
 var _currentUser='';
@@ -2201,8 +2215,8 @@ function renderCreatorsTable(data){
     }
     html+='</select>';
     html+=' <button onclick="toggleEmailHistory(\''+c.id+'\',\''+esc(c.email)+'\')" style="background:none;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a)" title="Email history">&#x1F4E7;</button>';
-    // Draft preview button (Draft Ready, Sent, Replied)
-    if(c.pipeline_status==='Draft Ready'||c.pipeline_status==='Sent'||c.pipeline_status==='Replied'){
+    // Draft preview button (Draft Ready only)
+    if(c.pipeline_status==='Draft Ready'){
       html+=' <button onclick="toggleDraftPreview(\''+c.id+'\',\''+esc(c.email)+'\')" style="background:none;border:1px solid var(--a);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--a);font-weight:700" title="View draft email">Draft</button>';
     }
     // Transcript button — all stages (show creator's recent content)
@@ -2215,8 +2229,8 @@ function renderCreatorsTable(data){
     }
     html+='</td>';
     html+='</tr>';
-    // Draft preview row — DEFAULT VISIBLE for Draft Ready/Sent/Replied
-    var showDraft=c.pipeline_status==='Draft Ready'||c.pipeline_status==='Sent'||c.pipeline_status==='Replied';
+    // Draft preview row — DEFAULT VISIBLE for Draft Ready only
+    var showDraft=c.pipeline_status==='Draft Ready';
     html+='<tr id="draft-preview-'+c.id+'" style="display:'+(showDraft?'table-row':'none')+'"><td colspan="11" style="padding:0">';
     html+='<div style="background:linear-gradient(135deg,#eef2ff,#f0fdf4);border:2px solid var(--a);border-radius:8px;margin:4px 8px 8px;padding:12px;font-size:11px">';
     html+='<div id="draft-content-'+c.id+'" style="color:var(--dim)">Loading draft...</div>';
@@ -2633,7 +2647,11 @@ async function toggleDraftPreview(creatorId,email){
         h+='<span style="font-size:9px;color:var(--dim)">'+timeStr+'</span>';
         h+='</div>';
         if(conv.brand){h+='<div style="margin-bottom:6px"><span class="b '+(conv.brand==='Grosmimi'?'g':conv.brand==='CHA&MOM'?'c':conv.brand==='Naeiae'?'am':'')+'">'+esc(conv.brand)+'</span></div>';}
-        h+='<div style="white-space:pre-wrap;font-size:11px;line-height:1.6;color:var(--fg);padding:8px;background:#f8fafc;border-radius:4px;max-height:300px;overflow-y:auto">'+esc(conv.message_content||'(empty)')+'</div>';
+        var basis=conv.content_basis||'generic';
+        var basisStyle=basis==='transcript'?'background:#dcfce7;color:#15803d;border:1px solid #86efac':basis==='caption'?'background:#fef9c3;color:#854d0e;border:1px solid #fde047':'background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1';
+        var basisLabel=basis==='transcript'?'📝 Transcript':basis==='caption'?'💬 Caption':'○ Generic';
+        h+='<div style="margin-bottom:8px"><span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;'+basisStyle+'">'+basisLabel+'</span></div>';
+        h+='<div style="white-space:pre-wrap;font-size:12px;line-height:1.8;color:var(--fg);padding:12px;background:#f8fafc;border-radius:4px;max-height:500px;overflow-y:auto">'+esc(conv.message_content||'(empty)')+'</div>';
         h+='</div>';
       });
       el.innerHTML=h;
@@ -4371,7 +4389,7 @@ async function checkFeatureImpact(feature){
   var badge=document.getElementById('ft-badge-'+feature);
   var expand=document.getElementById('ft-expand-'+feature);
   // Auto-enable the toggle when user clicks Check
-  var toggleMap={us:'f-us-only',brand:'f-apify-brand-filter',rag:'f-rag-dedup'};
+  var toggleMap={us:'f-us-only',brand:'f-apify-brand-filter',email:'f-email-verify',rag:'f-rag-dedup'};
   var tog=document.getElementById(toggleMap[feature]||'');
   if(tog)tog.checked=true;
   btn.disabled=true;btn.textContent='...';
@@ -4463,45 +4481,116 @@ async function checkFeatureImpact(feature){
       }else{expand.textContent='';expand.style.display='none'}
 
     }else if(feature==='us'){
-      // US Only: Check Syncly sheet Language for this batch, backfill country, then filter
-      var unknown=creators.filter(function(c){return !(c.country||'').trim()});
-      if(unknown.length>0){
-        var handles=unknown.map(function(c){return c.ig_handle||c.tiktok_handle||''}).filter(Boolean);
-        if(handles.length>0){
-          try{
-            badge.textContent='reading Syncly sheet ('+handles.length+')...';
-            var result=await apiFetch('/pipeline/creators/backfill-language/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:handles})});
-            if(result.updated>0){_ftCache=null;_ftCacheWeek=null;var refreshed=await ensureFtCache();creators=refreshed.filter(function(c){return c.outreach_type!=='HT'})}
-          }catch(e){console.warn('Backfill failed:',e)}
-        }
-      }
-      var usCreators=creators.filter(function(c){
-        var country=(c.country||'').toLowerCase();
-        return country==='united states'||country==='us'||country==='usa';
+      // US Only: Transcript-based English detection (ASCII ratio >= 80%)
+      var handles=creators.map(function(c){return (c.ig_handle||c.tiktok_handle||'').replace(/^@/,'')}).filter(Boolean);
+      badge.textContent='checking transcripts ('+handles.length+')...';
+      var langResults={};
+      try{
+        var res=await apiFetch('/pipeline/creators/transcript-lang-check/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:handles})});
+        langResults=res.results||{};
+      }catch(e){console.warn('Lang check failed:',e)}
+
+      var engCreators=[],nonEngCreators=[],noTranscript=[];
+      creators.forEach(function(c){
+        var h=(c.ig_handle||c.tiktok_handle||'').replace(/^@/,'').toLowerCase();
+        var r=langResults[h];
+        if(!r||r.transcript_count===0){noTranscript.push(c)}
+        else if(r.is_english){engCreators.push({c:c,ratio:r.ratio,count:r.transcript_count})}
+        else{nonEngCreators.push({c:c,ratio:r.ratio,count:r.transcript_count})}
       });
-      var nonUs=creators.filter(function(c){
-        var country=(c.country||'').toLowerCase();
-        return country&&country!=='united states'&&country!=='us'&&country!=='usa';
-      });
-      var stillUnknown=creators.filter(function(c){return !(c.country||'').trim()});
-      _ftResults.us={count:nonUs.length,usCount:usCreators.length,unenriched:stillUnknown.length,list:nonUs};
-      badge.textContent=usCreators.length+' US(en) | -'+nonUs.length+' non-US | '+stillUnknown.length+' pending';
-      badge.className='b g';badge.style.cssText='font-size:10px;padding:2px 8px';
-      if(nonUs.length>0){
-        var el=document.createElement('div');
-        el.style.cssText='font-size:9px;max-height:160px;overflow-y:auto;background:#fef2f2;padding:6px;border-radius:4px;cursor:pointer';
-        el.onclick=function(){expand.style.display='none'};
-        var header=document.createElement('div');
-        header.style.cssText='font-weight:700;margin-bottom:3px;color:var(--r)';
-        header.textContent='Non-US creators ('+nonUs.length+'):';
-        el.appendChild(header);
-        nonUs.slice(0,30).forEach(function(c){
+
+      _ftResults.us={count:nonEngCreators.length,usCount:engCreators.length,unenriched:noTranscript.length,list:nonEngCreators.map(function(x){return x.c})};
+      badge.innerHTML='<span style="color:#15803d;font-weight:700">'+engCreators.length+' English (≥80%)</span>'
+        +' | <span style="color:#dc2626">−'+nonEngCreators.length+' non-English</span>'
+        +' | <span style="color:#92400e">'+noTranscript.length+' no transcript</span>';
+      badge.className='';badge.style.cssText='font-size:10px';
+
+      // Expand: show non-English + no-transcript breakdown
+      var el=document.createElement('div');
+      el.style.cssText='font-size:9px;max-height:200px;overflow-y:auto;background:#f8fafc;padding:8px;border-radius:4px;cursor:pointer';
+      el.onclick=function(){expand.style.display='none'};
+      if(nonEngCreators.length>0){
+        var hdr=document.createElement('div');
+        hdr.style.cssText='font-weight:700;color:#dc2626;margin-bottom:4px';
+        hdr.textContent='Non-English transcripts ('+nonEngCreators.length+') — excluded:';
+        el.appendChild(hdr);
+        nonEngCreators.slice(0,30).forEach(function(x){
           var row=document.createElement('div');
-          row.style.cssText='padding:1px 0;border-bottom:1px solid #fde8e8';
-          row.textContent='@'+(c.ig_handle||c.tiktok_handle||'?')+' | '+(c.country||'?');
+          row.style.cssText='padding:1px 0;border-bottom:1px solid #fde8e8;display:flex;justify-content:space-between';
+          row.innerHTML='<span>@'+(x.c.ig_handle||x.c.tiktok_handle||'?')+'</span><span style="color:#dc2626">'+Math.round(x.ratio*100)+'% ASCII ('+x.count+' tx)</span>';
           el.appendChild(row);
         });
-        expand.textContent='';expand.appendChild(el);expand.style.display='block';
+      }
+      if(noTranscript.length>0){
+        var hdr2=document.createElement('div');
+        hdr2.style.cssText='font-weight:700;color:#92400e;margin:6px 0 4px';
+        hdr2.textContent='No transcript — cannot verify ('+noTranscript.length+'):';
+        el.appendChild(hdr2);
+        noTranscript.slice(0,20).forEach(function(c){
+          var row=document.createElement('div');
+          row.style.cssText='padding:1px 0;border-bottom:1px solid #fef3c7;color:#92400e';
+          row.textContent='@'+(c.ig_handle||c.tiktok_handle||'?');
+          el.appendChild(row);
+        });
+      }
+      expand.textContent='';expand.appendChild(el);expand.style.display=(nonEngCreators.length||noTranscript.length)?'block':'none';
+
+    }else if(feature==='email'){
+      // Email Validity: syntax check + MX record via backend
+      var emails=creators.map(function(c){return c.email||''}).filter(function(e){return e&&!e.includes('@discovered.')});
+      badge.innerHTML='<span style="color:var(--dim);font-size:9px">verifying '+emails.length+' emails...</span>';
+      var verifyResults={};
+      try{
+        var res=await apiFetch('/pipeline/creators/email-verify/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emails:emails})});
+        verifyResults=res.results||{};
+      }catch(e){console.warn('Email verify failed:',e)}
+
+      var validList=[],invalidList=[],unknownList=[];
+      creators.forEach(function(c){
+        var e=c.email||'';
+        if(!e||e.includes('@discovered.')){return}
+        var r=verifyResults[e];
+        if(!r){unknownList.push({c:c,email:e,reason:'no result'});return}
+        if(r.valid===true){validList.push({c:c,email:e})}
+        else if(r.valid===false){invalidList.push({c:c,email:e,reason:r.reason||'invalid'})}
+        else{unknownList.push({c:c,email:e,reason:r.reason||'unknown'})}
+      });
+
+      _ftResults.email={count:invalidList.length,validCount:validList.length,unknownCount:unknownList.length,list:invalidList.map(function(x){return x.c})};
+      badge.innerHTML='<span style="color:#15803d;font-weight:700">'+validList.length+' valid</span>'
+        +' | <span style="color:#dc2626">−'+invalidList.length+' invalid</span>'
+        +' | <span style="color:#92400e">'+unknownList.length+' unknown</span>';
+      badge.className='';badge.style.cssText='font-size:10px';
+
+      if(invalidList.length||unknownList.length){
+        var el2=document.createElement('div');
+        el2.style.cssText='font-size:9px;max-height:200px;overflow-y:auto;background:#f8fafc;padding:8px;border-radius:4px;cursor:pointer';
+        el2.onclick=function(){expand.style.display='none'};
+        if(invalidList.length){
+          var h2=document.createElement('div');
+          h2.style.cssText='font-weight:700;color:#dc2626;margin-bottom:4px';
+          h2.textContent='Invalid emails ('+invalidList.length+') — excluded:';
+          el2.appendChild(h2);
+          invalidList.slice(0,40).forEach(function(x){
+            var row=document.createElement('div');
+            row.style.cssText='padding:1px 0;border-bottom:1px solid #fde8e8;display:flex;justify-content:space-between';
+            row.innerHTML='<span>'+esc(x.email)+'</span><span style="color:#dc2626;font-size:8px">'+esc(x.reason)+'</span>';
+            el2.appendChild(row);
+          });
+        }
+        if(unknownList.length){
+          var h3=document.createElement('div');
+          h3.style.cssText='font-weight:700;color:#92400e;margin:6px 0 4px';
+          h3.textContent='Unknown/timeout ('+unknownList.length+'):';
+          el2.appendChild(h3);
+          unknownList.slice(0,20).forEach(function(x){
+            var row=document.createElement('div');
+            row.style.cssText='padding:1px 0;border-bottom:1px solid #fef3c7;color:#92400e';
+            row.textContent=x.email+' ('+x.reason+')';
+            el2.appendChild(row);
+          });
+        }
+        expand.textContent='';expand.appendChild(el2);expand.style.display='block';
       }else{expand.textContent='';expand.style.display='none'}
     }
 
