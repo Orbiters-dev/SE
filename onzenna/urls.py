@@ -75,6 +75,7 @@ urlpatterns = [
     # JP Content Pipeline: Whisper CI trigger + transcript sync
     path("pipeline/run-ci/", views.run_ci_pipeline, name="run_ci_pipeline"),
     path("pipeline/creators/sync-transcripts/", views.sync_transcripts, name="sync_transcripts"),
+    path("pipeline/creators/transcript-lang-check/", views.transcript_lang_check, name="transcript_lang_check"),
 
     # Email Reply Config (n8n + dashboard)
     path("pipeline/email-config/", views.email_config_list, name="email_config_list"),

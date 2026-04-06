@@ -3259,6 +3259,99 @@ def sync_transcripts(request):
     }))
 
 
+# --- Transcript Language Check (ASCII ratio for English detection) ---
+
+@csrf_exempt
+def transcript_lang_check(request):
+    """POST: Check transcript language for given usernames.
+
+    Body:
+      usernames: list of ig_handles to check
+
+    Returns per-username: {is_english, ratio, transcript_count}
+    Uses gk_content_posts transcripts joined by username.
+    ASCII ratio >= 0.8 = English.
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    usernames = body.get("usernames", [])
+
+    if not usernames:
+        return _cors_headers(request, JsonResponse({"results": {}}))
+
+    from django.db import connection
+
+    # Get all transcripts for these usernames from gk_content_posts
+    placeholders = ",".join(["%s"] * len(usernames))
+    sql = f"""
+        SELECT LOWER(username) as uname, transcript
+        FROM gk_content_posts
+        WHERE LOWER(username) IN ({placeholders})
+          AND transcript IS NOT NULL
+          AND LENGTH(transcript) >= 20
+    """
+    params = [u.lower() for u in usernames]
+
+    results = {}
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+
+        # Group transcripts by username
+        by_user = {}
+        for uname, transcript in rows:
+            by_user.setdefault(uname, []).append(transcript)
+
+        # Also check top_post_transcript from pipeline_creators
+        pc_placeholders = ",".join(["%s"] * len(usernames))
+        pc_sql = f"""
+            SELECT LOWER(ig_handle) as uname, top_post_transcript
+            FROM onz_pipeline_creators
+            WHERE LOWER(ig_handle) IN ({pc_placeholders})
+              AND top_post_transcript IS NOT NULL
+              AND LENGTH(top_post_transcript) >= 20
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(pc_sql, params)
+            pc_rows = cursor.fetchall()
+
+        for uname, transcript in pc_rows:
+            if uname not in by_user:
+                by_user.setdefault(uname, []).append(transcript)
+
+        # Calculate ASCII ratio per username
+        for uname in [u.lower() for u in usernames]:
+            transcripts = by_user.get(uname, [])
+            if not transcripts:
+                results[uname] = {"is_english": False, "ratio": 0, "transcript_count": 0}
+                continue
+
+            # Combine all transcripts for ratio calculation
+            combined = " ".join(transcripts)
+            if len(combined) == 0:
+                results[uname] = {"is_english": False, "ratio": 0, "transcript_count": len(transcripts)}
+                continue
+
+            ascii_count = sum(1 for c in combined if ord(c) < 128)
+            ratio = ascii_count / len(combined)
+            results[uname] = {
+                "is_english": ratio >= 0.8,
+                "ratio": round(ratio, 3),
+                "transcript_count": len(transcripts),
+            }
+
+    except Exception as e:
+        return _cors_headers(request, JsonResponse({"error": str(e)}, status=500))
+
+    return _cors_headers(request, JsonResponse({"results": results}))
+
+
 # --- Run CI Pipeline (Whisper transcript trigger) ---
 
 @csrf_exempt
@@ -3334,11 +3427,25 @@ def run_ci_pipeline(request):
                         "--max", str(max_posts),
                         "--min-views", str(min_views),
                     ]
+                    # Pass OPENAI_API_KEY from .env to subprocess
+                    env = _os.environ.copy()
+                    env_file = _os.path.join(
+                        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                        ".env"
+                    )
+                    if _os.path.exists(env_file):
+                        with open(env_file) as f:
+                            for line in f:
+                                line = line.strip()
+                                if line and not line.startswith("#") and "=" in line:
+                                    k, v = line.split("=", 1)
+                                    env[k.strip()] = v.strip()
                     proc = subprocess.Popen(
                         cmd,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL,
                         start_new_session=True,
+                        env=env,
                     )
                     pid = proc.pid
                 except Exception as e:
