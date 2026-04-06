@@ -37,7 +37,8 @@ jobs:
             google-auth \
             google-auth-oauthlib \
             google-api-python-client \
-            apify-client
+            apify-client \
+            psycopg2-binary
 
       - name: Write .env
         run: |
@@ -109,13 +110,26 @@ jobs:
         run: python -u tools/fetch_apify_content.py --sync-pg --region all
         continue-on-error: true
 
+      - name: JP Ambassador Discovery (hashtag crawl)
+        id: jp_ambassador
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+        run: |
+          python -u tools/discover_jp_ambassadors.py \
+            --tier 1 \
+            --max-per-hashtag 30 \
+            --min-followers 1000 \
+            --max-followers 500000 \
+            --top 50
+        continue-on-error: true
+
       - name: Import JP discovery creators to pipeline
         id: jp_discovery
         run: |
           curl -s -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-discovery/" \
             -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
             -H "Content-Type: application/json" \
-            -d '{"region": "jp", "days": 7, "limit": 200, "source": "apify_discovery"}' \
+            -d '{"region": "jp", "days": 7, "limit": 200, "source": "ambassador_discovery"}' \
             | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'[JP Discovery] created: {d.get(\"created\",0)}, skipped: {d.get(\"skipped\",0)}')" \
             || echo "[JP Discovery] import failed (non-fatal)"
         continue-on-error: true
@@ -141,6 +155,19 @@ jobs:
             -d '{"region": "jp", "limit": 300, "min_length": 20}' \
             | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'[JP Transcripts] updated: {d.get(\"updated\",0)}, checked: {d.get(\"checked\",0)}, matched: {d.get(\"matched\",0)}')" \
             || echo "[JP Transcripts] sync failed (non-fatal)"
+        continue-on-error: true
+
+      - name: Weekly JP Reels Scraper (IG + TikTok)
+        id: weekly_reels
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+        run: |
+          DOW=$(date -u +%u)  # 1=Mon ... 7=Sun
+          if [ "$DOW" = "1" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python -u tools/weekly_reels_scraper.py --min-views 5000
+          else
+            echo "[SKIP] Weekly reels scraper runs on Mondays only (today: DOW=$DOW)"
+          fi
         continue-on-error: true
 
       - name: Update USA_LLM tab + Content Intelligence
