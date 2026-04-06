@@ -1887,7 +1887,7 @@ def generate():
     _shop_disc_arr = []   # Shopify discounts breakdown
     _amz_fee_arr = []     # Amazon referral fee (15%)
     _fba_arr = []         # FBA fulfillment (None = n.m. pre-Oct)
-    _variable_costs_arr = []  # Ref fee + FBA
+    _platform_fees_arr = []   # Platform Fees: Ref fee + FBA (NOT marketing)
     _cm_before_mkt_arr = []   # CM before marketing
     _inf_paid_arr = []    # Influencer PAID (PayPal)
     _inf_nonpaid_arr = [] # Influencer NON-PAID (COGS + shipping)
@@ -1973,11 +1973,11 @@ def generate():
         amz_net = sum(amz_brand_monthly.get(b, {}).get(m, {}).get("net", 0) for b in BRAND_ORDER + ["Other"])
         amz_ref_fee = amz_gross - amz_net  # Amazon Referral Fee (~15%)
         fba_fulfill = _fba_monthly_cache.get(m, 0)  # FBA Fulfillment
-        variable_costs = amz_ref_fee + fba_fulfill
+        platform_fees = amz_ref_fee + fba_fulfill
         _amz_fee_arr.append(round(amz_ref_fee))
         _fba_arr.append(round(fba_fulfill) if fba_fulfill > 0 or m >= "2025-10" else None)
 
-        cm_before_mkt = gm - shipping_cost - variable_costs  # CM before MKT = GM - Shipping - Variable Costs
+        cm_before_mkt = gm - shipping_cost - platform_fees  # CM before MKT = GM - Shipping - Platform Fees
 
         # MKT Cost 1: Ad Spend (with Amazon Ads backfill for pre-Dec 2025)
         amz_ad = ad_monthly.get("Amazon Ads", {}).get(m, {}).get("spend", 0)
@@ -2005,7 +2005,7 @@ def generate():
         _cogs_estimated_arr.append(cogs_estimated)
         total_gm_monthly.append(round(gm))
         _shipping_cost_arr.append(round(shipping_cost))
-        _variable_costs_arr.append(round(variable_costs))
+        _platform_fees_arr.append(round(platform_fees))
         _cm_before_mkt_arr.append(round(cm_before_mkt))
         total_ad_spend_monthly.append(round(ad_total))
         total_disc_monthly.append(round(disc_total))
@@ -2064,6 +2064,16 @@ def generate():
                 "color": BRAND_COLORS.get(brand, "#94a3b8"),
             }
 
+    # ── Shopify channel revenue breakdown for P&L (Target+, B2B explicit) ──
+    _target_plus_rev_arr = []
+    _b2b_rev_arr = []
+    _d2c_rev_arr = []
+    for m in all_pnl_months:
+        # channel_monthly stores net_sales; for Target+/B2B discounts are negligible
+        _target_plus_rev_arr.append(round(channel_monthly.get("Target+", {}).get(m, {}).get("net", 0)))
+        _b2b_rev_arr.append(round(channel_monthly.get("B2B", {}).get(m, {}).get("net", 0)))
+        _d2c_rev_arr.append(round(channel_monthly.get("Onzenna D2C", {}).get(m, {}).get("net", 0)))
+
     # ── Ad spend from DataKeeper (with Amazon Ads backfill) ──
     onz_spend_arr, amz_spend_arr, google_spend_arr, total_ad_arr = [], [], [], []
     for m in all_pnl_months:
@@ -2111,11 +2121,16 @@ def generate():
         "cogs_estimated": _cogs_estimated_arr,  # F001: True = fallback avg, False = SKU-level
         "gross_margin": _pnl_with_annual(total_gm_monthly, fy2025_idx),
         "shipping_cost": _pnl_with_annual(_shipping_cost_arr, fy2025_idx),
-        "variable_costs": _pnl_with_annual(_variable_costs_arr, fy2025_idx),
-        "variable_detail": {
+        "platform_fees": _pnl_with_annual(_platform_fees_arr, fy2025_idx),
+        "platform_fees_detail": {
             "amz_ref_fee": _pnl_with_annual(_amz_fee_arr, fy2025_idx),
             "fba_fulfillment": _pnl_with_annual([v if v is not None else 0 for v in _fba_arr], fy2025_idx),
             "fba_nm_months": [i for i, v in enumerate(_fba_arr) if v is None],
+        },
+        "shopify_channel_rev": {
+            "d2c": _pnl_with_annual(_d2c_rev_arr, fy2025_idx),
+            "target_plus": _pnl_with_annual(_target_plus_rev_arr, fy2025_idx),
+            "b2b": _pnl_with_annual(_b2b_rev_arr, fy2025_idx),
         },
         "cm_before_mkt": _pnl_with_annual(_cm_before_mkt_arr, fy2025_idx),
         "ad_spend": {
@@ -2142,7 +2157,6 @@ def generate():
         "discounts": _pnl_with_annual(total_disc_monthly, fy2025_idx),
         "discounts_detail": {
             "shopify_disc": _pnl_with_annual(_shop_disc_arr, fy2025_idx),
-            "amz_ref_fee": _pnl_with_annual(_amz_fee_arr, fy2025_idx),
         },
         "influencer_spend": _pnl_with_annual(total_seeding_monthly, fy2025_idx),
         "influencer_detail": {
@@ -4032,8 +4046,8 @@ def generate():
             "gross_margin_proj": proj_array(total_gm_monthly),
             "shipping_cost": _shipping_cost_arr,
             "shipping_cost_proj": proj_array(_shipping_cost_arr),
-            "variable_costs": _variable_costs_arr,
-            "variable_detail": {
+            "platform_fees": _platform_fees_arr,
+            "platform_fees_detail": {
                 "amz_ref_fee": _amz_fee_arr,
                 "fba_fulfillment": [v if v is not None else 0 for v in _fba_arr],
             },

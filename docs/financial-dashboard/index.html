@@ -3146,15 +3146,16 @@ function buildWaterfall(F, months, mLabels, lastIdx, isPartialLast){
     html+='</tr><tr><td style="padding-left:16px;color:var(--dim)">Ship %</td>';
     wf.shipping_cost.forEach(function(v,i){ var r=wf.revenue[i]; html+='<td style="text-align:right;font-family:var(--mono);font-size:10px;color:var(--dim)">'+(r>0?(v/r*100).toFixed(1):'0')+'%</td>'; });
   }
-  // Variable Costs (Ref Fee + FBA)
+  // Platform Fees (Ref Fee + FBA — not marketing)
   html+='</tr><tr><td colspan="'+(mLabels.length+1)+'" style="padding:4px 0;border:none"><div style="border-top:1px dashed var(--border)"></div></td></tr>';
-  html+='<tr><td style="color:var(--r)">(-) Variable Costs</td>';
-  (wf.variable_costs||[]).forEach(function(v,i){ html+=fmCell(v, null, false, {color:'var(--r)',fs:'9px'}); });
-  if(wf.variable_detail){
+  html+='<tr><td style="color:var(--r)">(-) Platform Fees</td>';
+  (wf.platform_fees||wf.variable_costs||[]).forEach(function(v,i){ html+=fmCell(v, null, false, {color:'var(--r)',fs:'9px'}); });
+  var pfDetail=wf.platform_fees_detail||wf.variable_detail;
+  if(pfDetail){
     html+='</tr><tr><td style="padding-left:16px;color:var(--muted);font-size:9px">Amazon Ref Fee (15%)</td>';
-    (wf.variable_detail.amz_ref_fee||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
+    (pfDetail.amz_ref_fee||[]).forEach(function(v,i){ html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+$(v)+'</td>'; });
     html+='</tr><tr><td style="padding-left:16px;color:var(--muted);font-size:9px">FBA Fulfillment</td>';
-    (wf.variable_detail.fba_fulfillment||[]).forEach(function(v,i){
+    (pfDetail.fba_fulfillment||[]).forEach(function(v,i){
       var val=v>0?$(v):(i<9?'<span style="color:#9ca3af">n.m.</span>':'$0');
       html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)">'+val+'</td>';
     });
@@ -3445,11 +3446,14 @@ function buildKeywordPerformance(F){
   });
   html+='</div>';
 
+  // Default to the period with the most data (usually 30d)
+  var _defPeriod=periodKeys[periodKeys.length-1]||'30d';
+
   // Period toggle
   html+='<div style="display:flex;gap:4px;margin-bottom:12px">';
-  periodKeys.forEach(function(pk,i){
+  periodKeys.forEach(function(pk){
     var p=periods[pk];
-    var active=i===0?'background:var(--a);color:#fff':'background:var(--bg2);color:var(--dim)';
+    var active=pk===_defPeriod?'background:var(--a);color:#fff':'background:var(--bg2);color:var(--dim)';
     html+='<div class="kp-period-btn" data-period="'+pk+'" style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;'+active+'" onclick="switchKwPeriod(\''+pk+'\')">'+p.label+'</div>';
   });
   html+='</div>';
@@ -3467,7 +3471,7 @@ function buildKeywordPerformance(F){
   // Store data globally (rendered via window.renderKwTable after DOM insertion)
   window.KP_DATA=periods;
   window.KP_BRAND=brands[0]||'';
-  window.KP_PERIOD=periodKeys[0]||'7d';
+  window.KP_PERIOD=_defPeriod;
   window.switchKwBrand=function(b){window.KP_BRAND=b;window.renderKwTable();document.querySelectorAll(".kp-brand-btn").forEach(function(el){el.style.background=el.dataset.brand===b?"var(--a)":"var(--bg2)";el.style.color=el.dataset.brand===b?"#fff":"var(--dim)";});};
   window.switchKwPeriod=function(p){window.KP_PERIOD=p;window.renderKwTable();document.querySelectorAll(".kp-period-btn").forEach(function(el){el.style.background=el.dataset.period===p?"var(--a)":"var(--bg2)";el.style.color=el.dataset.period===p?"#fff":"var(--dim)";});};
   window.KP_VIEW="top";
