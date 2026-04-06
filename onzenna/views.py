@@ -822,17 +822,22 @@ def check_gmail_contact(request):
 
 
 @csrf_exempt
-@require_http_methods(["POST"])
 def bulk_check_gmail_contacts(request):
     """Bulk check multiple emails against Gmail RAG contact index."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
     try:
         body = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
+        return _cors_headers(request, JsonResponse({"error": "Invalid JSON"}, status=400))
 
     emails = body.get("emails", [])
     if not emails or not isinstance(emails, list):
-        return JsonResponse({"error": "emails array required"}, status=400)
+        return _cors_headers(request, JsonResponse({"error": "emails array required"}, status=400))
 
     emails_lower = [e.strip().lower() for e in emails if isinstance(e, str)]
 
@@ -867,7 +872,7 @@ def bulk_check_gmail_contacts(request):
     for e in emails_lower:
         results[e] = found_map.get(e, None)
 
-    return JsonResponse({"results": results, "total_checked": len(emails_lower), "total_found": len(found_map)})
+    return _cors_headers(request, JsonResponse({"results": results, "total_checked": len(emails_lower), "total_found": len(found_map)}))
 
 
 @csrf_exempt
@@ -3278,6 +3283,50 @@ def sync_transcripts(request):
         "updated": updated,
         "checked": checked,
         "matched": matched,
+    }))
+
+
+# --- Email Verify (basic syntax + @discovered.* check) ---
+
+@csrf_exempt
+def email_verify(request):
+    """POST: validate emails — syntax check + @discovered.* filter."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return _cors_headers(request, JsonResponse({"error": "Invalid JSON"}, status=400))
+
+    emails = body.get("emails", [])
+    if not emails or not isinstance(emails, list):
+        return _cors_headers(request, JsonResponse({"error": "emails array required"}, status=400))
+
+    import re
+    email_re = re.compile(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$')
+
+    results = {}
+    for e in emails:
+        if not isinstance(e, str):
+            continue
+        e_lower = e.strip().lower()
+        if not e_lower:
+            continue
+        if '@discovered.' in e_lower:
+            results[e_lower] = {"valid": False, "reason": "placeholder email (@discovered.*)"}
+        elif not email_re.match(e_lower):
+            results[e_lower] = {"valid": False, "reason": "invalid format"}
+        else:
+            results[e_lower] = {"valid": True, "reason": None}
+
+    return _cors_headers(request, JsonResponse({
+        "results": results,
+        "total_checked": len(results),
+        "total_valid": sum(1 for v in results.values() if v["valid"]),
+        "total_invalid": sum(1 for v in results.values() if not v["valid"]),
     }))
 
 
