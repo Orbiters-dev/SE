@@ -966,15 +966,17 @@ def generate():
             out[brand] = {"top": top, "worst": worst}
         return out
 
+    def _kw_date_filter(days):
+        """Include rows where the reporting period's end date is within last N days of latest_end."""
+        cutoff = (datetime.strptime(latest_end[:10], "%Y-%m-%d") - timedelta(days=days - 1)).strftime("%Y-%m-%d")
+        def _f(d):
+            end = _parse_st_end_date(d)[:10]
+            return end >= cutoff
+        return _f
+
     kw_all = _kw_top_worst(_kw_agg_by_brand_period(search_terms))
-    kw_latest = _kw_top_worst(_kw_agg_by_brand_period(
-        search_terms,
-        date_filter=lambda d: d == st_dates[-1] if st_dates else True
-    ))
-    kw_2w = _kw_top_worst(_kw_agg_by_brand_period(
-        search_terms,
-        date_filter=lambda d: d in st_dates[-2:] if len(st_dates) >= 2 else True
-    ))
+    kw_latest = _kw_top_worst(_kw_agg_by_brand_period(search_terms, date_filter=_kw_date_filter(7)))
+    kw_2w = _kw_top_worst(_kw_agg_by_brand_period(search_terms, date_filter=_kw_date_filter(14)))
 
     # Brands: Grosmimi always first
     kw_brands = sorted(set(
@@ -1667,7 +1669,12 @@ def generate():
         attr_total_sales = sum(v["sales"] for v in attribution.values())
         attr_total_purchases = sum(v["purchases"] for v in attribution.values())
         attr_total_brb = sum(v["brb"] for v in attribution.values())
-        meta_spend_for_attr = meta_traffic["spend"]
+        # Build campaigns first so we can sum matched spend for correct ROAS denominator
+        # Using total Meta Traffic spend ($1.3M+) gives wrong ROAS — should use only attr campaign spend
+        attr_camps = _build_attr_campaigns(attribution, meta_traffic_by_camp)
+        meta_spend_for_attr = sum(c["spend"] for c in attr_camps)
+        if meta_spend_for_attr == 0:
+            meta_spend_for_attr = meta_traffic["spend"]  # fallback if no campaigns matched
         attr_roas = round(attr_total_sales / meta_spend_for_attr, 1) if meta_spend_for_attr else 0
         attr_roas_adj = round((attr_total_sales + attr_total_brb) / meta_spend_for_attr, 1) if meta_spend_for_attr else 0
         attr_summary = {
@@ -1676,7 +1683,7 @@ def generate():
             "brb": round(attr_total_brb),
             "roas": attr_roas,
             "roas_with_brb": attr_roas_adj,
-            "campaigns": _build_attr_campaigns(attribution, meta_traffic_by_camp),
+            "campaigns": attr_camps,
         }
 
         def _src(name, clicks, spend, sales, purchases, pct):
