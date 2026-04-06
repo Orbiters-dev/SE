@@ -677,10 +677,12 @@ def _fetch_amz_ads_report(headers, profile_id, start, end,
 def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
                                    report_type_id, group_by, columns,
                                    time_unit="DAILY",
-                                   base_url="https://advertising-api.amazon.com"):
-    """Generic Amazon Ads report fetcher with 425 retry support.
+                                   base_url="https://advertising-api.amazon.com",
+                                   _retry_count=0):
+    """Generic Amazon Ads report fetcher with 425 retry + auto-retry on FAILURE/timeout.
     time_unit: DAILY (per-day rows) or SUMMARY (aggregated across range).
     """
+    MAX_RETRIES = 1  # auto-retry once on FAILURE/timeout
     # DAILY requires "date" in columns
     cols = list(columns)
     if time_unit == "DAILY" and "date" not in cols:
@@ -737,12 +739,34 @@ def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
                             break
                 return data
             elif status == "FAILURE":
-                print(f"    [WARN] Report failed: {start}~{end}")
+                if _retry_count < MAX_RETRIES:
+                    print(f"    [RETRY] Report FAILURE {start}~{end}, retrying ({_retry_count+1}/{MAX_RETRIES})...")
+                    time.sleep(10)
+                    return _fetch_amz_ads_report_generic(
+                        headers, profile_id, start, end,
+                        report_type_id, group_by, columns,
+                        time_unit, base_url, _retry_count + 1)
+                print(f"    [FAIL] Report failed after retry: {start}~{end}")
                 return []
-        print(f"    [WARN] Report timeout: {start}~{end}")
+        # Timeout — retry once
+        if _retry_count < MAX_RETRIES:
+            print(f"    [RETRY] Report timeout {start}~{end}, retrying ({_retry_count+1}/{MAX_RETRIES})...")
+            time.sleep(10)
+            return _fetch_amz_ads_report_generic(
+                headers, profile_id, start, end,
+                report_type_id, group_by, columns,
+                time_unit, base_url, _retry_count + 1)
+        print(f"    [FAIL] Report timeout after retry: {start}~{end}")
         return []
     except Exception as e:
-        print(f"    [ERROR] Report {start}~{end}: {e}")
+        if _retry_count < MAX_RETRIES:
+            print(f"    [RETRY] Report error {start}~{end}: {e}, retrying ({_retry_count+1}/{MAX_RETRIES})...")
+            time.sleep(10)
+            return _fetch_amz_ads_report_generic(
+                headers, profile_id, start, end,
+                report_type_id, group_by, columns,
+                time_unit, base_url, _retry_count + 1)
+        print(f"    [FAIL] Report error after retry {start}~{end}: {e}")
         return []
 
 
@@ -798,9 +822,14 @@ def collect_amazon_ads_search_terms(date_from: str, date_to: str) -> list[dict]:
                     "sales": float(row.get("sales14d", 0)),
                     "purchases": int(row.get("purchases14d", 0)),
                 })
+            if not rows:
+                print(f"    [WARN] {brand} returned 0 search terms for {cur}~{chunk_end}")
             cur = chunk_end + timedelta(days=1)
             time.sleep(3)
-        print(f"  {brand}: {sum(1 for r in all_rows if r['profile_id'] == pid)} search term rows")
+        brand_count = sum(1 for r in all_rows if r['profile_id'] == pid)
+        print(f"  {brand}: {brand_count} search term rows")
+        if brand_count == 0:
+            print(f"  [ALERT] {brand} has ZERO search term rows — possible API issue!")
 
     return all_rows
 
@@ -3485,6 +3514,8 @@ def main():
 
         try:
             rows = collector(date_from, date_to)
+            if not rows and channel in ("amazon_ads_search_terms", "amazon_ads_keywords"):
+                print(f"  [{channel}] [ALERT] 0 rows collected — possible API/auth issue!")
             _save_cache(table, rows)
             if not args.skip_pg and rows:
                 _push_to_pg(table, rows)
