@@ -109,6 +109,17 @@ jobs:
         run: python -u tools/fetch_apify_content.py --sync-pg --region all
         continue-on-error: true
 
+      - name: Import JP discovery creators to pipeline
+        id: jp_discovery
+        run: |
+          curl -s -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-discovery/" \
+            -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
+            -H "Content-Type: application/json" \
+            -d '{"region": "jp", "days": 7, "limit": 200, "source": "apify_discovery"}' \
+            | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'[JP Discovery] created: {d.get(\"created\",0)}, skipped: {d.get(\"skipped\",0)}')" \
+            || echo "[JP Discovery] import failed (non-fatal)"
+        continue-on-error: true
+
       - name: Update USA_LLM tab + Content Intelligence
         id: usa_llm
         run: python -u tools/update_usa_llm.py
