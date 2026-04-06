@@ -3315,12 +3315,39 @@ def run_ci_pipeline(request):
                 "post_date": str(post_date) if post_date else None,
             })
 
+        # Launch analyze_video_content.py as background process if posts found
+        pid = None
+        if pending and not body.get("dry_run"):
+            import subprocess, os as _os
+            script = _os.path.join(
+                _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                "tools", "analyze_video_content.py"
+            )
+            if _os.path.exists(script):
+                try:
+                    cmd = [
+                        "python3", script,
+                        "--region", region or "jp",
+                        "--max", str(max_posts),
+                        "--min-views", str(min_views),
+                    ]
+                    proc = subprocess.Popen(
+                        cmd,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        start_new_session=True,
+                    )
+                    pid = proc.pid
+                except Exception as e:
+                    pid = f"launch_error: {e}"
+
         return _cors_headers(request, JsonResponse({
             "status": "ok",
             "region": region,
             "max": max_posts,
             "min_views": min_views,
             "pending_count": len(pending),
+            "pid": pid,
             "pending": pending,
         }))
 
