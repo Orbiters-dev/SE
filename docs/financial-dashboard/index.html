@@ -472,7 +472,7 @@ function switchSeoBrand(brand){
   // Toggle brand sub-tab styling
   document.querySelectorAll('[data-seo-brand]').forEach(function(t){
     var b=t.getAttribute('data-seo-brand');
-    var col=b==='All'?'#64748b':({'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Onzenna':'#ec4899','Alpremio':'#f97316'})[b]||'#94a3b8';
+    var col=b==='All'?'#64748b':({'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Alpremio':'#f97316'})[b]||'#94a3b8';
     if(b===brand){t.style.background=col;t.style.color='#fff';}
     else{t.style.background='transparent';t.style.color=col;}
   });
@@ -994,8 +994,8 @@ function renderFinancial(){
   // TAB 4: SEARCH & SEO — with brand sub-tabs
   // ══════════════════════════════════════════════════════════════════════════
   var srch='';
-  var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Onzenna':'#ec4899','Alpremio':'#f97316'};
-  var seoFilterBrands=['All','Grosmimi','Naeiae','CHA&MOM','Onzenna','Alpremio'];
+  var brandColors={'Grosmimi':'#8b5cf6','Naeiae':'#eab308','CHA&MOM':'#0ea5e9','Alpremio':'#f97316'};
+  var seoFilterBrands=['All','Grosmimi','Naeiae','CHA&MOM','Alpremio'];
 
   // Brand sub-tab pills
   srch+='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">';
