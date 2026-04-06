@@ -402,10 +402,11 @@
       "chunk-ebe22097b3fe7a799c85ef9b2aac8f2e",
       "chunk-611922e16f2181d18a953eed8873d5fa",
       "chunk-d25744975c8e0918ed33ccf28e560036",
-      "chunk-0befb02bf8c95b7254fb68adf87c1b53"
+      "chunk-0befb02bf8c95b7254fb68adf87c1b53",
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
     ],
-    "count": 23,
-    "update_time": 1775315733,
+    "count": 24,
+    "update_time": 1775399041,
     "_id": "n8n"
   },
   "PG Email Config": {
@@ -642,10 +643,11 @@
   "PG": {
     "chunk_ids": [
       "chunk-daa5b22f62b5ec4b17cd4bee65609a89",
-      "chunk-9af9b2150b00dd38aa885cf74847601a"
+      "chunk-9af9b2150b00dd38aa885cf74847601a",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412"
     ],
-    "count": 2,
-    "update_time": 1775313204,
+    "count": 3,
+    "update_time": 1775455115,
     "_id": "PG"
   },
   "External Service Call Nodes": {
@@ -733,10 +735,11 @@
     "chunk_ids": [
       "chunk-753ea36fb4a81ce3a74c3b07c2c55a14",
       "chunk-2f6eea6e84b6af37de16437d71eb0296",
-      "chunk-9c71f74b2812864990f0efbc14a61e51"
+      "chunk-9c71f74b2812864990f0efbc14a61e51",
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
     ],
-    "count": 3,
-    "update_time": 1775315490,
+    "count": 4,
+    "update_time": 1775399042,
     "_id": "Draft Order"
   },
   "Step 4": {
@@ -770,10 +773,11 @@
   "data_keeper.py": {
     "chunk_ids": [
       "chunk-d921bca9fb27cdea5a8d6354395a0ac6",
-      "chunk-9af9b2150b00dd38aa885cf74847601a"
+      "chunk-9af9b2150b00dd38aa885cf74847601a",
+      "chunk-219572b1eb78a67bb2e7452e32318243"
     ],
-    "count": 2,
-    "update_time": 1775313208,
+    "count": 3,
+    "update_time": 1775455010,
     "_id": "data_keeper.py"
   },
   "User": {
@@ -1058,10 +1062,12 @@
       "chunk-7767dba93036189c364097f1aae5f9e6",
       "chunk-0d85ab4a566d07a836738ff78b108520",
       "chunk-aa1a626b4d825367f61deb893c8e9257",
-      "chunk-40386356c89e5a402a0f2a48e4cdf02d"
+      "chunk-40386356c89e5a402a0f2a48e4cdf02d",
+      "chunk-474107f576df6a5c3d4d3875afe637ff",
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
     ],
-    "count": 5,
-    "update_time": 1775315049,
+    "count": 7,
+    "update_time": 1775455206,
     "_id": "Data Keeper"
   },
   "n8n AT→PG Migration": {
@@ -1877,10 +1883,12 @@
       "chunk-a6e4502df455ed93d19286469452b67d",
       "chunk-611922e16f2181d18a953eed8873d5fa",
       "chunk-d25744975c8e0918ed33ccf28e560036",
-      "chunk-0befb02bf8c95b7254fb68adf87c1b53"
+      "chunk-0befb02bf8c95b7254fb68adf87c1b53",
+      "chunk-6a05ea772fc966c7967e5b0e518ac558",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
     ],
-    "count": 25,
-    "update_time": 1775315733,
+    "count": 27,
+    "update_time": 1775402903,
     "_id": "Airtable"
   },
   "PostgreSQL": {
@@ -1902,10 +1910,14 @@
       "chunk-b3ab6dc01bce9931197af28cc7d4371f",
       "chunk-611922e16f2181d18a953eed8873d5fa",
       "chunk-d2628b4328409272272238ade6d4cd09",
-      "chunk-0befb02bf8c95b7254fb68adf87c1b53"
+      "chunk-0befb02bf8c95b7254fb68adf87c1b53",
+      "chunk-6a05ea772fc966c7967e5b0e518ac558",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f",
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
     ],
-    "count": 18,
-    "update_time": 1775315735,
+    "count": 22,
+    "update_time": 1775455344,
     "_id": "PostgreSQL"
   },
   "Approval Send": {
@@ -2716,11 +2728,12 @@
   },
   "Data Flow": {
     "chunk_ids": [
-      "chunk-9c368279053bf13db18f1f85bf850942"
+      "chunk-9c368279053bf13db18f1f85bf850942",
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
     ],
-    "count": 1,
-    "create_time": 1775313372,
-    "update_time": 1775313372,
+    "count": 3,
+    "update_time": 1775402904,
     "_id": "Data Flow"
   },
   "CHA&MOM": {
@@ -3747,10 +3760,11 @@
     "chunk_ids": [
       "chunk-5f8083e1466c400ead556f945e1c01b3",
       "chunk-5b0f4c017b56cdf45737f27c957fe0d2",
-      "chunk-333c3d776c38be7c9aedb696f73d920e"
+      "chunk-333c3d776c38be7c9aedb696f73d920e",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
     ],
-    "count": 3,
-    "update_time": 1775314568,
+    "count": 4,
+    "update_time": 1775455365,
     "_id": "Critical Issues"
   },
   "CVR": {
@@ -4615,11 +4629,11 @@
   },
   "FAIL": {
     "chunk_ids": [
-      "chunk-7f58d260c5bbcf37fe9a49d8bfd44441"
+      "chunk-7f58d260c5bbcf37fe9a49d8bfd44441",
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
     ],
-    "count": 1,
-    "create_time": 1775313553,
-    "update_time": 1775313553,
+    "count": 2,
+    "update_time": 1775397887,
     "_id": "FAIL"
   },
   "N/A": {
@@ -4918,10 +4932,12 @@
       "chunk-ebe22097b3fe7a799c85ef9b2aac8f2e",
       "chunk-611922e16f2181d18a953eed8873d5fa",
       "chunk-d25744975c8e0918ed33ccf28e560036",
-      "chunk-96ab59e77088680cfc474e6b6d3fab89"
+      "chunk-96ab59e77088680cfc474e6b6d3fab89",
+      "chunk-6a05ea772fc966c7967e5b0e518ac558",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
     ],
-    "count": 34,
-    "update_time": 1775315818,
+    "count": 36,
+    "update_time": 1775402903,
     "_id": "Shopify"
   },
   "Amazon Bid Strategy": {
@@ -4986,10 +5002,13 @@
       "chunk-bcdebc0475d4243fd4d254986b49391c",
       "chunk-834ba5f6dae18383c4ff63198c6f5143",
       "chunk-a2a416ce8319befb6569970717351ac6",
-      "chunk-a53e9337bdf20e7f3e970fd6d648713e"
+      "chunk-a53e9337bdf20e7f3e970fd6d648713e",
+      "chunk-d06f425bac82c61d59416b2891c27c80",
+      "chunk-d46bf96e549f6cf9637bba620110856c",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
     ],
-    "count": 5,
-    "update_time": 1775315240,
+    "count": 8,
+    "update_time": 1775455252,
     "_id": "Audit Report"
   },
   "audit_report": {
@@ -5162,20 +5181,22 @@
   },
   "Period Consistency": {
     "chunk_ids": [
-      "chunk-bcdebc0475d4243fd4d254986b49391c"
+      "chunk-bcdebc0475d4243fd4d254986b49391c",
+      "chunk-cf0e99914d3f5fa12604d552b1873776",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d",
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
     ],
-    "count": 1,
-    "create_time": 1775313613,
-    "update_time": 1775313613,
+    "count": 4,
+    "update_time": 1775402383,
     "_id": "Period Consistency"
   },
   "Sign Conventions": {
     "chunk_ids": [
-      "chunk-bcdebc0475d4243fd4d254986b49391c"
+      "chunk-bcdebc0475d4243fd4d254986b49391c",
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
     ],
-    "count": 1,
-    "create_time": 1775313613,
-    "update_time": 1775313613,
+    "count": 2,
+    "update_time": 1775398257,
     "_id": "Sign Conventions"
   },
   "Accounting Standards": {
@@ -5492,10 +5513,12 @@
       "chunk-a2a416ce8319befb6569970717351ac6",
       "chunk-40386356c89e5a402a0f2a48e4cdf02d",
       "chunk-ebc11c230ce97c55325c82f7c5946993",
-      "chunk-a53e9337bdf20e7f3e970fd6d648713e"
+      "chunk-a53e9337bdf20e7f3e970fd6d648713e",
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-d72451c08459b00c6cd8799579d3874d"
     ],
-    "count": 5,
-    "update_time": 1775315237,
+    "count": 7,
+    "update_time": 1775402421,
     "_id": "CFO"
   },
   "Orchestration and Sign-off": {
@@ -5706,10 +5729,11 @@
       "chunk-0894afcf9d6fa58131cd512d2df64f69",
       "chunk-d02605b24559815326965c5ae77ce411",
       "chunk-3d0ea1a11db7a385b15c1e0b5c91a59d",
-      "chunk-d07c9df193742796236442a59c78ba1d"
+      "chunk-d07c9df193742796236442a59c78ba1d",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
     ],
-    "count": 5,
-    "update_time": 1775315496,
+    "count": 6,
+    "update_time": 1775455260,
     "_id": "Orbitools API"
   },
   "IMPACT": {
@@ -6191,11 +6215,11 @@
   },
   "Manifest File": {
     "chunk_ids": [
-      "chunk-b377e7f2d3709df8bd699d7f7b05d7dc"
+      "chunk-b377e7f2d3709df8bd699d7f7b05d7dc",
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
     ],
-    "count": 1,
-    "create_time": 1775313721,
-    "update_time": 1775313721,
+    "count": 2,
+    "update_time": 1775455213,
     "_id": "Manifest File"
   },
   "Content Intelligence Team": {
@@ -7933,11 +7957,11 @@
   },
   "generate_fin_data.py": {
     "chunk_ids": [
-      "chunk-6f06f5c7632ced6060f36c89b7e62d29"
+      "chunk-6f06f5c7632ced6060f36c89b7e62d29",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
     ],
-    "count": 1,
-    "create_time": 1775313876,
-    "update_time": 1775313876,
+    "count": 2,
+    "update_time": 1775398991,
     "_id": "generate_fin_data.py"
   },
   "kpi_validator.py": {
@@ -9074,11 +9098,11 @@
   },
   "Gross Margin": {
     "chunk_ids": [
-      "chunk-565e3686182be6732f4eb713f7aefecc"
+      "chunk-565e3686182be6732f4eb713f7aefecc",
+      "chunk-d72451c08459b00c6cd8799579d3874d"
     ],
-    "count": 1,
-    "create_time": 1775313951,
-    "update_time": 1775313951,
+    "count": 2,
+    "update_time": 1775402421,
     "_id": "Gross Margin"
   },
   "EBITDA": {
@@ -13933,11 +13957,11 @@
   },
   "Issues Found": {
     "chunk_ids": [
-      "chunk-fbc1fc7ded05669b4af23f09b650d713"
+      "chunk-fbc1fc7ded05669b4af23f09b650d713",
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
     ],
-    "count": 1,
-    "create_time": 1775314571,
-    "update_time": 1775314571,
+    "count": 2,
+    "update_time": 1775402868,
     "_id": "Issues Found"
   },
   "n8n Workflow Evaluate Checklist": {
@@ -18602,10 +18626,11 @@
   "RAG": {
     "chunk_ids": [
       "chunk-cf564256adfa8bc3ce63f3d22aa445af",
-      "chunk-e3ad425d660cd23c1b5cf3d52b664998"
+      "chunk-e3ad425d660cd23c1b5cf3d52b664998",
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
     ],
-    "count": 2,
-    "update_time": 1775315107,
+    "count": 3,
+    "update_time": 1775399020,
     "_id": "RAG"
   },
   "Auto RAG Contact Sync": {
@@ -18637,11 +18662,11 @@
   },
   "Executor": {
     "chunk_ids": [
-      "chunk-40386356c89e5a402a0f2a48e4cdf02d"
+      "chunk-40386356c89e5a402a0f2a48e4cdf02d",
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
     ],
-    "count": 1,
-    "create_time": 1775315068,
-    "update_time": 1775315068,
+    "count": 2,
+    "update_time": 1775402868,
     "_id": "Executor"
   },
   "Content Sheet URL": {
@@ -18727,11 +18752,11 @@
   },
   "Verifier": {
     "chunk_ids": [
-      "chunk-40386356c89e5a402a0f2a48e4cdf02d"
+      "chunk-40386356c89e5a402a0f2a48e4cdf02d",
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
     ],
-    "count": 1,
-    "create_time": 1775315072,
-    "update_time": 1775315072,
+    "count": 2,
+    "update_time": 1775402868,
     "_id": "Verifier"
   },
   "Shopify Issues": {
@@ -19133,11 +19158,16 @@
   },
   "tools/data_keeper.py": {
     "chunk_ids": [
-      "chunk-d6e3b08a681daa85e75fbda93d16037e"
+      "chunk-d6e3b08a681daa85e75fbda93d16037e",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-d46bf96e549f6cf9637bba620110856c",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
     ],
-    "count": 1,
-    "create_time": 1775315164,
-    "update_time": 1775315164,
+    "count": 7,
+    "update_time": 1775455375,
     "_id": "tools/data_keeper.py"
   },
   "tools/data_keeper_backfill.py": {
@@ -19529,11 +19559,11 @@
   },
   "tools/setup_n8n_delivery_email.py": {
     "chunk_ids": [
-      "chunk-d6e3b08a681daa85e75fbda93d16037e"
+      "chunk-d6e3b08a681daa85e75fbda93d16037e",
+      "chunk-d06f425bac82c61d59416b2891c27c80"
     ],
-    "count": 1,
-    "create_time": 1775315178,
-    "update_time": 1775315178,
+    "count": 2,
+    "update_time": 1775399066,
     "_id": "tools/setup_n8n_delivery_email.py"
   },
   "tools/setup_n8n_gifting_airtable.py": {
@@ -20615,11 +20645,11 @@
   },
   "Test Connection": {
     "chunk_ids": [
-      "chunk-f0a3ef5bd61e4c7798e1d1b1d2c67beb"
+      "chunk-f0a3ef5bd61e4c7798e1d1b1d2c67beb",
+      "chunk-a2e3b9dda15dc2d0f3db7938c548c4a6"
     ],
-    "count": 1,
-    "create_time": 1775315351,
-    "update_time": 1775315351,
+    "count": 2,
+    "update_time": 1775397897,
     "_id": "Test Connection"
   },
   "BambooBebe": {
@@ -23426,11 +23456,14 @@
   },
   "env_loader.py": {
     "chunk_ids": [
-      "chunk-9935ebbb9b20f5976a156f23482e4e69"
+      "chunk-9935ebbb9b20f5976a156f23482e4e69",
+      "chunk-474107f576df6a5c3d4d3875afe637ff",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
     ],
-    "count": 1,
-    "create_time": 1775315785,
-    "update_time": 1775315785,
+    "count": 5,
+    "update_time": 1775455344,
     "_id": "env_loader.py"
   },
   "leave_com_processed.json": {
@@ -24683,5 +24716,1106 @@
     "create_time": 1775381186,
     "update_time": 1775381186,
     "_id": "Needs Review"
+  },
+  "Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26",
+      "chunk-a2e3b9dda15dc2d0f3db7938c548c4a6",
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-cf0e99914d3f5fa12604d552b1873776",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d",
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7",
+      "chunk-6a05ea772fc966c7967e5b0e518ac558",
+      "chunk-3d7927dc3548bedd048eba656f5cfc08",
+      "chunk-d06f425bac82c61d59416b2891c27c80",
+      "chunk-f0a51102d871f5d8cecb2bed696c3360",
+      "chunk-d72451c08459b00c6cd8799579d3874d",
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f",
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04",
+      "chunk-4de7f333320ca174ca58ce081017887c",
+      "chunk-219572b1eb78a67bb2e7452e32318243",
+      "chunk-474107f576df6a5c3d4d3875afe637ff",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-d46bf96e549f6cf9637bba620110856c",
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 24,
+    "update_time": 1775455369,
+    "_id": "Codex Audit Result"
+  },
+  "20260405_230427": {
+    "chunk_ids": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
+    ],
+    "count": 1,
+    "create_time": 1775397885,
+    "update_time": 1775397885,
+    "_id": "20260405_230427"
+  },
+  "Source Code": {
+    "chunk_ids": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
+    ],
+    "count": 1,
+    "create_time": 1775397885,
+    "update_time": 1775397885,
+    "_id": "Source Code"
+  },
+  "Overall Verdict": {
+    "chunk_ids": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
+    ],
+    "count": 1,
+    "create_time": 1775397885,
+    "update_time": 1775397885,
+    "_id": "Overall Verdict"
+  },
+  "20260405_230444": {
+    "chunk_ids": [
+      "chunk-a2e3b9dda15dc2d0f3db7938c548c4a6"
+    ],
+    "count": 1,
+    "create_time": 1775397897,
+    "update_time": 1775397897,
+    "_id": "20260405_230444"
+  },
+  "Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398256,
+    "update_time": 1775398256,
+    "_id": "Script"
+  },
+  "COGS Calculation": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-cf0e99914d3f5fa12604d552b1873776",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d",
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 4,
+    "update_time": 1775402383,
+    "_id": "COGS Calculation"
+  },
+  "COGS Standard": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398256,
+    "update_time": 1775398256,
+    "_id": "COGS Standard"
+  },
+  "Partial Month Detection": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398256,
+    "update_time": 1775398256,
+    "_id": "Partial Month Detection"
+  },
+  "Revenue Recognition": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398256,
+    "update_time": 1775398256,
+    "_id": "Revenue Recognition"
+  },
+  "F001": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d",
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 3,
+    "update_time": 1775402421,
+    "_id": "F001"
+  },
+  "F002": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d",
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 3,
+    "update_time": 1775402421,
+    "_id": "F002"
+  },
+  "F003": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d",
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 3,
+    "update_time": 1775402421,
+    "_id": "F003"
+  },
+  "F004": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d",
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 3,
+    "update_time": 1775402423,
+    "_id": "F004"
+  },
+  "F005": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 2,
+    "update_time": 1775398993,
+    "_id": "F005"
+  },
+  "Revenue by Channel Mapping": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398383,
+    "update_time": 1775398383,
+    "_id": "Revenue by Channel Mapping"
+  },
+  "Arithmetic - Brand/Channel Totals": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398383,
+    "update_time": 1775398383,
+    "_id": "Arithmetic - Brand/Channel Totals"
+  },
+  "SKU Cost": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398383,
+    "update_time": 1775398383,
+    "_id": "SKU Cost"
+  },
+  "Raw DataKeeper Totals": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398383,
+    "update_time": 1775398383,
+    "_id": "Raw DataKeeper Totals"
+  },
+  "COGS Calculation Rules": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398383,
+    "update_time": 1775398383,
+    "_id": "COGS Calculation Rules"
+  },
+  "Revenue Mapping": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398385,
+    "update_time": 1775398385,
+    "_id": "Revenue Mapping"
+  },
+  "Period Handling": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398385,
+    "update_time": 1775398385,
+    "_id": "Period Handling"
+  },
+  "Grosmimi Price Cutoff": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 2,
+    "update_time": 1775455344,
+    "_id": "Grosmimi Price Cutoff"
+  },
+  "Revenue Cross-Table Consistency": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398991,
+    "update_time": 1775398991,
+    "_id": "Revenue Cross-Table Consistency"
+  },
+  "Arithmetic Consistency": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398991,
+    "update_time": 1775398991,
+    "_id": "Arithmetic Consistency"
+  },
+  "tools/codex_evaluator.py": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399020,
+    "update_time": 1775399020,
+    "_id": "tools/codex_evaluator.py"
+  },
+  "CLI": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "count": 2,
+    "update_time": 1775455299,
+    "_id": "CLI"
+  },
+  "OpenAI API": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399020,
+    "update_time": 1775399020,
+    "_id": "OpenAI API"
+  },
+  "File NotFoundError": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399020,
+    "update_time": 1775399020,
+    "_id": "File NotFoundError"
+  },
+  "TypeError": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399020,
+    "update_time": 1775399020,
+    "_id": "TypeError"
+  },
+  "500 Lines": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399021,
+    "update_time": 1775399021,
+    "_id": "500 Lines"
+  },
+  "dual_test_runner.py": {
+    "chunk_ids": [
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
+    ],
+    "count": 1,
+    "create_time": 1775399040,
+    "update_time": 1775399040,
+    "_id": "dual_test_runner.py"
+  },
+  "Stage Results": {
+    "chunk_ids": [
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
+    ],
+    "count": 1,
+    "create_time": 1775399040,
+    "update_time": 1775399040,
+    "_id": "Stage Results"
+  },
+  "Gifting Application": {
+    "chunk_ids": [
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
+    ],
+    "count": 1,
+    "create_time": 1775399041,
+    "update_time": 1775399041,
+    "_id": "Gifting Application"
+  },
+  "ORBI System": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399063,
+    "update_time": 1775399063,
+    "_id": "ORBI System"
+  },
+  "Data Ingestion and Caching Script": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399063,
+    "update_time": 1775399063,
+    "_id": "Data Ingestion and Caching Script"
+  },
+  "Advertising and Sales Data": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399063,
+    "update_time": 1775399063,
+    "_id": "Advertising and Sales Data"
+  },
+  "Line 1-900": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399063,
+    "update_time": 1775399063,
+    "_id": "Line 1-900"
+  },
+  "PST": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399064,
+    "update_time": 1775399064,
+    "_id": "PST"
+  },
+  "YAML": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08",
+      "chunk-219572b1eb78a67bb2e7452e32318243",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 4,
+    "update_time": 1775455168,
+    "_id": "YAML"
+  },
+  "Data Collection Logic": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399064,
+    "update_time": 1775399064,
+    "_id": "Data Collection Logic"
+  },
+  "API Schema Changes": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399065,
+    "update_time": 1775399065,
+    "_id": "API Schema Changes"
+  },
+  "KeyError": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399066,
+    "update_time": 1775399066,
+    "_id": "KeyError"
+  },
+  "Integrity Verification": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399066,
+    "update_time": 1775399066,
+    "_id": "Integrity Verification"
+  },
+  "Functionality": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412"
+    ],
+    "count": 2,
+    "update_time": 1775455121,
+    "_id": "Functionality"
+  },
+  "Data Integrity": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80",
+      "chunk-474107f576df6a5c3d4d3875afe637ff",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "count": 4,
+    "update_time": 1775455299,
+    "_id": "Data Integrity"
+  },
+  "Code Quality": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "count": 3,
+    "update_time": 1775455300,
+    "_id": "Code Quality"
+  },
+  "Line 44-51": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399066,
+    "update_time": 1775399066,
+    "_id": "Line 44-51"
+  },
+  "Line 52-55": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399067,
+    "update_time": 1775399067,
+    "_id": "Line 52-55"
+  },
+  "Line 170-171": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399068,
+    "update_time": 1775399068,
+    "_id": "Line 170-171"
+  },
+  "Line 232-233": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399068,
+    "update_time": 1775399068,
+    "_id": "Line 232-233"
+  },
+  "Line 239-240": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399068,
+    "update_time": 1775399068,
+    "_id": "Line 239-240"
+  },
+  "Line 246": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399068,
+    "update_time": 1775399068,
+    "_id": "Line 246"
+  },
+  "Line 263": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399068,
+    "update_time": 1775399068,
+    "_id": "Line 263"
+  },
+  "COGS Range Validation": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402383,
+    "update_time": 1775402383,
+    "_id": "COGS Range Validation"
+  },
+  "Revenue Mapping (Cross-table Consistency)": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402383,
+    "update_time": 1775402383,
+    "_id": "Revenue Mapping (Cross-table Consistency)"
+  },
+  "Correction Needed": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402383,
+    "update_time": 1775402383,
+    "_id": "Correction Needed"
+  },
+  "Findings": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402383,
+    "update_time": 1775402383,
+    "_id": "Findings"
+  },
+  "Critical": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402383,
+    "update_time": 1775402383,
+    "_id": "Critical"
+  },
+  "Total Revenue": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402421,
+    "update_time": 1775402421,
+    "_id": "Total Revenue"
+  },
+  "Brand Revenue": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402422,
+    "update_time": 1775402422,
+    "_id": "Brand Revenue"
+  },
+  "Channel Revenue": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402423,
+    "update_time": 1775402423,
+    "_id": "Channel Revenue"
+  },
+  "2026-03": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402423,
+    "update_time": 1775402423,
+    "_id": "2026-03"
+  },
+  "Arithmetic Errors": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402423,
+    "update_time": 1775402423,
+    "_id": "Arithmetic Errors"
+  },
+  "Critical Errors": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402424,
+    "update_time": 1775402424,
+    "_id": "Critical Errors"
+  },
+  "Pipeline Audit": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04",
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 3,
+    "update_time": 1775402949,
+    "_id": "Pipeline Audit"
+  },
+  "patch_draft_gen_v2.py": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f",
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04",
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 4,
+    "update_time": 1775402949,
+    "_id": "patch_draft_gen_v2.py"
+  },
+  "Stage Integrity": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 2,
+    "update_time": 1775402903,
+    "_id": "Stage Integrity"
+  },
+  "Webhook/n8n Health": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 2,
+    "update_time": 1775402905,
+    "_id": "Webhook/n8n Health"
+  },
+  "Negative Tests": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 2,
+    "update_time": 1775402906,
+    "_id": "Negative Tests"
+  },
+  "gifting2": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-0e34eca661f2d465825cd5724fe1db9f",
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04",
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 4,
+    "update_time": 1775402949,
+    "_id": "gifting2"
+  },
+  "sample_sent": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
+    ],
+    "count": 1,
+    "create_time": 1775402871,
+    "update_time": 1775402871,
+    "_id": "sample_sent"
+  },
+  "Cleanup": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402906,
+    "update_time": 1775402906,
+    "_id": "Cleanup"
+  },
+  "n8n Draft Gen Workflow": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402927,
+    "update_time": 1775402927,
+    "_id": "n8n Draft Gen Workflow"
+  },
+  "stage integrity": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402927,
+    "update_time": 1775402927,
+    "_id": "stage integrity"
+  },
+  "data flow": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402927,
+    "update_time": 1775402927,
+    "_id": "data flow"
+  },
+  "patch script": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402927,
+    "update_time": 1775402927,
+    "_id": "patch script"
+  },
+  "record propagation": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402929,
+    "update_time": 1775402929,
+    "_id": "record propagation"
+  },
+  "negative test coverage": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402929,
+    "update_time": 1775402929,
+    "_id": "negative test coverage"
+  },
+  "Cross-System": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402949,
+    "update_time": 1775402949,
+    "_id": "Cross-System"
+  },
+  "Silent Failure Risk": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402949,
+    "update_time": 1775402949,
+    "_id": "Silent Failure Risk"
+  },
+  "STAGE INTEGRITY": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402949,
+    "update_time": 1775402949,
+    "_id": "STAGE INTEGRITY"
+  },
+  "DATA FLOW": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402949,
+    "update_time": 1775402949,
+    "_id": "DATA FLOW"
+  },
+  "WEBHOOK/n8n HEALTH": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402951,
+    "update_time": 1775402951,
+    "_id": "WEBHOOK/n8n HEALTH"
+  },
+  "FUNCTIONALITY": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243",
+      "chunk-d46bf96e549f6cf9637bba620110856c",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 4,
+    "update_time": 1775455364,
+    "_id": "FUNCTIONALITY"
+  },
+  "DATA INTEGRITY": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243",
+      "chunk-d46bf96e549f6cf9637bba620110856c",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 4,
+    "update_time": 1775455364,
+    "_id": "DATA INTEGRITY"
+  },
+  "CHANNEL_COLLECTORS": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243",
+      "chunk-474107f576df6a5c3d4d3875afe637ff",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-d46bf96e549f6cf9637bba620110856c",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 8,
+    "update_time": 1775455371,
+    "_id": "CHANNEL_COLLECTORS"
+  },
+  "amazon api": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455010,
+    "update_time": 1775455010,
+    "_id": "amazon api"
+  },
+  "if __name__ == \"__main__\":": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455012,
+    "update_time": 1775455012,
+    "_id": "if __name__ == \"__main__\":"
+  },
+  "load_env()": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 2,
+    "update_time": 1775455373,
+    "_id": "load_env()"
+  },
+  "NameError": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
+    ],
+    "count": 2,
+    "update_time": 1775455253,
+    "_id": "NameError"
+  },
+  "requests Library": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455059,
+    "update_time": 1775455059,
+    "_id": "requests Library"
+  },
+  "audit report": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455059,
+    "update_time": 1775455059,
+    "_id": "audit report"
+  },
+  "Functional Issues": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455061,
+    "update_time": 1775455061,
+    "_id": "Functional Issues"
+  },
+  "7/10": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455066,
+    "update_time": 1775455066,
+    "_id": "7/10"
+  },
+  "CACHE_DIR": {
+    "chunk_ids": [
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412"
+    ],
+    "count": 1,
+    "create_time": 1775455115,
+    "update_time": 1775455115,
+    "_id": "CACHE_DIR"
+  },
+  "ORBITOOLS_BASE": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455168,
+    "update_time": 1775455168,
+    "_id": "ORBITOOLS_BASE"
+  },
+  "Score: 7/10": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455174,
+    "update_time": 1775455174,
+    "_id": "Score: 7/10"
+  },
+  "_export_to_shared": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455176,
+    "update_time": 1775455176,
+    "_id": "_export_to_shared"
+  },
+  "_sync_nas_from_pg": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455176,
+    "update_time": 1775455176,
+    "_id": "_sync_nas_from_pg"
+  },
+  "_scan_signals": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455177,
+    "update_time": 1775455177,
+    "_id": "_scan_signals"
+  },
+  "Channel Collectors": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455206,
+    "update_time": 1775455206,
+    "_id": "Channel Collectors"
+  },
+  "Shared Directory": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455206,
+    "update_time": 1775455206,
+    "_id": "Shared Directory"
+  },
+  "Cache Directory": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455206,
+    "update_time": 1775455206,
+    "_id": "Cache Directory"
+  },
+  "Amazon Ads Token": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455206,
+    "update_time": 1775455206,
+    "_id": "Amazon Ads Token"
+  },
+  "YAML Parser": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455208,
+    "update_time": 1775455208,
+    "_id": "YAML Parser"
+  },
+  "Tools/Data Keeper.py": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455214,
+    "update_time": 1775455214,
+    "_id": "Tools/Data Keeper.py"
+  },
+  "Line 368": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455214,
+    "update_time": 1775455214,
+    "_id": "Line 368"
+  },
+  "CODE QUALITY": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 2,
+    "update_time": 1775455364,
+    "_id": "CODE QUALITY"
+  },
+  "JSON Data": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
+    ],
+    "count": 1,
+    "create_time": 1775455260,
+    "update_time": 1775455260,
+    "_id": "JSON Data"
+  },
+  "requests": {
+    "chunk_ids": [
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "count": 1,
+    "create_time": 1775455299,
+    "update_time": 1775455299,
+    "_id": "requests"
+  },
+  "Functionality Audit": {
+    "chunk_ids": [
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 1,
+    "create_time": 1775455344,
+    "update_time": 1775455344,
+    "_id": "Functionality Audit"
+  },
+  "Data Integrity Audit": {
+    "chunk_ids": [
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 1,
+    "create_time": 1775455345,
+    "update_time": 1775455345,
+    "_id": "Data Integrity Audit"
+  },
+  "20260406_150113": {
+    "chunk_ids": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 1,
+    "create_time": 1775455364,
+    "update_time": 1775455364,
+    "_id": "20260406_150113"
+  },
+  "Line 1-~800": {
+    "chunk_ids": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 1,
+    "create_time": 1775455365,
+    "update_time": 1775455365,
+    "_id": "Line 1-~800"
+  },
+  "env_loader": {
+    "chunk_ids": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 1,
+    "create_time": 1775455371,
+    "update_time": 1775455371,
+    "_id": "env_loader"
+  },
+  "API Calls": {
+    "chunk_ids": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 1,
+    "create_time": 1775455373,
+    "update_time": 1775455373,
+    "_id": "API Calls"
   }
 }

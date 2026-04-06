@@ -2276,5 +2276,413 @@
       "processing_start_time": 1775381146,
       "processing_end_time": 1775381196
     }
+  },
+  "doc-a8abf029ce1d1ed7ed4c55e7af10bd26": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260405_230427\n\nNo code file was provided for audit.\n\n- If you want a code audit, please upload or paste the source code file.\n- If you want to test a connection (e.g., to an API), please clarify what code or configu...",
+    "content_length": 356,
+    "created_at": "2026-04-05T14:04:31.949203+00:00",
+    "updated_at": "2026-04-05T14:04:49.032565+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_230431_739db830",
+    "metadata": {
+      "processing_start_time": 1775397871,
+      "processing_end_time": 1775397889
+    }
+  },
+  "doc-a2e3b9dda15dc2d0f3db7938c548c4a6": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-a2e3b9dda15dc2d0f3db7938c548c4a6"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260405_230444\n\nNo code file was provided for audit.\n\n- If you are asking for a \"test connection\" audit, please provide the actual code (file contents) that implements the \"test connection\" feature.\n- If you want to ...",
+    "content_length": 405,
+    "created_at": "2026-04-05T14:04:48.539065+00:00",
+    "updated_at": "2026-04-05T14:04:59.891833+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_230448_c0f12f43",
+    "metadata": {
+      "processing_start_time": 1775397889,
+      "processing_end_time": 1775397899
+    }
+  },
+  "doc-82d5e6384ec2e39cd8d8e05a2bc453df": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "content_summary": "# Codex Audit Result [CFO] — 20260405_231022\n\n```json\n{\n  \"status\": \"WARN\",\n  \"summary\": \"Script structure is robust, but several areas require explicit documentation or tighter controls to guarantee zero-tolerance compliance for financial reporting....",
+    "content_length": 3046,
+    "created_at": "2026-04-05T14:10:27.080162+00:00",
+    "updated_at": "2026-04-05T14:11:04.308542+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_231027_387ae497",
+    "metadata": {
+      "processing_start_time": 1775398227,
+      "processing_end_time": 1775398264
+    }
+  },
+  "doc-cf0e99914d3f5fa12604d552b1873776": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "content_summary": "# Codex Audit Result [CFO] — 20260405_231233\n\n```json\n{\n  \"status\": \"FAIL\",\n  \"summary\": \"Multiple CRITICAL issues found: COGS calculation rules, revenue mapping, and period handling have high risk of misstatement.\",\n  \"findings\": [\n    {\n      \"id\":...",
+    "content_length": 3046,
+    "created_at": "2026-04-05T14:12:37.857204+00:00",
+    "updated_at": "2026-04-05T14:13:10.270046+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_231237_e80fda58",
+    "metadata": {
+      "processing_start_time": 1775398357,
+      "processing_end_time": 1775398390
+    }
+  },
+  "doc-205ab7c330a998ad55b9cb0fd5320d5d": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "content_summary": "# Codex Audit Result [CFO] — 20260405_232239\n\n```json\n{\n  \"status\": \"FAIL\",\n  \"summary\": \"Multiple CRITICAL and MAJOR audit issues found in generate_fin_data.py: COGS calculation, revenue mapping, and period consistency all at risk.\",\n  \"findings\": [...",
+    "content_length": 3046,
+    "created_at": "2026-04-05T14:22:43.866624+00:00",
+    "updated_at": "2026-04-05T14:23:20.717280+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_232243_4edb185d",
+    "metadata": {
+      "processing_start_time": 1775398963,
+      "processing_end_time": 1775399000
+    }
+  },
+  "doc-2bb2184dcf276d2c10854b0f0bc061f7": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260405_232248\n\n**Audit of `tools/codex_evaluator.py`**\n\n---\n\n### 1. FUNCTIONALITY\n\n**Score:** 7  \n**PASS/FAIL:** **FAIL**\n\n**Issues:**\n\n- **Line 1-~600:** The script is truncated and incomplete. The CLI parser is cu...",
+    "content_length": 3050,
+    "created_at": "2026-04-05T14:22:52.310929+00:00",
+    "updated_at": "2026-04-05T14:23:46.760679+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_232252_d195ecbd",
+    "metadata": {
+      "processing_start_time": 1775399001,
+      "processing_end_time": 1775399026
+    }
+  },
+  "doc-6a05ea772fc966c7967e5b0e518ac558": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
+    ],
+    "content_summary": "# Codex Audit Result [PIPELINER] — 20260405_232339\n\n```\n## Pipeline Audit — dual_test_runner.py (code review)\n\n### Stage Results\n| Stage    | Executor | Verifier | Cross-System | Verdict |\n|----------|----------|----------|--------------|---------|\n|...",
+    "content_length": 3052,
+    "created_at": "2026-04-05T14:23:43.728867+00:00",
+    "updated_at": "2026-04-05T14:24:05.177369+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_232343_0c6584fa",
+    "metadata": {
+      "processing_start_time": 1775399027,
+      "processing_end_time": 1775399045
+    }
+  },
+  "doc-d06f425bac82c61d59416b2891c27c80": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260405_232343\n\n# Audit Report: tools/setup_n8n_delivery_email.py\n\n---\n\n## 1. FUNCTIONALITY\n\n**Score:** 7/10  \n**PASS/FAIL:** **FAIL**\n\n### Issues:\n\n- **Line 44-51:** PDF path logic is brittle and not robust for all ...",
+    "content_length": 3050,
+    "created_at": "2026-04-05T14:23:47.564936+00:00",
+    "updated_at": "2026-04-05T14:24:37.260068+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_232347_98d7a860",
+    "metadata": {
+      "processing_start_time": 1775399045,
+      "processing_end_time": 1775399077
+    }
+  },
+  "doc-3d7927dc3548bedd048eba656f5cfc08": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260405_232346\n\n# Audit of tools/data_keeper.py\n\n## Summary\n\nThis file is a large, critical data ingestion and caching script for the ORBI system, responsible for collecting, caching, and exporting advertising and sa...",
+    "content_length": 3050,
+    "created_at": "2026-04-05T14:23:50.805457+00:00",
+    "updated_at": "2026-04-05T14:24:38.522114+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260405_232350_f6f61cd9",
+    "metadata": {
+      "processing_start_time": 1775399045,
+      "processing_end_time": 1775399078
+    }
+  },
+  "doc-f0a51102d871f5d8cecb2bed696c3360": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "content_summary": "# Codex Audit Result [CFO] — 20260406_001924\n\n```json\n{\n  \"status\": \"FAIL\",\n  \"summary\": \"Critical audit failures: COGS calculation and revenue mapping logic have material weaknesses; cross-table consistency and accounting standards are at risk.\",\n  ...",
+    "content_length": 3046,
+    "created_at": "2026-04-05T15:19:28.558598+00:00",
+    "updated_at": "2026-04-05T15:19:48.145211+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_001928_472fc89a",
+    "metadata": {
+      "processing_start_time": 1775402368,
+      "processing_end_time": 1775402388
+    }
+  },
+  "doc-d72451c08459b00c6cd8799579d3874d": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "content_summary": "# Codex Audit Result [CFO] — 20260406_002003\n\n```json\n{\n  \"status\": \"FAIL\",\n  \"summary\": \"Multiple CRITICAL and MAJOR errors: revenue cross-table mismatches, arithmetic errors, and period inconsistencies.\",\n  \"findings\": [\n    {\n      \"id\": \"F001\",\n ...",
+    "content_length": 3046,
+    "created_at": "2026-04-05T15:20:07.337275+00:00",
+    "updated_at": "2026-04-05T15:20:26.526696+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_002007_189bb701",
+    "metadata": {
+      "processing_start_time": 1775402407,
+      "processing_end_time": 1775402426
+    }
+  },
+  "doc-a8bad1addd0764c0c7cd3a0677bc927d": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
+    ],
+    "content_summary": "# Codex Audit Result [PIPELINER] — 20260406_002727\n\n```\n## Pipeline Audit — patch_draft_gen_v2.py\n\n### Stage Results\n| Stage      | Executor | Verifier | Cross-System | Verdict |\n|------------|----------|----------|--------------|---------|\n| gifting...",
+    "content_length": 3052,
+    "created_at": "2026-04-05T15:27:32.057473+00:00",
+    "updated_at": "2026-04-05T15:27:55.470718+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_002732_b96970d3",
+    "metadata": {
+      "processing_start_time": 1775402852,
+      "processing_end_time": 1775402875
+    }
+  },
+  "doc-0e34eca661f2d465825cd5724fe1db9f": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "content_summary": "# Codex Audit Result [PIPELINER] — 20260406_002801\n\n```\n## Pipeline Audit — patch_draft_gen_v2.py\n\n### Stage Results\n| Stage      | Executor | Verifier | Cross-System | Verdict |\n|------------|----------|----------|--------------|---------|\n| gifting...",
+    "content_length": 2796,
+    "created_at": "2026-04-05T15:28:05.888563+00:00",
+    "updated_at": "2026-04-05T15:28:31.399805+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_002805_9b13bce8",
+    "metadata": {
+      "processing_start_time": 1775402885,
+      "processing_end_time": 1775402911
+    }
+  },
+  "doc-dfcd98f783316bc8eecaac4cd7288f04": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "content_summary": "# Codex Audit Result [PIPELINER] — 20260406_002825\n\n```\n## Pipeline Audit — patch_draft_gen_v2.py\n\n### Stage Results\n| Stage      | Executor | Verifier | Cross-System | Verdict |\n|------------|----------|----------|--------------|---------|\n| gifting...",
+    "content_length": 3052,
+    "created_at": "2026-04-05T15:28:29.459111+00:00",
+    "updated_at": "2026-04-05T15:28:52.204844+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_002829_1e4f3bab",
+    "metadata": {
+      "processing_start_time": 1775402912,
+      "processing_end_time": 1775402932
+    }
+  },
+  "doc-4de7f333320ca174ca58ce081017887c": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "content_summary": "# Codex Audit Result [PIPELINER] — 20260406_002847\n\n```\n## Pipeline Audit — patch_draft_gen_v2.py\n\n### Stage Results\n| Stage      | Executor | Verifier | Cross-System | Verdict |\n|------------|----------|----------|--------------|---------|\n| gifting...",
+    "content_length": 3052,
+    "created_at": "2026-04-05T15:28:51.930436+00:00",
+    "updated_at": "2026-04-05T15:29:21.814901+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_002851_56a083a7",
+    "metadata": {
+      "processing_start_time": 1775402932,
+      "processing_end_time": 1775402961
+    }
+  },
+  "doc-219572b1eb78a67bb2e7452e32318243": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_145622\n\n# Audit Report: `tools/data_keeper.py`\n\n## 1. FUNCTIONALITY\n\n**Score:** 7/10  \n**PASS/FAIL:** **FAIL**\n\n### Issues\n\n- **[Line 1-~800]**: The file is missing the actual channel collector implementation...",
+    "content_length": 3050,
+    "created_at": "2026-04-06T05:56:26.377030+00:00",
+    "updated_at": "2026-04-06T05:57:07.947754+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_145626_e70280f0",
+    "metadata": {
+      "processing_start_time": 1775454986,
+      "processing_end_time": 1775455027
+    }
+  },
+  "doc-474107f576df6a5c3d4d3875afe637ff": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_145713\n\n# Audit Report: `tools/data_keeper.py`\n\n## 1. FUNCTIONALITY\n\n**Score:** 7/10  \n**PASS/FAIL:** **FAIL**\n\n### Issues:\n\n- **[CRITICAL] Line 1-...**: The file is truncated after the collector section (`.....",
+    "content_length": 3050,
+    "created_at": "2026-04-06T05:57:17.581891+00:00",
+    "updated_at": "2026-04-06T05:57:55.327963+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_145717_1f3db9a9",
+    "metadata": {
+      "processing_start_time": 1775455037,
+      "processing_end_time": 1775455075
+    }
+  },
+  "doc-246e52e2d3b2a2f2c17a33d437a3b412": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_145813\n\n# Audit Report: tools/data_keeper.py\n\n## 1. FUNCTIONALITY (Score: 7/10) — **FAIL**\n\n### Issues:\n- **Line 274, 354, 389, 432:** All references to `CHANNEL_COLLECTORS` will raise a `NameError` because `...",
+    "content_length": 3049,
+    "created_at": "2026-04-06T05:58:17.812100+00:00",
+    "updated_at": "2026-04-06T05:58:52.512096+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_145817_72500efc",
+    "metadata": {
+      "processing_start_time": 1775455097,
+      "processing_end_time": 1775455132
+    }
+  },
+  "doc-d46bf96e549f6cf9637bba620110856c": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_145904\n\n# Audit Report: tools/data_keeper.py\n\n## 1. FUNCTIONALITY (Score: 7/10) — **FAIL**\n### Issues:\n- **Line 1-3020 (General):** The file is truncated, so the full implementation of core functions (collect...",
+    "content_length": 3050,
+    "created_at": "2026-04-06T05:59:08.606124+00:00",
+    "updated_at": "2026-04-06T05:59:45.651009+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_145908_3d0790c5",
+    "metadata": {
+      "processing_start_time": 1775455148,
+      "processing_end_time": 1775455185
+    }
+  },
+  "doc-cb93f83f45ce2af70c37a4fa15a73f16": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_145929\n\n# Audit Report: tools/data_keeper.py\n\n## Summary\n\nThis file is a central data collection and caching gateway for advertising and sales data, interfacing with multiple APIs and a PostgreSQL backend via...",
+    "content_length": 3049,
+    "created_at": "2026-04-06T05:59:34.447326+00:00",
+    "updated_at": "2026-04-06T06:00:25.941257+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_145934_4e609656",
+    "metadata": {
+      "processing_start_time": 1775455187,
+      "processing_end_time": 1775455225
+    }
+  },
+  "doc-ed4beb9de386e201fd48d2d662de35eb": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_150014\n\n# Audit Report for `tools/data_keeper.py`\n\n## 1. FUNCTIONALITY (Score: 7/10) — **FAIL**\n\n### Issues:\n- **Line 1-3020 (General):** The code is truncated, so the audit is limited to the first ~1000 line...",
+    "content_length": 3050,
+    "created_at": "2026-04-06T06:00:18.747941+00:00",
+    "updated_at": "2026-04-06T06:01:13.950534+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_150018_67e583f4",
+    "metadata": {
+      "processing_start_time": 1775455227,
+      "processing_end_time": 1775455273
+    }
+  },
+  "doc-c4e4d9eae104c62cb5a0dd9ff1a2e755": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_150042\n\n# Audit: tools/data_keeper.py\n\n## 1. FUNCTIONALITY (Score: 7/10) — **FAIL**\n### Issues:\n- **Line 1-3020 (truncated):** The script is incomplete in the provided snippet (over 3000 lines truncated). Thi...",
+    "content_length": 3050,
+    "created_at": "2026-04-06T06:00:46.597174+00:00",
+    "updated_at": "2026-04-06T06:01:58.656106+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_150046_3f9f9bbd",
+    "metadata": {
+      "processing_start_time": 1775455275,
+      "processing_end_time": 1775455318
+    }
+  },
+  "doc-7ab7ce837c49b802287f8f1433ef8df4": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_150113\n\n# Audit Report: `tools/data_keeper.py`\n\n## 1. FUNCTIONALITY\n\n**Score:** 7/10  \n**PASS/FAIL:** **FAIL**\n\n### Issues\n\n- **[CRITICAL] Line 1-~800:** The script is missing the actual channel collector imp...",
+    "content_length": 3050,
+    "created_at": "2026-04-06T06:01:18.709163+00:00",
+    "updated_at": "2026-04-06T06:03:07.089389+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_150118_b5dfebc0",
+    "metadata": {
+      "processing_start_time": 1775455320,
+      "processing_end_time": 1775455387
+    }
+  },
+  "doc-41c1e499b0a263b3c3be91169eaf658e": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "content_summary": "# Codex Audit Result [GENERAL] — 20260406_150136\n\n# Audit Report: `tools/data_keeper.py`\n\n## 1. FUNCTIONALITY\n\n**Score:** 6/10  \n**PASS/FAIL:** **FAIL**\n\n### Issues:\n\n- **Line 1-3020 (General):** The file is truncated after the channel collector sect...",
+    "content_length": 3050,
+    "created_at": "2026-04-06T06:01:42.132970+00:00",
+    "updated_at": "2026-04-06T06:02:55.414771+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_150142_1c69644f",
+    "metadata": {
+      "processing_start_time": 1775455320,
+      "processing_end_time": 1775455375
+    }
   }
 }

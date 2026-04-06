@@ -9494,5 +9494,933 @@
     "create_time": 1775381196,
     "update_time": 1775381196,
     "_id": "doc-7395072ce178f261136e727d265e0262"
+  },
+  "doc-a8abf029ce1d1ed7ed4c55e7af10bd26": {
+    "relation_pairs": [
+      [
+        "20260405_230427",
+        "Codex Audit Result"
+      ],
+      [
+        "Codex Audit Result",
+        "FAIL"
+      ],
+      [
+        "Codex Audit Result",
+        "Overall Verdict"
+      ],
+      [
+        "Codex Audit Result",
+        "Source Code"
+      ]
+    ],
+    "count": 4,
+    "create_time": 1775397889,
+    "update_time": 1775397889,
+    "_id": "doc-a8abf029ce1d1ed7ed4c55e7af10bd26"
+  },
+  "doc-a2e3b9dda15dc2d0f3db7938c548c4a6": {
+    "relation_pairs": [
+      [
+        "Codex Audit Result",
+        "Test Connection"
+      ],
+      [
+        "20260405_230444",
+        "Codex Audit Result"
+      ]
+    ],
+    "count": 2,
+    "create_time": 1775397899,
+    "update_time": 1775397899,
+    "_id": "doc-a2e3b9dda15dc2d0f3db7938c548c4a6"
+  },
+  "doc-82d5e6384ec2e39cd8d8e05a2bc453df": {
+    "relation_pairs": [
+      [
+        "COGS Standard",
+        "Script"
+      ],
+      [
+        "F003",
+        "Script"
+      ],
+      [
+        "Script",
+        "Sign Conventions"
+      ],
+      [
+        "F005",
+        "Script"
+      ],
+      [
+        "Partial Month Detection",
+        "Script"
+      ],
+      [
+        "Revenue Recognition",
+        "Script"
+      ],
+      [
+        "F002",
+        "Script"
+      ],
+      [
+        "COGS Calculation",
+        "Script"
+      ],
+      [
+        "F004",
+        "Script"
+      ],
+      [
+        "F001",
+        "Script"
+      ],
+      [
+        "CFO",
+        "Codex Audit Result"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1775398264,
+    "update_time": 1775398264,
+    "_id": "doc-82d5e6384ec2e39cd8d8e05a2bc453df"
+  },
+  "doc-cf0e99914d3f5fa12604d552b1873776": {
+    "relation_pairs": [
+      [
+        "Arithmetic - Brand/Channel Totals",
+        "Codex Audit Result"
+      ],
+      [
+        "Codex Audit Result",
+        "Period Handling"
+      ],
+      [
+        "Codex Audit Result",
+        "Revenue by Channel Mapping"
+      ],
+      [
+        "Raw DataKeeper Totals",
+        "Revenue by Channel Mapping"
+      ],
+      [
+        "COGS Calculation",
+        "Codex Audit Result"
+      ],
+      [
+        "COGS Calculation",
+        "SKU Cost"
+      ],
+      [
+        "COGS Calculation Rules",
+        "Codex Audit Result"
+      ],
+      [
+        "Codex Audit Result",
+        "Revenue Mapping"
+      ],
+      [
+        "Codex Audit Result",
+        "Period Consistency"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775398390,
+    "update_time": 1775398390,
+    "_id": "doc-cf0e99914d3f5fa12604d552b1873776"
+  },
+  "doc-205ab7c330a998ad55b9cb0fd5320d5d": {
+    "relation_pairs": [
+      [
+        "Period Consistency",
+        "generate_fin_data.py"
+      ],
+      [
+        "COGS Calculation",
+        "generate_fin_data.py"
+      ],
+      [
+        "Revenue Cross-Table Consistency",
+        "generate_fin_data.py"
+      ],
+      [
+        "F004",
+        "generate_fin_data.py"
+      ],
+      [
+        "F001",
+        "generate_fin_data.py"
+      ],
+      [
+        "F002",
+        "generate_fin_data.py"
+      ],
+      [
+        "Grosmimi Price Cutoff",
+        "generate_fin_data.py"
+      ],
+      [
+        "F003",
+        "generate_fin_data.py"
+      ],
+      [
+        "Arithmetic Consistency",
+        "generate_fin_data.py"
+      ],
+      [
+        "Codex Audit Result",
+        "generate_fin_data.py"
+      ],
+      [
+        "F005",
+        "generate_fin_data.py"
+      ]
+    ],
+    "count": 11,
+    "create_time": 1775399000,
+    "update_time": 1775399000,
+    "_id": "doc-205ab7c330a998ad55b9cb0fd5320d5d"
+  },
+  "doc-2bb2184dcf276d2c10854b0f0bc061f7": {
+    "relation_pairs": [
+      [
+        "File NotFoundError",
+        "tools/codex_evaluator.py"
+      ],
+      [
+        "TypeError",
+        "tools/codex_evaluator.py"
+      ],
+      [
+        "Codex Audit Result",
+        "tools/codex_evaluator.py"
+      ],
+      [
+        "OpenAI API",
+        "tools/codex_evaluator.py"
+      ],
+      [
+        "Codex Audit Result",
+        "RAG"
+      ],
+      [
+        "CLI",
+        "tools/codex_evaluator.py"
+      ],
+      [
+        "500 Lines",
+        "tools/codex_evaluator.py"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775399026,
+    "update_time": 1775399026,
+    "_id": "doc-2bb2184dcf276d2c10854b0f0bc061f7"
+  },
+  "doc-6a05ea772fc966c7967e5b0e518ac558": {
+    "relation_pairs": [
+      [
+        "Gifting Application",
+        "PostgreSQL"
+      ],
+      [
+        "Airtable",
+        "PostgreSQL"
+      ],
+      [
+        "Draft Order",
+        "Shopify"
+      ],
+      [
+        "Stage Results",
+        "n8n"
+      ],
+      [
+        "Stage Results",
+        "dual_test_runner.py"
+      ],
+      [
+        "Airtable",
+        "Shopify"
+      ]
+    ],
+    "count": 6,
+    "create_time": 1775399045,
+    "update_time": 1775399045,
+    "_id": "doc-6a05ea772fc966c7967e5b0e518ac558"
+  },
+  "doc-d06f425bac82c61d59416b2891c27c80": {
+    "relation_pairs": [
+      [
+        "Code Quality",
+        "Codex Audit Result"
+      ],
+      [
+        "Audit Report",
+        "Line 239-240"
+      ],
+      [
+        "Audit Report",
+        "Line 44-51"
+      ],
+      [
+        "Codex Audit Result",
+        "Data Integrity"
+      ],
+      [
+        "Audit Report",
+        "Line 263"
+      ],
+      [
+        "Codex Audit Result",
+        "Functionality"
+      ],
+      [
+        "Codex Audit Result",
+        "tools/setup_n8n_delivery_email.py"
+      ],
+      [
+        "Audit Report",
+        "Line 170-171"
+      ],
+      [
+        "Audit Report",
+        "Line 52-55"
+      ],
+      [
+        "Audit Report",
+        "Line 232-233"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1775399077,
+    "update_time": 1775399077,
+    "_id": "doc-d06f425bac82c61d59416b2891c27c80"
+  },
+  "doc-3d7927dc3548bedd048eba656f5cfc08": {
+    "relation_pairs": [
+      [
+        "Data Ingestion and Caching Script",
+        "KeyError"
+      ],
+      [
+        "Data Ingestion and Caching Script",
+        "YAML"
+      ],
+      [
+        "Codex Audit Result",
+        "ORBI System"
+      ],
+      [
+        "Codex Audit Result",
+        "Line 1-900"
+      ],
+      [
+        "Data Collection Logic",
+        "Data Ingestion and Caching Script"
+      ],
+      [
+        "Advertising and Sales Data",
+        "Data Ingestion and Caching Script"
+      ],
+      [
+        "API Schema Changes",
+        "Data Ingestion and Caching Script"
+      ],
+      [
+        "Data Ingestion and Caching Script",
+        "Integrity Verification"
+      ],
+      [
+        "Data Ingestion and Caching Script",
+        "PST"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775399078,
+    "update_time": 1775399078,
+    "_id": "doc-3d7927dc3548bedd048eba656f5cfc08"
+  },
+  "doc-f0a51102d871f5d8cecb2bed696c3360": {
+    "relation_pairs": [
+      [
+        "COGS Calculation",
+        "Codex Audit Result"
+      ],
+      [
+        "COGS Range Validation",
+        "Codex Audit Result"
+      ],
+      [
+        "Codex Audit Result",
+        "Findings"
+      ],
+      [
+        "Codex Audit Result",
+        "Revenue Mapping (Cross-table Consistency)"
+      ],
+      [
+        "Correction Needed",
+        "Findings"
+      ],
+      [
+        "Codex Audit Result",
+        "Period Consistency"
+      ]
+    ],
+    "count": 6,
+    "create_time": 1775402388,
+    "update_time": 1775402388,
+    "_id": "doc-f0a51102d871f5d8cecb2bed696c3360"
+  },
+  "doc-d72451c08459b00c6cd8799579d3874d": {
+    "relation_pairs": [
+      [
+        "F001",
+        "Total Revenue"
+      ],
+      [
+        "Channel Revenue",
+        "F003"
+      ],
+      [
+        "CFO",
+        "Codex Audit Result"
+      ],
+      [
+        "Brand Revenue",
+        "F002"
+      ],
+      [
+        "Critical Errors",
+        "F004"
+      ]
+    ],
+    "count": 5,
+    "create_time": 1775402426,
+    "update_time": 1775402426,
+    "_id": "doc-d72451c08459b00c6cd8799579d3874d"
+  },
+  "doc-a8bad1addd0764c0c7cd3a0677bc927d": {
+    "relation_pairs": [
+      [
+        "Issues Found",
+        "Stage Integrity"
+      ],
+      [
+        "Executor",
+        "Verifier"
+      ],
+      [
+        "Pipeline Audit",
+        "gifting2"
+      ],
+      [
+        "Pipeline Audit",
+        "sample_sent"
+      ],
+      [
+        "Data Flow",
+        "patch_draft_gen_v2.py"
+      ],
+      [
+        "Codex Audit Result",
+        "Pipeline Audit"
+      ],
+      [
+        "Issues Found",
+        "Webhook/n8n Health"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775402875,
+    "update_time": 1775402875,
+    "_id": "doc-a8bad1addd0764c0c7cd3a0677bc927d"
+  },
+  "doc-0e34eca661f2d465825cd5724fe1db9f": {
+    "relation_pairs": [
+      [
+        "Codex Audit Result",
+        "Webhook/n8n Health"
+      ],
+      [
+        "Airtable",
+        "gifting2"
+      ],
+      [
+        "Codex Audit Result",
+        "Stage Integrity"
+      ],
+      [
+        "Codex Audit Result",
+        "Data Flow"
+      ],
+      [
+        "Cleanup",
+        "Codex Audit Result"
+      ],
+      [
+        "Codex Audit Result",
+        "patch_draft_gen_v2.py"
+      ],
+      [
+        "Shopify",
+        "gifting2"
+      ],
+      [
+        "PostgreSQL",
+        "gifting2"
+      ],
+      [
+        "gifting2",
+        "patch_draft_gen_v2.py"
+      ],
+      [
+        "Codex Audit Result",
+        "Negative Tests"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1775402911,
+    "update_time": 1775402911,
+    "_id": "doc-0e34eca661f2d465825cd5724fe1db9f"
+  },
+  "doc-dfcd98f783316bc8eecaac4cd7288f04": {
+    "relation_pairs": [
+      [
+        "negative test coverage",
+        "patch script"
+      ],
+      [
+        "record propagation",
+        "stage integrity"
+      ],
+      [
+        "n8n Draft Gen Workflow",
+        "patch_draft_gen_v2.py"
+      ],
+      [
+        "data flow",
+        "stage integrity"
+      ],
+      [
+        "Pipeline Audit",
+        "gifting2"
+      ],
+      [
+        "Codex Audit Result",
+        "Pipeline Audit"
+      ],
+      [
+        "gifting2",
+        "patch_draft_gen_v2.py"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775402932,
+    "update_time": 1775402932,
+    "_id": "doc-dfcd98f783316bc8eecaac4cd7288f04"
+  },
+  "doc-4de7f333320ca174ca58ce081017887c": {
+    "relation_pairs": [
+      [
+        "Pipeline Audit",
+        "STAGE INTEGRITY"
+      ],
+      [
+        "Pipeline Audit",
+        "WEBHOOK/n8n HEALTH"
+      ],
+      [
+        "Pipeline Audit",
+        "Silent Failure Risk"
+      ],
+      [
+        "Cross-System",
+        "Pipeline Audit"
+      ],
+      [
+        "DATA FLOW",
+        "Pipeline Audit"
+      ],
+      [
+        "Pipeline Audit",
+        "gifting2"
+      ],
+      [
+        "Codex Audit Result",
+        "Pipeline Audit"
+      ],
+      [
+        "gifting2",
+        "patch_draft_gen_v2.py"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775402961,
+    "update_time": 1775402961,
+    "_id": "doc-4de7f333320ca174ca58ce081017887c"
+  },
+  "doc-219572b1eb78a67bb2e7452e32318243": {
+    "relation_pairs": [
+      [
+        "data_keeper.py",
+        "if __name__ == \"__main__\":"
+      ],
+      [
+        "FUNCTIONALITY",
+        "data_keeper.py"
+      ],
+      [
+        "DATA INTEGRITY",
+        "data_keeper.py"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "data_keeper.py"
+      ],
+      [
+        "data_keeper.py",
+        "load_env()"
+      ],
+      [
+        "NameError",
+        "data_keeper.py"
+      ],
+      [
+        "YAML",
+        "data_keeper.py"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775455027,
+    "update_time": 1775455027,
+    "_id": "doc-219572b1eb78a67bb2e7452e32318243"
+  },
+  "doc-474107f576df6a5c3d4d3875afe637ff": {
+    "relation_pairs": [
+      [
+        "Data Integrity",
+        "Functional Issues"
+      ],
+      [
+        "Codex Audit Result",
+        "Data Keeper"
+      ],
+      [
+        "Data Keeper",
+        "env_loader.py"
+      ],
+      [
+        "Codex Audit Result",
+        "Data Integrity"
+      ],
+      [
+        "Codex Audit Result",
+        "audit report"
+      ],
+      [
+        "Data Keeper",
+        "Functional Issues"
+      ],
+      [
+        "Data Keeper",
+        "requests Library"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "Data Keeper"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775455075,
+    "update_time": 1775455075,
+    "_id": "doc-474107f576df6a5c3d4d3875afe637ff"
+  },
+  "doc-246e52e2d3b2a2f2c17a33d437a3b412": {
+    "relation_pairs": [
+      [
+        "env_loader.py",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Code Quality",
+        "Codex Audit Result"
+      ],
+      [
+        "YAML",
+        "tools/data_keeper.py"
+      ],
+      [
+        "CACHE_DIR",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "Data Integrity"
+      ],
+      [
+        "Codex Audit Result",
+        "Functionality"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "tools/data_keeper.py"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775455132,
+    "update_time": 1775455132,
+    "_id": "doc-246e52e2d3b2a2f2c17a33d437a3b412"
+  },
+  "doc-d46bf96e549f6cf9637bba620110856c": {
+    "relation_pairs": [
+      [
+        "Audit Report",
+        "FUNCTIONALITY"
+      ],
+      [
+        "FUNCTIONALITY",
+        "Score: 7/10"
+      ],
+      [
+        "Audit Report",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Audit Report",
+        "DATA INTEGRITY"
+      ],
+      [
+        "Audit Report",
+        "Codex Audit Result"
+      ],
+      [
+        "DATA INTEGRITY",
+        "Score: 7/10"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "_export_to_shared"
+      ],
+      [
+        "YAML",
+        "_scan_signals"
+      ],
+      [
+        "ORBITOOLS_BASE",
+        "_sync_nas_from_pg"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775455185,
+    "update_time": 1775455185,
+    "_id": "doc-d46bf96e549f6cf9637bba620110856c"
+  },
+  "doc-cb93f83f45ce2af70c37a4fa15a73f16": {
+    "relation_pairs": [
+      [
+        "Amazon Ads Token",
+        "Data Keeper"
+      ],
+      [
+        "Data Keeper",
+        "YAML Parser"
+      ],
+      [
+        "Codex Audit Result",
+        "Data Keeper"
+      ],
+      [
+        "Data Keeper",
+        "PostgreSQL"
+      ],
+      [
+        "Data Keeper",
+        "Manifest File"
+      ],
+      [
+        "Cache Directory",
+        "Data Keeper"
+      ],
+      [
+        "Data Keeper",
+        "Shared Directory"
+      ],
+      [
+        "Data Keeper",
+        "Line 368"
+      ],
+      [
+        "Channel Collectors",
+        "Data Keeper"
+      ]
+    ],
+    "count": 9,
+    "create_time": 1775455225,
+    "update_time": 1775455225,
+    "_id": "doc-cb93f83f45ce2af70c37a4fa15a73f16"
+  },
+  "doc-ed4beb9de386e201fd48d2d662de35eb": {
+    "relation_pairs": [
+      [
+        "DATA INTEGRITY",
+        "JSON Data"
+      ],
+      [
+        "CODE QUALITY",
+        "Codex Audit Result"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "NameError"
+      ],
+      [
+        "Codex Audit Result",
+        "FUNCTIONALITY"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "Codex Audit Result"
+      ],
+      [
+        "Codex Audit Result",
+        "tools/data_keeper.py"
+      ],
+      [
+        "CODE QUALITY",
+        "Orbitools API"
+      ],
+      [
+        "Codex Audit Result",
+        "DATA INTEGRITY"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775455273,
+    "update_time": 1775455273,
+    "_id": "doc-ed4beb9de386e201fd48d2d662de35eb"
+  },
+  "doc-c4e4d9eae104c62cb5a0dd9ff1a2e755": {
+    "relation_pairs": [
+      [
+        "env_loader.py",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Code Quality",
+        "Codex Audit Result"
+      ],
+      [
+        "requests",
+        "tools/data_keeper.py"
+      ],
+      [
+        "CLI",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "Data Integrity"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "tools/data_keeper.py"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775455318,
+    "update_time": 1775455318,
+    "_id": "doc-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+  },
+  "doc-41c1e499b0a263b3c3be91169eaf658e": {
+    "relation_pairs": [
+      [
+        "env_loader.py",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "Data Integrity Audit"
+      ],
+      [
+        "PostgreSQL",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Grosmimi Price Cutoff",
+        "tools/data_keeper.py"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "Functionality Audit"
+      ]
+    ],
+    "count": 7,
+    "create_time": 1775455375,
+    "update_time": 1775455375,
+    "_id": "doc-41c1e499b0a263b3c3be91169eaf658e"
+  },
+  "doc-7ab7ce837c49b802287f8f1433ef8df4": {
+    "relation_pairs": [
+      [
+        "env_loader",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Line 1-~800",
+        "tools/data_keeper.py"
+      ],
+      [
+        "CODE QUALITY",
+        "Codex Audit Result"
+      ],
+      [
+        "CHANNEL_COLLECTORS",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "FUNCTIONALITY"
+      ],
+      [
+        "Critical Issues",
+        "tools/data_keeper.py"
+      ],
+      [
+        "Codex Audit Result",
+        "DATA INTEGRITY"
+      ],
+      [
+        "API Calls",
+        "load_env()"
+      ]
+    ],
+    "count": 8,
+    "create_time": 1775455387,
+    "update_time": 1775455387,
+    "_id": "doc-7ab7ce837c49b802287f8f1433ef8df4"
   }
 }

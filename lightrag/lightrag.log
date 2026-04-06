@@ -4276,3 +4276,938 @@ FileNotFoundError: [Errno 2] No such file or directory: 'C:\\SynologyDrive\\ORBI
 2026-04-05 18:26:37,304 - lightrag - INFO - Completed processing file 2/2: pipeline_dashboard_ui.md
 2026-04-05 18:26:37,304 - lightrag - INFO - Enqueued document processing pipeline stopped
 2026-04-05 18:26:37,304 - lightrag - INFO - Scanning process completed: 2 files Processed.
+2026-04-05 23:04:23,355 - lightrag - WARNING - low_level_keywords is empty
+2026-04-05 23:04:23,355 - lightrag - WARNING - high_level_keywords is empty
+2026-04-05 23:04:23,356 - lightrag - WARNING - Forced low_level_keywords to origin query: test connection
+2026-04-05 23:04:25,994 - lightrag - INFO - Query nodes: test connection (top_k:5, cosine:0.2)
+2026-04-05 23:04:26,005 - lightrag - INFO - Local query: 5 entites, 7 relations
+2026-04-05 23:04:26,006 - lightrag - INFO - Raw search results: 5 entities, 7 relations, 0 vector chunks
+2026-04-05 23:04:26,007 - lightrag - INFO - After truncation: 5 entities, 7 relations
+2026-04-05 23:04:26,017 - lightrag - INFO - Selecting 4 from 4 entity-related chunks by vector similarity
+2026-04-05 23:04:26,018 - lightrag - INFO - Find no additional relations-related chunks from 7 relations
+2026-04-05 23:04:26,018 - lightrag - INFO - Round-robin merged chunks: 4 -> 4 (deduplicated 0)
+2026-04-05 23:04:26,021 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:04:26,029 - lightrag - INFO - Final context: 5 entities, 7 relations, 4 chunks
+2026-04-05 23:04:26,029 - lightrag - INFO - Final chunks S+F/O: E2/1 E1/2 E1/3 E1/4
+2026-04-05 23:04:26,030 - uvicorn.access - INFO - 127.0.0.1:63785 - "POST /query HTTP/1.1" 200
+2026-04-05 23:04:31,948 - uvicorn.access - INFO - 127.0.0.1:51938 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:04:31,977 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-05 23:04:31,977 - lightrag - INFO - Processing 1 document(s)
+2026-04-05 23:04:31,978 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-05 23:04:31,978 - lightrag - INFO - Processing d-id: doc-a8abf029ce1d1ed7ed4c55e7af10bd26
+2026-04-05 23:04:41,734 - lightrag - WARNING - low_level_keywords is empty
+2026-04-05 23:04:41,734 - lightrag - WARNING - high_level_keywords is empty
+2026-04-05 23:04:41,734 - lightrag - WARNING - Forced low_level_keywords to origin query: test connection
+2026-04-05 23:04:41,964 - lightrag - INFO -  == LLM cache == saving: default:extract:5fecff6a94778ac8b167aa9c604c2e4d
+2026-04-05 23:04:42,335 - lightrag - INFO - Query nodes: test connection (top_k:5, cosine:0.2)
+2026-04-05 23:04:42,338 - lightrag - INFO - Local query: 5 entites, 7 relations
+2026-04-05 23:04:42,338 - lightrag - INFO - Raw search results: 5 entities, 7 relations, 0 vector chunks
+2026-04-05 23:04:42,339 - lightrag - INFO - After truncation: 5 entities, 7 relations
+2026-04-05 23:04:42,340 - lightrag - INFO - Selecting 4 from 4 entity-related chunks by vector similarity
+2026-04-05 23:04:42,340 - lightrag - INFO - Find no additional relations-related chunks from 7 relations
+2026-04-05 23:04:42,341 - lightrag - INFO - Round-robin merged chunks: 4 -> 4 (deduplicated 0)
+2026-04-05 23:04:42,342 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:04:42,345 - lightrag - INFO - Final context: 5 entities, 7 relations, 4 chunks
+2026-04-05 23:04:42,346 - lightrag - INFO - Final chunks S+F/O: E2/1 E1/2 E1/3 E1/4
+2026-04-05 23:04:42,427 - uvicorn.access - INFO - 127.0.0.1:49787 - "POST /query HTTP/1.1" 200
+2026-04-05 23:04:45,466 - lightrag - INFO -  == LLM cache == saving: default:extract:58296454eb1a4cafcf779b32e165761f
+2026-04-05 23:04:45,466 - lightrag - INFO - Chunk 1 of 1 extracted 4 Ent + 4 Rel chunk-a8abf029ce1d1ed7ed4c55e7af10bd26
+2026-04-05 23:04:45,467 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-05 23:04:45,467 - lightrag - INFO - Phase 1: Processing 4 entities from doc-a8abf029ce1d1ed7ed4c55e7af10bd26 (async: 8)
+2026-04-05 23:04:46,652 - lightrag - INFO - Phase 2: Processing 4 relations from doc-a8abf029ce1d1ed7ed4c55e7af10bd26 (async: 8)
+2026-04-05 23:04:48,224 - lightrag - INFO - Chunks appended from relation: `FAIL`
+2026-04-05 23:04:48,538 - uvicorn.access - INFO - 127.0.0.1:49804 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:04:48,549 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-05 23:04:49,031 - lightrag - INFO - Phase 3: Updating final 4(4+0) entities and  4 relations from doc-a8abf029ce1d1ed7ed4c55e7af10bd26
+2026-04-05 23:04:49,032 - lightrag - INFO - Completed merging: 4 entities, 0 extra entities, 4 relations
+2026-04-05 23:04:49,590 - lightrag - INFO - [] Writing graph with 2674 nodes, 2083 edges
+2026-04-05 23:04:49,703 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:04:49,703 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-05 23:04:49,703 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-05 23:04:49,704 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-05 23:04:49,704 - lightrag - INFO - Processing 1 document(s)
+2026-04-05 23:04:49,704 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-05 23:04:49,704 - lightrag - INFO - Processing d-id: doc-a2e3b9dda15dc2d0f3db7938c548c4a6
+2026-04-05 23:04:55,984 - lightrag - INFO -  == LLM cache == saving: default:extract:451724f29844ac9bc9a13e02c5eb8c37
+2026-04-05 23:04:57,485 - lightrag - INFO -  == LLM cache == saving: default:extract:cbbb1fbb6998415fe0657447804a6acc
+2026-04-05 23:04:57,485 - lightrag - INFO - Chunk 1 of 1 extracted 3 Ent + 2 Rel chunk-a2e3b9dda15dc2d0f3db7938c548c4a6
+2026-04-05 23:04:57,486 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-05 23:04:57,486 - lightrag - INFO - Phase 1: Processing 3 entities from doc-a2e3b9dda15dc2d0f3db7938c548c4a6 (async: 8)
+2026-04-05 23:04:57,486 - lightrag - INFO - Merged: `Codex Audit Result` | 1+1
+2026-04-05 23:04:57,487 - lightrag - INFO - Merged: `Test Connection` | 1+1
+2026-04-05 23:04:58,912 - lightrag - INFO - Phase 2: Processing 2 relations from doc-a2e3b9dda15dc2d0f3db7938c548c4a6 (async: 8)
+2026-04-05 23:04:59,891 - lightrag - INFO - Phase 3: Updating final 3(3+0) entities and  2 relations from doc-a2e3b9dda15dc2d0f3db7938c548c4a6
+2026-04-05 23:04:59,891 - lightrag - INFO - Completed merging: 3 entities, 0 extra entities, 2 relations
+2026-04-05 23:05:00,343 - lightrag - INFO - [] Writing graph with 2675 nodes, 2085 edges
+2026-04-05 23:05:00,455 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:05:00,455 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-05 23:05:00,455 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-05 23:10:12,660 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:4d3727dac630fcdaee000c126c19b953
+2026-04-05 23:10:13,312 - lightrag - INFO - Query nodes: cfo, audit, financial data, generate_fin_data.py, tools (top_k:3, cosine:0.2)
+2026-04-05 23:10:13,314 - lightrag - INFO - Local query: 3 entites, 4 relations
+2026-04-05 23:10:13,314 - lightrag - INFO - Query edges: CFO audit issues, Financial data generation, Audit tools (top_k:3, cosine:0.2)
+2026-04-05 23:10:13,315 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-05 23:10:13,315 - lightrag - INFO - Raw search results: 7 entities, 7 relations, 0 vector chunks
+2026-04-05 23:10:13,317 - lightrag - INFO - After truncation: 7 entities, 7 relations
+2026-04-05 23:10:13,324 - lightrag - INFO - Selecting 17 from 30 entity-related chunks by vector similarity
+2026-04-05 23:10:13,324 - lightrag - INFO - Find no additional relations-related chunks from 7 relations
+2026-04-05 23:10:13,325 - lightrag - INFO - Round-robin merged chunks: 17 -> 17 (deduplicated 0)
+2026-04-05 23:10:13,327 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:10:13,341 - lightrag - INFO - Final context: 7 entities, 7 relations, 17 chunks
+2026-04-05 23:10:13,342 - lightrag - INFO - Final chunks S+F/O: E3/1 E3/2 E3/3 E3/4 E2/5 E2/6 E2/7 E1/8 E1/9 E1/10 E1/11 E1/12 E1/13 E1/14 E1/15 E1/16 E1/17
+2026-04-05 23:10:13,394 - uvicorn.access - INFO - 127.0.0.1:53763 - "POST /query HTTP/1.1" 200
+2026-04-05 23:10:27,079 - uvicorn.access - INFO - 127.0.0.1:53770 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:10:27,091 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-05 23:10:27,091 - lightrag - INFO - Processing 1 document(s)
+2026-04-05 23:10:27,092 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-05 23:10:27,092 - lightrag - INFO - Processing d-id: doc-82d5e6384ec2e39cd8d8e05a2bc453df
+2026-04-05 23:10:43,221 - lightrag - INFO -  == LLM cache == saving: default:extract:ce6dad69b797f6ca03857c0f6e90ecc1
+2026-04-05 23:10:56,448 - lightrag - INFO -  == LLM cache == saving: default:extract:554789764a20eb3f1116a66ee9b467af
+2026-04-05 23:10:56,449 - lightrag - INFO - Chunk 1 of 1 extracted 13 Ent + 11 Rel chunk-82d5e6384ec2e39cd8d8e05a2bc453df
+2026-04-05 23:10:56,450 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-05 23:10:56,450 - lightrag - INFO - Phase 1: Processing 13 entities from doc-82d5e6384ec2e39cd8d8e05a2bc453df (async: 8)
+2026-04-05 23:10:56,451 - lightrag - INFO - Merged: `Codex Audit Result` | 2+1
+2026-04-05 23:10:56,451 - lightrag - INFO - Merged: `CFO` | 5+1
+2026-04-05 23:10:57,558 - lightrag - INFO - Merged: `Sign Conventions` | 1+1
+2026-04-05 23:10:59,846 - lightrag - INFO - Phase 2: Processing 11 relations from doc-82d5e6384ec2e39cd8d8e05a2bc453df (async: 8)
+2026-04-05 23:11:04,308 - lightrag - INFO - Phase 3: Updating final 13(13+0) entities and  11 relations from doc-82d5e6384ec2e39cd8d8e05a2bc453df
+2026-04-05 23:11:04,308 - lightrag - INFO - Completed merging: 13 entities, 0 extra entities, 11 relations
+2026-04-05 23:11:04,770 - lightrag - INFO - [] Writing graph with 2685 nodes, 2096 edges
+2026-04-05 23:11:04,882 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:11:04,882 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-05 23:11:04,882 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-05 23:12:24,475 - lightrag - INFO - Query nodes: cfo, audit, financial data, generate_fin_data.py, tools (top_k:3, cosine:0.2)
+2026-04-05 23:12:24,478 - lightrag - INFO - Local query: 3 entites, 4 relations
+2026-04-05 23:12:24,478 - lightrag - INFO - Query edges: CFO audit issues, Financial data generation, Audit tools (top_k:3, cosine:0.2)
+2026-04-05 23:12:24,479 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-05 23:12:24,479 - lightrag - INFO - Raw search results: 7 entities, 7 relations, 0 vector chunks
+2026-04-05 23:12:24,480 - lightrag - INFO - After truncation: 7 entities, 7 relations
+2026-04-05 23:12:24,486 - lightrag - INFO - Selecting 17 from 31 entity-related chunks by vector similarity
+2026-04-05 23:12:24,486 - lightrag - INFO - Find no additional relations-related chunks from 7 relations
+2026-04-05 23:12:24,486 - lightrag - INFO - Round-robin merged chunks: 17 -> 17 (deduplicated 0)
+2026-04-05 23:12:24,487 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:12:24,500 - lightrag - INFO - Final context: 7 entities, 7 relations, 17 chunks
+2026-04-05 23:12:24,500 - lightrag - INFO - Final chunks S+F/O: E3/1 E3/2 E3/3 E1/4 E3/5 E2/6 E2/7 E2/8 E1/9 E1/10 E1/11 E1/12 E1/13 E1/14 E1/15 E1/16 E1/17
+2026-04-05 23:12:24,501 - uvicorn.access - INFO - 127.0.0.1:49784 - "POST /query HTTP/1.1" 200
+2026-04-05 23:12:37,856 - uvicorn.access - INFO - 127.0.0.1:49790 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:12:37,867 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-05 23:12:37,867 - lightrag - INFO - Processing 1 document(s)
+2026-04-05 23:12:37,867 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-05 23:12:37,867 - lightrag - INFO - Processing d-id: doc-cf0e99914d3f5fa12604d552b1873776
+2026-04-05 23:12:55,431 - lightrag - INFO -  == LLM cache == saving: default:extract:a34544762065a2453bb33b7b906b9fe8
+2026-04-05 23:13:03,344 - lightrag - INFO -  == LLM cache == saving: default:extract:a9f3368f553e01aff2cd0825908e2890
+2026-04-05 23:13:03,346 - lightrag - INFO - Chunk 1 of 1 extracted 10 Ent + 9 Rel chunk-cf0e99914d3f5fa12604d552b1873776
+2026-04-05 23:13:03,347 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-05 23:13:03,348 - lightrag - INFO - Phase 1: Processing 10 entities from doc-cf0e99914d3f5fa12604d552b1873776 (async: 8)
+2026-04-05 23:13:03,349 - lightrag - INFO - Merged: `Codex Audit Result` | 3+1
+2026-04-05 23:13:03,349 - lightrag - INFO - Merged: `COGS Calculation` | 1+1
+2026-04-05 23:13:03,350 - lightrag - INFO - Merged: `Period Consistency` | 1+1
+2026-04-05 23:13:06,053 - lightrag - INFO - Phase 2: Processing 9 relations from doc-cf0e99914d3f5fa12604d552b1873776 (async: 8)
+2026-04-05 23:13:10,268 - lightrag - INFO - Phase 3: Updating final 10(10+0) entities and  9 relations from doc-cf0e99914d3f5fa12604d552b1873776
+2026-04-05 23:13:10,269 - lightrag - INFO - Completed merging: 10 entities, 0 extra entities, 9 relations
+2026-04-05 23:13:10,714 - lightrag - INFO - [] Writing graph with 2692 nodes, 2105 edges
+2026-04-05 23:13:10,826 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:13:10,827 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-05 23:13:10,827 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-05 23:22:27,103 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:9cdd82c24bf78bcbbea33b0d97d0d6a6
+2026-04-05 23:22:28,792 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:9cdfdefa445b019cd52ef8d144a8cb10
+2026-04-05 23:22:29,156 - lightrag - INFO - Query nodes: data_keeper.py, Audit tools, Data analysis (top_k:3, cosine:0.2)
+2026-04-05 23:22:29,158 - lightrag - INFO - Local query: 3 entites, 2 relations
+2026-04-05 23:22:29,159 - lightrag - INFO - Query edges: General audit issues, Tools (top_k:3, cosine:0.2)
+2026-04-05 23:22:29,160 - lightrag - INFO - Global query: 5 entites, 3 relations
+2026-04-05 23:22:29,160 - lightrag - INFO - Raw search results: 8 entities, 5 relations, 0 vector chunks
+2026-04-05 23:22:29,161 - lightrag - INFO - After truncation: 8 entities, 5 relations
+2026-04-05 23:22:29,164 - lightrag - INFO - Selecting 11 from 11 entity-related chunks by vector similarity
+2026-04-05 23:22:29,164 - lightrag - INFO - Find no additional relations-related chunks from 5 relations
+2026-04-05 23:22:29,164 - lightrag - INFO - Round-robin merged chunks: 11 -> 11 (deduplicated 0)
+2026-04-05 23:22:29,165 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:22:29,172 - lightrag - INFO - Final context: 8 entities, 5 relations, 11 chunks
+2026-04-05 23:22:29,173 - lightrag - INFO - Final chunks S+F/O: E2/1 E3/2 E1/3 E1/4 E1/5 E1/6 E1/7 E2/8 E1/9 E1/10 E1/11
+2026-04-05 23:22:29,227 - uvicorn.access - INFO - 127.0.0.1:61853 - "POST /query HTTP/1.1" 200
+2026-04-05 23:22:29,407 - lightrag - INFO - Query nodes: cfo, audit, financial data, generate_fin_data.py, tools (top_k:3, cosine:0.2)
+2026-04-05 23:22:29,409 - lightrag - INFO - Local query: 3 entites, 4 relations
+2026-04-05 23:22:29,409 - lightrag - INFO - Query edges: CFO audit issues, Financial data generation, Audit tools (top_k:3, cosine:0.2)
+2026-04-05 23:22:29,410 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-05 23:22:29,410 - lightrag - INFO - Raw search results: 7 entities, 7 relations, 0 vector chunks
+2026-04-05 23:22:29,411 - lightrag - INFO - After truncation: 7 entities, 7 relations
+2026-04-05 23:22:29,416 - lightrag - INFO - Selecting 17 from 31 entity-related chunks by vector similarity
+2026-04-05 23:22:29,417 - lightrag - INFO - Find no additional relations-related chunks from 7 relations
+2026-04-05 23:22:29,417 - lightrag - INFO - Round-robin merged chunks: 17 -> 17 (deduplicated 0)
+2026-04-05 23:22:29,418 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:22:29,430 - lightrag - INFO - Final context: 7 entities, 7 relations, 17 chunks
+2026-04-05 23:22:29,430 - lightrag - INFO - Final chunks S+F/O: E3/1 E3/2 E3/3 E1/4 E3/5 E2/6 E2/7 E2/8 E1/9 E1/10 E1/11 E1/12 E1/13 E1/14 E1/15 E1/16 E1/17
+2026-04-05 23:22:29,431 - uvicorn.access - INFO - 127.0.0.1:61860 - "POST /query HTTP/1.1" 200
+2026-04-05 23:22:29,691 - lightrag - INFO - Query nodes: dual_test_runner.py (top_k:3, cosine:0.2)
+2026-04-05 23:22:29,692 - lightrag - INFO - Local query: 3 entites, 9 relations
+2026-04-05 23:22:29,692 - lightrag - INFO - Query edges: Pipeliner audit issues, Testing tools (top_k:3, cosine:0.2)
+2026-04-05 23:22:29,693 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-05 23:22:29,693 - lightrag - INFO - Raw search results: 6 entities, 11 relations, 0 vector chunks
+2026-04-05 23:22:29,694 - lightrag - INFO - After truncation: 6 entities, 11 relations
+2026-04-05 23:22:29,698 - lightrag - INFO - Selecting 15 from 21 entity-related chunks by vector similarity
+2026-04-05 23:22:29,698 - lightrag - INFO - Find no additional relations-related chunks from 11 relations
+2026-04-05 23:22:29,698 - lightrag - INFO - Round-robin merged chunks: 15 -> 15 (deduplicated 0)
+2026-04-05 23:22:29,699 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:22:29,709 - lightrag - INFO - Final context: 6 entities, 11 relations, 15 chunks
+2026-04-05 23:22:29,710 - lightrag - INFO - Final chunks S+F/O: E4/1 E2/2 E1/3 E2/4 E1/5 E1/6 E1/7 E1/8 E1/9 E2/10 E1/11 E1/12 E1/13 E1/14 E1/15
+2026-04-05 23:22:29,710 - uvicorn.access - INFO - 127.0.0.1:61857 - "POST /query HTTP/1.1" 200
+2026-04-05 23:22:36,060 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:e91077007fe3d03b2379a2f7c79e2905
+2026-04-05 23:22:36,759 - lightrag - INFO - Query nodes: codex_evaluator.py (top_k:3, cosine:0.2)
+2026-04-05 23:22:36,763 - lightrag - INFO - Local query: 3 entites, 18 relations
+2026-04-05 23:22:36,763 - lightrag - INFO - Query edges: General audit issues, Audit tools (top_k:3, cosine:0.2)
+2026-04-05 23:22:36,764 - lightrag - INFO - Global query: 5 entites, 3 relations
+2026-04-05 23:22:36,764 - lightrag - INFO - Raw search results: 7 entities, 19 relations, 0 vector chunks
+2026-04-05 23:22:36,765 - lightrag - INFO - After truncation: 7 entities, 19 relations
+2026-04-05 23:22:36,767 - lightrag - INFO - Selecting 11 from 11 entity-related chunks by vector similarity
+2026-04-05 23:22:36,768 - lightrag - INFO - Find no additional relations-related chunks from 19 relations
+2026-04-05 23:22:36,768 - lightrag - INFO - Round-robin merged chunks: 11 -> 11 (deduplicated 0)
+2026-04-05 23:22:36,769 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:22:36,777 - lightrag - INFO - Final context: 7 entities, 19 relations, 11 chunks
+2026-04-05 23:22:36,777 - lightrag - INFO - Final chunks S+F/O: E1/1 E3/2 E1/3 E1/4 E1/5 E1/6 E2/7 E2/8 E1/9 E1/10 E1/11
+2026-04-05 23:22:36,836 - uvicorn.access - INFO - 127.0.0.1:52882 - "POST /query HTTP/1.1" 200
+2026-04-05 23:22:37,567 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:419fae8b28bf27058cf05bebcf928121
+2026-04-05 23:22:37,974 - lightrag - INFO - Query nodes: n8n, Delivery, Email, Python script (top_k:3, cosine:0.2)
+2026-04-05 23:22:37,979 - lightrag - INFO - Local query: 3 entites, 58 relations
+2026-04-05 23:22:37,979 - lightrag - INFO - Query edges: General audit issues, Tools, Setup (top_k:3, cosine:0.2)
+2026-04-05 23:22:37,980 - lightrag - INFO - Global query: 6 entites, 3 relations
+2026-04-05 23:22:37,980 - lightrag - INFO - Raw search results: 9 entities, 61 relations, 0 vector chunks
+2026-04-05 23:22:37,986 - lightrag - INFO - After truncation: 9 entities, 61 relations
+2026-04-05 23:22:37,994 - lightrag - INFO - Selecting 22 from 35 entity-related chunks by vector similarity
+2026-04-05 23:22:37,995 - lightrag - INFO - Find 9 additional chunks in 6 relations (deduplicated 19)
+2026-04-05 23:22:37,997 - lightrag - INFO - Selecting 9 from 9 relation-related chunks by vector similarity
+2026-04-05 23:22:37,997 - lightrag - INFO - Round-robin merged chunks: 31 -> 31 (deduplicated 0)
+2026-04-05 23:22:38,000 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:22:38,014 - lightrag - INFO - Final context: 9 entities, 61 relations, 20 chunks
+2026-04-05 23:22:38,014 - lightrag - INFO - Final chunks S+F/O: E1/1 R3/1 E1/2 R2/2 E1/3 R4/3 E1/4 R4/4 E1/5 R8/5 E1/6 R1/6 E1/7 R5/7 E1/8 R1/8 E1/9 R1/9 E1/10 E1/11
+2026-04-05 23:22:38,076 - uvicorn.access - INFO - 127.0.0.1:52884 - "POST /query HTTP/1.1" 200
+2026-04-05 23:22:43,866 - uvicorn.access - INFO - 127.0.0.1:52896 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:22:43,880 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-05 23:22:43,880 - lightrag - INFO - Processing 1 document(s)
+2026-04-05 23:22:43,881 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-05 23:22:43,881 - lightrag - INFO - Processing d-id: doc-205ab7c330a998ad55b9cb0fd5320d5d
+2026-04-05 23:22:52,310 - uvicorn.access - INFO - 127.0.0.1:49330 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:22:52,321 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-05 23:23:00,765 - lightrag - INFO -  == LLM cache == saving: default:extract:aed63930be568aa202619f2b6b51faf6
+2026-04-05 23:23:11,337 - lightrag - INFO -  == LLM cache == saving: default:extract:e9700b599b5068b12d895348282b6ffd
+2026-04-05 23:23:11,338 - lightrag - INFO - Chunk 1 of 1 extracted 12 Ent + 11 Rel chunk-205ab7c330a998ad55b9cb0fd5320d5d
+2026-04-05 23:23:11,339 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-05 23:23:11,339 - lightrag - INFO - Phase 1: Processing 12 entities from doc-205ab7c330a998ad55b9cb0fd5320d5d (async: 8)
+2026-04-05 23:23:11,340 - lightrag - INFO - Merged: `Codex Audit Result` | 4+1
+2026-04-05 23:23:11,340 - lightrag - INFO - Merged: `generate_fin_data.py` | 1+1
+2026-04-05 23:23:11,341 - lightrag - INFO - Merged: `COGS Calculation` | 2+1
+2026-04-05 23:23:12,442 - lightrag - INFO - Merged: `Period Consistency` | 2+1
+2026-04-05 23:23:12,690 - lightrag - INFO - Merged: `F001` | 1+1
+2026-04-05 23:23:13,634 - lightrag - INFO - Merged: `F002` | 1+1
+2026-04-05 23:23:13,921 - lightrag - INFO - Merged: `F003` | 1+1
+2026-04-05 23:23:13,922 - lightrag - INFO - Merged: `F004` | 1+1
+2026-04-05 23:23:13,922 - lightrag - INFO - Merged: `F005` | 1+1
+2026-04-05 23:23:14,944 - lightrag - INFO - Phase 2: Processing 11 relations from doc-205ab7c330a998ad55b9cb0fd5320d5d (async: 8)
+2026-04-05 23:23:20,716 - lightrag - INFO - Phase 3: Updating final 12(12+0) entities and  11 relations from doc-205ab7c330a998ad55b9cb0fd5320d5d
+2026-04-05 23:23:20,717 - lightrag - INFO - Completed merging: 12 entities, 0 extra entities, 11 relations
+2026-04-05 23:23:21,182 - lightrag - INFO - [] Writing graph with 2695 nodes, 2116 edges
+2026-04-05 23:23:21,303 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:23:21,304 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-05 23:23:21,304 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-05 23:23:21,304 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-05 23:23:21,304 - lightrag - INFO - Processing 1 document(s)
+2026-04-05 23:23:21,305 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-05 23:23:21,305 - lightrag - INFO - Processing d-id: doc-2bb2184dcf276d2c10854b0f0bc061f7
+2026-04-05 23:23:32,183 - lightrag - INFO - Query nodes: dual_test_runner.py (top_k:3, cosine:0.2)
+2026-04-05 23:23:32,185 - lightrag - INFO - Local query: 3 entites, 9 relations
+2026-04-05 23:23:32,185 - lightrag - INFO - Query edges: Pipeliner audit issues, Testing tools (top_k:3, cosine:0.2)
+2026-04-05 23:23:32,186 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-05 23:23:32,186 - lightrag - INFO - Raw search results: 6 entities, 11 relations, 0 vector chunks
+2026-04-05 23:23:32,188 - lightrag - INFO - After truncation: 6 entities, 11 relations
+2026-04-05 23:23:32,192 - lightrag - INFO - Selecting 15 from 21 entity-related chunks by vector similarity
+2026-04-05 23:23:32,192 - lightrag - INFO - Find no additional relations-related chunks from 11 relations
+2026-04-05 23:23:32,192 - lightrag - INFO - Round-robin merged chunks: 15 -> 15 (deduplicated 0)
+2026-04-05 23:23:32,193 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:23:32,204 - lightrag - INFO - Final context: 6 entities, 11 relations, 15 chunks
+2026-04-05 23:23:32,204 - lightrag - INFO - Final chunks S+F/O: E4/1 E2/2 E1/3 E2/4 E1/5 E1/6 E1/7 E1/8 E1/9 E2/10 E1/11 E1/12 E1/13 E1/14 E1/15
+2026-04-05 23:23:32,205 - uvicorn.access - INFO - 127.0.0.1:63281 - "POST /query HTTP/1.1" 200
+2026-04-05 23:23:32,227 - lightrag - INFO - Query nodes: n8n, Delivery, Email, Python script (top_k:3, cosine:0.2)
+2026-04-05 23:23:32,230 - lightrag - INFO - Local query: 3 entites, 58 relations
+2026-04-05 23:23:32,230 - lightrag - INFO - Query edges: General audit issues, Tools, Setup (top_k:3, cosine:0.2)
+2026-04-05 23:23:32,231 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-05 23:23:32,232 - lightrag - INFO - Raw search results: 7 entities, 61 relations, 0 vector chunks
+2026-04-05 23:23:32,234 - lightrag - INFO - After truncation: 7 entities, 61 relations
+2026-04-05 23:23:32,238 - lightrag - INFO - Selecting 17 from 29 entity-related chunks by vector similarity
+2026-04-05 23:23:32,239 - lightrag - INFO - Find 11 additional chunks in 8 relations (deduplicated 15)
+2026-04-05 23:23:32,240 - lightrag - INFO - Selecting 11 from 11 relation-related chunks by vector similarity
+2026-04-05 23:23:32,240 - lightrag - INFO - Round-robin merged chunks: 28 -> 28 (deduplicated 0)
+2026-04-05 23:23:32,243 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:23:32,253 - lightrag - INFO - Final context: 7 entities, 61 relations, 20 chunks
+2026-04-05 23:23:32,253 - lightrag - INFO - Final chunks S+F/O: E1/1 R1/1 E1/2 R1/2 E1/3 R1/3 E1/4 R3/4 E1/5 R3/5 E1/6 R2/6 E1/7 R4/7 E1/8 R4/8 E1/9 R8/9 E1/10 R1/10
+2026-04-05 23:23:32,253 - uvicorn.access - INFO - 127.0.0.1:63282 - "POST /query HTTP/1.1" 200
+2026-04-05 23:23:32,414 - lightrag - INFO - Query nodes: data_keeper.py, Audit tools, Data analysis (top_k:3, cosine:0.2)
+2026-04-05 23:23:32,417 - lightrag - INFO - Local query: 3 entites, 2 relations
+2026-04-05 23:23:32,417 - lightrag - INFO - Query edges: General audit issues, Tools (top_k:3, cosine:0.2)
+2026-04-05 23:23:32,418 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-05 23:23:32,418 - lightrag - INFO - Raw search results: 7 entities, 5 relations, 0 vector chunks
+2026-04-05 23:23:32,419 - lightrag - INFO - After truncation: 7 entities, 5 relations
+2026-04-05 23:23:32,420 - lightrag - INFO - Selecting 6 from 6 entity-related chunks by vector similarity
+2026-04-05 23:23:32,420 - lightrag - INFO - Find no additional relations-related chunks from 5 relations
+2026-04-05 23:23:32,420 - lightrag - INFO - Round-robin merged chunks: 6 -> 6 (deduplicated 0)
+2026-04-05 23:23:32,421 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-05 23:23:32,423 - lightrag - INFO - Final context: 7 entities, 5 relations, 6 chunks
+2026-04-05 23:23:32,424 - lightrag - INFO - Final chunks S+F/O: E4/1 E2/2 E1/3 E1/4 E3/5 E1/6
+2026-04-05 23:23:32,424 - uvicorn.access - INFO - 127.0.0.1:63280 - "POST /query HTTP/1.1" 200
+2026-04-05 23:23:35,437 - lightrag - INFO -  == LLM cache == saving: default:extract:1c115539f600b5f0fc06f6926511221e
+2026-04-05 23:23:40,752 - lightrag - INFO -  == LLM cache == saving: default:extract:c995290b3a93308516acedac3dce93b6
+2026-04-05 23:23:40,753 - lightrag - INFO - Chunk 1 of 1 extracted 8 Ent + 7 Rel chunk-2bb2184dcf276d2c10854b0f0bc061f7
+2026-04-05 23:23:40,754 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-05 23:23:40,754 - lightrag - INFO - Phase 1: Processing 8 entities from doc-2bb2184dcf276d2c10854b0f0bc061f7 (async: 8)
+2026-04-05 23:23:40,755 - lightrag - INFO - Merged: `Codex Audit Result` | 5+1
+2026-04-05 23:23:41,482 - lightrag - INFO - Merged: `RAG` | 1+1
+2026-04-05 23:23:43,443 - lightrag - INFO - Phase 2: Processing 7 relations from doc-2bb2184dcf276d2c10854b0f0bc061f7 (async: 8)
+2026-04-05 23:23:43,728 - uvicorn.access - INFO - 127.0.0.1:65511 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:23:43,742 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-05 23:23:46,759 - lightrag - INFO - Phase 3: Updating final 8(8+0) entities and  7 relations from doc-2bb2184dcf276d2c10854b0f0bc061f7
+2026-04-05 23:23:46,760 - lightrag - INFO - Completed merging: 8 entities, 0 extra entities, 7 relations
+2026-04-05 23:23:47,213 - lightrag - INFO - [] Writing graph with 2701 nodes, 2123 edges
+2026-04-05 23:23:47,327 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:23:47,328 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-05 23:23:47,328 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-05 23:23:47,328 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-05 23:23:47,328 - lightrag - INFO - Processing 1 document(s)
+2026-04-05 23:23:47,329 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-05 23:23:47,329 - lightrag - INFO - Processing d-id: doc-6a05ea772fc966c7967e5b0e518ac558
+2026-04-05 23:23:47,564 - uvicorn.access - INFO - 127.0.0.1:65522 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:23:47,577 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-05 23:23:50,804 - uvicorn.access - INFO - 127.0.0.1:62248 - "POST /documents/text HTTP/1.1" 200
+2026-04-05 23:23:50,814 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-05 23:23:57,361 - lightrag - INFO -  == LLM cache == saving: default:extract:69fdeb7dfd24d6287726997b534b2935
+2026-04-05 23:24:00,865 - lightrag - INFO -  == LLM cache == saving: default:extract:cca756495bc59812a20ed9460b4fa626
+2026-04-05 23:24:00,866 - lightrag - INFO - Chunk 1 of 1 extracted 9 Ent + 6 Rel chunk-6a05ea772fc966c7967e5b0e518ac558
+2026-04-05 23:24:00,867 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-05 23:24:00,867 - lightrag - INFO - Phase 1: Processing 9 entities from doc-6a05ea772fc966c7967e5b0e518ac558 (async: 8)
+2026-04-05 23:24:00,869 - lightrag - INFO - Merged: `Codex Audit Result` | 6+1
+2026-04-05 23:24:01,554 - lightrag - INFO - Merged: `PostgreSQL` | 4+1
+2026-04-05 23:24:01,556 - lightrag - INFO - Merged: `Airtable` | 4+1
+2026-04-05 23:24:01,557 - lightrag - INFO - Merged: `Shopify` | 4+1
+2026-04-05 23:24:01,783 - lightrag - INFO - Merged: `n8n` | 1+1
+2026-04-05 23:24:02,804 - lightrag - INFO - Merged: `Draft Order` | 3+1
+2026-04-05 23:24:03,357 - lightrag - INFO - Phase 2: Processing 6 relations from doc-6a05ea772fc966c7967e5b0e518ac558 (async: 8)
+2026-04-05 23:24:03,359 - lightrag - INFO - Merged: `Draft Order`~`Shopify` | 2+1
+2026-04-05 23:24:04,430 - lightrag - INFO - Merged: `Airtable`~`Shopify` | 2+1
+2026-04-05 23:24:05,176 - lightrag - INFO - Phase 3: Updating final 9(9+0) entities and  6 relations from doc-6a05ea772fc966c7967e5b0e518ac558
+2026-04-05 23:24:05,177 - lightrag - INFO - Completed merging: 9 entities, 0 extra entities, 6 relations
+2026-04-05 23:24:05,615 - lightrag - INFO - [] Writing graph with 2704 nodes, 2127 edges
+2026-04-05 23:24:05,729 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:24:05,729 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-05 23:24:05,730 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-05 23:24:05,730 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-05 23:24:05,730 - lightrag - INFO - Processing 2 document(s)
+2026-04-05 23:24:05,730 - lightrag - INFO - Extracting stage 1/2: unknown_source
+2026-04-05 23:24:05,730 - lightrag - INFO - Processing d-id: doc-d06f425bac82c61d59416b2891c27c80
+2026-04-05 23:24:05,730 - lightrag - INFO - Extracting stage 2/2: unknown_source
+2026-04-05 23:24:05,730 - lightrag - INFO - Processing d-id: doc-3d7927dc3548bedd048eba656f5cfc08
+2026-04-05 23:24:14,324 - lightrag - INFO -  == LLM cache == saving: default:extract:9cc592f99130bf90e1a74c64a4bc66ed
+2026-04-05 23:24:16,095 - lightrag - INFO -  == LLM cache == saving: default:extract:b200babed4dc5f85b96015e59f9e0fce
+2026-04-05 23:24:23,866 - lightrag - INFO -  == LLM cache == saving: default:extract:0aa46d4b020de261528308fe26dcf3fd
+2026-04-05 23:24:23,867 - lightrag - INFO - Chunk 1 of 1 extracted 11 Ent + 9 Rel chunk-3d7927dc3548bedd048eba656f5cfc08
+2026-04-05 23:24:23,868 - lightrag - INFO - Merging stage 2/2: unknown_source
+2026-04-05 23:24:23,868 - lightrag - INFO - Phase 1: Processing 11 entities from doc-3d7927dc3548bedd048eba656f5cfc08 (async: 8)
+2026-04-05 23:24:26,859 - lightrag - INFO -  == LLM cache == saving: default:extract:18156f642536de5c9179fdb751660ba1
+2026-04-05 23:24:26,860 - lightrag - WARNING - chunk-d06f425bac82c61d59416b2891c27c80: LLM output format error; found 4/5 fields on RELATION `Audit Report`~`Line 246`
+2026-04-05 23:24:26,860 - lightrag - INFO - Chunk 1 of 1 extracted 13 Ent + 10 Rel chunk-d06f425bac82c61d59416b2891c27c80
+2026-04-05 23:24:26,861 - lightrag - INFO - Merging stage 1/2: unknown_source
+2026-04-05 23:24:26,861 - lightrag - INFO - Phase 1: Processing 13 entities from doc-d06f425bac82c61d59416b2891c27c80 (async: 8)
+2026-04-05 23:24:26,861 - lightrag - INFO - Merged: `tools/setup_n8n_delivery_email.py` | 1+1
+2026-04-05 23:24:27,542 - lightrag - INFO - Merged: `Audit Report` | 5+1
+2026-04-05 23:24:30,881 - lightrag - INFO -  == LLM cache == saving: default:summary:8447cabab88cb1ba15c44eb6b74a9fe7
+2026-04-05 23:24:30,882 - lightrag - INFO - LLMmrg: `Codex Audit Result` | 7+1
+2026-04-05 23:24:31,426 - lightrag - INFO - Phase 2: Processing 9 relations from doc-3d7927dc3548bedd048eba656f5cfc08 (async: 8)
+2026-04-05 23:24:31,427 - lightrag - INFO - Merged: `Codex Audit Result` | 1+1
+2026-04-05 23:24:32,289 - lightrag - INFO - Phase 2: Processing 10 relations from doc-d06f425bac82c61d59416b2891c27c80 (async: 8)
+2026-04-05 23:24:37,259 - lightrag - INFO - Phase 3: Updating final 13(13+0) entities and  10 relations from doc-d06f425bac82c61d59416b2891c27c80
+2026-04-05 23:24:37,259 - lightrag - INFO - Completed merging: 13 entities, 0 extra entities, 10 relations
+2026-04-05 23:24:37,711 - lightrag - INFO - [] Writing graph with 2724 nodes, 2145 edges
+2026-04-05 23:24:37,828 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:24:37,828 - lightrag - INFO - Completed processing file 1/2: unknown_source
+2026-04-05 23:24:38,521 - lightrag - INFO - Phase 3: Updating final 11(11+0) entities and  9 relations from doc-3d7927dc3548bedd048eba656f5cfc08
+2026-04-05 23:24:38,521 - lightrag - INFO - Completed merging: 11 entities, 0 extra entities, 9 relations
+2026-04-05 23:24:38,886 - lightrag - INFO - [] Writing graph with 2724 nodes, 2146 edges
+2026-04-05 23:24:38,996 - lightrag - INFO - In memory DB persist to disk
+2026-04-05 23:24:38,997 - lightrag - INFO - Completed processing file 2/2: unknown_source
+2026-04-05 23:24:38,997 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-06 00:19:09,357 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:dcc498f896499c97bb6557d2286e6577
+2026-04-06 00:19:10,768 - lightrag - INFO - Query nodes: Tools, generate_fin_data.py, index.html, Financial documentation (top_k:3, cosine:0.2)
+2026-04-06 00:19:10,775 - lightrag - INFO - Local query: 3 entites, 12 relations
+2026-04-06 00:19:10,776 - lightrag - INFO - Query edges: CFO audit issues, Financial data generation, Financial dashboard (top_k:3, cosine:0.2)
+2026-04-06 00:19:10,780 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 00:19:10,781 - lightrag - INFO - Raw search results: 7 entities, 15 relations, 0 vector chunks
+2026-04-06 00:19:10,783 - lightrag - INFO - After truncation: 7 entities, 15 relations
+2026-04-06 00:19:10,797 - lightrag - INFO - Selecting 17 from 34 entity-related chunks by vector similarity
+2026-04-06 00:19:10,798 - lightrag - INFO - Find no additional relations-related chunks from 15 relations
+2026-04-06 00:19:10,798 - lightrag - INFO - Round-robin merged chunks: 17 -> 17 (deduplicated 0)
+2026-04-06 00:19:10,800 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 00:19:10,816 - lightrag - INFO - Final context: 7 entities, 15 relations, 17 chunks
+2026-04-06 00:19:10,816 - lightrag - INFO - Final chunks S+F/O: E1/1 E2/2 E3/3 E3/4 E3/5 E1/6 E1/7 E1/8 E2/9 E2/10 E1/11 E1/12 E1/13 E1/14 E1/15 E1/16 E1/17
+2026-04-06 00:19:10,897 - uvicorn.access - INFO - 127.0.0.1:54875 - "POST /query HTTP/1.1" 200
+2026-04-06 00:19:28,557 - uvicorn.access - INFO - 127.0.0.1:58704 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 00:19:28,574 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 00:19:28,574 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 00:19:28,575 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 00:19:28,575 - lightrag - INFO - Processing d-id: doc-f0a51102d871f5d8cecb2bed696c3360
+2026-04-06 00:19:39,105 - lightrag - INFO -  == LLM cache == saving: default:extract:7ee7b82ef98a8f3a4f2e37566460caeb
+2026-04-06 00:19:43,275 - lightrag - INFO -  == LLM cache == saving: default:extract:4e4f8b268931978b41b24c8f3eda0a47
+2026-04-06 00:19:43,277 - lightrag - INFO - Chunk 1 of 1 extracted 8 Ent + 6 Rel chunk-f0a51102d871f5d8cecb2bed696c3360
+2026-04-06 00:19:43,277 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 00:19:43,277 - lightrag - INFO - Phase 1: Processing 8 entities from doc-f0a51102d871f5d8cecb2bed696c3360 (async: 8)
+2026-04-06 00:19:43,279 - lightrag - INFO - Merged: `Codex Audit Result` | 2+1
+2026-04-06 00:19:43,279 - lightrag - INFO - Merged: `COGS Calculation` | 3+1
+2026-04-06 00:19:43,958 - lightrag - INFO - Merged: `Period Consistency` | 3+1
+2026-04-06 00:19:45,472 - lightrag - INFO - Phase 2: Processing 6 relations from doc-f0a51102d871f5d8cecb2bed696c3360 (async: 8)
+2026-04-06 00:19:45,473 - lightrag - INFO - Merged: `COGS Calculation`~`Codex Audit Result` | 1+1
+2026-04-06 00:19:47,143 - lightrag - INFO - Merged: `Codex Audit Result`~`Period Consistency` | 1+1
+2026-04-06 00:19:48,144 - lightrag - INFO - Phase 3: Updating final 8(8+0) entities and  6 relations from doc-f0a51102d871f5d8cecb2bed696c3360
+2026-04-06 00:19:48,144 - lightrag - INFO - Completed merging: 8 entities, 0 extra entities, 6 relations
+2026-04-06 00:19:48,739 - lightrag - INFO - [] Writing graph with 2729 nodes, 2150 edges
+2026-04-06 00:19:48,860 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 00:19:48,861 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 00:19:48,861 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-06 00:19:48,991 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:2551b9fd736ac7ccc6a2873988ff6ea0
+2026-04-06 00:19:49,411 - lightrag - INFO - Query nodes: tools, generate_fin_data.py, fin_data.js (top_k:3, cosine:0.2)
+2026-04-06 00:19:49,414 - lightrag - INFO - Local query: 3 entites, 14 relations
+2026-04-06 00:19:49,414 - lightrag - INFO - Query edges: CFO audit issues, Financial data generation, Financial dashboard (top_k:3, cosine:0.2)
+2026-04-06 00:19:49,415 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 00:19:49,415 - lightrag - INFO - Raw search results: 7 entities, 17 relations, 0 vector chunks
+2026-04-06 00:19:49,417 - lightrag - INFO - After truncation: 7 entities, 17 relations
+2026-04-06 00:19:49,424 - lightrag - INFO - Selecting 17 from 34 entity-related chunks by vector similarity
+2026-04-06 00:19:49,425 - lightrag - INFO - Find no additional relations-related chunks from 17 relations
+2026-04-06 00:19:49,425 - lightrag - INFO - Round-robin merged chunks: 17 -> 17 (deduplicated 0)
+2026-04-06 00:19:49,426 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 00:19:49,439 - lightrag - INFO - Final context: 7 entities, 17 relations, 17 chunks
+2026-04-06 00:19:49,439 - lightrag - INFO - Final chunks S+F/O: E1/1 E2/2 E3/3 E1/4 E3/5 E3/6 E2/7 E2/8 E1/9 E1/10 E2/11 E1/12 E1/13 E1/14 E1/15 E1/16 E1/17
+2026-04-06 00:19:49,505 - uvicorn.access - INFO - 127.0.0.1:49692 - "POST /query HTTP/1.1" 200
+2026-04-06 00:20:07,336 - uvicorn.access - INFO - 127.0.0.1:58888 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 00:20:07,346 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 00:20:07,347 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 00:20:07,347 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 00:20:07,347 - lightrag - INFO - Processing d-id: doc-d72451c08459b00c6cd8799579d3874d
+2026-04-06 00:20:18,024 - lightrag - INFO -  == LLM cache == saving: default:extract:43a70cf891afa1e2c786a213a3b8c3fc
+2026-04-06 00:20:21,620 - lightrag - INFO -  == LLM cache == saving: default:extract:3350dbc1ae42fe4d8641dce96e9d1b79
+2026-04-06 00:20:21,620 - lightrag - INFO - Chunk 1 of 1 extracted 13 Ent + 5 Rel chunk-d72451c08459b00c6cd8799579d3874d
+2026-04-06 00:20:21,621 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 00:20:21,621 - lightrag - INFO - Phase 1: Processing 13 entities from doc-d72451c08459b00c6cd8799579d3874d (async: 8)
+2026-04-06 00:20:21,622 - lightrag - INFO - Merged: `Codex Audit Result` | 3+1
+2026-04-06 00:20:21,622 - lightrag - INFO - Merged: `CFO` | 6+1
+2026-04-06 00:20:21,623 - lightrag - INFO - Merged: `F001` | 2+1
+2026-04-06 00:20:22,118 - lightrag - INFO - Merged: `F002` | 2+1
+2026-04-06 00:20:22,350 - lightrag - INFO - Merged: `F003` | 2+1
+2026-04-06 00:20:22,352 - lightrag - INFO - Merged: `Gross Margin` | 1+1
+2026-04-06 00:20:23,854 - lightrag - INFO - Merged: `F004` | 2+1
+2026-04-06 00:20:25,073 - lightrag - INFO - Phase 2: Processing 5 relations from doc-d72451c08459b00c6cd8799579d3874d (async: 8)
+2026-04-06 00:20:25,074 - lightrag - INFO - Merged: `CFO`~`Codex Audit Result` | 1+1
+2026-04-06 00:20:26,526 - lightrag - INFO - Phase 3: Updating final 13(13+0) entities and  5 relations from doc-d72451c08459b00c6cd8799579d3874d
+2026-04-06 00:20:26,526 - lightrag - INFO - Completed merging: 13 entities, 0 extra entities, 5 relations
+2026-04-06 00:20:27,030 - lightrag - INFO - [] Writing graph with 2735 nodes, 2154 edges
+2026-04-06 00:20:27,150 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 00:20:27,151 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 00:20:27,151 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-06 00:27:20,396 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:3a079d77e9a5eb6e5427459ea8026fa5
+2026-04-06 00:27:21,657 - lightrag - INFO - Query nodes: .tmp, patch_draft_gen_v2.py, File issues, Python script (top_k:3, cosine:0.2)
+2026-04-06 00:27:21,659 - lightrag - INFO - Local query: 3 entites, 0 relations
+2026-04-06 00:27:21,660 - lightrag - INFO - Query edges: Pipeliner audit issues, Audit problems (top_k:3, cosine:0.2)
+2026-04-06 00:27:21,662 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 00:27:21,662 - lightrag - INFO - Raw search results: 7 entities, 3 relations, 0 vector chunks
+2026-04-06 00:27:21,663 - lightrag - INFO - After truncation: 7 entities, 3 relations
+2026-04-06 00:27:21,664 - lightrag - INFO - Selecting 6 from 6 entity-related chunks by vector similarity
+2026-04-06 00:27:21,665 - lightrag - INFO - Find no additional relations-related chunks from 3 relations
+2026-04-06 00:27:21,665 - lightrag - INFO - Round-robin merged chunks: 6 -> 6 (deduplicated 0)
+2026-04-06 00:27:21,666 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 00:27:21,670 - lightrag - INFO - Final context: 7 entities, 3 relations, 6 chunks
+2026-04-06 00:27:21,670 - lightrag - INFO - Final chunks S+F/O: E1/1 E2/2 E4/3 E3/4 E3/5 E1/6
+2026-04-06 00:27:21,733 - uvicorn.access - INFO - 127.0.0.1:57442 - "POST /query HTTP/1.1" 200
+2026-04-06 00:27:32,057 - uvicorn.access - INFO - 127.0.0.1:63901 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 00:27:32,067 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 00:27:32,067 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 00:27:32,067 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 00:27:32,067 - lightrag - INFO - Processing d-id: doc-a8bad1addd0764c0c7cd3a0677bc927d
+2026-04-06 00:27:43,502 - lightrag - INFO -  == LLM cache == saving: default:extract:b99a679a5e14603c67e8d89f81b2d16f
+2026-04-06 00:27:48,696 - lightrag - INFO -  == LLM cache == saving: default:extract:b9dfdd8f35f697542b0434db00b69602
+2026-04-06 00:27:48,696 - lightrag - INFO - Chunk 1 of 1 extracted 12 Ent + 7 Rel chunk-a8bad1addd0764c0c7cd3a0677bc927d
+2026-04-06 00:27:48,697 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 00:27:48,697 - lightrag - INFO - Phase 1: Processing 12 entities from doc-a8bad1addd0764c0c7cd3a0677bc927d (async: 8)
+2026-04-06 00:27:48,698 - lightrag - INFO - Merged: `Codex Audit Result` | 4+1
+2026-04-06 00:27:49,539 - lightrag - INFO - Merged: `Executor` | 1+1
+2026-04-06 00:27:49,542 - lightrag - INFO - Merged: `Verifier` | 1+1
+2026-04-06 00:27:49,543 - lightrag - INFO - Merged: `Issues Found` | 1+1
+2026-04-06 00:27:49,797 - lightrag - INFO - Merged: `Data Flow` | 1+1
+2026-04-06 00:27:52,790 - lightrag - INFO - Phase 2: Processing 7 relations from doc-a8bad1addd0764c0c7cd3a0677bc927d (async: 8)
+2026-04-06 00:27:55,469 - lightrag - INFO - Phase 3: Updating final 12(12+0) entities and  7 relations from doc-a8bad1addd0764c0c7cd3a0677bc927d
+2026-04-06 00:27:55,470 - lightrag - INFO - Completed merging: 12 entities, 0 extra entities, 7 relations
+2026-04-06 00:27:55,993 - lightrag - INFO - [] Writing graph with 2742 nodes, 2161 edges
+2026-04-06 00:27:56,122 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 00:27:56,122 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 00:27:56,369 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-06 00:27:56,566 - lightrag - INFO - Query nodes: .tmp, patch_draft_gen_v2.py, File issues, Python script (top_k:3, cosine:0.2)
+2026-04-06 00:27:56,567 - lightrag - INFO - Local query: 3 entites, 1 relations
+2026-04-06 00:27:56,567 - lightrag - INFO - Query edges: Pipeliner audit issues, Audit problems (top_k:3, cosine:0.2)
+2026-04-06 00:27:56,568 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 00:27:56,568 - lightrag - INFO - Raw search results: 7 entities, 4 relations, 0 vector chunks
+2026-04-06 00:27:56,569 - lightrag - INFO - After truncation: 7 entities, 4 relations
+2026-04-06 00:27:56,571 - lightrag - INFO - Selecting 14 from 14 entity-related chunks by vector similarity
+2026-04-06 00:27:56,571 - lightrag - INFO - Find no additional relations-related chunks from 4 relations
+2026-04-06 00:27:56,571 - lightrag - INFO - Round-robin merged chunks: 14 -> 14 (deduplicated 0)
+2026-04-06 00:27:56,572 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 00:27:56,578 - lightrag - INFO - Final context: 7 entities, 4 relations, 14 chunks
+2026-04-06 00:27:56,578 - lightrag - INFO - Final chunks S+F/O: E5/1 E1/2 E1/3 E1/4 E1/5 E1/6 E1/7 E1/8 E1/9 E1/10 E1/11 E1/12 E1/13 E1/14
+2026-04-06 00:27:56,579 - uvicorn.access - INFO - 127.0.0.1:62903 - "POST /query HTTP/1.1" 200
+2026-04-06 00:28:05,887 - uvicorn.access - INFO - 127.0.0.1:65267 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 00:28:05,898 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 00:28:05,898 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 00:28:05,898 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 00:28:05,899 - lightrag - INFO - Processing d-id: doc-0e34eca661f2d465825cd5724fe1db9f
+2026-04-06 00:28:15,593 - lightrag - INFO - Query nodes: .tmp, patch_draft_gen_v2.py, File issues, Python script (top_k:3, cosine:0.2)
+2026-04-06 00:28:15,596 - lightrag - INFO - Local query: 3 entites, 1 relations
+2026-04-06 00:28:15,596 - lightrag - INFO - Query edges: Pipeliner audit issues, Audit problems (top_k:3, cosine:0.2)
+2026-04-06 00:28:15,599 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 00:28:15,599 - lightrag - INFO - Raw search results: 7 entities, 4 relations, 0 vector chunks
+2026-04-06 00:28:15,601 - lightrag - INFO - After truncation: 7 entities, 4 relations
+2026-04-06 00:28:15,604 - lightrag - INFO - Selecting 14 from 14 entity-related chunks by vector similarity
+2026-04-06 00:28:15,604 - lightrag - INFO - Find no additional relations-related chunks from 4 relations
+2026-04-06 00:28:15,604 - lightrag - INFO - Round-robin merged chunks: 14 -> 14 (deduplicated 0)
+2026-04-06 00:28:15,605 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 00:28:15,614 - lightrag - INFO - Final context: 7 entities, 4 relations, 14 chunks
+2026-04-06 00:28:15,614 - lightrag - INFO - Final chunks S+F/O: E5/1 E1/2 E1/3 E1/4 E1/5 E1/6 E1/7 E1/8 E1/9 E1/10 E1/11 E1/12 E1/13 E1/14
+2026-04-06 00:28:15,615 - uvicorn.access - INFO - 127.0.0.1:62945 - "POST /query HTTP/1.1" 200
+2026-04-06 00:28:15,920 - lightrag - INFO -  == LLM cache == saving: default:extract:02abd7f1b2debc59501f2678a1282030
+2026-04-06 00:28:23,665 - lightrag - INFO -  == LLM cache == saving: default:extract:2e640bb43cb93572a5b7e246b58730d5
+2026-04-06 00:28:23,666 - lightrag - INFO - Chunk 1 of 1 extracted 11 Ent + 10 Rel chunk-0e34eca661f2d465825cd5724fe1db9f
+2026-04-06 00:28:23,666 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 00:28:23,667 - lightrag - INFO - Phase 1: Processing 11 entities from doc-0e34eca661f2d465825cd5724fe1db9f (async: 8)
+2026-04-06 00:28:23,668 - lightrag - INFO - Merged: `Codex Audit Result` | 5+1
+2026-04-06 00:28:23,668 - lightrag - INFO - Merged: `patch_draft_gen_v2.py` | 1+1
+2026-04-06 00:28:23,668 - lightrag - INFO - Merged: `gifting2` | 1+1
+2026-04-06 00:28:24,168 - lightrag - INFO - Merged: `Airtable` | 5+1
+2026-04-06 00:28:24,445 - lightrag - INFO - Merged: `Shopify` | 5+1
+2026-04-06 00:28:24,448 - lightrag - INFO - Merged: `PostgreSQL` | 5+1
+2026-04-06 00:28:24,692 - lightrag - INFO - Merged: `Stage Integrity` | 1+1
+2026-04-06 00:28:24,695 - lightrag - INFO - Merged: `Data Flow` | 2+1
+2026-04-06 00:28:25,740 - lightrag - INFO - Merged: `Webhook/n8n Health` | 1+1
+2026-04-06 00:28:26,038 - lightrag - INFO - Merged: `Negative Tests` | 1+1
+2026-04-06 00:28:27,435 - lightrag - INFO - Phase 2: Processing 10 relations from doc-0e34eca661f2d465825cd5724fe1db9f (async: 8)
+2026-04-06 00:28:29,458 - uvicorn.access - INFO - 127.0.0.1:50649 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 00:28:29,470 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-06 00:28:31,399 - lightrag - INFO - Phase 3: Updating final 11(11+0) entities and  10 relations from doc-0e34eca661f2d465825cd5724fe1db9f
+2026-04-06 00:28:31,399 - lightrag - INFO - Completed merging: 11 entities, 0 extra entities, 10 relations
+2026-04-06 00:28:31,966 - lightrag - INFO - [] Writing graph with 2743 nodes, 2171 edges
+2026-04-06 00:28:32,099 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 00:28:32,099 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 00:28:32,099 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-06 00:28:32,100 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 00:28:32,100 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 00:28:32,101 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 00:28:32,101 - lightrag - INFO - Processing d-id: doc-dfcd98f783316bc8eecaac4cd7288f04
+2026-04-06 00:28:39,976 - lightrag - INFO - Query nodes: .tmp, patch_draft_gen_v2.py, File issues, Python script (top_k:3, cosine:0.2)
+2026-04-06 00:28:39,978 - lightrag - INFO - Local query: 3 entites, 3 relations
+2026-04-06 00:28:39,978 - lightrag - INFO - Query edges: Pipeliner audit issues, Audit problems (top_k:3, cosine:0.2)
+2026-04-06 00:28:39,979 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 00:28:39,979 - lightrag - INFO - Raw search results: 7 entities, 6 relations, 0 vector chunks
+2026-04-06 00:28:39,980 - lightrag - INFO - After truncation: 7 entities, 6 relations
+2026-04-06 00:28:39,983 - lightrag - INFO - Selecting 15 from 15 entity-related chunks by vector similarity
+2026-04-06 00:28:39,983 - lightrag - INFO - Find no additional relations-related chunks from 6 relations
+2026-04-06 00:28:39,983 - lightrag - INFO - Round-robin merged chunks: 15 -> 15 (deduplicated 0)
+2026-04-06 00:28:39,984 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 00:28:39,990 - lightrag - INFO - Final context: 7 entities, 6 relations, 15 chunks
+2026-04-06 00:28:39,990 - lightrag - INFO - Final chunks S+F/O: E5/1 E3/2 E1/3 E1/4 E1/5 E1/6 E1/7 E1/8 E1/9 E1/10 E1/11 E1/12 E1/13 E1/14 E1/15
+2026-04-06 00:28:39,991 - uvicorn.access - INFO - 127.0.0.1:64183 - "POST /query HTTP/1.1" 200
+2026-04-06 00:28:42,846 - lightrag - INFO -  == LLM cache == saving: default:extract:3431c4e6407c5125e373b9d8abb0145f
+2026-04-06 00:28:47,040 - lightrag - INFO -  == LLM cache == saving: default:extract:f46905da557dda0bc9ae3899c7f01349
+2026-04-06 00:28:47,041 - lightrag - INFO - Chunk 1 of 1 extracted 10 Ent + 7 Rel chunk-dfcd98f783316bc8eecaac4cd7288f04
+2026-04-06 00:28:47,041 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 00:28:47,041 - lightrag - INFO - Phase 1: Processing 10 entities from doc-dfcd98f783316bc8eecaac4cd7288f04 (async: 8)
+2026-04-06 00:28:47,043 - lightrag - INFO - Merged: `Codex Audit Result` | 6+1
+2026-04-06 00:28:47,043 - lightrag - INFO - Merged: `Pipeline Audit` | 1+1
+2026-04-06 00:28:47,044 - lightrag - INFO - Merged: `gifting2` | 2+1
+2026-04-06 00:28:47,533 - lightrag - INFO - Merged: `patch_draft_gen_v2.py` | 2+1
+2026-04-06 00:28:50,006 - lightrag - INFO - Phase 2: Processing 7 relations from doc-dfcd98f783316bc8eecaac4cd7288f04 (async: 8)
+2026-04-06 00:28:50,007 - lightrag - INFO - Merged: `Codex Audit Result`~`Pipeline Audit` | 1+1
+2026-04-06 00:28:50,007 - lightrag - INFO - Merged: `gifting2`~`patch_draft_gen_v2.py` | 1+1
+2026-04-06 00:28:51,176 - lightrag - INFO - Merged: `Pipeline Audit`~`gifting2` | 1+1
+2026-04-06 00:28:51,929 - uvicorn.access - INFO - 127.0.0.1:64553 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 00:28:51,941 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-06 00:28:52,204 - lightrag - INFO - Phase 3: Updating final 10(10+0) entities and  7 relations from doc-dfcd98f783316bc8eecaac4cd7288f04
+2026-04-06 00:28:52,204 - lightrag - INFO - Completed merging: 10 entities, 0 extra entities, 7 relations
+2026-04-06 00:28:52,719 - lightrag - INFO - [] Writing graph with 2749 nodes, 2175 edges
+2026-04-06 00:28:52,870 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 00:28:52,871 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 00:28:52,871 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-06 00:28:52,872 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 00:28:52,873 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 00:28:52,873 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 00:28:52,873 - lightrag - INFO - Processing d-id: doc-4de7f333320ca174ca58ce081017887c
+2026-04-06 00:29:01,518 - lightrag - INFO -  == LLM cache == saving: default:extract:ec6b43d987fba7a44c1fc653e0728e54
+2026-04-06 00:29:09,473 - lightrag - INFO -  == LLM cache == saving: default:extract:e11717bc6708f2385e0f817afc74c685
+2026-04-06 00:29:09,474 - lightrag - INFO - Chunk 1 of 1 extracted 9 Ent + 8 Rel chunk-4de7f333320ca174ca58ce081017887c
+2026-04-06 00:29:09,474 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 00:29:09,474 - lightrag - INFO - Phase 1: Processing 9 entities from doc-4de7f333320ca174ca58ce081017887c (async: 8)
+2026-04-06 00:29:09,476 - lightrag - INFO - Merged: `Pipeline Audit` | 2+1
+2026-04-06 00:29:09,689 - lightrag - INFO - Merged: `gifting2` | 3+1
+2026-04-06 00:29:09,906 - lightrag - INFO - Merged: `patch_draft_gen_v2.py` | 3+1
+2026-04-06 00:29:17,301 - lightrag - INFO -  == LLM cache == saving: default:summary:32ad78667b1bd7c1cc842a360f58ba90
+2026-04-06 00:29:17,302 - lightrag - INFO - LLMmrg: `Codex Audit Result` | 7+1
+2026-04-06 00:29:17,862 - lightrag - INFO - Phase 2: Processing 8 relations from doc-4de7f333320ca174ca58ce081017887c (async: 8)
+2026-04-06 00:29:17,863 - lightrag - INFO - Merged: `Codex Audit Result`~`Pipeline Audit` | 2+1
+2026-04-06 00:29:17,863 - lightrag - INFO - Merged: `gifting2`~`patch_draft_gen_v2.py` | 2+1
+2026-04-06 00:29:18,733 - lightrag - INFO - Merged: `Pipeline Audit`~`gifting2` | 2+1
+2026-04-06 00:29:21,814 - lightrag - INFO - Phase 3: Updating final 9(9+0) entities and  8 relations from doc-4de7f333320ca174ca58ce081017887c
+2026-04-06 00:29:21,814 - lightrag - INFO - Completed merging: 9 entities, 0 extra entities, 8 relations
+2026-04-06 00:29:22,315 - lightrag - INFO - [] Writing graph with 2754 nodes, 2180 edges
+2026-04-06 00:29:22,455 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 00:29:22,455 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 00:29:22,455 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-06 14:56:04,902 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:bd18c4052333bd94811afdbb32f67aa8
+2026-04-06 14:56:08,391 - lightrag - INFO - Query nodes: c:/SynologyDrive, ORBI CLAUDE_0223, ORBITERS CLAUDE, WJ Test1, data_keeper.py (top_k:3, cosine:0.2)
+2026-04-06 14:56:08,413 - lightrag - INFO - Local query: 3 entites, 4 relations
+2026-04-06 14:56:08,414 - lightrag - INFO - Query edges: General audit issues, Data management, File analysis (top_k:3, cosine:0.2)
+2026-04-06 14:56:08,426 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 14:56:08,426 - lightrag - INFO - Raw search results: 7 entities, 7 relations, 0 vector chunks
+2026-04-06 14:56:08,429 - lightrag - INFO - After truncation: 7 entities, 7 relations
+2026-04-06 14:56:08,444 - lightrag - INFO - Selecting 9 from 9 entity-related chunks by vector similarity
+2026-04-06 14:56:08,445 - lightrag - INFO - Find no additional relations-related chunks from 7 relations
+2026-04-06 14:56:08,446 - lightrag - INFO - Round-robin merged chunks: 9 -> 9 (deduplicated 0)
+2026-04-06 14:56:08,449 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 14:56:08,514 - lightrag - INFO - Final context: 7 entities, 7 relations, 9 chunks
+2026-04-06 14:56:08,514 - lightrag - INFO - Final chunks S+F/O: E4/1 E3/2 E3/3 E2/4 E1/5 E1/6 E1/7 E1/8 E1/9
+2026-04-06 14:56:08,924 - uvicorn.access - INFO - 127.0.0.1:60830 - "POST /query HTTP/1.1" 200
+2026-04-06 14:56:26,376 - uvicorn.access - INFO - 127.0.0.1:55183 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 14:56:26,403 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 14:56:26,403 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 14:56:26,403 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 14:56:26,403 - lightrag - INFO - Processing d-id: doc-219572b1eb78a67bb2e7452e32318243
+2026-04-06 14:56:40,339 - lightrag - INFO -  == LLM cache == saving: default:extract:87a73db3efb61351ed8c3c26b9f3bf69
+2026-04-06 14:56:50,368 - lightrag - INFO -  == LLM cache == saving: default:extract:4eaac8819d3e69578cbcdd209d0a24d1
+2026-04-06 14:56:50,369 - lightrag - INFO - Chunk 1 of 1 extracted 10 Ent + 8 Rel chunk-219572b1eb78a67bb2e7452e32318243
+2026-04-06 14:56:50,369 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 14:56:50,369 - lightrag - INFO - Phase 1: Processing 10 entities from doc-219572b1eb78a67bb2e7452e32318243 (async: 8)
+2026-04-06 14:56:50,372 - lightrag - INFO - Merged: `Codex Audit Result` | 1+1
+2026-04-06 14:56:50,372 - lightrag - INFO - Merged: `data_keeper.py` | 2+1
+2026-04-06 14:56:53,796 - lightrag - INFO - Merged: `YAML` | 1+1
+2026-04-06 14:56:59,774 - lightrag - INFO - Query nodes: c:/SynologyDrive, ORBI CLAUDE_0223, ORBITERS CLAUDE, WJ Test1, data_keeper.py (top_k:3, cosine:0.2)
+2026-04-06 14:56:59,776 - lightrag - INFO - Local query: 3 entites, 4 relations
+2026-04-06 14:56:59,776 - lightrag - INFO - Query edges: General audit issues, Data management, File analysis (top_k:3, cosine:0.2)
+2026-04-06 14:56:59,777 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 14:56:59,777 - lightrag - INFO - Raw search results: 7 entities, 7 relations, 0 vector chunks
+2026-04-06 14:56:59,778 - lightrag - INFO - After truncation: 7 entities, 7 relations
+2026-04-06 14:56:59,782 - lightrag - INFO - Selecting 9 from 9 entity-related chunks by vector similarity
+2026-04-06 14:56:59,782 - lightrag - INFO - Find no additional relations-related chunks from 7 relations
+2026-04-06 14:56:59,782 - lightrag - INFO - Round-robin merged chunks: 9 -> 9 (deduplicated 0)
+2026-04-06 14:56:59,783 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 14:56:59,789 - lightrag - INFO - Final context: 7 entities, 7 relations, 9 chunks
+2026-04-06 14:56:59,789 - lightrag - INFO - Final chunks S+F/O: E4/1 E3/2 E3/3 E2/4 E1/5 E1/6 E1/7 E1/8 E1/9
+2026-04-06 14:56:59,934 - uvicorn.access - INFO - 127.0.0.1:49303 - "POST /query HTTP/1.1" 200
+2026-04-06 14:56:59,954 - lightrag - INFO - Phase 2: Processing 8 relations from doc-219572b1eb78a67bb2e7452e32318243 (async: 8)
+2026-04-06 14:57:07,946 - lightrag - INFO - Phase 3: Updating final 10(10+0) entities and  8 relations from doc-219572b1eb78a67bb2e7452e32318243
+2026-04-06 14:57:07,947 - lightrag - INFO - Completed merging: 10 entities, 0 extra entities, 8 relations
+2026-04-06 14:57:09,257 - lightrag - INFO - [] Writing graph with 2761 nodes, 2188 edges
+2026-04-06 14:57:09,652 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 14:57:09,653 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 14:57:09,653 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-06 14:57:17,581 - uvicorn.access - INFO - 127.0.0.1:52729 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 14:57:17,615 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 14:57:17,615 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 14:57:17,616 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 14:57:17,616 - lightrag - INFO - Processing d-id: doc-474107f576df6a5c3d4d3875afe637ff
+2026-04-06 14:57:32,046 - lightrag - INFO -  == LLM cache == saving: default:extract:b686c27266585e668a60bcd2f398bdf2
+2026-04-06 14:57:39,737 - lightrag - INFO -  == LLM cache == saving: default:extract:ec989261ad69b382a59753f2ef9a3c00
+2026-04-06 14:57:39,738 - lightrag - INFO - Chunk 1 of 1 extracted 9 Ent + 8 Rel chunk-474107f576df6a5c3d4d3875afe637ff
+2026-04-06 14:57:39,739 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 14:57:39,739 - lightrag - INFO - Phase 1: Processing 9 entities from doc-474107f576df6a5c3d4d3875afe637ff (async: 8)
+2026-04-06 14:57:39,742 - lightrag - INFO - Merged: `Codex Audit Result` | 2+1
+2026-04-06 14:57:39,743 - lightrag - INFO - Merged: `Data Keeper` | 5+1
+2026-04-06 14:57:39,744 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS` | 1+1
+2026-04-06 14:57:41,378 - lightrag - INFO - Merged: `env_loader.py` | 1+1
+2026-04-06 14:57:43,226 - lightrag - INFO - Merged: `Data Integrity` | 1+1
+2026-04-06 14:57:47,620 - lightrag - INFO - Phase 2: Processing 8 relations from doc-474107f576df6a5c3d4d3875afe637ff (async: 8)
+2026-04-06 14:57:52,059 - lightrag - INFO - Merged: `Codex Audit Result`~`Data Integrity` | 1+1
+2026-04-06 14:57:55,326 - lightrag - INFO - Phase 3: Updating final 9(9+0) entities and  8 relations from doc-474107f576df6a5c3d4d3875afe637ff
+2026-04-06 14:57:55,327 - lightrag - INFO - Completed merging: 9 entities, 0 extra entities, 8 relations
+2026-04-06 14:57:56,917 - lightrag - INFO - [] Writing graph with 2765 nodes, 2195 edges
+2026-04-06 14:57:57,424 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 14:57:57,424 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 14:57:57,426 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-06 14:58:00,577 - lightrag - INFO - Query nodes: data_keeper.py, Audit tools, Data analysis (top_k:3, cosine:0.2)
+2026-04-06 14:58:00,579 - lightrag - INFO - Local query: 3 entites, 10 relations
+2026-04-06 14:58:00,579 - lightrag - INFO - Query edges: General audit issues, Tools (top_k:3, cosine:0.2)
+2026-04-06 14:58:00,580 - lightrag - INFO - Global query: 4 entites, 3 relations
+2026-04-06 14:58:00,580 - lightrag - INFO - Raw search results: 7 entities, 13 relations, 0 vector chunks
+2026-04-06 14:58:00,581 - lightrag - INFO - After truncation: 7 entities, 13 relations
+2026-04-06 14:58:00,589 - lightrag - INFO - Selecting 8 from 8 entity-related chunks by vector similarity
+2026-04-06 14:58:00,590 - lightrag - INFO - Find no additional relations-related chunks from 13 relations
+2026-04-06 14:58:00,590 - lightrag - INFO - Round-robin merged chunks: 8 -> 8 (deduplicated 0)
+2026-04-06 14:58:00,591 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 14:58:00,596 - lightrag - INFO - Final context: 7 entities, 13 relations, 8 chunks
+2026-04-06 14:58:00,596 - lightrag - INFO - Final chunks S+F/O: E1/1 E4/2 E2/3 E1/4 E1/5 E3/6 E3/7 E1/8
+2026-04-06 14:58:00,596 - uvicorn.access - INFO - 127.0.0.1:57777 - "POST /query HTTP/1.1" 200
+2026-04-06 14:58:17,811 - uvicorn.access - INFO - 127.0.0.1:61615 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 14:58:17,836 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 14:58:17,836 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 14:58:17,837 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 14:58:17,837 - lightrag - INFO - Processing d-id: doc-246e52e2d3b2a2f2c17a33d437a3b412
+2026-04-06 14:58:29,578 - lightrag - INFO -  == LLM cache == saving: default:extract:a6a34d179c089a024148ea5c9fd5ccbc
+2026-04-06 14:58:35,009 - lightrag - INFO -  == LLM cache == saving: default:extract:a8aeb28bc8eff4f12dc605649be2d3cc
+2026-04-06 14:58:35,010 - lightrag - INFO - Chunk 1 of 1 extracted 10 Ent + 8 Rel chunk-246e52e2d3b2a2f2c17a33d437a3b412
+2026-04-06 14:58:35,010 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 14:58:35,010 - lightrag - INFO - Phase 1: Processing 10 entities from doc-246e52e2d3b2a2f2c17a33d437a3b412 (async: 8)
+2026-04-06 14:58:35,012 - lightrag - INFO - Merged: `Codex Audit Result` | 3+1
+2026-04-06 14:58:35,012 - lightrag - INFO - Merged: `tools/data_keeper.py` | 1+1
+2026-04-06 14:58:35,012 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS` | 2+1
+2026-04-06 14:58:36,464 - lightrag - INFO - Merged: `env_loader.py` | 2+1
+2026-04-06 14:58:37,187 - lightrag - INFO - Merged: `PG` | 2+1
+2026-04-06 14:58:38,026 - lightrag - INFO - Merged: `YAML` | 2+1
+2026-04-06 14:58:38,872 - lightrag - INFO - Merged: `Data Integrity` | 2+1
+2026-04-06 14:58:41,514 - lightrag - INFO - Merged: `Functionality` | 1+1
+2026-04-06 14:58:42,254 - lightrag - INFO - Merged: `Code Quality` | 1+1
+2026-04-06 14:58:43,341 - lightrag - INFO - Phase 2: Processing 8 relations from doc-246e52e2d3b2a2f2c17a33d437a3b412 (async: 8)
+2026-04-06 14:58:44,486 - lightrag - INFO - Merged: `Codex Audit Result`~`Data Integrity` | 2+1
+2026-04-06 14:58:47,649 - lightrag - INFO - Merged: `Codex Audit Result`~`Functionality` | 1+1
+2026-04-06 14:58:49,453 - lightrag - INFO - Merged: `Code Quality`~`Codex Audit Result` | 1+1
+2026-04-06 14:58:50,383 - lightrag - INFO -  == LLM cache == saving: hybrid:keywords:9c7c714e5e38ffe24c12bf1c9e526bb0
+2026-04-06 14:58:51,986 - lightrag - INFO - Query nodes: SynologyDrive, ORBI CLAUDE_0223, data_keeper.py, tools (top_k:3, cosine:0.2)
+2026-04-06 14:58:52,001 - lightrag - INFO - Local query: 3 entites, 5 relations
+2026-04-06 14:58:52,002 - lightrag - INFO - Query edges: General audit issues, Data management (top_k:3, cosine:0.2)
+2026-04-06 14:58:52,004 - lightrag - INFO - Global query: 5 entites, 3 relations
+2026-04-06 14:58:52,004 - lightrag - INFO - Raw search results: 8 entities, 8 relations, 0 vector chunks
+2026-04-06 14:58:52,007 - lightrag - INFO - After truncation: 8 entities, 8 relations
+2026-04-06 14:58:52,017 - lightrag - INFO - Selecting 20 from 20 entity-related chunks by vector similarity
+2026-04-06 14:58:52,022 - lightrag - INFO - Find no additional relations-related chunks from 8 relations
+2026-04-06 14:58:52,022 - lightrag - INFO - Round-robin merged chunks: 20 -> 20 (deduplicated 0)
+2026-04-06 14:58:52,027 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 14:58:52,064 - lightrag - INFO - Final context: 8 entities, 8 relations, 20 chunks
+2026-04-06 14:58:52,064 - lightrag - INFO - Final chunks S+F/O: E1/1 E1/2 E4/3 E1/4 E1/5 E2/6 E2/7 E3/8 E3/9 E1/10 E1/11 E1/12 E3/13 E1/14 E1/15 E1/16 E1/17 E1/18 E1/19 E1/20
+2026-04-06 14:58:52,231 - uvicorn.access - INFO - 127.0.0.1:49770 - "POST /query HTTP/1.1" 200
+2026-04-06 14:58:52,511 - lightrag - INFO - Phase 3: Updating final 10(10+0) entities and  8 relations from doc-246e52e2d3b2a2f2c17a33d437a3b412
+2026-04-06 14:58:52,511 - lightrag - INFO - Completed merging: 10 entities, 0 extra entities, 8 relations
+2026-04-06 14:58:53,683 - lightrag - INFO - [] Writing graph with 2766 nodes, 2200 edges
+2026-04-06 14:58:54,118 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 14:58:54,119 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 14:58:54,119 - lightrag - INFO - Enqueued document processing pipeline stopped
+2026-04-06 14:59:08,605 - uvicorn.access - INFO - 127.0.0.1:59397 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 14:59:08,617 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 14:59:08,617 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 14:59:08,617 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 14:59:08,617 - lightrag - INFO - Processing d-id: doc-d46bf96e549f6cf9637bba620110856c
+2026-04-06 14:59:13,755 - lightrag - INFO - Query nodes: SynologyDrive, ORBI CLAUDE_0223, data_keeper.py, tools (top_k:3, cosine:0.2)
+2026-04-06 14:59:13,759 - lightrag - INFO - Local query: 3 entites, 5 relations
+2026-04-06 14:59:13,759 - lightrag - INFO - Query edges: General audit issues, Data management (top_k:3, cosine:0.2)
+2026-04-06 14:59:13,761 - lightrag - INFO - Global query: 5 entites, 3 relations
+2026-04-06 14:59:13,761 - lightrag - INFO - Raw search results: 8 entities, 8 relations, 0 vector chunks
+2026-04-06 14:59:13,766 - lightrag - INFO - After truncation: 8 entities, 8 relations
+2026-04-06 14:59:13,779 - lightrag - INFO - Selecting 20 from 20 entity-related chunks by vector similarity
+2026-04-06 14:59:13,780 - lightrag - INFO - Find no additional relations-related chunks from 8 relations
+2026-04-06 14:59:13,781 - lightrag - INFO - Round-robin merged chunks: 20 -> 20 (deduplicated 0)
+2026-04-06 14:59:13,786 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 14:59:13,816 - lightrag - INFO - Final context: 8 entities, 8 relations, 20 chunks
+2026-04-06 14:59:13,817 - lightrag - INFO - Final chunks S+F/O: E1/1 E1/2 E4/3 E1/4 E1/5 E2/6 E2/7 E3/8 E3/9 E1/10 E1/11 E1/12 E3/13 E1/14 E1/15 E1/16 E1/17 E1/18 E1/19 E1/20
+2026-04-06 14:59:13,818 - uvicorn.access - INFO - 127.0.0.1:59403 - "POST /query HTTP/1.1" 200
+2026-04-06 14:59:20,307 - lightrag - INFO -  == LLM cache == saving: default:extract:e6dabe84481f8c5859ad169769c89e17
+2026-04-06 14:59:28,085 - lightrag - INFO -  == LLM cache == saving: default:extract:5c04f7dd5b3659fae863258a6a2f9d51
+2026-04-06 14:59:28,086 - lightrag - INFO - Chunk 1 of 1 extracted 9 Ent + 9 Rel chunk-d46bf96e549f6cf9637bba620110856c
+2026-04-06 14:59:28,086 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 14:59:28,086 - lightrag - INFO - Phase 1: Processing 9 entities from doc-d46bf96e549f6cf9637bba620110856c (async: 8)
+2026-04-06 14:59:28,089 - lightrag - INFO - Merged: `Codex Audit Result` | 4+1
+2026-04-06 14:59:28,089 - lightrag - INFO - Merged: `Audit Report` | 6+1
+2026-04-06 14:59:28,090 - lightrag - INFO - Merged: `tools/data_keeper.py` | 2+1
+2026-04-06 14:59:29,630 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS` | 3+1
+2026-04-06 14:59:30,334 - lightrag - INFO - Merged: `YAML` | 3+1
+2026-04-06 14:59:31,091 - lightrag - INFO - Merged: `FUNCTIONALITY` | 1+1
+2026-04-06 14:59:31,934 - lightrag - INFO - Merged: `DATA INTEGRITY` | 1+1
+2026-04-06 14:59:34,446 - uvicorn.access - INFO - 127.0.0.1:49680 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 14:59:34,498 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-06 14:59:35,481 - lightrag - INFO - Phase 2: Processing 9 relations from doc-d46bf96e549f6cf9637bba620110856c (async: 8)
+2026-04-06 14:59:45,649 - lightrag - INFO - Phase 3: Updating final 12(9+3) entities and  9 relations from doc-d46bf96e549f6cf9637bba620110856c
+2026-04-06 14:59:45,650 - lightrag - INFO - Completed merging: 9 entities, 3 extra entities, 9 relations
+2026-04-06 14:59:47,192 - lightrag - INFO - [] Writing graph with 2771 nodes, 2209 edges
+2026-04-06 14:59:47,659 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 14:59:47,659 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 14:59:47,660 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-06 14:59:47,661 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 14:59:47,662 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 14:59:47,662 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 14:59:47,663 - lightrag - INFO - Processing d-id: doc-cb93f83f45ce2af70c37a4fa15a73f16
+2026-04-06 14:59:53,555 - lightrag - INFO - Query nodes: SynologyDrive, ORBI CLAUDE_0223, data_keeper.py, tools (top_k:3, cosine:0.2)
+2026-04-06 14:59:53,558 - lightrag - INFO - Local query: 3 entites, 6 relations
+2026-04-06 14:59:53,559 - lightrag - INFO - Query edges: General audit issues, Data management (top_k:3, cosine:0.2)
+2026-04-06 14:59:53,560 - lightrag - INFO - Global query: 5 entites, 3 relations
+2026-04-06 14:59:53,560 - lightrag - INFO - Raw search results: 8 entities, 9 relations, 0 vector chunks
+2026-04-06 14:59:53,561 - lightrag - INFO - After truncation: 8 entities, 9 relations
+2026-04-06 14:59:53,564 - lightrag - INFO - Selecting 20 from 21 entity-related chunks by vector similarity
+2026-04-06 14:59:53,564 - lightrag - INFO - Find no additional relations-related chunks from 9 relations
+2026-04-06 14:59:53,564 - lightrag - INFO - Round-robin merged chunks: 20 -> 20 (deduplicated 0)
+2026-04-06 14:59:53,566 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 14:59:53,574 - lightrag - INFO - Final context: 8 entities, 9 relations, 20 chunks
+2026-04-06 14:59:53,575 - lightrag - INFO - Final chunks S+F/O: E2/1 E1/2 E1/3 E4/4 E1/5 E1/6 E2/7 E2/8 E3/9 E3/10 E1/11 E1/12 E1/13 E3/14 E1/15 E1/16 E1/17 E1/18 E1/19 E1/20
+2026-04-06 14:59:53,577 - uvicorn.access - INFO - 127.0.0.1:59163 - "POST /query HTTP/1.1" 200
+2026-04-06 15:00:02,942 - lightrag - INFO -  == LLM cache == saving: default:extract:d9d6cc433e7b2a0edf5787c1f2e42db9
+2026-04-06 15:00:06,973 - lightrag - INFO -  == LLM cache == saving: default:extract:8458b3dd7e49c4fe90c2d169928d299e
+2026-04-06 15:00:06,974 - lightrag - INFO - Chunk 1 of 1 extracted 11 Ent + 9 Rel chunk-cb93f83f45ce2af70c37a4fa15a73f16
+2026-04-06 15:00:06,975 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 15:00:06,975 - lightrag - INFO - Phase 1: Processing 11 entities from doc-cb93f83f45ce2af70c37a4fa15a73f16 (async: 8)
+2026-04-06 15:00:06,977 - lightrag - INFO - Merged: `Codex Audit Result` | 5+1
+2026-04-06 15:00:06,978 - lightrag - INFO - Merged: `Data Keeper` | 6+1
+2026-04-06 15:00:06,979 - lightrag - INFO - Merged: `PostgreSQL` | 6+1
+2026-04-06 15:00:13,503 - lightrag - INFO - Merged: `Manifest File` | 1+1
+2026-04-06 15:00:16,311 - lightrag - INFO - Phase 2: Processing 9 relations from doc-cb93f83f45ce2af70c37a4fa15a73f16 (async: 8)
+2026-04-06 15:00:16,312 - lightrag - INFO - Merged: `Codex Audit Result`~`Data Keeper` | 1+1
+2026-04-06 15:00:18,746 - uvicorn.access - INFO - 127.0.0.1:49699 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 15:00:18,780 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-06 15:00:25,417 - lightrag - INFO - Query nodes: SynologyDrive, ORBI CLAUDE_0223, data_keeper.py, tools (top_k:3, cosine:0.2)
+2026-04-06 15:00:25,422 - lightrag - INFO - Local query: 3 entites, 6 relations
+2026-04-06 15:00:25,422 - lightrag - INFO - Query edges: General audit issues, Data management (top_k:3, cosine:0.2)
+2026-04-06 15:00:25,425 - lightrag - INFO - Global query: 5 entites, 3 relations
+2026-04-06 15:00:25,426 - lightrag - INFO - Raw search results: 8 entities, 9 relations, 0 vector chunks
+2026-04-06 15:00:25,429 - lightrag - INFO - After truncation: 8 entities, 9 relations
+2026-04-06 15:00:25,439 - lightrag - INFO - Selecting 20 from 22 entity-related chunks by vector similarity
+2026-04-06 15:00:25,446 - lightrag - INFO - Find no additional relations-related chunks from 9 relations
+2026-04-06 15:00:25,446 - lightrag - INFO - Round-robin merged chunks: 20 -> 20 (deduplicated 0)
+2026-04-06 15:00:25,450 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 15:00:25,480 - lightrag - INFO - Final context: 8 entities, 9 relations, 20 chunks
+2026-04-06 15:00:25,480 - lightrag - INFO - Final chunks S+F/O: E2/1 E1/2 E1/3 E1/4 E4/5 E1/6 E1/7 E2/8 E2/9 E3/10 E3/11 E1/12 E1/13 E1/14 E3/15 E1/16 E1/17 E1/18 E1/19 E1/20
+2026-04-06 15:00:25,686 - uvicorn.access - INFO - 127.0.0.1:50664 - "POST /query HTTP/1.1" 200
+2026-04-06 15:00:25,940 - lightrag - INFO - Phase 3: Updating final 11(11+0) entities and  9 relations from doc-cb93f83f45ce2af70c37a4fa15a73f16
+2026-04-06 15:00:25,941 - lightrag - INFO - Completed merging: 11 entities, 0 extra entities, 9 relations
+2026-04-06 15:00:27,053 - lightrag - INFO - [] Writing graph with 2778 nodes, 2217 edges
+2026-04-06 15:00:27,445 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 15:00:27,446 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 15:00:27,446 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-06 15:00:27,446 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 15:00:27,447 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 15:00:27,447 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 15:00:27,447 - lightrag - INFO - Processing d-id: doc-ed4beb9de386e201fd48d2d662de35eb
+2026-04-06 15:00:43,413 - lightrag - INFO -  == LLM cache == saving: default:extract:40bdf11189217c04464d17209ba27b6e
+2026-04-06 15:00:46,596 - uvicorn.access - INFO - 127.0.0.1:50704 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 15:00:46,607 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-06 15:00:52,509 - lightrag - INFO -  == LLM cache == saving: default:extract:ca4297150bbb4542f5962714efa31169
+2026-04-06 15:00:52,509 - lightrag - INFO - Chunk 1 of 1 extracted 10 Ent + 8 Rel chunk-ed4beb9de386e201fd48d2d662de35eb
+2026-04-06 15:00:52,510 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 15:00:52,510 - lightrag - INFO - Phase 1: Processing 10 entities from doc-ed4beb9de386e201fd48d2d662de35eb (async: 8)
+2026-04-06 15:00:52,511 - lightrag - INFO - Merged: `Codex Audit Result` | 6+1
+2026-04-06 15:00:52,511 - lightrag - INFO - Merged: `tools/data_keeper.py` | 3+1
+2026-04-06 15:00:52,511 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS` | 4+1
+2026-04-06 15:00:54,770 - lightrag - INFO - Merged: `FUNCTIONALITY` | 2+1
+2026-04-06 15:00:55,643 - lightrag - INFO - Merged: `DATA INTEGRITY` | 2+1
+2026-04-06 15:00:57,421 - lightrag - INFO - Merged: `NameError` | 1+1
+2026-04-06 15:01:00,020 - lightrag - INFO - Merged: `Orbitools API` | 5+1
+2026-04-06 15:01:00,847 - lightrag - INFO - Query nodes: SynologyDrive, ORBI CLAUDE_0223, data_keeper.py, tools (top_k:3, cosine:0.2)
+2026-04-06 15:01:01,739 - lightrag - INFO - Local query: 3 entites, 6 relations
+2026-04-06 15:01:01,739 - lightrag - INFO - Query edges: General audit issues, Data management (top_k:3, cosine:0.2)
+2026-04-06 15:01:01,742 - lightrag - INFO - Global query: 5 entites, 3 relations
+2026-04-06 15:01:01,742 - lightrag - INFO - Raw search results: 8 entities, 9 relations, 0 vector chunks
+2026-04-06 15:01:01,746 - lightrag - INFO - After truncation: 8 entities, 9 relations
+2026-04-06 15:01:01,757 - lightrag - INFO - Selecting 20 from 23 entity-related chunks by vector similarity
+2026-04-06 15:01:01,759 - lightrag - INFO - Find no additional relations-related chunks from 9 relations
+2026-04-06 15:01:01,759 - lightrag - INFO - Round-robin merged chunks: 20 -> 20 (deduplicated 0)
+2026-04-06 15:01:01,764 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 15:01:01,792 - lightrag - INFO - Final context: 8 entities, 9 relations, 20 chunks
+2026-04-06 15:01:01,793 - lightrag - INFO - Final chunks S+F/O: E2/1 E1/2 E1/3 E2/4 E1/5 E4/6 E1/7 E1/8 E2/9 E2/10 E3/11 E3/12 E1/13 E1/14 E1/15 E3/16 E1/17 E1/18 E1/19 E1/20
+2026-04-06 15:01:01,978 - uvicorn.access - INFO - 127.0.0.1:60184 - "POST /query HTTP/1.1" 200
+2026-04-06 15:01:04,994 - lightrag - INFO -  == LLM cache == saving: default:summary:564b1c6b449ff91daed8bb899ba77bf1
+2026-04-06 15:01:04,996 - lightrag - INFO - LLMmrg: `Audit Report` | 7+1
+2026-04-06 15:01:06,151 - lightrag - INFO - Phase 2: Processing 8 relations from doc-ed4beb9de386e201fd48d2d662de35eb (async: 8)
+2026-04-06 15:01:06,154 - lightrag - INFO - Merged: `Codex Audit Result`~`tools/data_keeper.py` | 1+1
+2026-04-06 15:01:13,950 - lightrag - INFO - Phase 3: Updating final 10(10+0) entities and  8 relations from doc-ed4beb9de386e201fd48d2d662de35eb
+2026-04-06 15:01:13,950 - lightrag - INFO - Completed merging: 10 entities, 0 extra entities, 8 relations
+2026-04-06 15:01:15,365 - lightrag - INFO - [] Writing graph with 2780 nodes, 2224 edges
+2026-04-06 15:01:15,839 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 15:01:15,840 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 15:01:15,840 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-06 15:01:15,841 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 15:01:15,841 - lightrag - INFO - Processing 1 document(s)
+2026-04-06 15:01:15,842 - lightrag - INFO - Extracting stage 1/1: unknown_source
+2026-04-06 15:01:15,842 - lightrag - INFO - Processing d-id: doc-c4e4d9eae104c62cb5a0dd9ff1a2e755
+2026-04-06 15:01:18,708 - uvicorn.access - INFO - 127.0.0.1:61117 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 15:01:18,720 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-06 15:01:23,915 - lightrag - INFO - Query nodes: SynologyDrive, ORBI CLAUDE_0223, data_keeper.py, tools (top_k:3, cosine:0.2)
+2026-04-06 15:01:23,917 - lightrag - INFO - Local query: 3 entites, 6 relations
+2026-04-06 15:01:23,917 - lightrag - INFO - Query edges: General audit issues, Data management (top_k:3, cosine:0.2)
+2026-04-06 15:01:23,918 - lightrag - INFO - Global query: 5 entites, 3 relations
+2026-04-06 15:01:23,919 - lightrag - INFO - Raw search results: 8 entities, 9 relations, 0 vector chunks
+2026-04-06 15:01:23,920 - lightrag - INFO - After truncation: 8 entities, 9 relations
+2026-04-06 15:01:23,930 - lightrag - INFO - Selecting 20 from 23 entity-related chunks by vector similarity
+2026-04-06 15:01:23,930 - lightrag - INFO - Find no additional relations-related chunks from 9 relations
+2026-04-06 15:01:23,930 - lightrag - INFO - Round-robin merged chunks: 20 -> 20 (deduplicated 0)
+2026-04-06 15:01:23,932 - lightrag - WARNING - Rerank is enabled but no rerank model is configured. Please set up a rerank model or set enable_rerank=False in query parameters.
+2026-04-06 15:01:23,943 - lightrag - INFO - Final context: 8 entities, 9 relations, 20 chunks
+2026-04-06 15:01:23,943 - lightrag - INFO - Final chunks S+F/O: E2/1 E1/2 E1/3 E2/4 E1/5 E4/6 E1/7 E1/8 E2/9 E2/10 E3/11 E3/12 E1/13 E1/14 E1/15 E3/16 E1/17 E1/18 E1/19 E1/20
+2026-04-06 15:01:23,943 - uvicorn.access - INFO - 127.0.0.1:59383 - "POST /query HTTP/1.1" 200
+2026-04-06 15:01:30,540 - lightrag - INFO -  == LLM cache == saving: default:extract:c4aaf24a808cd5a34a0c7d808901cd40
+2026-04-06 15:01:39,086 - lightrag - INFO -  == LLM cache == saving: default:extract:2bc3fd25cf297a8acac8ee8bb6874849
+2026-04-06 15:01:39,087 - lightrag - INFO - Chunk 1 of 1 extracted 8 Ent + 7 Rel chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755
+2026-04-06 15:01:39,087 - lightrag - INFO - Merging stage 1/1: unknown_source
+2026-04-06 15:01:39,088 - lightrag - INFO - Phase 1: Processing 8 entities from doc-c4e4d9eae104c62cb5a0dd9ff1a2e755 (async: 8)
+2026-04-06 15:01:39,090 - lightrag - INFO - Merged: `tools/data_keeper.py` | 4+1
+2026-04-06 15:01:39,850 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS` | 5+1
+2026-04-06 15:01:40,725 - lightrag - INFO - Merged: `env_loader.py` | 3+1
+2026-04-06 15:01:41,457 - lightrag - INFO - Merged: `CLI` | 1+1
+2026-04-06 15:01:42,131 - lightrag - INFO - Merged: `Data Integrity` | 3+1
+2026-04-06 15:01:42,132 - uvicorn.access - INFO - 127.0.0.1:52563 - "POST /documents/text HTTP/1.1" 200
+2026-04-06 15:01:42,803 - lightrag - INFO - Merged: `Code Quality` | 2+1
+2026-04-06 15:01:45,357 - lightrag - INFO - Another process is already processing the document queue. Request queued.
+2026-04-06 15:01:50,346 - lightrag - INFO -  == LLM cache == saving: default:summary:d9e71ab11e23f69ebdcd60071db2c54e
+2026-04-06 15:01:50,346 - lightrag - INFO - LLMmrg: `Codex Audit Result` | 7+1
+2026-04-06 15:01:51,364 - lightrag - INFO - Phase 2: Processing 7 relations from doc-c4e4d9eae104c62cb5a0dd9ff1a2e755 (async: 8)
+2026-04-06 15:01:51,367 - lightrag - INFO - Merged: `Codex Audit Result`~`tools/data_keeper.py` | 2+1
+2026-04-06 15:01:52,327 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS`~`tools/data_keeper.py` | 1+1
+2026-04-06 15:01:52,328 - lightrag - INFO - Merged: `Codex Audit Result`~`Data Integrity` | 3+1
+2026-04-06 15:01:54,090 - lightrag - INFO - Merged: `Code Quality`~`Codex Audit Result` | 2+1
+2026-04-06 15:01:54,866 - lightrag - INFO - Merged: `env_loader.py`~`tools/data_keeper.py` | 1+1
+2026-04-06 15:01:58,655 - lightrag - INFO - Phase 3: Updating final 8(8+0) entities and  7 relations from doc-c4e4d9eae104c62cb5a0dd9ff1a2e755
+2026-04-06 15:01:58,655 - lightrag - INFO - Completed merging: 8 entities, 0 extra entities, 7 relations
+2026-04-06 15:02:00,009 - lightrag - INFO - [] Writing graph with 2781 nodes, 2226 edges
+2026-04-06 15:02:00,453 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 15:02:00,453 - lightrag - INFO - Completed processing file 1/1: unknown_source
+2026-04-06 15:02:00,454 - lightrag - INFO - Processing additional documents due to pending request
+2026-04-06 15:02:00,455 - lightrag - INFO - Preserving 8 failed document entries for manual review
+2026-04-06 15:02:00,456 - lightrag - INFO - Processing 2 document(s)
+2026-04-06 15:02:00,456 - lightrag - INFO - Extracting stage 1/2: unknown_source
+2026-04-06 15:02:00,456 - lightrag - INFO - Processing d-id: doc-7ab7ce837c49b802287f8f1433ef8df4
+2026-04-06 15:02:00,457 - lightrag - INFO - Extracting stage 2/2: unknown_source
+2026-04-06 15:02:00,457 - lightrag - INFO - Processing d-id: doc-41c1e499b0a263b3c3be91169eaf658e
+2026-04-06 15:02:17,007 - lightrag - INFO -  == LLM cache == saving: default:extract:ebc76daece0e49576462bc36baf9304c
+2026-04-06 15:02:24,353 - lightrag - INFO -  == LLM cache == saving: default:extract:371e8a8d95a83959082fc6f40b01d148
+2026-04-06 15:02:24,354 - lightrag - INFO - Chunk 1 of 1 extracted 8 Ent + 7 Rel chunk-41c1e499b0a263b3c3be91169eaf658e
+2026-04-06 15:02:24,355 - lightrag - INFO - Merging stage 2/2: unknown_source
+2026-04-06 15:02:24,355 - lightrag - INFO - Phase 1: Processing 8 entities from doc-41c1e499b0a263b3c3be91169eaf658e (async: 8)
+2026-04-06 15:02:24,357 - lightrag - INFO - Merged: `Codex Audit Result` | 1+1
+2026-04-06 15:02:24,357 - lightrag - INFO - Merged: `tools/data_keeper.py` | 5+1
+2026-04-06 15:02:24,358 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS` | 6+1
+2026-04-06 15:02:25,799 - lightrag - INFO - Merged: `env_loader.py` | 4+1
+2026-04-06 15:02:26,503 - lightrag - INFO -  == LLM cache == saving: default:extract:d53bd868fd2660dadc185ad1ab76e7cb
+2026-04-06 15:02:26,509 - lightrag - INFO - Merged: `Grosmimi Price Cutoff` | 1+1
+2026-04-06 15:02:38,689 - lightrag - INFO -  == LLM cache == saving: default:summary:70bb94eb436f481965704f69d5fe88e5
+2026-04-06 15:02:38,690 - lightrag - INFO - LLMmrg: `PostgreSQL` | 7+1
+2026-04-06 15:02:39,719 - lightrag - INFO - Phase 2: Processing 7 relations from doc-41c1e499b0a263b3c3be91169eaf658e (async: 8)
+2026-04-06 15:02:39,720 - lightrag - INFO - Merged: `Codex Audit Result`~`tools/data_keeper.py` | 3+1
+2026-04-06 15:02:41,063 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS`~`tools/data_keeper.py` | 2+1
+2026-04-06 15:02:42,847 - lightrag - INFO - Merged: `env_loader.py`~`tools/data_keeper.py` | 2+1
+2026-04-06 15:02:43,774 - lightrag - INFO -  == LLM cache == saving: default:extract:f8fa05305e1de4cdfd0ebaf6c46cde9f
+2026-04-06 15:02:44,544 - lightrag - INFO - Chunk 1 of 1 extracted 12 Ent + 8 Rel chunk-7ab7ce837c49b802287f8f1433ef8df4
+2026-04-06 15:02:44,549 - lightrag - INFO - Merging stage 1/2: unknown_source
+2026-04-06 15:02:44,549 - lightrag - INFO - Phase 1: Processing 12 entities from doc-7ab7ce837c49b802287f8f1433ef8df4 (async: 8)
+2026-04-06 15:02:45,290 - lightrag - INFO - Merged: `FUNCTIONALITY` | 3+1
+2026-04-06 15:02:45,302 - lightrag - INFO - Merged: `DATA INTEGRITY` | 3+1
+2026-04-06 15:02:45,305 - lightrag - INFO - Merged: `CODE QUALITY` | 1+1
+2026-04-06 15:02:46,113 - lightrag - INFO - Merged: `Critical Issues` | 3+1
+2026-04-06 15:02:49,632 - lightrag - INFO - Merged: `Codex Audit Result` | 2+1
+2026-04-06 15:02:53,023 - lightrag - INFO - Merged: `load_env()` | 1+1
+2026-04-06 15:02:55,413 - lightrag - INFO - Phase 3: Updating final 8(8+0) entities and  7 relations from doc-41c1e499b0a263b3c3be91169eaf658e
+2026-04-06 15:02:55,414 - lightrag - INFO - Merged: `tools/data_keeper.py` | 6+1
+2026-04-06 15:02:55,414 - lightrag - INFO - Completed merging: 8 entities, 0 extra entities, 7 relations
+2026-04-06 15:02:57,662 - lightrag - INFO - [] Writing graph with 2787 nodes, 2230 edges
+2026-04-06 15:02:58,135 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 15:02:58,136 - lightrag - INFO - Completed processing file 2/2: unknown_source
+2026-04-06 15:02:58,901 - lightrag - INFO -  == LLM cache == saving: default:summary:1bee29cee69a82050a947f4cff9dd528
+2026-04-06 15:02:58,902 - lightrag - INFO - LLMmrg: `CHANNEL_COLLECTORS` | 7+1
+2026-04-06 15:02:59,929 - lightrag - INFO - Phase 2: Processing 8 relations from doc-7ab7ce837c49b802287f8f1433ef8df4 (async: 8)
+2026-04-06 15:02:59,931 - lightrag - INFO - Merged: `Codex Audit Result`~`FUNCTIONALITY` | 1+1
+2026-04-06 15:03:03,498 - lightrag - INFO - Merged: `Codex Audit Result`~`DATA INTEGRITY` | 1+1
+2026-04-06 15:03:04,380 - lightrag - INFO - Merged: `CODE QUALITY`~`Codex Audit Result` | 1+1
+2026-04-06 15:03:05,033 - lightrag - INFO - Merged: `CHANNEL_COLLECTORS`~`tools/data_keeper.py` | 3+1
+2026-04-06 15:03:07,088 - lightrag - INFO - Phase 3: Updating final 12(12+0) entities and  8 relations from doc-7ab7ce837c49b802287f8f1433ef8df4
+2026-04-06 15:03:07,089 - lightrag - INFO - Completed merging: 12 entities, 0 extra entities, 8 relations
+2026-04-06 15:03:08,410 - lightrag - INFO - [] Writing graph with 2787 nodes, 2234 edges
+2026-04-06 15:03:08,818 - lightrag - INFO - In memory DB persist to disk
+2026-04-06 15:03:08,819 - lightrag - INFO - Completed processing file 1/2: unknown_source
+2026-04-06 15:03:08,819 - lightrag - INFO - Enqueued document processing pipeline stopped

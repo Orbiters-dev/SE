@@ -12067,10 +12067,11 @@
   "Draft Order<SEP>Shopify": {
     "chunk_ids": [
       "chunk-2f6eea6e84b6af37de16437d71eb0296",
-      "chunk-9c71f74b2812864990f0efbc14a61e51"
+      "chunk-9c71f74b2812864990f0efbc14a61e51",
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
     ],
-    "count": 2,
-    "update_time": 1775315497,
+    "count": 3,
+    "update_time": 1775399043,
     "_id": "Draft Order<SEP>Shopify"
   },
   "@remix-run/react<SEP>Shopify Hydrogen": {
@@ -12184,10 +12185,11 @@
   "Airtable<SEP>Shopify": {
     "chunk_ids": [
       "chunk-f9623243912e17cccca9f5c80c7aa2d3",
-      "chunk-5697e39e67f1d9405f8fc22dda4faaee"
+      "chunk-5697e39e67f1d9405f8fc22dda4faaee",
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
     ],
-    "count": 2,
-    "update_time": 1775315317,
+    "count": 3,
+    "update_time": 1775399044,
     "_id": "Airtable<SEP>Shopify"
   },
   "Fulfillment<SEP>Influencer Collaboration Pipeline": {
@@ -18735,5 +18737,1411 @@
     "create_time": 1775381195,
     "update_time": 1775381195,
     "_id": "Creators Tab UI<SEP>Draft Email Preview"
+  },
+  "Codex Audit Result<SEP>Source Code": {
+    "chunk_ids": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
+    ],
+    "count": 1,
+    "create_time": 1775397886,
+    "update_time": 1775397886,
+    "_id": "Codex Audit Result<SEP>Source Code"
+  },
+  "20260405_230427<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
+    ],
+    "count": 1,
+    "create_time": 1775397887,
+    "update_time": 1775397887,
+    "_id": "20260405_230427<SEP>Codex Audit Result"
+  },
+  "Codex Audit Result<SEP>FAIL": {
+    "chunk_ids": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
+    ],
+    "count": 1,
+    "create_time": 1775397887,
+    "update_time": 1775397887,
+    "_id": "Codex Audit Result<SEP>FAIL"
+  },
+  "Codex Audit Result<SEP>Overall Verdict": {
+    "chunk_ids": [
+      "chunk-a8abf029ce1d1ed7ed4c55e7af10bd26"
+    ],
+    "count": 1,
+    "create_time": 1775397888,
+    "update_time": 1775397888,
+    "_id": "Codex Audit Result<SEP>Overall Verdict"
+  },
+  "Codex Audit Result<SEP>Test Connection": {
+    "chunk_ids": [
+      "chunk-a2e3b9dda15dc2d0f3db7938c548c4a6"
+    ],
+    "count": 1,
+    "create_time": 1775397898,
+    "update_time": 1775397898,
+    "_id": "Codex Audit Result<SEP>Test Connection"
+  },
+  "20260405_230444<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-a2e3b9dda15dc2d0f3db7938c548c4a6"
+    ],
+    "count": 1,
+    "create_time": 1775397899,
+    "update_time": 1775397899,
+    "_id": "20260405_230444<SEP>Codex Audit Result"
+  },
+  "CFO<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df",
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 2,
+    "update_time": 1775402425,
+    "_id": "CFO<SEP>Codex Audit Result"
+  },
+  "COGS Calculation<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398259,
+    "update_time": 1775398259,
+    "_id": "COGS Calculation<SEP>Script"
+  },
+  "COGS Standard<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398260,
+    "update_time": 1775398260,
+    "_id": "COGS Standard<SEP>Script"
+  },
+  "Partial Month Detection<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398261,
+    "update_time": 1775398261,
+    "_id": "Partial Month Detection<SEP>Script"
+  },
+  "Revenue Recognition<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398261,
+    "update_time": 1775398261,
+    "_id": "Revenue Recognition<SEP>Script"
+  },
+  "Script<SEP>Sign Conventions": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398261,
+    "update_time": 1775398261,
+    "_id": "Script<SEP>Sign Conventions"
+  },
+  "F001<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398262,
+    "update_time": 1775398262,
+    "_id": "F001<SEP>Script"
+  },
+  "F002<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398262,
+    "update_time": 1775398262,
+    "_id": "F002<SEP>Script"
+  },
+  "F003<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398262,
+    "update_time": 1775398262,
+    "_id": "F003<SEP>Script"
+  },
+  "F004<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398263,
+    "update_time": 1775398263,
+    "_id": "F004<SEP>Script"
+  },
+  "F005<SEP>Script": {
+    "chunk_ids": [
+      "chunk-82d5e6384ec2e39cd8d8e05a2bc453df"
+    ],
+    "count": 1,
+    "create_time": 1775398263,
+    "update_time": 1775398263,
+    "_id": "F005<SEP>Script"
+  },
+  "COGS Calculation<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776",
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 2,
+    "update_time": 1775402385,
+    "_id": "COGS Calculation<SEP>Codex Audit Result"
+  },
+  "Raw DataKeeper Totals<SEP>Revenue by Channel Mapping": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398386,
+    "update_time": 1775398386,
+    "_id": "Raw DataKeeper Totals<SEP>Revenue by Channel Mapping"
+  },
+  "Codex Audit Result<SEP>Period Consistency": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776",
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 2,
+    "update_time": 1775402387,
+    "_id": "Codex Audit Result<SEP>Period Consistency"
+  },
+  "COGS Calculation<SEP>SKU Cost": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398386,
+    "update_time": 1775398386,
+    "_id": "COGS Calculation<SEP>SKU Cost"
+  },
+  "Codex Audit Result<SEP>Revenue by Channel Mapping": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398387,
+    "update_time": 1775398387,
+    "_id": "Codex Audit Result<SEP>Revenue by Channel Mapping"
+  },
+  "Arithmetic - Brand/Channel Totals<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398388,
+    "update_time": 1775398388,
+    "_id": "Arithmetic - Brand/Channel Totals<SEP>Codex Audit Result"
+  },
+  "COGS Calculation Rules<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398388,
+    "update_time": 1775398388,
+    "_id": "COGS Calculation Rules<SEP>Codex Audit Result"
+  },
+  "Codex Audit Result<SEP>Revenue Mapping": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398389,
+    "update_time": 1775398389,
+    "_id": "Codex Audit Result<SEP>Revenue Mapping"
+  },
+  "Codex Audit Result<SEP>Period Handling": {
+    "chunk_ids": [
+      "chunk-cf0e99914d3f5fa12604d552b1873776"
+    ],
+    "count": 1,
+    "create_time": 1775398389,
+    "update_time": 1775398389,
+    "_id": "Codex Audit Result<SEP>Period Handling"
+  },
+  "Codex Audit Result<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398994,
+    "update_time": 1775398994,
+    "_id": "Codex Audit Result<SEP>generate_fin_data.py"
+  },
+  "COGS Calculation<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398995,
+    "update_time": 1775398995,
+    "_id": "COGS Calculation<SEP>generate_fin_data.py"
+  },
+  "Grosmimi Price Cutoff<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398996,
+    "update_time": 1775398996,
+    "_id": "Grosmimi Price Cutoff<SEP>generate_fin_data.py"
+  },
+  "Revenue Cross-Table Consistency<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398996,
+    "update_time": 1775398996,
+    "_id": "Revenue Cross-Table Consistency<SEP>generate_fin_data.py"
+  },
+  "Period Consistency<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398997,
+    "update_time": 1775398997,
+    "_id": "Period Consistency<SEP>generate_fin_data.py"
+  },
+  "Arithmetic Consistency<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398997,
+    "update_time": 1775398997,
+    "_id": "Arithmetic Consistency<SEP>generate_fin_data.py"
+  },
+  "F001<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398998,
+    "update_time": 1775398998,
+    "_id": "F001<SEP>generate_fin_data.py"
+  },
+  "F002<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398998,
+    "update_time": 1775398998,
+    "_id": "F002<SEP>generate_fin_data.py"
+  },
+  "F003<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398999,
+    "update_time": 1775398999,
+    "_id": "F003<SEP>generate_fin_data.py"
+  },
+  "F004<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775398999,
+    "update_time": 1775398999,
+    "_id": "F004<SEP>generate_fin_data.py"
+  },
+  "F005<SEP>generate_fin_data.py": {
+    "chunk_ids": [
+      "chunk-205ab7c330a998ad55b9cb0fd5320d5d"
+    ],
+    "count": 1,
+    "create_time": 1775399000,
+    "update_time": 1775399000,
+    "_id": "F005<SEP>generate_fin_data.py"
+  },
+  "Codex Audit Result<SEP>tools/codex_evaluator.py": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399023,
+    "update_time": 1775399023,
+    "_id": "Codex Audit Result<SEP>tools/codex_evaluator.py"
+  },
+  "CLI<SEP>tools/codex_evaluator.py": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399023,
+    "update_time": 1775399023,
+    "_id": "CLI<SEP>tools/codex_evaluator.py"
+  },
+  "Codex Audit Result<SEP>RAG": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399023,
+    "update_time": 1775399023,
+    "_id": "Codex Audit Result<SEP>RAG"
+  },
+  "OpenAI API<SEP>tools/codex_evaluator.py": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399024,
+    "update_time": 1775399024,
+    "_id": "OpenAI API<SEP>tools/codex_evaluator.py"
+  },
+  "File NotFoundError<SEP>tools/codex_evaluator.py": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399025,
+    "update_time": 1775399025,
+    "_id": "File NotFoundError<SEP>tools/codex_evaluator.py"
+  },
+  "TypeError<SEP>tools/codex_evaluator.py": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399025,
+    "update_time": 1775399025,
+    "_id": "TypeError<SEP>tools/codex_evaluator.py"
+  },
+  "500 Lines<SEP>tools/codex_evaluator.py": {
+    "chunk_ids": [
+      "chunk-2bb2184dcf276d2c10854b0f0bc061f7"
+    ],
+    "count": 1,
+    "create_time": 1775399026,
+    "update_time": 1775399026,
+    "_id": "500 Lines<SEP>tools/codex_evaluator.py"
+  },
+  "Stage Results<SEP>dual_test_runner.py": {
+    "chunk_ids": [
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
+    ],
+    "count": 1,
+    "create_time": 1775399043,
+    "update_time": 1775399043,
+    "_id": "Stage Results<SEP>dual_test_runner.py"
+  },
+  "Airtable<SEP>PostgreSQL": {
+    "chunk_ids": [
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
+    ],
+    "count": 1,
+    "create_time": 1775399043,
+    "update_time": 1775399043,
+    "_id": "Airtable<SEP>PostgreSQL"
+  },
+  "Stage Results<SEP>n8n": {
+    "chunk_ids": [
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
+    ],
+    "count": 1,
+    "create_time": 1775399044,
+    "update_time": 1775399044,
+    "_id": "Stage Results<SEP>n8n"
+  },
+  "Gifting Application<SEP>PostgreSQL": {
+    "chunk_ids": [
+      "chunk-6a05ea772fc966c7967e5b0e518ac558"
+    ],
+    "count": 1,
+    "create_time": 1775399044,
+    "update_time": 1775399044,
+    "_id": "Gifting Application<SEP>PostgreSQL"
+  },
+  "Advertising and Sales Data<SEP>Data Ingestion and Caching Script": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399071,
+    "update_time": 1775399071,
+    "_id": "Advertising and Sales Data<SEP>Data Ingestion and Caching Script"
+  },
+  "Codex Audit Result<SEP>ORBI System": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399072,
+    "update_time": 1775399072,
+    "_id": "Codex Audit Result<SEP>ORBI System"
+  },
+  "Audit Report<SEP>Line 44-51": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399072,
+    "update_time": 1775399072,
+    "_id": "Audit Report<SEP>Line 44-51"
+  },
+  "Codex Audit Result<SEP>Line 1-900": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399072,
+    "update_time": 1775399072,
+    "_id": "Codex Audit Result<SEP>Line 1-900"
+  },
+  "Audit Report<SEP>Line 52-55": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399072,
+    "update_time": 1775399072,
+    "_id": "Audit Report<SEP>Line 52-55"
+  },
+  "Codex Audit Result<SEP>tools/setup_n8n_delivery_email.py": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399073,
+    "update_time": 1775399073,
+    "_id": "Codex Audit Result<SEP>tools/setup_n8n_delivery_email.py"
+  },
+  "Audit Report<SEP>Line 170-171": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399073,
+    "update_time": 1775399073,
+    "_id": "Audit Report<SEP>Line 170-171"
+  },
+  "Data Ingestion and Caching Script<SEP>YAML": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399073,
+    "update_time": 1775399073,
+    "_id": "Data Ingestion and Caching Script<SEP>YAML"
+  },
+  "Codex Audit Result<SEP>Functionality": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412"
+    ],
+    "count": 2,
+    "update_time": 1775455127,
+    "_id": "Codex Audit Result<SEP>Functionality"
+  },
+  "Audit Report<SEP>Line 232-233": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399074,
+    "update_time": 1775399074,
+    "_id": "Audit Report<SEP>Line 232-233"
+  },
+  "Data Ingestion and Caching Script<SEP>PST": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399074,
+    "update_time": 1775399074,
+    "_id": "Data Ingestion and Caching Script<SEP>PST"
+  },
+  "Codex Audit Result<SEP>Data Integrity": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80",
+      "chunk-474107f576df6a5c3d4d3875afe637ff",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "count": 4,
+    "update_time": 1775455312,
+    "_id": "Codex Audit Result<SEP>Data Integrity"
+  },
+  "Audit Report<SEP>Line 239-240": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399075,
+    "update_time": 1775399075,
+    "_id": "Audit Report<SEP>Line 239-240"
+  },
+  "Data Collection Logic<SEP>Data Ingestion and Caching Script": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399075,
+    "update_time": 1775399075,
+    "_id": "Data Collection Logic<SEP>Data Ingestion and Caching Script"
+  },
+  "API Schema Changes<SEP>Data Ingestion and Caching Script": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399076,
+    "update_time": 1775399076,
+    "_id": "API Schema Changes<SEP>Data Ingestion and Caching Script"
+  },
+  "Audit Report<SEP>Line 263": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80"
+    ],
+    "count": 1,
+    "create_time": 1775399076,
+    "update_time": 1775399076,
+    "_id": "Audit Report<SEP>Line 263"
+  },
+  "Code Quality<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-d06f425bac82c61d59416b2891c27c80",
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "count": 3,
+    "update_time": 1775455314,
+    "_id": "Code Quality<SEP>Codex Audit Result"
+  },
+  "Data Ingestion and Caching Script<SEP>KeyError": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399077,
+    "update_time": 1775399077,
+    "_id": "Data Ingestion and Caching Script<SEP>KeyError"
+  },
+  "Data Ingestion and Caching Script<SEP>Integrity Verification": {
+    "chunk_ids": [
+      "chunk-3d7927dc3548bedd048eba656f5cfc08"
+    ],
+    "count": 1,
+    "create_time": 1775399077,
+    "update_time": 1775399077,
+    "_id": "Data Ingestion and Caching Script<SEP>Integrity Verification"
+  },
+  "Correction Needed<SEP>Findings": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402385,
+    "update_time": 1775402385,
+    "_id": "Correction Needed<SEP>Findings"
+  },
+  "COGS Range Validation<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402386,
+    "update_time": 1775402386,
+    "_id": "COGS Range Validation<SEP>Codex Audit Result"
+  },
+  "Codex Audit Result<SEP>Revenue Mapping (Cross-table Consistency)": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402386,
+    "update_time": 1775402386,
+    "_id": "Codex Audit Result<SEP>Revenue Mapping (Cross-table Consistency)"
+  },
+  "Codex Audit Result<SEP>Findings": {
+    "chunk_ids": [
+      "chunk-f0a51102d871f5d8cecb2bed696c3360"
+    ],
+    "count": 1,
+    "create_time": 1775402387,
+    "update_time": 1775402387,
+    "_id": "Codex Audit Result<SEP>Findings"
+  },
+  "F001<SEP>Total Revenue": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402425,
+    "update_time": 1775402425,
+    "_id": "F001<SEP>Total Revenue"
+  },
+  "Brand Revenue<SEP>F002": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402425,
+    "update_time": 1775402425,
+    "_id": "Brand Revenue<SEP>F002"
+  },
+  "Channel Revenue<SEP>F003": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402425,
+    "update_time": 1775402425,
+    "_id": "Channel Revenue<SEP>F003"
+  },
+  "Critical Errors<SEP>F004": {
+    "chunk_ids": [
+      "chunk-d72451c08459b00c6cd8799579d3874d"
+    ],
+    "count": 1,
+    "create_time": 1775402425,
+    "update_time": 1775402425,
+    "_id": "Critical Errors<SEP>F004"
+  },
+  "Codex Audit Result<SEP>Pipeline Audit": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04",
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 3,
+    "update_time": 1775402957,
+    "_id": "Codex Audit Result<SEP>Pipeline Audit"
+  },
+  "Executor<SEP>Verifier": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
+    ],
+    "count": 1,
+    "create_time": 1775402872,
+    "update_time": 1775402872,
+    "_id": "Executor<SEP>Verifier"
+  },
+  "Data Flow<SEP>patch_draft_gen_v2.py": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
+    ],
+    "count": 1,
+    "create_time": 1775402872,
+    "update_time": 1775402872,
+    "_id": "Data Flow<SEP>patch_draft_gen_v2.py"
+  },
+  "Issues Found<SEP>Stage Integrity": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
+    ],
+    "count": 1,
+    "create_time": 1775402872,
+    "update_time": 1775402872,
+    "_id": "Issues Found<SEP>Stage Integrity"
+  },
+  "Issues Found<SEP>Webhook/n8n Health": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
+    ],
+    "count": 1,
+    "create_time": 1775402874,
+    "update_time": 1775402874,
+    "_id": "Issues Found<SEP>Webhook/n8n Health"
+  },
+  "Pipeline Audit<SEP>gifting2": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d",
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04",
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 3,
+    "update_time": 1775402958,
+    "_id": "Pipeline Audit<SEP>gifting2"
+  },
+  "Pipeline Audit<SEP>sample_sent": {
+    "chunk_ids": [
+      "chunk-a8bad1addd0764c0c7cd3a0677bc927d"
+    ],
+    "count": 1,
+    "create_time": 1775402875,
+    "update_time": 1775402875,
+    "_id": "Pipeline Audit<SEP>sample_sent"
+  },
+  "Codex Audit Result<SEP>patch_draft_gen_v2.py": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402907,
+    "update_time": 1775402907,
+    "_id": "Codex Audit Result<SEP>patch_draft_gen_v2.py"
+  },
+  "gifting2<SEP>patch_draft_gen_v2.py": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f",
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04",
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 3,
+    "update_time": 1775402957,
+    "_id": "gifting2<SEP>patch_draft_gen_v2.py"
+  },
+  "Codex Audit Result<SEP>Stage Integrity": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402908,
+    "update_time": 1775402908,
+    "_id": "Codex Audit Result<SEP>Stage Integrity"
+  },
+  "Airtable<SEP>gifting2": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402908,
+    "update_time": 1775402908,
+    "_id": "Airtable<SEP>gifting2"
+  },
+  "Codex Audit Result<SEP>Data Flow": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402908,
+    "update_time": 1775402908,
+    "_id": "Codex Audit Result<SEP>Data Flow"
+  },
+  "Codex Audit Result<SEP>Webhook/n8n Health": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402909,
+    "update_time": 1775402909,
+    "_id": "Codex Audit Result<SEP>Webhook/n8n Health"
+  },
+  "Shopify<SEP>gifting2": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402909,
+    "update_time": 1775402909,
+    "_id": "Shopify<SEP>gifting2"
+  },
+  "PostgreSQL<SEP>gifting2": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402910,
+    "update_time": 1775402910,
+    "_id": "PostgreSQL<SEP>gifting2"
+  },
+  "Codex Audit Result<SEP>Negative Tests": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402910,
+    "update_time": 1775402910,
+    "_id": "Codex Audit Result<SEP>Negative Tests"
+  },
+  "Cleanup<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-0e34eca661f2d465825cd5724fe1db9f"
+    ],
+    "count": 1,
+    "create_time": 1775402910,
+    "update_time": 1775402910,
+    "_id": "Cleanup<SEP>Codex Audit Result"
+  },
+  "data flow<SEP>stage integrity": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402930,
+    "update_time": 1775402930,
+    "_id": "data flow<SEP>stage integrity"
+  },
+  "negative test coverage<SEP>patch script": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402930,
+    "update_time": 1775402930,
+    "_id": "negative test coverage<SEP>patch script"
+  },
+  "n8n Draft Gen Workflow<SEP>patch_draft_gen_v2.py": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402931,
+    "update_time": 1775402931,
+    "_id": "n8n Draft Gen Workflow<SEP>patch_draft_gen_v2.py"
+  },
+  "record propagation<SEP>stage integrity": {
+    "chunk_ids": [
+      "chunk-dfcd98f783316bc8eecaac4cd7288f04"
+    ],
+    "count": 1,
+    "create_time": 1775402931,
+    "update_time": 1775402931,
+    "_id": "record propagation<SEP>stage integrity"
+  },
+  "Cross-System<SEP>Pipeline Audit": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402959,
+    "update_time": 1775402959,
+    "_id": "Cross-System<SEP>Pipeline Audit"
+  },
+  "Pipeline Audit<SEP>Silent Failure Risk": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402959,
+    "update_time": 1775402959,
+    "_id": "Pipeline Audit<SEP>Silent Failure Risk"
+  },
+  "Pipeline Audit<SEP>STAGE INTEGRITY": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402960,
+    "update_time": 1775402960,
+    "_id": "Pipeline Audit<SEP>STAGE INTEGRITY"
+  },
+  "DATA FLOW<SEP>Pipeline Audit": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402960,
+    "update_time": 1775402960,
+    "_id": "DATA FLOW<SEP>Pipeline Audit"
+  },
+  "Pipeline Audit<SEP>WEBHOOK/n8n HEALTH": {
+    "chunk_ids": [
+      "chunk-4de7f333320ca174ca58ce081017887c"
+    ],
+    "count": 1,
+    "create_time": 1775402961,
+    "update_time": 1775402961,
+    "_id": "Pipeline Audit<SEP>WEBHOOK/n8n HEALTH"
+  },
+  "Codex Audit Result<SEP>data_keeper.py": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455019,
+    "update_time": 1775455019,
+    "_id": "Codex Audit Result<SEP>data_keeper.py"
+  },
+  "FUNCTIONALITY<SEP>data_keeper.py": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455020,
+    "update_time": 1775455020,
+    "_id": "FUNCTIONALITY<SEP>data_keeper.py"
+  },
+  "DATA INTEGRITY<SEP>data_keeper.py": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455022,
+    "update_time": 1775455022,
+    "_id": "DATA INTEGRITY<SEP>data_keeper.py"
+  },
+  "CHANNEL_COLLECTORS<SEP>data_keeper.py": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455023,
+    "update_time": 1775455023,
+    "_id": "CHANNEL_COLLECTORS<SEP>data_keeper.py"
+  },
+  "YAML<SEP>data_keeper.py": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455023,
+    "update_time": 1775455023,
+    "_id": "YAML<SEP>data_keeper.py"
+  },
+  "data_keeper.py<SEP>if __name__ == \"__main__\":": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455024,
+    "update_time": 1775455024,
+    "_id": "data_keeper.py<SEP>if __name__ == \"__main__\":"
+  },
+  "data_keeper.py<SEP>load_env()": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455025,
+    "update_time": 1775455025,
+    "_id": "data_keeper.py<SEP>load_env()"
+  },
+  "NameError<SEP>data_keeper.py": {
+    "chunk_ids": [
+      "chunk-219572b1eb78a67bb2e7452e32318243"
+    ],
+    "count": 1,
+    "create_time": 1775455026,
+    "update_time": 1775455026,
+    "_id": "NameError<SEP>data_keeper.py"
+  },
+  "Codex Audit Result<SEP>Data Keeper": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff",
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 2,
+    "update_time": 1775455216,
+    "_id": "Codex Audit Result<SEP>Data Keeper"
+  },
+  "Data Integrity<SEP>Functional Issues": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455067,
+    "update_time": 1775455067,
+    "_id": "Data Integrity<SEP>Functional Issues"
+  },
+  "CHANNEL_COLLECTORS<SEP>Data Keeper": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455069,
+    "update_time": 1775455069,
+    "_id": "CHANNEL_COLLECTORS<SEP>Data Keeper"
+  },
+  "Codex Audit Result<SEP>audit report": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455069,
+    "update_time": 1775455069,
+    "_id": "Codex Audit Result<SEP>audit report"
+  },
+  "Data Keeper<SEP>env_loader.py": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455071,
+    "update_time": 1775455071,
+    "_id": "Data Keeper<SEP>env_loader.py"
+  },
+  "Data Keeper<SEP>requests Library": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455073,
+    "update_time": 1775455073,
+    "_id": "Data Keeper<SEP>requests Library"
+  },
+  "Data Keeper<SEP>Functional Issues": {
+    "chunk_ids": [
+      "chunk-474107f576df6a5c3d4d3875afe637ff"
+    ],
+    "count": 1,
+    "create_time": 1775455074,
+    "update_time": 1775455074,
+    "_id": "Data Keeper<SEP>Functional Issues"
+  },
+  "Codex Audit Result<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 4,
+    "update_time": 1775455359,
+    "_id": "Codex Audit Result<SEP>tools/data_keeper.py"
+  },
+  "CHANNEL_COLLECTORS<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 4,
+    "update_time": 1775455385,
+    "_id": "CHANNEL_COLLECTORS<SEP>tools/data_keeper.py"
+  },
+  "env_loader.py<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412",
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755",
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 3,
+    "update_time": 1775455362,
+    "_id": "env_loader.py<SEP>tools/data_keeper.py"
+  },
+  "YAML<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412"
+    ],
+    "count": 1,
+    "create_time": 1775455128,
+    "update_time": 1775455128,
+    "_id": "YAML<SEP>tools/data_keeper.py"
+  },
+  "CACHE_DIR<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-246e52e2d3b2a2f2c17a33d437a3b412"
+    ],
+    "count": 1,
+    "create_time": 1775455131,
+    "update_time": 1775455131,
+    "_id": "CACHE_DIR<SEP>tools/data_keeper.py"
+  },
+  "Audit Report<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455175,
+    "update_time": 1775455175,
+    "_id": "Audit Report<SEP>Codex Audit Result"
+  },
+  "CHANNEL_COLLECTORS<SEP>_export_to_shared": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455175,
+    "update_time": 1775455175,
+    "_id": "CHANNEL_COLLECTORS<SEP>_export_to_shared"
+  },
+  "ORBITOOLS_BASE<SEP>_sync_nas_from_pg": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455175,
+    "update_time": 1775455175,
+    "_id": "ORBITOOLS_BASE<SEP>_sync_nas_from_pg"
+  },
+  "YAML<SEP>_scan_signals": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455175,
+    "update_time": 1775455175,
+    "_id": "YAML<SEP>_scan_signals"
+  },
+  "FUNCTIONALITY<SEP>Score: 7/10": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455175,
+    "update_time": 1775455175,
+    "_id": "FUNCTIONALITY<SEP>Score: 7/10"
+  },
+  "Audit Report<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455182,
+    "update_time": 1775455182,
+    "_id": "Audit Report<SEP>tools/data_keeper.py"
+  },
+  "DATA INTEGRITY<SEP>Score: 7/10": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455182,
+    "update_time": 1775455182,
+    "_id": "DATA INTEGRITY<SEP>Score: 7/10"
+  },
+  "Audit Report<SEP>FUNCTIONALITY": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455183,
+    "update_time": 1775455183,
+    "_id": "Audit Report<SEP>FUNCTIONALITY"
+  },
+  "Audit Report<SEP>DATA INTEGRITY": {
+    "chunk_ids": [
+      "chunk-d46bf96e549f6cf9637bba620110856c"
+    ],
+    "count": 1,
+    "create_time": 1775455184,
+    "update_time": 1775455184,
+    "_id": "Audit Report<SEP>DATA INTEGRITY"
+  },
+  "Data Keeper<SEP>PostgreSQL": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455217,
+    "update_time": 1775455217,
+    "_id": "Data Keeper<SEP>PostgreSQL"
+  },
+  "Channel Collectors<SEP>Data Keeper": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455218,
+    "update_time": 1775455218,
+    "_id": "Channel Collectors<SEP>Data Keeper"
+  },
+  "Data Keeper<SEP>Shared Directory": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455218,
+    "update_time": 1775455218,
+    "_id": "Data Keeper<SEP>Shared Directory"
+  },
+  "Cache Directory<SEP>Data Keeper": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455220,
+    "update_time": 1775455220,
+    "_id": "Cache Directory<SEP>Data Keeper"
+  },
+  "Amazon Ads Token<SEP>Data Keeper": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455221,
+    "update_time": 1775455221,
+    "_id": "Amazon Ads Token<SEP>Data Keeper"
+  },
+  "Data Keeper<SEP>YAML Parser": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455222,
+    "update_time": 1775455222,
+    "_id": "Data Keeper<SEP>YAML Parser"
+  },
+  "Data Keeper<SEP>Manifest File": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455222,
+    "update_time": 1775455222,
+    "_id": "Data Keeper<SEP>Manifest File"
+  },
+  "Data Keeper<SEP>Line 368": {
+    "chunk_ids": [
+      "chunk-cb93f83f45ce2af70c37a4fa15a73f16"
+    ],
+    "count": 1,
+    "create_time": 1775455224,
+    "update_time": 1775455224,
+    "_id": "Data Keeper<SEP>Line 368"
+  },
+  "DATA INTEGRITY<SEP>JSON Data": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
+    ],
+    "count": 1,
+    "create_time": 1775455266,
+    "update_time": 1775455266,
+    "_id": "DATA INTEGRITY<SEP>JSON Data"
+  },
+  "CHANNEL_COLLECTORS<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
+    ],
+    "count": 1,
+    "create_time": 1775455267,
+    "update_time": 1775455267,
+    "_id": "CHANNEL_COLLECTORS<SEP>Codex Audit Result"
+  },
+  "Codex Audit Result<SEP>FUNCTIONALITY": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 2,
+    "update_time": 1775455379,
+    "_id": "Codex Audit Result<SEP>FUNCTIONALITY"
+  },
+  "CHANNEL_COLLECTORS<SEP>NameError": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
+    ],
+    "count": 1,
+    "create_time": 1775455268,
+    "update_time": 1775455268,
+    "_id": "CHANNEL_COLLECTORS<SEP>NameError"
+  },
+  "Codex Audit Result<SEP>DATA INTEGRITY": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 2,
+    "update_time": 1775455383,
+    "_id": "Codex Audit Result<SEP>DATA INTEGRITY"
+  },
+  "CODE QUALITY<SEP>Codex Audit Result": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb",
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 2,
+    "update_time": 1775455384,
+    "_id": "CODE QUALITY<SEP>Codex Audit Result"
+  },
+  "CODE QUALITY<SEP>Orbitools API": {
+    "chunk_ids": [
+      "chunk-ed4beb9de386e201fd48d2d662de35eb"
+    ],
+    "count": 1,
+    "create_time": 1775455272,
+    "update_time": 1775455272,
+    "_id": "CODE QUALITY<SEP>Orbitools API"
+  },
+  "requests<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "count": 1,
+    "create_time": 1775455316,
+    "update_time": 1775455316,
+    "_id": "requests<SEP>tools/data_keeper.py"
+  },
+  "CLI<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+    ],
+    "count": 1,
+    "create_time": 1775455317,
+    "update_time": 1775455317,
+    "_id": "CLI<SEP>tools/data_keeper.py"
+  },
+  "Codex Audit Result<SEP>Functionality Audit": {
+    "chunk_ids": [
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 1,
+    "create_time": 1775455361,
+    "update_time": 1775455361,
+    "_id": "Codex Audit Result<SEP>Functionality Audit"
+  },
+  "Codex Audit Result<SEP>Data Integrity Audit": {
+    "chunk_ids": [
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 1,
+    "create_time": 1775455362,
+    "update_time": 1775455362,
+    "_id": "Codex Audit Result<SEP>Data Integrity Audit"
+  },
+  "PostgreSQL<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 1,
+    "create_time": 1775455369,
+    "update_time": 1775455369,
+    "_id": "PostgreSQL<SEP>tools/data_keeper.py"
+  },
+  "Grosmimi Price Cutoff<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-41c1e499b0a263b3c3be91169eaf658e"
+    ],
+    "count": 1,
+    "create_time": 1775455374,
+    "update_time": 1775455374,
+    "_id": "Grosmimi Price Cutoff<SEP>tools/data_keeper.py"
+  },
+  "Critical Issues<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 1,
+    "create_time": 1775455379,
+    "update_time": 1775455379,
+    "_id": "Critical Issues<SEP>tools/data_keeper.py"
+  },
+  "API Calls<SEP>load_env()": {
+    "chunk_ids": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 1,
+    "create_time": 1775455379,
+    "update_time": 1775455379,
+    "_id": "API Calls<SEP>load_env()"
+  },
+  "Line 1-~800<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 1,
+    "create_time": 1775455382,
+    "update_time": 1775455382,
+    "_id": "Line 1-~800<SEP>tools/data_keeper.py"
+  },
+  "env_loader<SEP>tools/data_keeper.py": {
+    "chunk_ids": [
+      "chunk-7ab7ce837c49b802287f8f1433ef8df4"
+    ],
+    "count": 1,
+    "create_time": 1775455385,
+    "update_time": 1775455385,
+    "_id": "env_loader<SEP>tools/data_keeper.py"
   }
 }

@@ -4421,5 +4421,433 @@
     "create_time": 1775381196,
     "update_time": 1775381196,
     "_id": "doc-7395072ce178f261136e727d265e0262"
+  },
+  "doc-a8abf029ce1d1ed7ed4c55e7af10bd26": {
+    "entity_names": [
+      "Source Code",
+      "Codex Audit Result",
+      "20260405_230427",
+      "Overall Verdict"
+    ],
+    "count": 4,
+    "create_time": 1775397889,
+    "update_time": 1775397889,
+    "_id": "doc-a8abf029ce1d1ed7ed4c55e7af10bd26"
+  },
+  "doc-a2e3b9dda15dc2d0f3db7938c548c4a6": {
+    "entity_names": [
+      "20260405_230444",
+      "Codex Audit Result",
+      "Test Connection"
+    ],
+    "count": 3,
+    "create_time": 1775397899,
+    "update_time": 1775397899,
+    "_id": "doc-a2e3b9dda15dc2d0f3db7938c548c4a6"
+  },
+  "doc-82d5e6384ec2e39cd8d8e05a2bc453df": {
+    "entity_names": [
+      "Partial Month Detection",
+      "Sign Conventions",
+      "F002",
+      "Revenue Recognition",
+      "F004",
+      "COGS Calculation",
+      "Codex Audit Result",
+      "F005",
+      "CFO",
+      "COGS Standard",
+      "Script",
+      "F003",
+      "F001"
+    ],
+    "count": 13,
+    "create_time": 1775398264,
+    "update_time": 1775398264,
+    "_id": "doc-82d5e6384ec2e39cd8d8e05a2bc453df"
+  },
+  "doc-cf0e99914d3f5fa12604d552b1873776": {
+    "entity_names": [
+      "Period Handling",
+      "SKU Cost",
+      "Revenue by Channel Mapping",
+      "Arithmetic - Brand/Channel Totals",
+      "COGS Calculation Rules",
+      "COGS Calculation",
+      "Codex Audit Result",
+      "Period Consistency",
+      "Revenue Mapping",
+      "Raw DataKeeper Totals"
+    ],
+    "count": 10,
+    "create_time": 1775398390,
+    "update_time": 1775398390,
+    "_id": "doc-cf0e99914d3f5fa12604d552b1873776"
+  },
+  "doc-205ab7c330a998ad55b9cb0fd5320d5d": {
+    "entity_names": [
+      "Grosmimi Price Cutoff",
+      "generate_fin_data.py",
+      "F002",
+      "Arithmetic Consistency",
+      "Revenue Cross-Table Consistency",
+      "F004",
+      "Codex Audit Result",
+      "COGS Calculation",
+      "F005",
+      "Period Consistency",
+      "F003",
+      "F001"
+    ],
+    "count": 12,
+    "create_time": 1775399000,
+    "update_time": 1775399000,
+    "_id": "doc-205ab7c330a998ad55b9cb0fd5320d5d"
+  },
+  "doc-2bb2184dcf276d2c10854b0f0bc061f7": {
+    "entity_names": [
+      "File NotFoundError",
+      "500 Lines",
+      "Codex Audit Result",
+      "tools/codex_evaluator.py",
+      "CLI",
+      "RAG",
+      "TypeError",
+      "OpenAI API"
+    ],
+    "count": 8,
+    "create_time": 1775399026,
+    "update_time": 1775399026,
+    "_id": "doc-2bb2184dcf276d2c10854b0f0bc061f7"
+  },
+  "doc-6a05ea772fc966c7967e5b0e518ac558": {
+    "entity_names": [
+      "Shopify",
+      "n8n",
+      "PostgreSQL",
+      "dual_test_runner.py",
+      "Airtable",
+      "Codex Audit Result",
+      "Stage Results",
+      "Gifting Application",
+      "Draft Order"
+    ],
+    "count": 9,
+    "create_time": 1775399045,
+    "update_time": 1775399045,
+    "_id": "doc-6a05ea772fc966c7967e5b0e518ac558"
+  },
+  "doc-d06f425bac82c61d59416b2891c27c80": {
+    "entity_names": [
+      "tools/setup_n8n_delivery_email.py",
+      "Data Integrity",
+      "Line 170-171",
+      "Codex Audit Result",
+      "Line 239-240",
+      "Code Quality",
+      "Line 44-51",
+      "Audit Report",
+      "Line 246",
+      "Line 52-55",
+      "Line 232-233",
+      "Functionality",
+      "Line 263"
+    ],
+    "count": 13,
+    "create_time": 1775399077,
+    "update_time": 1775399077,
+    "_id": "doc-d06f425bac82c61d59416b2891c27c80"
+  },
+  "doc-3d7927dc3548bedd048eba656f5cfc08": {
+    "entity_names": [
+      "Data Collection Logic",
+      "ORBI System",
+      "YAML",
+      "Line 1-900",
+      "PST",
+      "API Schema Changes",
+      "Codex Audit Result",
+      "Data Ingestion and Caching Script",
+      "KeyError",
+      "Integrity Verification",
+      "Advertising and Sales Data"
+    ],
+    "count": 11,
+    "create_time": 1775399078,
+    "update_time": 1775399078,
+    "_id": "doc-3d7927dc3548bedd048eba656f5cfc08"
+  },
+  "doc-f0a51102d871f5d8cecb2bed696c3360": {
+    "entity_names": [
+      "Findings",
+      "Revenue Mapping (Cross-table Consistency)",
+      "Codex Audit Result",
+      "Critical",
+      "Correction Needed",
+      "COGS Calculation",
+      "Period Consistency",
+      "COGS Range Validation"
+    ],
+    "count": 8,
+    "create_time": 1775402388,
+    "update_time": 1775402388,
+    "_id": "doc-f0a51102d871f5d8cecb2bed696c3360"
+  },
+  "doc-d72451c08459b00c6cd8799579d3874d": {
+    "entity_names": [
+      "2026-03",
+      "F002",
+      "Arithmetic Errors",
+      "Brand Revenue",
+      "Channel Revenue",
+      "F004",
+      "Codex Audit Result",
+      "Critical Errors",
+      "Total Revenue",
+      "CFO",
+      "Gross Margin",
+      "F003",
+      "F001"
+    ],
+    "count": 13,
+    "create_time": 1775402426,
+    "update_time": 1775402426,
+    "_id": "doc-d72451c08459b00c6cd8799579d3874d"
+  },
+  "doc-a8bad1addd0764c0c7cd3a0677bc927d": {
+    "entity_names": [
+      "Data Flow",
+      "patch_draft_gen_v2.py",
+      "gifting2",
+      "Pipeline Audit",
+      "Executor",
+      "Stage Integrity",
+      "Negative Tests",
+      "Webhook/n8n Health",
+      "Codex Audit Result",
+      "sample_sent",
+      "Verifier",
+      "Issues Found"
+    ],
+    "count": 12,
+    "create_time": 1775402875,
+    "update_time": 1775402875,
+    "_id": "doc-a8bad1addd0764c0c7cd3a0677bc927d"
+  },
+  "doc-0e34eca661f2d465825cd5724fe1db9f": {
+    "entity_names": [
+      "Shopify",
+      "Data Flow",
+      "patch_draft_gen_v2.py",
+      "Cleanup",
+      "gifting2",
+      "PostgreSQL",
+      "Stage Integrity",
+      "Webhook/n8n Health",
+      "Airtable",
+      "Negative Tests",
+      "Codex Audit Result"
+    ],
+    "count": 11,
+    "create_time": 1775402911,
+    "update_time": 1775402911,
+    "_id": "doc-0e34eca661f2d465825cd5724fe1db9f"
+  },
+  "doc-dfcd98f783316bc8eecaac4cd7288f04": {
+    "entity_names": [
+      "patch_draft_gen_v2.py",
+      "gifting2",
+      "n8n Draft Gen Workflow",
+      "Pipeline Audit",
+      "patch script",
+      "Codex Audit Result",
+      "data flow",
+      "negative test coverage",
+      "record propagation",
+      "stage integrity"
+    ],
+    "count": 10,
+    "create_time": 1775402932,
+    "update_time": 1775402932,
+    "_id": "doc-dfcd98f783316bc8eecaac4cd7288f04"
+  },
+  "doc-4de7f333320ca174ca58ce081017887c": {
+    "entity_names": [
+      "patch_draft_gen_v2.py",
+      "gifting2",
+      "STAGE INTEGRITY",
+      "Cross-System",
+      "Pipeline Audit",
+      "Codex Audit Result",
+      "WEBHOOK/n8n HEALTH",
+      "DATA FLOW",
+      "Silent Failure Risk"
+    ],
+    "count": 9,
+    "create_time": 1775402961,
+    "update_time": 1775402961,
+    "_id": "doc-4de7f333320ca174ca58ce081017887c"
+  },
+  "doc-219572b1eb78a67bb2e7452e32318243": {
+    "entity_names": [
+      "CHANNEL_COLLECTORS",
+      "YAML",
+      "if __name__ == \"__main__\":",
+      "FUNCTIONALITY",
+      "NameError",
+      "Codex Audit Result",
+      "load_env()",
+      "amazon api",
+      "data_keeper.py",
+      "DATA INTEGRITY"
+    ],
+    "count": 10,
+    "create_time": 1775455027,
+    "update_time": 1775455027,
+    "_id": "doc-219572b1eb78a67bb2e7452e32318243"
+  },
+  "doc-474107f576df6a5c3d4d3875afe637ff": {
+    "entity_names": [
+      "Functional Issues",
+      "CHANNEL_COLLECTORS",
+      "requests Library",
+      "7/10",
+      "Data Integrity",
+      "Codex Audit Result",
+      "audit report",
+      "env_loader.py",
+      "Data Keeper"
+    ],
+    "count": 9,
+    "create_time": 1775455075,
+    "update_time": 1775455075,
+    "_id": "doc-474107f576df6a5c3d4d3875afe637ff"
+  },
+  "doc-246e52e2d3b2a2f2c17a33d437a3b412": {
+    "entity_names": [
+      "CHANNEL_COLLECTORS",
+      "YAML",
+      "Data Integrity",
+      "CACHE_DIR",
+      "Codex Audit Result",
+      "Code Quality",
+      "tools/data_keeper.py",
+      "env_loader.py",
+      "PG",
+      "Functionality"
+    ],
+    "count": 10,
+    "create_time": 1775455132,
+    "update_time": 1775455132,
+    "_id": "doc-246e52e2d3b2a2f2c17a33d437a3b412"
+  },
+  "doc-d46bf96e549f6cf9637bba620110856c": {
+    "entity_names": [
+      "CHANNEL_COLLECTORS",
+      "YAML",
+      "_export_to_shared",
+      "FUNCTIONALITY",
+      "_sync_nas_from_pg",
+      "_scan_signals",
+      "Codex Audit Result",
+      "tools/data_keeper.py",
+      "Audit Report",
+      "DATA INTEGRITY",
+      "ORBITOOLS_BASE",
+      "Score: 7/10"
+    ],
+    "count": 12,
+    "create_time": 1775455185,
+    "update_time": 1775455185,
+    "_id": "doc-d46bf96e549f6cf9637bba620110856c"
+  },
+  "doc-cb93f83f45ce2af70c37a4fa15a73f16": {
+    "entity_names": [
+      "Line 368",
+      "PostgreSQL",
+      "Shared Directory",
+      "Cache Directory",
+      "Tools/Data Keeper.py",
+      "YAML Parser",
+      "Codex Audit Result",
+      "Manifest File",
+      "Amazon Ads Token",
+      "Channel Collectors",
+      "Data Keeper"
+    ],
+    "count": 11,
+    "create_time": 1775455225,
+    "update_time": 1775455225,
+    "_id": "doc-cb93f83f45ce2af70c37a4fa15a73f16"
+  },
+  "doc-ed4beb9de386e201fd48d2d662de35eb": {
+    "entity_names": [
+      "JSON Data",
+      "CHANNEL_COLLECTORS",
+      "FUNCTIONALITY",
+      "CODE QUALITY",
+      "NameError",
+      "Codex Audit Result",
+      "tools/data_keeper.py",
+      "Audit Report",
+      "Orbitools API",
+      "DATA INTEGRITY"
+    ],
+    "count": 10,
+    "create_time": 1775455273,
+    "update_time": 1775455273,
+    "_id": "doc-ed4beb9de386e201fd48d2d662de35eb"
+  },
+  "doc-c4e4d9eae104c62cb5a0dd9ff1a2e755": {
+    "entity_names": [
+      "CHANNEL_COLLECTORS",
+      "requests",
+      "Data Integrity",
+      "Codex Audit Result",
+      "Code Quality",
+      "tools/data_keeper.py",
+      "CLI",
+      "env_loader.py"
+    ],
+    "count": 8,
+    "create_time": 1775455318,
+    "update_time": 1775455318,
+    "_id": "doc-c4e4d9eae104c62cb5a0dd9ff1a2e755"
+  },
+  "doc-41c1e499b0a263b3c3be91169eaf658e": {
+    "entity_names": [
+      "Functionality Audit",
+      "Grosmimi Price Cutoff",
+      "CHANNEL_COLLECTORS",
+      "PostgreSQL",
+      "Data Integrity Audit",
+      "Codex Audit Result",
+      "tools/data_keeper.py",
+      "env_loader.py"
+    ],
+    "count": 8,
+    "create_time": 1775455375,
+    "update_time": 1775455375,
+    "_id": "doc-41c1e499b0a263b3c3be91169eaf658e"
+  },
+  "doc-7ab7ce837c49b802287f8f1433ef8df4": {
+    "entity_names": [
+      "CHANNEL_COLLECTORS",
+      "API Calls",
+      "env_loader",
+      "Critical Issues",
+      "FUNCTIONALITY",
+      "Line 1-~800",
+      "CODE QUALITY",
+      "Codex Audit Result",
+      "tools/data_keeper.py",
+      "20260406_150113",
+      "load_env()",
+      "DATA INTEGRITY"
+    ],
+    "count": 12,
+    "create_time": 1775455387,
+    "update_time": 1775455387,
+    "_id": "doc-7ab7ce837c49b802287f8f1433ef8df4"
   }
 }
