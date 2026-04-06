@@ -2411,14 +2411,18 @@ def syncly_autofill_emails(request):
     # Parse params
     limit = min(int(request.GET.get("limit", "20")), 50)
 
-    # Find placeholder creators
+    # Find placeholder creators (respect region filter from dashboard)
+    region = request.GET.get("region", "").strip().lower()
     qs = PipelineCreator.objects.filter(
         email__icontains="@discovered."
     ).exclude(
         ig_handle=""
     ).exclude(
         ig_handle__isnull=True
-    ).order_by("-created_at")[:limit]
+    )
+    if region:
+        qs = qs.filter(region__iexact=region)
+    qs = qs.order_by("-created_at")[:limit]
 
     creators = list(qs)
     if not creators:

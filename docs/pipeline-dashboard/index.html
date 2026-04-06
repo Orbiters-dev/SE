@@ -1653,9 +1653,9 @@ async function apiFetch(path,opts){
   opts.headers=opts.headers||{};
   opts.headers['Authorization']='Basic '+btoa('admin:admin');
   if(opts.body){opts.headers['Content-Type']='application/json'}
-  // Email config endpoints always go live (never DEMO)
-  var isEmailCfg=path.indexOf('/pipeline/email-config/')>=0||path.indexOf('/pipeline/faq/')>=0||path.indexOf('/pipeline/reply-log/')>=0;
-  if(DEMO_MODE&&!isEmailCfg){
+  // Critical endpoints always go live (never DEMO)
+  var isLive=path.indexOf('/pipeline/email-config/')>=0||path.indexOf('/pipeline/faq/')>=0||path.indexOf('/pipeline/reply-log/')>=0||path.indexOf('/filter-stats/')>=0||path.indexOf('/bulk-check/')>=0||path.indexOf('/email-verify/')>=0;
+  if(DEMO_MODE&&!isLive){
     if(opts.method==='POST'||opts.method==='PUT'){showToast('Demo mode: action simulated','ok');return{ok:true}}
     return demoResponse(path);
   }
@@ -5201,7 +5201,7 @@ async function execSynclyAutofill(){
       +'<div style="color:var(--dim);margin-top:1px">\uacbd\uACFC: '+sec+'\uCD08</div>';
   },1000);
   try{
-    var data=await apiFetch('/pipeline/syncly/autofill-emails/',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    var data=await apiFetch('/pipeline/syncly/autofill-emails/?region=us',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
     clearInterval(timer);
     var sec=Math.round((Date.now()-startTs)/1000);
     var v=function(k){var x=data[k];return x!=null?x:'?'};
