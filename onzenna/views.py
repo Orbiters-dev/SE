@@ -1341,8 +1341,11 @@ def pipeline_filter_stats(request):
     from django.db.models import Q
 
     discovery_date = request.GET.get("discovery_date")
+    region = request.GET.get("region")
 
     qs = PipelineCreator.objects.filter(pipeline_status='Not Started')
+    if region:
+        qs = qs.filter(region__iexact=region)
     if discovery_date:
         # Support comma-separated dates for week groups (e.g. 2026-02-04,2026-02-05,...)
         dates = [d.strip() for d in discovery_date.split(",") if d.strip()]
