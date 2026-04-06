@@ -3472,7 +3472,26 @@ function buildKeywordPerformance(F){
   window.KP_DATA=periods;
   window.KP_BRAND=brands[0]||'';
   window.KP_PERIOD=_defPeriod;
-  window.switchKwBrand=function(b){window.KP_BRAND=b;window.renderKwTable();document.querySelectorAll(".kp-brand-btn").forEach(function(el){el.style.background=el.dataset.brand===b?"var(--a)":"var(--bg2)";el.style.color=el.dataset.brand===b?"#fff":"var(--dim)";});};
+  window.KP_PERIOD_KEYS=periodKeys;
+
+  // Auto-fallback: if current brand has no data in period, switch to longest period
+  window._kwAutoFallback=function(){
+    var bd=(window.KP_DATA[window.KP_PERIOD]||{}).data||{};
+    if(!bd[window.KP_BRAND]||(bd[window.KP_BRAND].top||[]).length===0){
+      // Try periods from longest to shortest
+      var fallback=null;
+      for(var i=window.KP_PERIOD_KEYS.length-1;i>=0;i--){
+        var pk=window.KP_PERIOD_KEYS[i];
+        var d=(window.KP_DATA[pk]||{}).data||{};
+        if(d[window.KP_BRAND]&&(d[window.KP_BRAND].top||[]).length>0){fallback=pk;break;}
+      }
+      if(fallback&&fallback!==window.KP_PERIOD){
+        window.KP_PERIOD=fallback;
+        document.querySelectorAll(".kp-period-btn").forEach(function(el){el.style.background=el.dataset.period===fallback?"var(--a)":"var(--bg2)";el.style.color=el.dataset.period===fallback?"#fff":"var(--dim)";});
+      }
+    }
+  };
+  window.switchKwBrand=function(b){window.KP_BRAND=b;window._kwAutoFallback();window.renderKwTable();document.querySelectorAll(".kp-brand-btn").forEach(function(el){el.style.background=el.dataset.brand===b?"var(--a)":"var(--bg2)";el.style.color=el.dataset.brand===b?"#fff":"var(--dim)";});};
   window.switchKwPeriod=function(p){window.KP_PERIOD=p;window.renderKwTable();document.querySelectorAll(".kp-period-btn").forEach(function(el){el.style.background=el.dataset.period===p?"var(--a)":"var(--bg2)";el.style.color=el.dataset.period===p?"#fff":"var(--dim)";});};
   window.KP_VIEW="top";
   window.switchKwView=function(v){window.KP_VIEW=v;window.renderKwTable();document.querySelectorAll(".kp-view-btn").forEach(function(el){el.style.background=el.dataset.view===v?"var(--a)":"var(--bg2)";el.style.color=el.dataset.view===v?"#fff":"var(--dim)";});};
@@ -3480,6 +3499,12 @@ function buildKeywordPerformance(F){
     var brandData=(window.KP_DATA[window.KP_PERIOD]||{}).data||{};
     var bd=brandData[window.KP_BRAND]||{};
     var kws=bd[window.KP_VIEW]||bd.top||[];
+    // Count available kws per period for this brand (for info badge)
+    var periodCounts={};
+    window.KP_PERIOD_KEYS.forEach(function(pk){
+      var d=(window.KP_DATA[pk]||{}).data||{};
+      periodCounts[pk]=((d[window.KP_BRAND]||{}).top||[]).length;
+    });
     var h='<div style="overflow-x:auto"><table><thead><tr>';
     h+='<th>#</th><th>Keyword</th><th style="text-align:right">Spend</th><th style="text-align:right">Sales</th>';
     h+='<th style="text-align:right">ROAS</th><th style="text-align:right">Avg Bid</th><th style="text-align:right">CTR</th>';
@@ -3499,7 +3524,11 @@ function buildKeywordPerformance(F){
       h+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:var(--muted)">'+k.impressions.toLocaleString()+'</td>';
       h+='<td style="text-align:right;font-family:var(--mono);font-size:9px">'+k.purchases+'</td></tr>';
     });
-    if(!kws.length) h+='<tr><td colspan=10 style="text-align:center;color:var(--muted);padding:20px">No keyword data for this brand/period</td></tr>';
+    if(!kws.length){
+      var avail=window.KP_PERIOD_KEYS.filter(function(pk){return periodCounts[pk]>0;});
+      var hint=avail.length?(' Try: '+avail.map(function(pk){return (window.KP_DATA[pk]||{}).label||pk;}).join(', ')):'';
+      h+='<tr><td colspan=10 style="text-align:center;color:var(--muted);padding:20px">No data for '+window.KP_BRAND+' in this period.'+hint+'</td></tr>';
+    }
     h+='</tbody></table></div>';
     var el=document.getElementById("kp-table");
     if(el) el.innerHTML=h;
