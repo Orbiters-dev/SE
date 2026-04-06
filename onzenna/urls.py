@@ -72,6 +72,10 @@ urlpatterns = [
     # Pipeline Syncly Content Import (full: email + transcript + views + post_url)
     path("pipeline/creators/syncly-content-import/", views.syncly_content_import, name="syncly_content_import"),
 
+    # JP Content Pipeline: Whisper CI trigger + transcript sync
+    path("pipeline/run-ci/", views.run_ci_pipeline, name="run_ci_pipeline"),
+    path("pipeline/creators/sync-transcripts/", views.sync_transcripts, name="sync_transcripts"),
+
     # Email Reply Config (n8n + dashboard)
     path("pipeline/email-config/", views.email_config_list, name="email_config_list"),
     path("pipeline/email-config/<str:brand>/", views.email_config_detail, name="email_config_detail"),

@@ -1507,6 +1507,8 @@ def import_syncly_discovery(request):
 
     body = _json_body(request)
     brand_filter = body.get("brand", "")
+    region = body.get("region", "")
+    source_label = body.get("source", "syncly")
     limit = int(body.get("limit", 50))
     days = int(body.get("days", 30))
 
@@ -1531,6 +1533,10 @@ def import_syncly_discovery(request):
           AND cp.username != ''
     """
     params = [cutoff]
+
+    if region:
+        sql += " AND LOWER(cp.region) = LOWER(%s)"
+        params.append(region)
 
     if brand_filter:
         sql += " AND LOWER(cp.brand) = LOWER(%s)"
@@ -1589,7 +1595,8 @@ def import_syncly_discovery(request):
                 pipeline_status="Not Started",
                 brand=brand or "",
                 outreach_type="LT" if (followers or 0) < 100000 else "HT",
-                source="syncly",
+                source=source_label,
+                region=region or "us",
                 followers=followers,
                 avg_views=int((followers or 0) * (0.15 if "tiktok" in plat else 0.08)),
                 initial_discovery_date=post_date or date_cls.today(),
@@ -3133,3 +3140,191 @@ def pipeline_creators_cross_check(request):
     result["manychat_count"] = PipelineCreator.objects.filter(is_manychat_contact=True).count()
 
     return _cors_headers(request, JsonResponse(result, status=200))
+
+
+# --- Sync Transcripts from content_posts → pipeline_creators ---
+
+@csrf_exempt
+def sync_transcripts(request):
+    """POST: Sync transcripts from gk_content_posts to pipeline_creators.
+
+    Finds content_posts with transcripts and updates matching pipeline_creators.
+
+    Body:
+      region: "jp" or "us" (required)
+      limit: max posts to check (default: 300)
+      min_length: minimum transcript length (default: 20)
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    region = body.get("region", "")
+    limit = int(body.get("limit", 300))
+    min_length = int(body.get("min_length", 20))
+
+    from django.db import connection
+
+    # Find content_posts with transcripts, joined to pipeline_creators
+    sql = """
+        SELECT
+            cp.username,
+            cp.transcript,
+            cp.url,
+            cp.views,
+            cp.post_date,
+            pc.id AS creator_id
+        FROM gk_content_posts cp
+        INNER JOIN onz_pipeline_creators pc
+            ON LOWER(cp.username) = LOWER(pc.ig_handle)
+        WHERE cp.transcript IS NOT NULL
+          AND LENGTH(cp.transcript) >= %s
+          AND cp.username IS NOT NULL
+          AND cp.username != ''
+    """
+    params = [min_length]
+
+    if region:
+        sql += " AND LOWER(cp.region) = LOWER(%s)"
+        params.append(region)
+
+    sql += " ORDER BY cp.views DESC NULLS LAST LIMIT %s"
+    params.append(limit)
+
+    updated = 0
+    checked = 0
+    matched = 0
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+
+        checked = len(rows)
+
+        # Group by creator_id, pick best (highest views)
+        best_by_creator = {}
+        for username, transcript, url, views, post_date, creator_id in rows:
+            matched += 1
+            cid = str(creator_id)
+            if cid not in best_by_creator or (views or 0) > (best_by_creator[cid].get("views") or 0):
+                best_by_creator[cid] = {
+                    "transcript": transcript,
+                    "url": url or "",
+                    "views": views,
+                    "post_date": post_date,
+                }
+
+        # Update pipeline_creators
+        for cid, data in best_by_creator.items():
+            try:
+                cr = PipelineCreator.objects.get(id=cid)
+                changed = False
+                if data["transcript"] and data["transcript"] != cr.top_post_transcript:
+                    cr.top_post_transcript = data["transcript"]
+                    changed = True
+                if data["url"] and data["url"] != cr.top_post_url:
+                    cr.top_post_url = data["url"]
+                    changed = True
+                if data["views"] and data["views"] != cr.top_post_views:
+                    cr.top_post_views = data["views"]
+                    changed = True
+                if data["post_date"] and data["post_date"] != cr.top_post_date:
+                    cr.top_post_date = data["post_date"]
+                    changed = True
+                if changed:
+                    cr.save()
+                    updated += 1
+            except PipelineCreator.DoesNotExist:
+                continue
+
+    except Exception as e:
+        return _cors_headers(request, JsonResponse({
+            "error": str(e),
+            "updated": updated,
+            "checked": checked,
+            "matched": matched,
+        }, status=500))
+
+    return _cors_headers(request, JsonResponse({
+        "updated": updated,
+        "checked": checked,
+        "matched": matched,
+    }))
+
+
+# --- Run CI Pipeline (Whisper transcript trigger) ---
+
+@csrf_exempt
+def run_ci_pipeline(request):
+    """POST: Identify content_posts needing Whisper transcripts.
+
+    Returns list of posts that need transcription (no transcript, video, views >= min_views).
+    Does NOT run Whisper itself — that's handled by a separate background process.
+
+    Body:
+      region: "jp" or "us" (required)
+      max: max posts to process (default: 20)
+      min_views: minimum views threshold (default: 3000)
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    region = body.get("region", "")
+    max_posts = int(body.get("max", 20))
+    min_views = int(body.get("min_views", 3000))
+
+    from django.db import connection
+
+    sql = """
+        SELECT cp.post_id, cp.username, cp.url, cp.views, cp.post_date
+        FROM gk_content_posts cp
+        WHERE (cp.transcript IS NULL OR cp.transcript = '')
+          AND cp.url IS NOT NULL
+          AND cp.url != ''
+          AND (cp.views IS NOT NULL AND cp.views >= %s)
+    """
+    params = [min_views]
+
+    if region:
+        sql += " AND LOWER(cp.region) = LOWER(%s)"
+        params.append(region)
+
+    sql += " ORDER BY cp.views DESC NULLS LAST LIMIT %s"
+    params.append(max_posts)
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+
+        pending = []
+        for post_id, username, url, views, post_date in rows:
+            pending.append({
+                "post_id": post_id,
+                "username": username,
+                "url": url,
+                "views": views,
+                "post_date": str(post_date) if post_date else None,
+            })
+
+        return _cors_headers(request, JsonResponse({
+            "status": "ok",
+            "region": region,
+            "max": max_posts,
+            "min_views": min_views,
+            "pending_count": len(pending),
+            "pending": pending,
+        }))
+
+    except Exception as e:
+        return _cors_headers(request, JsonResponse({
+            "error": str(e),
+        }, status=500))

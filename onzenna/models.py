@@ -257,6 +257,7 @@ class PipelineCreator(models.Model):
     brand = models.CharField(max_length=30, blank=True, default="")
     outreach_type = models.CharField(max_length=10, blank=True, default="")  # HT, LT
     source = models.CharField(max_length=30, default="outbound")  # outbound, inbound
+    region = models.CharField(max_length=10, default="us", blank=True)  # us, jp
 
     # Metrics
     followers = models.IntegerField(null=True, blank=True)
