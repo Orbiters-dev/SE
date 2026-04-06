@@ -18,7 +18,7 @@ on:
 jobs:
   apify-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repo
@@ -39,7 +39,8 @@ jobs:
             google-auth-oauthlib \
             google-api-python-client \
             apify-client \
-            psycopg2-binary
+            psycopg2-binary \
+            openpyxl
 
       - name: Write .env
         run: |
@@ -172,6 +173,27 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: US Weekly Baby Content Report (Scrape + CI + Excel + Email)
+        id: us_weekly_report
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+          DB_HOST: ${{ secrets.DB_HOST || '172.31.13.240' }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD || 'orbit1234' }}
+        run: |
+          DOW=$(date -u +%u)
+          if [ "$DOW" = "7" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python -u tools/us_weekly_report.py \
+              --days 7 \
+              --min-views 5000 \
+              --max-creators 100 \
+              --max-ci 50 \
+              --skip-ci \
+              --to "wj.choi@orbiters.co.kr"
+          else
+            echo "[SKIP] US weekly report runs KST Mondays only (UTC DOW=$DOW)"
+          fi
+        continue-on-error: true
+
       - name: Update USA_LLM tab + Content Intelligence
         id: usa_llm
         run: python -u tools/update_usa_llm.py
@@ -208,4 +230,5 @@ jobs:
           name: apify-data-${{ github.run_id }}
           path: |
             Data Storage/apify/*.json
+            .tmp/us_weekly/*.xlsx
           retention-days: 7
