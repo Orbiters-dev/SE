@@ -4845,33 +4845,65 @@ async function execBatchStep(step){
       var whUrl=WEBHOOK_MAP[whAction];
       if(!whUrl){result.innerHTML='<span class="b r">No webhook</span>';return}
       // Pre-check: verify eligible US creators exist before Generate Drafts
+      var totalEligible=0;
       if(step===3){
         try{var preCheck=await apiFetch('/pipeline/creators/filter-stats/?region=us');
-        if((preCheck.lt_with_email||0)===0){result.innerHTML='<span class="b r">&#x274C; No eligible US creators (lt_with_email=0)</span>';return}}catch(e){}
+        totalEligible=preCheck.lt_with_email||0;
+        if(totalEligible===0){result.innerHTML='<span class="b r">&#x274C; No eligible US creators (lt_with_email=0)</span>';return}}catch(e){}
       }
       // Snapshot stats before
       var prevSt={};try{var ps=await apiFetch('/pipeline/creators/stats/');prevSt=ps.by_status||{}}catch(e){}
+      var prevDraftReady=(prevSt['Draft Ready']||0);
       btn.innerHTML='<span class="spin-icon">&#x2699;</span>';btn.classList.add('btn-running');
-      result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Running...</span>';
+      result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Triggering n8n...</span>';
       var wRes=await fetch(whUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:whAction,config:_config,filters:{region:'us',us_only:!!(document.getElementById('ft-us-only')||{}).checked,business_filter:!!(document.getElementById('ft-business')||{}).checked,rag_dedup:!!(document.getElementById('ft-rag-dedup')||{}).checked},timestamp:new Date().toISOString()})});
       if(!wRes.ok)throw new Error('Webhook HTTP '+wRes.status);
-      // Poll for changes
-      var found=false;
-      for(var pi=0;pi<12;pi++){
-        await new Promise(function(r){setTimeout(r,5000)});
-        result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Processing... ('+(pi+1)*5+'s)</span>';
+      // Poll for changes — up to 30 min (180 polls * 10s) with live progress
+      var found=false;var startTime=Date.now();
+      for(var pi=0;pi<180;pi++){
+        await new Promise(function(r){setTimeout(r,10000)});
+        var elapsed=Math.floor((Date.now()-startTime)/1000);
+        var mins=Math.floor(elapsed/60);var secs=elapsed%60;
+        var timeStr=mins>0?(mins+'m '+secs+'s'):(secs+'s');
         try{
           var curSt=(await apiFetch('/pipeline/creators/stats/')).by_status||{};
-          for(var k in curSt){if((curSt[k]||0)!==(prevSt[k]||0)){found=true;break}}
+          var curDraftReady=(curSt['Draft Ready']||0);
+          var newDrafts=curDraftReady-prevDraftReady;
+          // Show live progress
+          if(totalEligible>0&&newDrafts>0){
+            var pct=Math.min(100,Math.round(newDrafts/totalEligible*100));
+            result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Generating drafts: <b>'+newDrafts+'/'+totalEligible+'</b> ('+pct+'%) — '+timeStr+'</span>';
+          }else{
+            result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Processing... '+timeStr+(newDrafts>0?' — '+newDrafts+' drafts':'')+'</span>';
+          }
+          // Check if all done (no change for 60s after first change detected)
+          for(var k in curSt){if((curSt[k]||0)!==(prevSt[k]||0)){found=true}}
+          if(found&&newDrafts>0&&newDrafts>=totalEligible*0.8)break;
+          // Also break if no new drafts for 90s after some were generated
+          if(newDrafts>0&&pi>8){
+            var prevPollDrafts=newDrafts;
+            await new Promise(function(r){setTimeout(r,10000)});pi++;
+            elapsed=Math.floor((Date.now()-startTime)/1000);
+            mins=Math.floor(elapsed/60);secs=elapsed%60;timeStr=mins>0?(mins+'m '+secs+'s'):(secs+'s');
+            var reSt=(await apiFetch('/pipeline/creators/stats/')).by_status||{};
+            var reDrafts=(reSt['Draft Ready']||0)-prevDraftReady;
+            if(reDrafts===prevPollDrafts){found=true;newDrafts=reDrafts;break}
+            if(totalEligible>0){
+              var pct2=Math.min(100,Math.round(reDrafts/totalEligible*100));
+              result.innerHTML='<span style="color:var(--am);animation:pulse 1.5s infinite">&#x2699; Generating drafts: <b>'+reDrafts+'/'+totalEligible+'</b> ('+pct2+'%) — '+timeStr+'</span>';
+            }
+          }
         }catch(e){}
-        if(found)break;
       }
       var diff=[];
-      if(found){try{var cs=(await apiFetch('/pipeline/creators/stats/')).by_status||{};for(var k in cs){var d=(cs[k]||0)-(prevSt[k]||0);if(d!==0)diff.push(k+': '+(d>0?'+':'')+d)}}catch(e){}}
+      try{var cs=(await apiFetch('/pipeline/creators/stats/')).by_status||{};for(var k in cs){var d=(cs[k]||0)-(prevSt[k]||0);if(d!==0)diff.push(k+': '+(d>0?'+':'')+d)}}catch(e){}
       var summary=diff.length?diff.join(', '):'no changes (0 creators)';
+      var elapsed2=Math.floor((Date.now()-startTime)/1000);
+      var mins2=Math.floor(elapsed2/60);var secs2=elapsed2%60;
+      var finalTime=mins2>0?(mins2+'m '+secs2+'s'):(secs2+'s');
       btn.classList.remove('btn-running');
-      result.innerHTML='<span class="b g">&#x2705; '+esc(summary)+'</span>';
-      apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:whAction,triggered_by:_currentUser,status:'completed',target_count:0,details:JSON.stringify({changes:summary})})});
+      result.innerHTML='<span class="b g">&#x2705; '+esc(summary)+' ('+finalTime+')</span>';
+      apiFetch('/pipeline/execution/log/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:whAction,triggered_by:_currentUser,status:'completed',target_count:totalEligible,details:JSON.stringify({changes:summary,duration:finalTime})})});
       loadExecLog();loadCreatorStats();loadCreators();
     }
 
