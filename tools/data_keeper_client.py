@@ -55,6 +55,7 @@ VALID_TABLES = [
     "gsc_daily", "dataforseo_keywords",
     "content_posts", "content_metrics_daily", "influencer_orders",
     "rakuten_orders_daily",
+    "rakuten_ads_daily",
 ]
 
 

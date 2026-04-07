@@ -36,6 +36,10 @@ jobs:
           AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
           AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
           AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          AMZ_ADS_JP_CLIENT_ID=${{ secrets.AMZ_ADS_JP_CLIENT_ID }}
+          AMZ_ADS_JP_CLIENT_SECRET=${{ secrets.AMZ_ADS_JP_CLIENT_SECRET }}
+          AMZ_ADS_JP_REFRESH_TOKEN=${{ secrets.AMZ_ADS_JP_REFRESH_TOKEN }}
+          AMZ_ADS_JP_PROFILE_ID=${{ secrets.AMZ_ADS_JP_PROFILE_ID }}
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           GOOGLE_SERVICE_ACCOUNT_JSON_PATH=credentials/google_sa.json
@@ -64,16 +68,29 @@ jobs:
           CFGEOF
           sed -i 's/^[[:space:]]*//' .tmp/dashboard_config_override.json
 
-      - name: Run Daily Report
-        run: python -u tools/run_amazon_ppc_daily.py
+      - name: US Daily Report
+        run: python -u tools/run_amazon_ppc_daily.py --region us
         continue-on-error: true
 
-      - name: Run Propose + Auto-Execute (tier 1-2)
+      - name: US Propose + Auto-Execute (tier 1-2)
         run: |
           python -u tools/amazon_ppc_executor.py \
             --propose \
             --auto-execute \
+            --no-email \
+            --region us
+
+      - name: JP Daily Report
+        run: python -u tools/run_amazon_ppc_daily.py --region jp
+        continue-on-error: true
+
+      - name: JP Propose
+        run: |
+          python -u tools/amazon_ppc_executor.py \
+            --propose \
+            --region jp \
             --no-email
+        continue-on-error: true
 
       - name: Upload proposal artifacts
         if: always()

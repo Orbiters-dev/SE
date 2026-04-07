@@ -265,6 +265,39 @@ NEGATIVE_ZERO_SALES_SPEND_MULT = 3.0   # spend > 3x target CPA with 0 sales -> n
 NEGATIVE_HIGH_ACOS_MULT = 2.0          # ACOS > 2x desired -> negate candidate
 MAX_KEYWORD_CHANGES_PER_CYCLE = 50     # API rate limit safety
 
+# --- JP Bid Presets (JPY scale) ---
+BID_PRESETS_JP = {
+    "MANUAL": {
+        "desired_acos": 0.25,
+        "increase_by": 0.20,
+        "decrease_by": 0.20,
+        "max_bid": 300,    # ¥300
+        "min_bid": 5,      # ¥5
+        "high_acos": 0.30,
+        "mid_acos": 0.25,
+        "click_limit": 10,
+        "impression_limit": 200,
+        "step_up": 5,      # ¥5
+    },
+    "AUTO": {
+        "desired_acos": 0.35,
+        "increase_by": 0.20,
+        "decrease_by": 0.20,
+        "max_bid": 200,    # ¥200
+        "min_bid": 5,      # ¥5
+        "high_acos": 0.35,
+        "mid_acos": 0.30,
+        "click_limit": 15,
+        "impression_limit": 300,
+        "step_up": 3,      # ¥3
+    },
+}
+
+
+def _bid_presets() -> Dict:
+    """Return bid presets for active region."""
+    return BID_PRESETS_JP if _is_jp() else BID_PRESETS
+
 
 # ===========================================================================
 # Auth (reuse pattern from run_amazon_ppc_daily.py)
@@ -409,7 +442,15 @@ def get_all_us_profiles() -> Dict[str, Dict]:
 
 
 def get_brand_profile(brand_key: str) -> Optional[Dict]:
-    """Get a single brand's profile."""
+    """Get a single brand's profile (US via API lookup, JP via config)."""
+    cfg = BRAND_CONFIGS.get(brand_key, {})
+    if cfg.get("region") == "jp":
+        return {
+            "profile_id": cfg["profile_id"],
+            "seller": cfg["seller_name"],
+            "brand_key": brand_key,
+            "brand_display": cfg["brand_display"],
+        }
     profiles = get_all_us_profiles()
     return profiles.get(brand_key)
 
@@ -430,7 +471,7 @@ def fetch_campaigns(profile_id: int) -> List[Dict]:
 
     while time.time() < deadline:
         resp = requests.post(
-            f"{API_BASE}/sp/campaigns/list",
+            f"{_api_base()}/sp/campaigns/list",
             headers=headers,
             json={
                 "stateFilter": {"include": ["ENABLED"]},
@@ -467,7 +508,7 @@ def fetch_campaigns(profile_id: int) -> List[Dict]:
         h_sb["Content-Type"] = "application/vnd.sbCampaignResource.v4+json"
         h_sb["Accept"] = "application/vnd.sbCampaignResource.v4+json"
         resp = requests.post(
-            f"{API_BASE}/sb/v4/campaigns/list",
+            f"{_api_base()}/sb/v4/campaigns/list",
             headers=h_sb,
             json={"stateFilter": {"include": ["ENABLED"]}, "maxResults": 100},
             timeout=20,
@@ -495,7 +536,7 @@ def fetch_campaigns(profile_id: int) -> List[Dict]:
     try:
         h_sd = _headers(profile_id)
         resp = requests.get(
-            f"{API_BASE}/sd/campaigns",
+            f"{_api_base()}/sd/campaigns",
             headers=h_sd,
             timeout=20,
         )
@@ -646,11 +687,11 @@ def fetch_sp_report(profile_id: int, start: date, end: date) -> List[Dict]:
         }
 
         headers = _headers_reporting(profile_id)
-        resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
+        resp = requests.post(f"{_api_base()}/reporting/reports", headers=headers, json=body, timeout=60)
         if resp.status_code == 425:
             print("  [425] Rate limited, waiting 30s...")
             time.sleep(30)
-            resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
+            resp = requests.post(f"{_api_base()}/reporting/reports", headers=headers, json=body, timeout=60)
         resp.raise_for_status()
         report_id = resp.json()["reportId"]
 
@@ -658,7 +699,7 @@ def fetch_sp_report(profile_id: int, start: date, end: date) -> List[Dict]:
         deadline_t = time.time() + 1800  # 30min (increased: Amazon report gen slowed since 2026-03)
         while time.time() < deadline_t:
             time.sleep(15)
-            st = requests.get(f"{API_BASE}/reporting/reports/{report_id}",
+            st = requests.get(f"{_api_base()}/reporting/reports/{report_id}",
                               headers=_headers_reporting(profile_id), timeout=30)
             st.raise_for_status()
             info = st.json()
@@ -749,7 +790,7 @@ def fetch_search_term_report(profile_id: int, start: date, end: date) -> List[Di
         # Retry with exponential backoff for 425 rate limits
         resp = None
         for attempt in range(4):
-            resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
+            resp = requests.post(f"{_api_base()}/reporting/reports", headers=headers, json=body, timeout=60)
             if resp.status_code != 425:
                 break
             wait = 30 * (attempt + 1)
@@ -761,7 +802,7 @@ def fetch_search_term_report(profile_id: int, start: date, end: date) -> List[Di
         deadline_t = time.time() + 1800  # 30min (increased: Amazon report gen slowed since 2026-03)
         while time.time() < deadline_t:
             time.sleep(15)
-            st = requests.get(f"{API_BASE}/reporting/reports/{report_id}",
+            st = requests.get(f"{_api_base()}/reporting/reports/{report_id}",
                               headers=_headers_reporting(profile_id), timeout=30)
             st.raise_for_status()
             info = st.json()
@@ -824,7 +865,7 @@ def fetch_keyword_report(profile_id: int, start: date, end: date) -> List[Dict]:
         # Retry with exponential backoff for 425 rate limits
         resp = None
         for attempt in range(4):
-            resp = requests.post(f"{API_BASE}/reporting/reports", headers=headers, json=body, timeout=60)
+            resp = requests.post(f"{_api_base()}/reporting/reports", headers=headers, json=body, timeout=60)
             if resp.status_code != 425:
                 break
             wait = 30 * (attempt + 1)
@@ -836,7 +877,7 @@ def fetch_keyword_report(profile_id: int, start: date, end: date) -> List[Dict]:
         deadline_t = time.time() + 1800  # 30min (increased: Amazon report gen slowed since 2026-03)
         while time.time() < deadline_t:
             time.sleep(15)
-            st = requests.get(f"{API_BASE}/reporting/reports/{report_id}",
+            st = requests.get(f"{_api_base()}/reporting/reports/{report_id}",
                               headers=_headers_reporting(profile_id), timeout=30)
             st.raise_for_status()
             info = st.json()
@@ -1107,7 +1148,7 @@ def analyze_search_terms(
             cid_key = m["campaignId"]
         camp = camp_map.get(cid_key, {})
         camp_type = classify_targeting(camp.get("name", ""), camp.get("targetingType", ""))
-        presets = BID_PRESETS.get(camp_type, BID_PRESETS["MANUAL"])
+        presets = _bid_presets().get(camp_type, _bid_presets()["MANUAL"])
 
         # --- Brand Analytics market data for this term ---
         ba = (ba_data or {}).get(term, {})
@@ -1326,7 +1367,7 @@ def analyze_keyword_bids(
             cid_key = kw.get("campaignId")
         camp = camp_map.get(cid_key, {})
         camp_type = classify_targeting(camp.get("name", ""), camp.get("targetingType", ""))
-        p = BID_PRESETS.get(camp_type, BID_PRESETS["MANUAL"])
+        p = _bid_presets().get(camp_type, _bid_presets()["MANUAL"])
 
         acos = (cost / sales) if sales > 0 else None
         roas = (sales / cost) if cost > 0 else 0
@@ -2463,7 +2504,7 @@ def pause_campaign(profile_id: int, campaign_id: int) -> Dict:
     """Pause a campaign."""
     headers = _headers_sp(profile_id)
     resp = requests.put(
-        f"{API_BASE}/sp/campaigns",
+        f"{_api_base()}/sp/campaigns",
         headers=headers,
         json={
             "campaigns": [{
@@ -2484,7 +2525,7 @@ def update_campaign_budget(profile_id: int, campaign_id: int, new_budget: float)
 
     headers = _headers_sp(profile_id)
     resp = requests.put(
-        f"{API_BASE}/sp/campaigns",
+        f"{_api_base()}/sp/campaigns",
         headers=headers,
         json={
             "campaigns": [{
@@ -2506,7 +2547,7 @@ def update_campaign_bid(profile_id: int, campaign_id: int, bid_change_pct: float
     headers["Content-Type"] = "application/vnd.spAdGroup.v3+json"
 
     resp = requests.post(
-        f"{API_BASE}/sp/adGroups/list",
+        f"{_api_base()}/sp/adGroups/list",
         headers=headers,
         json={
             "campaignIdFilter": {"include": [campaign_id]},
@@ -2529,7 +2570,7 @@ def update_campaign_bid(profile_id: int, campaign_id: int, bid_change_pct: float
         new_bid = max(0.02, min(new_bid, MAX_BID_USD))  # Floor $0.02, cap $5.00
 
         resp2 = requests.put(
-            f"{API_BASE}/sp/adGroups",
+            f"{_api_base()}/sp/adGroups",
             headers=headers,
             json={
                 "adGroups": [{
@@ -2560,7 +2601,7 @@ def add_keyword(profile_id: int, campaign_id, ad_group_id, keyword_text: str,
     headers["Content-Type"] = "application/vnd.spKeyword.v3+json"
 
     resp = requests.post(
-        f"{API_BASE}/sp/keywords",
+        f"{_api_base()}/sp/keywords",
         headers=headers,
         json={
             "keywords": [{
@@ -2626,7 +2667,7 @@ def add_negative_keyword(profile_id: int, campaign_id, ad_group_id,
     headers["Content-Type"] = "application/vnd.spNegativeKeyword.v3+json"
 
     resp = requests.post(
-        f"{API_BASE}/sp/negativeKeywords",
+        f"{_api_base()}/sp/negativeKeywords",
         headers=headers,
         json={
             "negativeKeywords": [{
@@ -2681,7 +2722,7 @@ def update_keyword_bid(profile_id: int, keyword_id, new_bid: float) -> Dict:
     headers["Content-Type"] = "application/vnd.spKeyword.v3+json"
 
     resp = requests.put(
-        f"{API_BASE}/sp/keywords",
+        f"{_api_base()}/sp/keywords",
         headers=headers,
         json={
             "keywords": [{
@@ -2703,7 +2744,7 @@ def update_asin_target_bid(profile_id: int, target_id, new_bid: float) -> Dict:
     headers["Content-Type"] = "application/vnd.spTargetingClause.v3+json"
 
     resp = requests.put(
-        f"{API_BASE}/sp/targets",
+        f"{_api_base()}/sp/targets",
         headers=headers,
         json={"targetingClauses": [{"targetId": str(target_id), "bid": new_bid}]},
         timeout=30,
@@ -2719,7 +2760,7 @@ def list_asin_targets(profile_id: int, ad_group_id) -> list:
     headers["Content-Type"] = "application/vnd.spTargetingClause.v3+json"
 
     resp = requests.post(
-        f"{API_BASE}/sp/targets/list",
+        f"{_api_base()}/sp/targets/list",
         headers=headers,
         json={"adGroupIdFilter": {"include": [str(ad_group_id)]}, "stateFilter": {"include": ["ENABLED"]}},
         timeout=20,
@@ -2741,7 +2782,7 @@ def list_keywords(profile_id: int, campaign_id, states=None) -> list:
         "stateFilter": {"include": states},
         "maxResults": 1000,
     }
-    resp = requests.post(f"{API_BASE}/sp/keywords/list", headers=headers,
+    resp = requests.post(f"{_api_base()}/sp/keywords/list", headers=headers,
                          json=body, timeout=30)
     resp.raise_for_status()
     data = resp.json()
@@ -2760,7 +2801,7 @@ def list_negative_keywords(profile_id: int, campaign_id, states=None) -> list:
         "stateFilter": {"include": states},
         "maxResults": 1000,
     }
-    resp = requests.post(f"{API_BASE}/sp/negativeKeywords/list", headers=headers,
+    resp = requests.post(f"{_api_base()}/sp/negativeKeywords/list", headers=headers,
                          json=body, timeout=30)
     resp.raise_for_status()
     data = resp.json()
@@ -2891,7 +2932,7 @@ def pause_keyword(profile_id: int, keyword_id) -> Dict:
     headers["Content-Type"] = "application/vnd.spKeyword.v3+json"
 
     resp = requests.put(
-        f"{API_BASE}/sp/keywords",
+        f"{_api_base()}/sp/keywords",
         headers=headers,
         json={
             "keywords": [{
@@ -6041,7 +6082,8 @@ def run_propose(args):
 
 
 def _resolve_brands(args) -> List[str]:
-    """Resolve which brands to run based on --brand arg."""
+    """Resolve which brands to run based on --brand and --region args."""
+    region = getattr(args, "region", "us")
     if hasattr(args, 'brand') and args.brand:
         brand = args.brand.lower().strip()
         # Allow aliases
@@ -6049,14 +6091,25 @@ def _resolve_brands(args) -> List[str]:
             "naeiae": "naeiae", "fleeters": "naeiae",
             "grosmimi": "grosmimi", "gros": "grosmimi",
             "chaenmom": "chaenmom", "orbitool": "chaenmom", "cha&mom": "chaenmom", "chamom": "chaenmom",
+            "grosmimi_jp": "grosmimi_jp", "grosmimi jp": "grosmimi_jp", "jp": "grosmimi_jp",
         }
         if brand == "all":
-            return ALL_BRAND_KEYS
+            if region == "jp":
+                return JP_BRAND_KEYS
+            elif region == "us":
+                return ALL_BRAND_KEYS
+            return ALL_BRAND_KEYS + JP_BRAND_KEYS
         key = aliases.get(brand, brand)
         if key not in BRAND_CONFIGS:
-            print(f"[ERROR] Unknown brand '{args.brand}'. Available: {', '.join(ALL_BRAND_KEYS)}")
+            all_keys = ALL_BRAND_KEYS + JP_BRAND_KEYS
+            print(f"[ERROR] Unknown brand '{args.brand}'. Available: {', '.join(all_keys)}")
             sys.exit(1)
         return [key]
+    # No --brand specified: use --region to decide
+    if region == "jp":
+        return JP_BRAND_KEYS
+    elif region == "all":
+        return ALL_BRAND_KEYS + JP_BRAND_KEYS
     return ALL_BRAND_KEYS
 
 
@@ -6072,7 +6125,9 @@ def main():
     parser.add_argument("--execute-selection", type=str, default=None, metavar="FILE",
                         help="Execute specific proposals from dashboard JSON selection file")
     parser.add_argument("--brand", type=str, default=None,
-                        help="Target brand: naeiae/grosmimi/chaenmom (default: all)")
+                        help="Target brand: naeiae/grosmimi/chaenmom/grosmimi_jp (default: all for region)")
+    parser.add_argument("--region", choices=["us", "jp", "all"], default="us",
+                        help="Region: us (default), jp, or all")
     parser.add_argument("--days", type=int, default=14, help="Days of data to analyze (default: 14, max 60)")
     parser.add_argument("--to", type=str, default=DEFAULT_TO, help="Email recipient")
     parser.add_argument("--cc", type=str, default=DEFAULT_CC, help="CC email recipient")

@@ -40,6 +40,9 @@ jobs:
           AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
           AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
           AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          AMZ_ADS_JP_CLIENT_ID=${{ secrets.AMZ_ADS_JP_CLIENT_ID }}
+          AMZ_ADS_JP_CLIENT_SECRET=${{ secrets.AMZ_ADS_JP_CLIENT_SECRET }}
+          AMZ_ADS_JP_REFRESH_TOKEN=${{ secrets.AMZ_ADS_JP_REFRESH_TOKEN }}
           AMZ_SP_CLIENT_ID=${{ secrets.AMZ_SP_CLIENT_ID }}
           AMZ_SP_CLIENT_SECRET=${{ secrets.AMZ_SP_CLIENT_SECRET }}
           AMZ_SP_REFRESH_TOKEN=${{ secrets.AMZ_SP_REFRESH_TOKEN }}
@@ -78,6 +81,20 @@ jobs:
         run: |
           DAYS="${{ github.event.inputs.days || '35' }}"
           python -u tools/data_keeper.py --channel amazon_ads_keywords --days $DAYS
+
+      - name: Collect Amazon Ads Search Terms (JP)
+        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all_slow' || github.event.inputs.channel == 'amazon_ads_search_terms_jp'
+        continue-on-error: true
+        run: |
+          DAYS="${{ github.event.inputs.days || '35' }}"
+          python -u tools/data_keeper.py --channel amazon_ads_search_terms_jp --days $DAYS
+
+      - name: Collect Amazon Ads Keywords (JP)
+        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all_slow' || github.event.inputs.channel == 'amazon_ads_keywords_jp'
+        continue-on-error: true
+        run: |
+          DAYS="${{ github.event.inputs.days || '35' }}"
+          python -u tools/data_keeper.py --channel amazon_ads_keywords_jp --days $DAYS
 
       - name: Collect Google Ads Search Terms
         if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all_slow' || github.event.inputs.channel == 'google_ads_search_terms'
