@@ -45,6 +45,18 @@ CHANNEL_COLORS = {
     "Onzenna D2C": "#6366f1", "Amazon MP": "#f59e0b", "Amazon FBA MCF": "#fb923c",
     "TikTok Shop": "#ec4899", "Target+": "#ef4444", "B2B": "#10b981", "Other": "#94a3b8",
 }
+JP_BRAND_KEYWORDS = ("jp", "japan", "rakuten")  # brands/campaigns to exclude from US dashboard
+
+def _is_jp_meta(row):
+    """Return True if this Meta Ads row belongs to a JP campaign (JPY currency)."""
+    brand = (row.get("brand") or "").lower()
+    cname = (row.get("campaign_name") or "").lower()
+    if any(k in brand for k in JP_BRAND_KEYWORDS):
+        return True
+    if "rakuten" in cname:
+        return True
+    return False
+
 AD_COLORS = {
     "Amazon Ads": "#f59e0b", "Meta CVR": "#3b82f6", "Meta Traffic": "#93c5fd",
     "Google Ads": "#10b981",
@@ -544,6 +556,9 @@ def generate():
         ad_weekly["Amazon Ads"][wk]["impressions"] += int(r.get("impressions") or 0)
         ad_weekly["Amazon Ads"][wk]["clicks"] += int(r.get("clicks") or 0)
 
+    meta_jp_monthly = defaultdict(lambda: defaultdict(lambda: {
+        "spend": 0, "sales": 0, "impressions": 0, "clicks": 0
+    }))  # JP Meta data collected separately for JP dashboard
     for r in meta_ads:
         d = r.get("date", "")
         if not d or d > through:
@@ -554,6 +569,13 @@ def generate():
         landing = (r.get("landing_url") or "").lower()
         is_amz = "amazon" in cname or "amz" in cname or "amazon" in landing
         label = "Meta Traffic" if is_amz else "Meta CVR"
+        # JP campaigns (JPY currency) → separate bucket, not mixed with USD
+        if _is_jp_meta(r):
+            meta_jp_monthly[label][month]["spend"] += float(r.get("spend") or 0)
+            meta_jp_monthly[label][month]["sales"] += float(r.get("purchase_value") or 0)
+            meta_jp_monthly[label][month]["impressions"] += int(r.get("impressions") or 0)
+            meta_jp_monthly[label][month]["clicks"] += int(r.get("clicks") or 0)
+            continue
         ad_monthly[label][month]["spend"] += float(r.get("spend") or 0)
         ad_monthly[label][month]["sales"] += float(r.get("purchase_value") or 0)
         ad_monthly[label][month]["impressions"] += int(r.get("impressions") or 0)
@@ -563,6 +585,9 @@ def generate():
         ad_weekly[label][wk]["sales"] += float(r.get("purchase_value") or 0)
         ad_weekly[label][wk]["impressions"] += int(r.get("impressions") or 0)
         ad_weekly[label][wk]["clicks"] += int(r.get("clicks") or 0)
+    if meta_jp_monthly:
+        jp_total = sum(v["spend"] for plat in meta_jp_monthly.values() for v in plat.values())
+        print(f"  Meta JP excluded from US: ¥{jp_total:,.0f} across {sum(len(v) for v in meta_jp_monthly.values())} platform-months")
 
     for r in google_ads:
         d = r.get("date", "")
@@ -600,6 +625,8 @@ def generate():
         d = r.get("date", "")
         if not d or d > through:
             continue
+        if _is_jp_meta(r):
+            continue  # JP campaigns excluded from US brand ad totals
         month = d[:7]
         brand = r.get("brand") or "Other"
         if brand not in BRAND_ORDER:
@@ -662,6 +689,8 @@ def generate():
         d = r.get("date", "")
         if not d or d > through:
             continue
+        if _is_jp_meta(r):
+            continue  # JP campaigns excluded from US platform breakdown
         brand = r.get("brand") or "Other"
         if brand not in BRAND_ORDER:
             brand = "Other"
@@ -1538,9 +1567,42 @@ def generate():
         attr_total = {k: sum(v[k] for v in attribution.values()) for k in ["clicks", "purchases", "sales", "brb"]}
         print(f"  Attribution: {len(attribution)} campaigns, {attr_total['clicks']:,} clicks, ${attr_total['sales']:,.0f} sales, ${attr_total['brb']:,.0f} BRB")
 
-        # NOTE: No proportional distribution of Attribution sales.
-        # Attribution data is shown as actual per-campaign data via cat_attribution / brand_attribution.
-        # mt_sales in brand_ad_daily stays as raw Meta pixel purchase_value (near-zero for AMZ-directed campaigns).
+        # ── Inject Attribution sales into ad_monthly & brand_ad_by_platform ──
+        # Meta Traffic → AMZ campaigns have near-zero Meta pixel purchase_value.
+        # The real conversions are tracked by Amazon Attribution API.
+        # Distribute daily attribution sales into the monthly/weekly buckets.
+        attr_injected_monthly = defaultdict(float)
+        attr_injected_daily = defaultdict(float)
+        for attr_name, attr_data in attribution.items():
+            daily = attr_data.get("daily", {})
+            for date_str, day_data in daily.items():
+                sales = day_data.get("sales", 0)
+                if sales <= 0:
+                    continue
+                month = date_str[:7]
+                wk = _week_key(date_str)
+                ad_monthly["Meta Traffic"][month]["sales"] += sales
+                ad_weekly["Meta Traffic"][wk]["sales"] += sales
+                # Also inject into brand_ad_by_platform (all attribution is Grosmimi)
+                brand_ad_by_platform["Meta Traffic"]["Grosmimi"][month]["sales"] += sales
+                brand_ad_by_platform_wk["Meta Traffic"]["Grosmimi"][wk]["sales"] += sales
+                # Daily for Hero tab
+                brand_ad_daily_raw["Grosmimi"]["mt_sales"][date_str] += sales
+                attr_injected_monthly[month] += sales
+                attr_injected_daily[date_str] += sales
+        if attr_injected_monthly:
+            total_injected = sum(attr_injected_monthly.values())
+            months_str = ", ".join(f"{m}: ${v:,.0f}" for m, v in sorted(attr_injected_monthly.items()))
+            print(f"  Attribution injected into Meta Traffic: ${total_injected:,.0f} ({months_str})")
+        else:
+            # Fallback: inject total attribution as lump sum into latest month
+            attr_total_sales_val = attr_total["sales"]
+            if attr_total_sales_val > 0:
+                latest_month = max(m for m in ad_monthly["Meta Traffic"] if ad_monthly["Meta Traffic"][m]["spend"] > 0) if ad_monthly["Meta Traffic"] else None
+                if latest_month:
+                    ad_monthly["Meta Traffic"][latest_month]["sales"] += attr_total_sales_val
+                    brand_ad_by_platform["Meta Traffic"]["Grosmimi"][latest_month]["sales"] += attr_total_sales_val
+                    print(f"  Attribution injected (lump): ${attr_total_sales_val:,.0f} into {latest_month}")
     else:
         print("  Attribution: no data")
 
@@ -1576,6 +1638,8 @@ def generate():
         for r in meta_rows:
             if r.get("date", "") < cutoff:
                 continue
+            if _is_jp_meta(r):
+                continue  # JP campaigns excluded from US channel traffic
             cn = (r.get("campaign_name", "") or "")
             cl = cn.lower()
             landing = (r.get("landing_url") or "").lower()
@@ -2806,6 +2870,8 @@ def generate():
         d = r.get("date", "")
         if not d or d > through:
             continue
+        if _is_jp_meta(r):
+            continue  # JP campaigns excluded from US campaign detail
         cname = (r.get("campaign_name") or "").lower()
         landing = (r.get("landing_url") or "").lower()
         is_amz = "amazon" in cname or "amz" in cname or "amazon" in landing
