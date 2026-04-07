@@ -1,0 +1,2963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pipeline CRM — Japan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#ef4444;--abg:#fef2f2;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
+.ctr{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+.hero{text-align:center;margin-bottom:20px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#ef4444,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{color:var(--dim);font-size:12px;margin-top:2px}
+.hero .meta{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:10px;color:var(--dim);display:inline-flex;align-items:center;gap:4px}
+.pill .dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 3px var(--g)}
+.nav-bar{display:flex;justify-content:center;gap:0;margin-bottom:20px}
+.nav-bar>div{display:inline-flex;flex-wrap:nowrap;border:2px solid var(--border);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700}
+.nav-bar a{padding:8px 16px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center}
+.nav-bar a:hover{background:var(--abg);color:var(--a)}
+.nav-bar .active{background:var(--a);color:#fff;cursor:default}
+.mt{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0;overflow-x:auto}
+.mt>div{padding:10px 20px;font-size:12px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s;white-space:nowrap}
+.mt>div:hover{color:var(--text)}.mt>div.on{color:var(--a);border-bottom-color:var(--a)}
+.mp{display:none;padding-top:20px}.mp.on{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
+.card h3{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
+.stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+.stat .sv{font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
+.stat.green .sv{color:var(--g)}.stat.accent .sv{color:var(--a)}.stat.amber .sv{color:var(--am)}.stat.cyan .sv{color:var(--c)}.stat.red .sv{color:var(--r)}.stat.pink .sv{color:var(--p)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 20px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.btn-primary{background:var(--a);color:#fff}.btn-primary:hover{opacity:.9}
+.btn-secondary{background:var(--abg);color:var(--a);border:1px solid var(--border)}.btn-secondary:hover{background:#fee2e2}
+.btn-success{background:var(--g);color:#fff}.btn-success:hover{opacity:.9}
+.btn-sm{padding:4px 10px;font-size:10px;border-radius:5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 7px;text-align:left;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:1}
+td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fff5f5}
+.b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
+.b.g{background:var(--gbg);color:var(--g)}.b.r{background:var(--rbg);color:var(--r)}.b.am{background:var(--ambg);color:var(--am)}
+.b.c{background:var(--cbg);color:var(--c)}.b.a{background:var(--abg);color:var(--a)}.b.p{background:#fdf2f8;color:var(--p)}
+.b.past{background:#e0e7ff;color:#4338ca;font-size:8px}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-bar input[type="text"]{flex:1;min-width:180px;padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit}
+.filter-bar input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.15)}
+.filter-bar select{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;background:var(--card);color:var(--text)}
+.funnel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;overflow-x:auto}
+.funnel-row{display:flex;align-items:center;gap:0;margin-bottom:4px}
+.funnel-row:last-child{margin-bottom:0}
+.funnel-label{font-size:9px;font-weight:700;color:var(--dim);min-width:65px;text-transform:uppercase;letter-spacing:.5px}
+.fn{flex:1;min-width:70px;text-align:center;padding:6px 4px;border-radius:8px;cursor:pointer;transition:.12s;border:2px solid transparent}
+.fn:hover{background:var(--abg)}.fn.on{background:var(--abg);border-color:var(--a)}
+.fn .fi{font-size:18px;font-weight:800;font-family:var(--mono)}.fn .ft{font-size:9px;font-weight:700;color:var(--dim)}.fn .fs{font-size:8px;color:var(--muted)}
+.fa{color:var(--muted);font-size:10px;flex-shrink:0;padding:0 1px}
+.pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:12px}
+.pager button{padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--card);cursor:pointer;font-size:11px;font-family:inherit}
+.pager button.on{background:var(--a);color:#fff;border-color:var(--a)}
+.owner-tab{border-right:1px solid var(--border)}.owner-tab:last-child{border-right:none}
+.owner-tab:hover{background:var(--abg);color:var(--a)}.owner-tab.on{background:var(--a);color:#fff}
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;z-index:999;transform:translateY(100px);opacity:0;transition:.3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--g)}.toast.err{background:var(--r)}
+.dm-preview{background:#fafbff;border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px;font-size:11px;line-height:1.7;white-space:pre-wrap}
+.dm-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;position:relative}
+.dm-card .dm-handle{font-weight:700;color:var(--a);font-size:13px}
+.dm-card .dm-meta{font-size:10px;color:var(--dim);margin:4px 0 8px}
+.dm-card .dm-body{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-size:12px;line-height:1.8;white-space:pre-wrap}
+.dm-card .dm-actions{display:flex;gap:6px;margin-top:10px;align-items:center}
+.copy-btn{background:#f1f5f9;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
+.copy-btn:hover{background:#e2e8f0}
+.copy-btn.copied{background:var(--gbg);color:var(--g);border-color:var(--g)}
+.dm-edit{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;line-height:1.7;resize:vertical;background:#fafbff;margin-top:8px;color:var(--text)}
+.dm-edit:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.1)}
+/* DM Thread */
+.dm-thread-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
+.dm-thread-panel{background:var(--card);border-radius:16px;width:90%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.dm-thread-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dm-thread-header h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.dm-thread-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim);padding:4px 8px;border-radius:6px}.dm-thread-close:hover{background:#f1f5f9}
+.dm-thread-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px;min-height:200px}
+.dm-bubble{max-width:80%;padding:10px 14px;border-radius:16px;font-size:12px;line-height:1.6;word-break:break-word}
+.dm-bubble.out{align-self:flex-end;background:var(--a);color:#fff;border-bottom-right-radius:4px}
+.dm-bubble.in{align-self:flex-start;background:#f1f5f9;color:var(--text);border-bottom-left-radius:4px}
+.dm-bubble .dm-time{font-size:9px;opacity:.6;margin-top:4px;display:block}
+.dm-thread-input{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.dm-thread-input input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:24px;font-size:12px;font-family:inherit}
+.dm-thread-input input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(239,68,68,.15)}
+.dm-thread-input button{padding:8px 16px;border-radius:24px;border:none;background:var(--a);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.dm-thread-input button:disabled{opacity:.4;cursor:not-allowed}
+.dm-empty{text-align:center;padding:40px;color:var(--dim);font-size:11px}
+.dm-limit-banner{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:10px 16px;text-align:center;font-size:12px;font-weight:600;color:#92400e;margin-bottom:12px}
+/* Execute progress */
+.exec-progress{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.exec-progress .exec-bar{height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-top:8px}
+.exec-progress .exec-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--am));transition:.3s;border-radius:3px}
+/* Checkbox */
+.draft-cb{width:16px;height:16px;accent-color:var(--a);cursor:pointer;vertical-align:middle;margin-right:6px}
+/* Activity */
+.activity-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;align-items:flex-start}
+.activity-item:last-child{border-bottom:none}
+.activity-time{font-size:9px;color:var(--muted);min-width:70px;font-family:var(--mono)}
+.activity-text{flex:1;color:var(--text)}
+/* Loading */
+.loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--dim);gap:8px;font-size:12px}
+/* DM cross-check badge */
+.dm-checked{display:inline-block;padding:1px 5px;border-radius:3px;font-size:7px;font-weight:700;letter-spacing:.3px;vertical-align:middle;margin-left:4px}
+.dm-checked.ok{background:#ecfdf5;color:#059669}.dm-checked.warn{background:#fef3c7;color:#b45309}
+/* HiL Queue */
+.hil-group{margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.hil-group-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hil-group-title{font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px}
+.hil-group-title .hil-count{background:var(--abg);color:var(--a);padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700}
+.hil-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px}
+.hil-item label{display:flex;align-items:center;gap:6px;cursor:pointer;flex:1}
+.hil-item input[type="checkbox"]{width:14px;height:14px;accent-color:var(--a)}
+.hil-empty{text-align:center;padding:16px;color:var(--dim);font-size:11px}
+@media(max-width:700px){
+  .ctr{padding:12px 8px 60px}.hero h1{font-size:18px}
+  .mt>div{padding:8px 12px;font-size:11px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .funnel-row{flex-wrap:wrap}.fn{min-width:60px}
+  .filter-bar{flex-direction:column}.filter-bar input,.filter-bar select{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="login-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
+  <div style="background:var(--card);border-radius:16px;padding:48px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.06);border:1px solid var(--border);text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">&#x1F1EF;&#x1F1F5;</div>
+    <h2 style="font-size:18px;font-weight:800;margin-bottom:4px">Pipeline CRM <span style="color:var(--a)">Japan</span></h2>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:24px">Grosmimi Japan Influencer Pipeline</p>
+    <input type="text" id="login-uid" placeholder="User ID" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:8px;font-family:inherit">
+    <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" style="width:100%;background:var(--a);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Sign In</button>
+    <div id="login-err" style="color:var(--r);font-size:11px;margin-top:10px;display:none"></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" style="display:none">
+<div class="ctr">
+  <div id="standalone-header">
+  <div class="nav-bar" style="margin-bottom:16px">
+    <div>
+      <a href="/api/onzenna/ppc/dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
+      <a href="/api/onzenna/content/dashboard/" title="Content Intelligence">Content Intelligence</a>
+      <a class="active">Pipeline CRM (JP)</a>
+      <a href="/api/onzenna/financial/dashboard/" title="Financial KPIs">Financial KPIs</a>
+    </div>
+  </div>
+  <div class="hero">
+    <h1 style="display:flex;align-items:center;justify-content:center;gap:12px">&#x1F4CB; Pipeline <span>CRM</span> <span style="font-size:14px;background:#ef4444;color:#fff;padding:2px 10px;border-radius:6px;font-weight:700">JP</span>
+      <div style="display:inline-flex;border:2px solid #e2e8f0;border-radius:8px;overflow:hidden;font-size:12px;font-weight:700;vertical-align:middle;margin-left:4px">
+        <a href="/api/onzenna/pipeline/dashboard/" style="padding:4px 14px;color:#94a3b8;text-decoration:none;cursor:pointer;transition:.15s;line-height:1.4" onmouseover="this.style.background='#f5f3ff';this.style.color='#8b5cf6'" onmouseout="this.style.background='';this.style.color='#94a3b8'">US</a>
+        <div style="padding:4px 14px;background:#ef4444;color:#fff;cursor:default;line-height:1.4">JP</div>
+      </div>
+    </h1>
+    <div class="sub">Grosmimi Japan — Influencer DM Outreach Pipeline</div>
+    <div class="meta" id="hero-meta">
+      <span class="pill" id="pill-status"><span class="dot"></span>Ready</span>
+      <span class="pill" id="pill-date"></span>
+      <span class="pill" id="pill-total">0 creators</span>
+    </div>
+  </div>
+  </div>
+  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.getElementById('standalone-header').style.display='none';</script>
+
+  <!-- PIPELINE OVERVIEW -->
+  <div class="card" style="margin-bottom:12px">
+    <h3>&#x1F3AF; Pipeline Overview</h3>
+    <div class="funnel" id="dash-funnel">
+      <div class="funnel-row" style="flex-wrap:wrap">
+        <div class="funnel-label">Outbound</div>
+        <div class="fn on" data-stage="not_started" onclick="goToStage('not_started')"><div class="fi" id="f-not-started">0</div><div class="ft">Not Started</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="draft_ready" onclick="goToStage('draft_ready')"><div class="fi" id="f-draft-ready">0</div><div class="ft">Draft</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sent" onclick="goToStage('sent')"><div class="fi" id="f-sent">0</div><div class="ft">Sent</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="replied" onclick="goToStage('replied')"><div class="fi" id="f-replied">0</div><div class="ft">Replied</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="accepted" onclick="goToStage('accepted')"><div class="fi" id="f-accepted">0</div><div class="ft">Accepted</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="contract_signed" onclick="goToStage('contract_signed')"><div class="fi" id="f-contract-signed">0</div><div class="ft">Contract</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="sample_delivered" onclick="goToStage('sample_delivered')"><div class="fi" id="f-sample-delivered">0</div><div class="ft">Delivered</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="posted" onclick="goToStage('posted')"><div class="fi" id="f-posted">0</div><div class="ft">Posted</div></div>
+      </div>
+      <div class="funnel-row" style="margin-top:6px">
+        <div class="funnel-label" style="color:var(--c)">Inbound</div>
+        <div class="fn" data-stage="inbound" onclick="goToStage('inbound')"><div class="fi" id="f-inbound" style="color:var(--c)">0</div><div class="ft">Inbound</div></div><span class="fa">&#x25B6;</span>
+        <div class="fn" data-stage="needs_review" onclick="goToStage('needs_review')"><div class="fi" id="f-needs-review">0</div><div class="ft">Review</div></div>
+      </div>
+    </div>
+    <!-- Hidden count holders for stages not shown in funnel but tracked in data -->
+    <span id="f-form-submitted" style="display:none">0</span>
+    <span id="f-contract-sent" style="display:none">0</span>
+    <span id="f-sample-sent" style="display:none">0</span>
+    <span id="f-sample-shipped" style="display:none">0</span>
+    <span id="f-guidelines-sent" style="display:none">0</span>
+  </div>
+
+  <!-- MAIN TABS -->
+  <div class="mt" id="main-tabs">
+    <div class="on" data-p="dashboard">Dashboard</div>
+    <div data-p="creators">Creators</div>
+    <div data-p="sheet">Influencer Sheet</div>
+    <div data-p="drafts">DM Drafts</div>
+    <div data-p="contracts">Contracts</div>
+    <div data-p="config">Config</div>
+    <div data-p="samples">Samples</div>
+    <div data-p="failures" style="color:var(--r)">Failures</div>
+  </div>
+
+  <!-- ===== DASHBOARD TAB ===== -->
+  <div class="mp on" id="p-dashboard">
+    <div class="stats">
+      <div class="stat accent"><div class="sl">Total Creators</div><div class="sv" id="s-total">0</div></div>
+      <div class="stat amber"><div class="sl">Draft Ready</div><div class="sv" id="s-draft">0</div></div>
+      <div class="stat cyan"><div class="sl">DM Sent</div><div class="sv" id="s-sent">0</div></div>
+      <div class="stat green"><div class="sl">Accepted</div><div class="sv" id="s-accepted">0</div></div>
+      <div class="stat pink"><div class="sl">Posted</div><div class="sv" id="s-posted">0</div></div>
+      <div class="stat" style="border-left:2px solid var(--c)"><div class="sl">Inbound</div><div class="sv" id="s-inbound" style="color:var(--c)">0</div></div>
+    </div>
+
+    <!-- Daily KPI Table -->
+    <div class="card" style="margin-top:12px">
+      <h3>&#x1F4CA; Daily Activity</h3>
+      <div class="desc">日別 DM アウトリーチ状況</div>
+      <div style="overflow-x:auto">
+        <table id="daily-kpi-table">
+          <thead>
+            <tr><th>Date</th><th>Outreach</th><th>Reply</th><th>Accepted</th><th>Posted</th><th>Inbound</th><th>Reply Rate</th></tr>
+          </thead>
+          <tbody id="daily-kpi-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DM Budget -->
+    <div class="card">
+      <h3>&#x1F4CA; Daily DM Budget</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+        <div style="flex:1;background:#f1f5f9;border-radius:8px;height:24px;overflow:hidden">
+          <div id="dm-budget-bar" style="height:100%;background:linear-gradient(90deg,var(--g),var(--am));border-radius:8px;width:0%;transition:.5s"></div>
+        </div>
+        <span id="dm-budget-text" style="font-size:12px;font-weight:700;font-family:var(--mono);min-width:60px">0 / 30</span>
+      </div>
+      <div style="font-size:10px;color:var(--dim);margin-top:6px">Hard cap: 30 DMs/day. Execution stops at limit.</div>
+    </div>
+
+    <!-- Inbound Queue -->
+    <div class="card">
+      <h3>&#x1F4E5; Inbound Queue</h3>
+      <div class="desc">自然流入 (オーガニックDM / コメント経由) のクリエイター</div>
+      <div id="inbound-queue">
+        <div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No inbound creators detected.</div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <h3>&#x23F0; Recent Activity</h3>
+      <div id="activity-log" style="max-height:250px;overflow-y:auto">
+        <div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CREATORS TAB ===== -->
+  <div class="mp" id="p-creators">
+    <!-- Owner sub-tabs -->
+    <div style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
+      <div class="owner-tab on" data-owner="" onclick="setOwnerFilter('')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
+      <div class="owner-tab" data-owner="SE" onclick="setOwnerFilter('SE')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F9D1; SE</div>
+      <div class="owner-tab" data-owner="KAZ" onclick="setOwnerFilter('KAZ')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F9D1; KAZ</div>
+      <div class="owner-tab" data-owner="_mine" onclick="setOwnerFilter('_mine')" style="padding:7px 18px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F4CC; My</div>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="creator-search" placeholder="Search by handle, name..." oninput="filterCreators()">
+      <select id="creator-status-filter" onchange="filterCreators()">
+        <option value="">All Status</option>
+        <option value="not_started">Not Started</option>
+        <option value="draft_ready">Draft Ready</option>
+        <option value="sent">DM Sent</option>
+        <option value="replied">Replied</option>
+        <option value="accepted">Accepted</option>
+        <option value="form_submitted">Form Submitted</option>
+        <option value="contract_sent">Contract Sent</option>
+        <option value="contract_signed">Contract Signed</option>
+        <option value="sample_sent">Sample Sent</option>
+        <option value="sample_shipped">Sample Shipped</option>
+        <option value="sample_delivered">Sample Delivered</option>
+        <option value="guidelines_sent">Guidelines Sent</option>
+        <option value="posted">Posted</option>
+        <option value="inbound">Inbound</option>
+        <option value="needs_review">Needs Review</option>
+      </select>
+      <select id="creator-platform-filter" onchange="filterCreators()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+        <option value="">All Platforms</option>
+        <option value="instagram">&#x1F4F7; Instagram</option>
+        <option value="tiktok">&#x1F3B5; TikTok</option>
+      </select>
+      <button class="btn btn-sm btn-secondary" onclick="showImportModal()">&#x1F4E5; Import</button>
+      <span id="creator-count" style="font-size:11px;color:var(--dim)">0 creators</span>
+    </div>
+    <!-- Execute bar for creators tab -->
+    <div id="creators-exec-bar" style="display:none;margin-bottom:12px">
+      <div class="card" style="border-left:3px solid var(--g);padding:10px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--dim)">
+              <input type="checkbox" id="creators-select-all" onchange="toggleAllCreatorCb(this.checked)" checked style="accent-color:var(--a)">
+              Select All
+            </label>
+            <span id="creators-selected-count" style="font-size:11px;color:var(--dim);margin-left:8px">0 selected</span>
+          </div>
+          <button class="btn btn-success" id="btn-creators-execute" onclick="executeCreatorsDrafts()">&#x1F680; Execute Selected</button>
+        </div>
+      </div>
+    </div>
+    <div id="creators-cards"></div>
+    <!-- Keep table hidden for backwards compat -->
+    <div style="display:none;overflow-x:auto">
+      <table id="creators-table">
+        <thead>
+          <tr>
+            <th>Handle</th>
+            <th>Name</th>
+            <th>Followers</th>
+            <th>Status</th>
+            <th>Last DM</th>
+            <th>DM Link</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="creators-tbody">
+          <tr><td colspan="7"><div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" id="creators-pager"></div>
+  </div>
+
+  <!-- ===== INFLUENCER SHEET TAB ===== -->
+  <div class="mp" id="p-sheet">
+    <div class="card" style="border-left:3px solid #6366f1">
+      <h3>&#x1F4CB; Influencer Master Sheet</h3>
+      <div class="desc">全クリエイター一覧 — Discovery + Pipeline + Inbound + Manual DM</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="loadInfluencerSheet()">&#x1F504; Refresh</button>
+        <button class="btn" style="background:#10b981;color:#fff" onclick="importFromDiscovery()" id="btn-import-discovery">&#x1F4E5; Import New to Pipeline</button>
+        <span id="import-discovery-status" style="font-size:10px;color:var(--dim)"></span>
+        <input type="text" id="sheet-search" placeholder="Search @handle, name..." oninput="filterSheet()" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;width:200px">
+        <select id="sheet-filter-status" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+          <option value="">All Statuses</option>
+          <option value="not_started">Not Started</option>
+          <option value="draft_ready">Draft Ready</option>
+          <option value="sent">DM Sent</option>
+          <option value="replied">Replied</option>
+          <option value="accepted">Accepted</option>
+          <option value="form_submitted">Form</option>
+          <option value="contract_signed">Contract</option>
+          <option value="guidelines_sent">Guidelines</option>
+          <option value="sample_sent">Sample Sent</option>
+          <option value="sample_delivered">Delivered</option>
+          <option value="posted">Posted</option>
+        </select>
+        <select id="sheet-filter-source" onchange="filterSheet()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+          <option value="">All Sources</option>
+          <option value="discovery">Discovery (Sheet)</option>
+          <option value="pipeline">Pipeline</option>
+          <option value="inbound">Inbound</option>
+          <option value="manual">Manual DM</option>
+        </select>
+        <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sheet-hide-contacted" onchange="filterSheet()"> Hide Already Contacted</label>
+        <span id="sheet-count" style="font-size:10px;color:var(--dim);margin-left:auto"></span>
+      </div>
+      <!-- CI Summary Stats -->
+      <div id="ci-stats-bar" style="display:none;margin-bottom:12px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div class="stat cyan" style="min-width:100px"><div class="sl">CI Analyzed</div><div class="sv" id="ci-stat-count">0</div></div>
+          <div class="stat green" style="min-width:100px"><div class="sl">Avg Delivery</div><div class="sv" id="ci-stat-dv">-</div></div>
+          <div class="stat amber" style="min-width:100px"><div class="sl">Avg Brand Fit</div><div class="sv" id="ci-stat-bf">-</div></div>
+          <div class="stat accent" style="min-width:100px"><div class="sl">With Transcript</div><div class="sv" id="ci-stat-tr">0</div></div>
+          <div class="stat" style="min-width:100px"><div class="sl">DV 7+ Creators</div><div class="sv" id="ci-stat-top" style="color:var(--g)">0</div></div>
+        </div>
+      </div>
+      <!-- Content Type Sub-tabs -->
+      <div id="sheet-subtabs" style="display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
+        <div class="sheet-subtab on" data-filter="all" onclick="setSheetSubtab('all')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">All</div>
+        <div class="sheet-subtab" data-filter="has_video" onclick="setSheetSubtab('has_video')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F3AC; Has Video</div>
+        <div class="sheet-subtab" data-filter="image_only" onclick="setSheetSubtab('image_only')" style="padding:6px 16px;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;color:var(--dim)">&#x1F5BC; Image Only</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;margin-top:12px">
+      <table class="ct" id="sheet-table" style="width:100%">
+        <thead>
+          <tr>
+            <th style="width:30px">&#x1F6AB;</th>
+            <th style="cursor:pointer" onclick="sortSheet('username')">Handle &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('followers')">Followers &#x2195;</th>
+            <th>Platform</th>
+            <th style="cursor:pointer" onclick="sortSheet('_source')">Source &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('status')">Status &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_postCount')">Posts &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_bestViews')">Best Views/Likes &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_totalComments')">Comments &#x2195;</th>
+            <th style="cursor:pointer" onclick="sortSheet('_latestPostDate')">Latest Post &#x2195;</th>
+            <th>D+</th>
+            <th style="cursor:pointer" onclick="sortSheet('_ciScore')">CI &#x2195;</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="sheet-body"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="sheet-pager"></div>
+  </div>
+
+  <!-- ===== DM DRAFTS TAB ===== -->
+  <div class="mp" id="p-drafts">
+    <div class="card" style="border-left:3px solid var(--a)">
+      <h3>&#x1F916; Generate DM Drafts</h3>
+      <div class="desc">Not Startedのクリエイター (過去DM履歴なし) にAI初案を生成</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="font-size:11px;display:flex;gap:8px;align-items:center">
+          <label style="font-weight:600;color:var(--dim)">Batch Size:</label>
+          <input type="number" id="draft-batch-size" value="29" min="1" max="100" style="width:60px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+          <span style="color:var(--muted);font-size:9px;margin-left:4px">또는 플랫폼별:</span>
+          <label style="font-weight:500;color:#e1306c">IG</label>
+          <input type="number" id="draft-ig-count" value="" min="0" max="50" placeholder="all" style="width:50px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+          <label style="font-weight:500;color:#000">TT</label>
+          <input type="number" id="draft-tt-count" value="" min="0" max="50" placeholder="all" style="width:50px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;font-size:11px">
+        </div>
+        <button class="btn btn-primary" id="btn-generate" onclick="generateDrafts()">
+          &#x26A1; Generate Drafts
+        </button>
+        <span id="draft-status" style="font-size:11px;color:var(--dim)"></span>
+      </div>
+      <!-- Priority toggles -->
+      <div style="display:flex;gap:16px;align-items:center;margin-top:8px;flex-wrap:wrap">
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-video-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F3AC; 영상 우선
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-view-priority" checked style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F441; View 우선순위
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-quality-priority" style="width:15px;height:15px;accent-color:var(--a)">
+          &#x2B50; Quality Score 우선
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600;color:var(--dim)">
+          <input type="checkbox" id="draft-baby-filter" style="width:15px;height:15px;accent-color:var(--a)">
+          &#x1F476; 신생아/영아(0-2y) 등장만
+        </label>
+        <span style="font-size:9px;color:var(--muted)">ON = 해당 조건의 크리에이터를 배치 상단에 배치</span>
+      </div>
+    </div>
+
+    <!-- Execute bar -->
+    <div id="exec-bar-container" style="display:none;margin-top:12px">
+      <div class="card" style="border-left:3px solid var(--g)">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--dim)">
+              <input type="checkbox" id="select-all-drafts" class="draft-cb" onchange="toggleAllDrafts(this.checked)" checked>
+              Select All
+            </label>
+            <span id="selected-count" style="font-size:11px;color:var(--dim);margin-left:8px">0 selected</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span id="exec-budget-info" style="font-size:10px;color:var(--dim)"></span>
+            <button class="btn btn-success" id="btn-execute" onclick="executeDrafts()">&#x1F680; Execute</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Execute progress -->
+    <div id="exec-progress" style="display:none;margin-top:12px">
+      <div class="exec-progress">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;font-weight:700" id="exec-progress-text">Executing...</span>
+          <span style="font-size:11px;color:var(--dim)" id="exec-progress-count">0/0</span>
+        </div>
+        <div class="exec-bar"><div class="exec-fill" id="exec-fill" style="width:0%"></div></div>
+        <div id="exec-current" style="font-size:10px;color:var(--dim);margin-top:4px"></div>
+      </div>
+    </div>
+
+    <div id="drafts-list" style="margin-top:12px">
+      <div style="text-align:center;padding:40px;color:var(--dim)">Click "Generate Drafts" to create AI-powered DM drafts based on creator content.</div>
+    </div>
+  </div>
+
+  <!-- ===== CONTRACTS TAB ===== -->
+  <div class="mp" id="p-contracts">
+    <div class="card" style="border-left:3px solid var(--c)">
+      <h3>&#x1F4CB; Contract Queue</h3>
+      <div class="desc">フォーム提出済みクリエイター — AI が対話内容から有償/無償を推薦</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="classifyContracts()">&#x1F916; AI 分類実行</button>
+        <button class="btn btn-success" id="btn-exec-contracts" onclick="executeContracts()">&#x1F680; Execute</button>
+        <span id="contract-status" style="font-size:11px;color:var(--dim)"></span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+      <!-- Gifting (unpaid) column -->
+      <div class="card" style="border-top:3px solid var(--g)">
+        <h3 style="color:var(--g)">&#x1F381; 無償 (Gifting)</h3>
+        <div class="desc">商品提供のみ — Template ID: 4</div>
+        <div id="contract-gifting-list"></div>
+      </div>
+
+      <!-- Paid column -->
+      <div class="card" style="border-top:3px solid var(--am)">
+        <h3 style="color:var(--am)">&#x1F4B0; 有償 (Paid)</h3>
+        <div class="desc">報酬あり — Template ID: 5</div>
+        <div id="contract-paid-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONFIG TAB ===== -->
+  <div class="mp" id="p-config">
+    <div class="card" style="border-left:3px solid var(--am)">
+      <h3>&#x2699;&#xFE0F; JP Pipeline Config</h3>
+      <div class="desc">DM Config Sheet とデータソースの設定</div>
+      <div style="display:grid;gap:10px;margin-top:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Daily DM Limit</label>
+          <input type="number" id="cfg-daily-limit" value="30" min="5" max="200" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Data Source</label>
+          <span class="b g">n8n Webhooks</span>
+          <span style="font-size:10px;color:var(--dim)">n8n.orbiters.co.kr</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">ManyChat API</label>
+          <span class="b g" id="cfg-manychat-status">Connected</span>
+          <span style="font-size:10px;color:var(--dim)">Token: 4482793:***</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">n8n Workflow</label>
+          <a href="https://n8n.orbiters.co.kr" target="_blank" style="font-size:11px;color:var(--a);font-weight:600">JP Pipeline Webhooks &#x2197;</a>
+          <span class="b g">Active</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4DD; DM Template</h3>
+      <div class="desc">Claude AIが使う初回DMテンプレート — 編集可能</div>
+      <textarea class="dm-edit" id="cfg-dm-template" rows="10"></textarea>
+      <button class="btn btn-sm btn-primary" onclick="saveConfig('dm_template', document.getElementById('cfg-dm-template').value)" style="margin-top:8px">&#x1F4BE; Save</button>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4DD; 오답노트 (Mistake Log)</h3>
+      <div class="desc">パイプライン運用の学びと改善点を記録</div>
+      <textarea class="dm-edit" id="cfg-mistake-log" rows="6" placeholder="運用中に気づいた点、改善すべきことを記録..."></textarea>
+      <button class="btn btn-sm btn-primary" onclick="saveConfig('mistake_log', document.getElementById('cfg-mistake-log').value)" style="margin-top:8px">&#x1F4BE; Save</button>
+    </div>
+
+    <div class="card">
+      <h3>&#x2753; FAQ</h3>
+      <div class="desc">インフルエンサーからの質問と回答 — 継続的に追加</div>
+      <div id="faq-list"></div>
+      <button class="btn btn-sm btn-secondary" onclick="addFaqEntry()" style="margin-top:8px">+ Add FAQ Entry</button>
+      <button class="btn btn-sm btn-primary" onclick="saveFaq()" style="margin-top:8px;margin-left:4px">&#x1F4BE; Save All</button>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4C4; Content Guidelines</h3>
+      <div class="desc">製品別コンテンツガイドライン PDF URL</div>
+      <div id="guidelines-config-list"></div>
+      <button class="btn btn-sm btn-secondary" onclick="addGuidelineEntry()" style="margin-top:8px">+ Add Guideline</button>
+      <button class="btn btn-sm btn-primary" onclick="saveConfig('content_guidelines', getGuidelinesData())" style="margin-top:8px;margin-left:4px">&#x1F4BE; Save</button>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4CB; DocuSeal Contract</h3>
+      <div class="desc">契約書テンプレート設定 — 無償(Gifting)と有償(Paid)の2種類</div>
+      <div style="display:grid;gap:8px;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:180px">無償 (Gifting) Template ID</label>
+          <input type="text" id="cfg-docuseal-gifting" value="4" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+          <button class="btn btn-sm btn-primary" onclick="saveConfig('docuseal_template_id_gifting', document.getElementById('cfg-docuseal-gifting').value)">&#x1F4BE;</button>
+          <a href="https://docuseal.orbiters.co.kr/templates/4" target="_blank" style="font-size:10px;color:var(--a)">Edit &#x2197;</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:180px">有償 (Paid) Template ID</label>
+          <input type="text" id="cfg-docuseal-paid" value="5" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+          <button class="btn btn-sm btn-primary" onclick="saveConfig('docuseal_template_id_paid', document.getElementById('cfg-docuseal-paid').value)">&#x1F4BE;</button>
+          <a href="https://docuseal.orbiters.co.kr/templates/5" target="_blank" style="font-size:10px;color:var(--a)">Edit &#x2197;</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#x1F4E6; Product Catalog</h3>
+      <table>
+        <thead><tr><th>Product</th><th>Size</th><th>Price</th><th>Age</th></tr></thead>
+        <tbody>
+          <tr><td>PPSUストローカップ</td><td>200ml</td><td>&#xA5;3,190</td><td>6ヶ月〜</td></tr>
+          <tr><td>PPSUストローカップ</td><td>300ml</td><td>&#xA5;3,600</td><td>6ヶ月〜</td></tr>
+          <tr><td>PPSUワンタッチ式</td><td>300ml</td><td>&#xA5;4,200</td><td>12ヶ月〜</td></tr>
+          <tr><td>ステンレスストローカップ</td><td>200ml</td><td>&#xA5;5,800</td><td>12ヶ月〜</td></tr>
+          <tr><td>ステンレスストローカップ</td><td>300ml</td><td>&#xA5;6,200</td><td>12ヶ月〜</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== SCORING LAB ===== -->
+    <div class="card" style="border-left:3px solid #8b5cf6">
+      <h3>&#x1F9EA; Content Scoring Lab</h3>
+      <div class="desc">가중치 조정 → 실시간 크리에이터 스코어 재계산. 최적 배합 테스트용.</div>
+      <div style="display:grid;gap:12px;margin-top:12px">
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Delivery Verbal <span id="lab-w-dv-val" style="color:var(--a)">40</span>%</label>
+            <input type="range" id="lab-w-dv" min="0" max="100" value="40" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Views <span id="lab-w-views-val" style="color:var(--a)">25</span>%</label>
+            <input type="range" id="lab-w-views" min="0" max="100" value="25" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Followers <span id="lab-w-fol-val" style="color:var(--a)">15</span>%</label>
+            <input type="range" id="lab-w-fol" min="0" max="100" value="15" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Hook Score <span id="lab-w-hook-val" style="color:var(--a)">10</span>%</label>
+            <input type="range" id="lab-w-hook" min="0" max="100" value="10" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:700;color:var(--dim)">Engagement Rate <span id="lab-w-eng-val" style="color:var(--a)">10</span>%</label>
+            <input type="range" id="lab-w-eng" min="0" max="100" value="10" oninput="recalcScoreLab()" style="width:100%">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-sm" style="background:#8b5cf6;color:#fff" onclick="recalcScoreLab()">&#x1F504; Recalculate</button>
+          <button class="btn btn-sm btn-secondary" onclick="applyScoreLabWeights()">&#x2705; Apply to DM Queue</button>
+          <span id="lab-total-pct" style="font-size:10px;color:var(--dim)">Total: 100%</span>
+        </div>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
+          <table class="ct" id="lab-results-table" style="width:100%">
+            <thead>
+              <tr>
+                <th style="cursor:pointer" onclick="sortLabTable('rank')">Rank</th>
+                <th>Platform</th>
+                <th style="cursor:pointer" onclick="sortLabTable('handle')">Handle</th>
+                <th style="cursor:pointer" onclick="sortLabTable('score')">Score</th>
+                <th>DV</th>
+                <th>Views</th>
+                <th>Followers</th>
+                <th>Hook</th>
+                <th>Eng%</th>
+              </tr>
+            </thead>
+            <tbody id="lab-results-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SAMPLES TAB ===== -->
+  <div class="mp" id="p-samples">
+    <div class="card">
+      <h3>&#x1F4E6; Requested Samples</h3>
+      <div class="desc">ギフティングフォーム提出済みのクリエイター — サンプル発送管理</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-secondary" onclick="exportSamples()">&#x1F4E5; Export CSV</button>
+        <button class="btn btn-success" id="btn-mark-samples-sent" onclick="markSamplesSent()">&#x1F4E6; Mark Selected as Sent</button>
+      </div>
+      <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox" onchange="toggleAllSamples(this.checked)"></th>
+            <th>Handle</th><th>Name</th><th>Product</th><th>Color</th>
+            <th>Address</th><th>Phone</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="samples-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FAILURES TAB ===== -->
+  <div class="mp" id="p-failures">
+    <div class="card">
+      <h3 style="color:var(--r)">&#x26A0;&#xFE0F; DM Back-Check Failures</h3>
+      <div class="desc">DM 발송 후 5분 이내 확인 실패 → 자동 Draft Ready 롤백 기록. 실제 IG에서 붙여넣기+전송을 안 한 경우 여기 뜸.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+        <span id="failure-count" style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--r)">0</span>
+        <span style="font-size:11px;color:var(--dim)">total failures</span>
+        <span id="pending-checks" style="font-size:11px;color:var(--am);margin-left:12px"></span>
+        <button class="btn btn-sm btn-secondary" style="margin-left:auto" onclick="clearFailureLog()">&#x1F5D1; Clear Log</button>
+      </div>
+      <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th><th>Handle</th><th>Reason</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="failure-log-body">
+          <tr><td colspan="4" style="text-align:center;padding:16px;color:var(--dim)">No failures recorded</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3>&#x1F50D; Pending Back-Checks</h3>
+      <div class="desc">현재 5분 대기 중인 DM 확인 건</div>
+      <div id="pending-checks-list" style="font-size:11px;color:var(--dim);padding:8px">No pending checks</div>
+    </div>
+  </div>
+
+</div><!-- .ctr -->
+</div><!-- main-content -->
+
+<!-- Import Modal -->
+<div id="import-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:16px;width:90%;max-width:500px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.15)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:14px;font-weight:700">&#x1F4E5; Import Creators</h3>
+      <button onclick="document.getElementById('import-modal').style.display='none'" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">&times;</button>
+    </div>
+    <div class="desc" style="margin-bottom:12px">Paste CSV or JSON. Format: username, name, followers (one per line or JSON array)</div>
+    <textarea id="import-data" rows="8" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:11px;font-family:var(--mono);resize:vertical" placeholder="momlife_tokyo, ゆき, 28400
+baby_and_cafe, あいり, 15200
+
+or JSON:
+[{&quot;username&quot;:&quot;momlife_tokyo&quot;,&quot;name&quot;:&quot;ゆき&quot;,&quot;followers&quot;:28400}]"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button class="btn btn-secondary" onclick="document.getElementById('import-modal').style.display='none'">Cancel</button>
+      <button class="btn btn-primary" id="btn-import" onclick="importCreators()">&#x1F4E5; Import</button>
+    </div>
+    <div id="import-status" style="font-size:11px;color:var(--dim);margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- Sheet Batch Modal -->
+<div id="sheet-batch-modal" style="display:none;pointer-events:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 0" onclick="if(event.target===this)closeSheetBatchModal()">
+  <div style="background:var(--card);border-radius:16px;width:92%;max-width:680px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.15);margin:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <h3 style="font-size:14px;font-weight:700">&#x1F4CB; Sheet에서 Creators로 추가</h3>
+      <button onclick="closeSheetBatchModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">&times;</button>
+    </div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:16px">파이프라인에 없는 크리에이터를 포스트 주차별로 묶어 추가합니다.</div>
+    <div id="sheet-batch-body" style="max-height:60vh;overflow-y:auto"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+      <span id="sheet-batch-status" style="font-size:11px;color:var(--dim)"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="closeSheetBatchModal()">닫기</button>
+        <button class="btn btn-primary" id="btn-sheet-batch-add" onclick="confirmSheetBatchAdd()" style="background:#16a34a">&#x2705; 선택 추가</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DM Thread Modal -->
+<div class="dm-thread-overlay" id="dm-thread" style="display:none" onclick="if(event.target===this)closeDmThread()">
+  <div class="dm-thread-panel">
+    <div class="dm-thread-header">
+      <h3><span id="thread-handle">@handle</span> <span id="thread-badge"></span></h3>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button id="thread-accept-btn" class="btn btn-sm btn-success" style="display:none;font-size:9px" onclick="markAcceptedFromThread()">&#x2705; Mark Accepted</button>
+        <button id="thread-decline-btn" class="btn btn-sm btn-secondary" style="display:none;font-size:9px;color:var(--r)" onclick="markDeclinedFromThread()">&#x274C; Decline</button>
+        <a id="thread-ig-link" href="#" target="_blank" class="btn btn-sm btn-secondary" style="font-size:9px">&#x1F4AC; Open IG</a>
+        <button class="dm-thread-close" onclick="closeDmThread()">&times;</button>
+      </div>
+    </div>
+    <div class="dm-thread-body" id="thread-body">
+      <div class="dm-empty">No messages yet</div>
+    </div>
+    <div class="dm-thread-input">
+      <select id="thread-dir" style="padding:8px;border:1px solid var(--border);border-radius:24px;font-size:11px;font-family:inherit;background:var(--card)">
+        <option value="out">Sent &#x2192;</option>
+        <option value="in">&#x2190; Received</option>
+      </select>
+      <input type="text" id="thread-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendThreadDm()">
+      <button onclick="sendThreadDm()" id="thread-send-btn">Log</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Constants ───
+var N8N_LIST = 'https://n8n.orbiters.co.kr/webhook/jp-pipeline-list';
+var N8N_API  = 'https://n8n.orbiters.co.kr/webhook/jp-pipeline-api';
+var _dkBase  = '/api/datakeeper';
+
+// ─── Auth (same as US dashboards) ───
+var AUTH_USERS={
+  'WJ':'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
+  'CAL':'a1a137c402f2a79391d3ecd012536dc6a2dc6e4e3ee32c2880d01afa04f7402c',
+  'MJ':'c8fe37479a933b489c5d4a1ff509cbe60095246f1e42f383bc017cb77b3efcbb',
+  'HJ':'75c2e5a66c6bcc985f42b6d402dbb10050a09c9f0371ed735e1983c145da3ffe',
+  'JS':'89d0eb2d586787c34782b6fa71300419edb51538e74596a8c7948c0abca66e6d',
+  'HC':'357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5',
+  'JHG':'4fde1cea77c9c59bed96bc884c846cb4eca99d28c3c031c2f46e6d00bad2f2a1',
+  'SY':'02055f756ae94496a7f3a8eb3ee14454d9231b5689e15b60945fe8f3e7166964',
+  'LK':'deacf4810dbd04dbfe9cb54a3e767067d40e7d50f1973f59e6c8ed7135d7e16a',
+  'JH':'9b6b725c547356d40e3ce5dd1a985f1a4b35076792d621c76e356c13a531ec7b',
+  'SE':'9346ed77d5684897c51838d0c98db23867810a7e4b120c1226a15b834f4af459',
+  'WC':'1f3d8a8b4c971a06b1064ce6388ebf34e936e69f766014f5102e514ac13571bd'
+};
+var _currentUser = '';
+async function sha256(s){var e=new TextEncoder().encode(s);var h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
+
+async function doLogin() {
+  var uid = document.getElementById('login-uid').value.trim().toUpperCase();
+  var pw = document.getElementById('login-pw').value;
+  if (!uid || !pw) { showErr('Enter ID and password'); return; }
+  var hash = await sha256(pw + uid.toLowerCase());
+  if (AUTH_USERS[uid] && AUTH_USERS[uid] === hash) {
+    _currentUser = uid;
+    localStorage.setItem('jp_pipe_auth', JSON.stringify({uid:uid, ts:Date.now()}));
+    document.getElementById('login-gate').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    init();
+  } else { showErr('Invalid credentials'); }
+}
+function showErr(m) { var e = document.getElementById('login-err'); e.textContent = m; e.style.display = 'block'; }
+
+// Auto-login (check localStorage)
+(function() {
+  var s = localStorage.getItem('jp_pipe_auth');
+  if (!s) return;
+  try {
+    var d = JSON.parse(s);
+    if (Date.now() - d.ts < 30*86400000 && AUTH_USERS[d.uid]) {
+      _currentUser = d.uid;
+      document.getElementById('login-gate').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      init();
+    }
+  } catch(e) {}
+})();
+
+// ─── Tab switching ───
+document.querySelectorAll('.mt>div').forEach(function(t) {
+  t.addEventListener('click', function() {
+    var p = this.dataset.p;
+    this.parentElement.querySelectorAll('div').forEach(function(d) { d.classList.remove('on'); });
+    this.classList.add('on');
+    document.querySelectorAll('.mp').forEach(function(d) { d.classList.remove('on'); });
+    var el = document.getElementById('p-' + p);
+    if (el) el.classList.add('on');
+    location.hash = '#' + p;
+  });
+});
+
+// ─── n8n API helpers ───
+function n8nGet() {
+  // Use POST with list action instead of GET (CORS issue with GET respond headers)
+  return fetch(N8N_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'list_creators' })
+  }).then(function(r) { return r.json(); });
+}
+
+function n8nPost(body) {
+  return fetch(N8N_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); });
+}
+
+// ─── Data ───
+var _creators = [];
+var _page = 0, _perPage = 25;
+var _dmSentToday = 0;
+var _dailyLimit = 30;
+var _threadHandle = '';
+var _dmCache = {}; // Cache DM logs per handle
+var _executing = false;
+var _pendingBackChecks = JSON.parse(localStorage.getItem('jp_dm_pending_checks') || '{}');
+var _dmFailures = JSON.parse(localStorage.getItem('jp_dm_failures') || '[]');
+
+function getDmCount() {
+  var today = new Date().toISOString().slice(0, 10);
+  return parseInt(localStorage.getItem('jp_dm_sent_' + today) || '0');
+}
+function incDmCount() {
+  var today = new Date().toISOString().slice(0, 10);
+  var c = getDmCount() + 1;
+  localStorage.setItem('jp_dm_sent_' + today, JSON.stringify(c));
+  _dmSentToday = c;
+  return c;
+}
+function isOverLimit() { return _dmSentToday >= _dailyLimit; }
+
+// ─── Init ───
+function renderFailureLog() {
+  var el = document.getElementById('failure-log-body');
+  if (!el) return;
+  if (!_dmFailures.length) {
+    el.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--dim)">No failures recorded</td></tr>';
+    return;
+  }
+  var html = '';
+  _dmFailures.slice().reverse().slice(0, 50).forEach(function(f) {
+    var date = f.time ? f.time.replace('T', ' ').slice(0, 19) : '-';
+    html += '<tr>';
+    html += '<td style="font-family:var(--mono);font-size:10px">' + date + '</td>';
+    html += '<td><a href="https://www.instagram.com/' + f.handle + '" target="_blank">@' + f.handle + '</a></td>';
+    html += '<td style="font-size:10px">' + f.reason + '</td>';
+    html += '<td>' + (f.rolledBack ? '<span class="b am">Rolled Back</span>' : '<span class="b c">Warning</span>') + '</td>';
+    html += '</tr>';
+  });
+  el.innerHTML = html;
+}
+
+function clearFailureLog() {
+  if (!confirm('실패 로그를 전부 삭제할까요?')) return;
+  _dmFailures = [];
+  localStorage.setItem('jp_dm_failures', JSON.stringify(_dmFailures));
+  renderFailureLog();
+  showToast('Failure log cleared');
+}
+
+function init() {
+  document.getElementById('pill-date').textContent = new Date().toISOString().slice(0, 10);
+  _dailyLimit = parseInt(document.getElementById('cfg-daily-limit').value) || 30;
+  _dmSentToday = getDmCount();
+  loadCreators();
+  renderFailureLog();
+  // Update failure count badge
+  var fcEl = document.getElementById('failure-count');
+  if (fcEl) fcEl.textContent = _dmFailures.length;
+  // Show pending checks
+  var pendingKeys = Object.keys(_pendingBackChecks);
+  var pendEl = document.getElementById('pending-checks');
+  if (pendEl && pendingKeys.length) pendEl.textContent = '⏳ ' + pendingKeys.length + ' pending checks';
+  var pendList = document.getElementById('pending-checks-list');
+  if (pendList && pendingKeys.length) {
+    pendList.innerHTML = pendingKeys.map(function(h) {
+      var remaining = Math.max(0, Math.round((_pendingBackChecks[h].checkAt - Date.now()) / 1000));
+      return '@' + h + ' — ' + remaining + 's remaining';
+    }).join('<br>');
+  }
+  var h = location.hash.replace('#', '');
+  if (h) {
+    var tab = document.querySelector('.mt>div[data-p="' + h + '"]');
+    if (tab) tab.click();
+  }
+}
+
+function loadCreators() {
+  setPillStatus('loading');
+
+  // Load from both n8n (active pipeline) and EC2 (Not Started discovery creators)
+  Promise.all([
+    n8nGet().catch(function() { return []; }),
+    fetch('/api/onzenna/pipeline/creators/?status=Not+Started&source=apify_discovery&region=jp&limit=500').then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
+  ]).then(function(results) {
+    var n8nData = results[0];
+    var ec2Data = results[1];
+
+    _creators = Array.isArray(n8nData) ? n8nData : (n8nData.creators || []);
+    // Normalize n8n fields
+    _creators.forEach(function(c) {
+      c.status = c.status || 'not_started';
+      c.dm_count = c.dm_count || 0;
+      c.followers = c.followers || 0;
+    });
+
+    // Merge EC2 Not Started creators (not already in n8n)
+    var existingHandles = {};
+    _creators.forEach(function(c) {
+      if (c.username) existingHandles[c.username.toLowerCase()] = true;
+    });
+
+    var ec2Creators = ec2Data.results || [];
+    ec2Creators.forEach(function(c) {
+      var handle = c.ig_handle || c.tiktok_handle || '';
+      if (!handle || existingHandles[handle.toLowerCase()]) return;
+      existingHandles[handle.toLowerCase()] = true;
+      _creators.push({
+        username: handle,
+        name: c.full_name || handle,
+        status: 'not_started',
+        dm_count: 0,
+        followers: c.followers || 0,
+        platform: c.platform || '',
+        outreach_type: c.outreach_type || 'LT',
+        source: c.source || 'apify_discovery',
+        content_script: '',
+        _ec2_id: c.id
+      });
+    });
+
+    setPillStatus('ready');
+    // Run each render in isolation so one failure doesn't kill the rest
+    var steps = [
+      ['updateStats', updateStats],
+      ['renderCreators', renderCreators],
+      ['renderDailyKpi', renderDailyKpi],
+      ['renderInboundQueue', renderInboundQueue],
+      ['renderSamples', renderSamples],
+      ['renderContracts', renderContracts],
+      ['loadRecentActivity', loadRecentActivity],
+      ['loadConfig', loadConfig],
+      ['loadInfluencerSheet', loadInfluencerSheet]
+    ];
+    steps.forEach(function(s) {
+      try { s[1](); } catch(e) { console.error('[loadCreators] ' + s[0] + ' failed:', e); }
+    });
+  }).catch(function(err) {
+    console.error('Failed to load creators:', err);
+    setPillStatus('error');
+    showToast('Load error: ' + (err.message || err), 'err');
+    updateStats();
+    renderCreators();
+  });
+}
+
+function setPillStatus(s) {
+  var pill = document.getElementById('pill-status');
+  if (s === 'loading') {
+    pill.innerHTML = '<span class="loading-spinner" style="width:5px;height:5px"></span> Loading';
+  } else if (s === 'error') {
+    pill.innerHTML = '<span class="dot" style="background:var(--r);box-shadow:0 0 3px var(--r)"></span> Error';
+  } else {
+    pill.innerHTML = '<span class="dot"></span> Ready';
+  }
+}
+
+function isManualDm(c) {
+  if (c.source === 'manual_dm' || c.source === 'manual') return true;
+  var postDraftStatuses = ['sent','replied','accepted','form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered','posted'];
+  if (postDraftStatuses.indexOf(c.status) !== -1 && !c.dm_draft && !c._had_draft) return true;
+  return false;
+}
+
+function isInbound(c) {
+  return c.source === 'inbound' || c.status === 'inbound' || c.status === 'needs_review';
+}
+
+function getCreatorSource(c) {
+  if (isManualDm(c)) return 'manual';
+  if (isInbound(c)) return 'inbound';
+  return 'pipeline';
+}
+
+function updateStats() {
+  var counts = { not_started: 0, draft_ready: 0, sent: 0, replied: 0, accepted: 0, form_submitted: 0, contract_sent: 0, contract_signed: 0, guidelines_sent: 0, sample_sent: 0, sample_shipped: 0, sample_delivered: 0, posted: 0, inbound: 0, needs_review: 0 };
+  _creators.forEach(function(c) { counts[c.status] = (counts[c.status] || 0) + 1; });
+  document.getElementById('pill-total').textContent = _creators.length + ' creators';
+  document.getElementById('s-total').textContent = _creators.length;
+  document.getElementById('s-draft').textContent = counts.draft_ready;
+  document.getElementById('s-sent').textContent = counts.sent;
+  document.getElementById('s-accepted').textContent = counts.accepted;
+  document.getElementById('s-posted').textContent = counts.posted;
+  document.getElementById('s-inbound').textContent = counts.inbound + counts.needs_review;
+  // Funnel
+  document.getElementById('f-not-started').textContent = counts.not_started;
+  document.getElementById('f-draft-ready').textContent = counts.draft_ready;
+  document.getElementById('f-sent').textContent = counts.sent;
+  document.getElementById('f-replied').textContent = counts.replied;
+  document.getElementById('f-accepted').textContent = counts.accepted;
+  document.getElementById('f-form-submitted').textContent = counts.form_submitted;
+  document.getElementById('f-contract-sent').textContent = counts.contract_sent;
+  document.getElementById('f-contract-signed').textContent = counts.contract_signed;
+  document.getElementById('f-guidelines-sent').textContent = counts.guidelines_sent;
+  document.getElementById('f-sample-sent').textContent = counts.sample_sent;
+  document.getElementById('f-sample-shipped').textContent = counts.sample_shipped;
+  document.getElementById('f-sample-delivered').textContent = counts.sample_delivered;
+  document.getElementById('f-posted').textContent = counts.posted;
+  // DM budget
+  var pct = Math.min(100, (_dmSentToday / _dailyLimit) * 100);
+  document.getElementById('dm-budget-bar').style.width = pct + '%';
+  document.getElementById('dm-budget-bar').style.background = isOverLimit() ? 'var(--r)' : 'linear-gradient(90deg,var(--g),var(--am))';
+  document.getElementById('dm-budget-text').textContent = _dmSentToday + ' / ' + _dailyLimit;
+}
+
+function statusBadge(s) {
+  var map = { not_started: '', draft_ready: 'am', sent: 'c', replied: 'a', accepted: 'g', form_submitted: 'am', contract_sent: 'c', contract_signed: 'g', guidelines_sent: 'p', sample_sent: 'p', sample_shipped: 'c', sample_delivered: 'g', posted: 'g', inbound: 'c', needs_review: 'am', declined: 'r' };
+  var label = { not_started: 'Not Started', draft_ready: 'Draft Ready', sent: 'DM Sent', replied: 'Replied', accepted: 'Accepted', form_submitted: 'Form Submitted', contract_sent: 'Contract Sent', contract_signed: 'Contract Signed', guidelines_sent: 'Guidelines Sent', sample_sent: 'Sample Sent', sample_shipped: 'Sample Shipped', sample_delivered: 'Sample Delivered', posted: 'Posted', inbound: 'Inbound', needs_review: 'Needs Review', declined: 'Declined' };
+  return '<span class="b ' + (map[s] || '') + '">' + (label[s] || s) + '</span>';
+}
+
+function hasPastContact(c) {
+  return c.dm_count > 0 || (c.status !== 'not_started' && c.status !== 'inbound');
+}
+
+// ─── Owner Filter ───
+var _ownerFilter = '';
+function setOwnerFilter(owner) {
+  _ownerFilter = owner;
+  document.querySelectorAll('.owner-tab').forEach(function(el) {
+    el.classList.toggle('on', el.getAttribute('data-owner') === owner);
+  });
+  _page = 0;
+  renderCreators();
+}
+
+function getCreatorOwner(c) {
+  // Owner = who drafted/sent this creator. Check assigned_to, then draft_by, then source
+  return c.assigned_to || c.draft_by || '';
+}
+
+// ─── Creators Tab ───
+function renderCreators() {
+  var q = (document.getElementById('creator-search').value || '').toLowerCase();
+  var sf = document.getElementById('creator-status-filter').value;
+  var pf = (document.getElementById('creator-platform-filter') || {}).value || '';
+  var filtered = _creators.filter(function(c) {
+    if (sf && c.status !== sf) return false;
+    if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
+    // Platform filter
+    if (pf) {
+      var cp = (c.platform || '').toLowerCase();
+      if (pf === 'tiktok' && cp !== 'tiktok') return false;
+      if (pf === 'instagram' && cp === 'tiktok') return false;
+    }
+    // Owner filter
+    if (_ownerFilter) {
+      var owner = getCreatorOwner(c);
+      if (_ownerFilter === '_mine') {
+        if (owner.toUpperCase() !== _currentUser.toUpperCase()) return false;
+      } else {
+        if (owner.toUpperCase() !== _ownerFilter.toUpperCase()) return false;
+      }
+    }
+    return true;
+  });
+  document.getElementById('creator-count').textContent = filtered.length + ' creators';
+
+  // Show execute bar if any draft_ready in filtered
+  var hasDrafts = filtered.some(function(c) { return c.status === 'draft_ready' && c.dm_draft; });
+  document.getElementById('creators-exec-bar').style.display = hasDrafts ? 'block' : 'none';
+
+  var html = '';
+  filtered.forEach(function(c) {
+    var dmLink = 'https://ig.me/m/' + c.username;
+    var isDraft = c.status === 'draft_ready' && c.dm_draft;
+
+    html += '<div class="dm-card" style="border-left:3px solid ' + getStatusColor(c.status) + '">';
+    // Header row
+    html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    if (isDraft) html += '<input type="checkbox" class="creator-cb" data-username="' + c.username + '" checked onchange="updateCreatorSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
+    html += '<span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
+    // Platform badge
+    var plat = (c.platform || '').toLowerCase();
+    if (plat === 'tiktok') html += '<span style="font-size:9px;background:#000;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">TT</span>';
+    else html += '<span style="font-size:9px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">IG</span>';
+    html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    // Owner badge
+    var owner = getCreatorOwner(c);
+    if (owner) html += '<span style="font-size:9px;background:var(--border);color:var(--t);padding:1px 6px;border-radius:4px">' + owner + '</span>';
+    html += statusBadge(c.status);
+    if (hasPastContact(c)) html += ' <span class="b past">過去進行</span>';
+    if (c.dm_count > 0) html += ' <span class="b c">' + c.dm_count + ' msgs</span>';
+    html += '</div>';
+    // Action buttons
+    html += '<div style="display:flex;gap:4px">';
+    html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" title="History">&#x1F4AC;</button>';
+    if (plat === 'tiktok') {
+      html += '<a href="https://www.tiktok.com/@' + c.username + '" target="_blank" class="btn btn-sm" style="background:#000;color:#fff" title="Open TikTok">&#x2197; TT</a>';
+    } else {
+      html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary" title="Open IG DM">&#x2197; IG</a>';
+    }
+    // Stage-specific actions
+    if (c.status === 'draft_ready' && !isOverLimit()) html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();markSent(\'' + c.username + '\')">&#x2705; Sent</button>';
+    if (c.status === 'sent') html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();markReplied(\'' + c.username + '\')">&#x1F4E9; Replied</button>';
+    if (c.status === 'replied') html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'accepted\').then(function(){loadCreators()})">&#x2705; Accept</button>';
+    if (c.status === 'accepted') html += '<button class="btn btn-sm" style="background:var(--am);color:#fff" onclick="event.stopPropagation();sendFormLink(\'' + c.username + '\')">&#x1F4CB; Send Form</button>';
+    if (c.status === 'form_submitted') html += '<button class="btn btn-sm" style="background:var(--c);color:#fff" onclick="event.stopPropagation();sendContract(\'' + c.username + '\')">&#x1F4DD; Send Contract</button>';
+    if (c.status === 'contract_signed') html += '<button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_sent\').then(function(){loadCreators()})">&#x1F4E6; Sample Sent</button>';
+    if (c.status === 'sample_sent') html += '<button class="btn btn-sm" style="background:var(--c);color:#fff" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_shipped\').then(function(){loadCreators()})">&#x1F69A; Shipped</button>';
+    if (c.status === 'sample_shipped') html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_delivered\').then(function(){loadCreators()})">&#x2705; Delivered</button>';
+    if (c.status === 'sample_delivered') html += '<button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="event.stopPropagation();sendGuidelines(\'' + c.username + '\')">&#x1F4C4; Send Guidelines</button>';
+    if (c.status === 'inbound' || c.status === 'needs_review') html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F50D; Review</button>';
+    html += '</div>';
+    html += '</div>';
+
+    // Draft content (editable)
+    if (isDraft) {
+      html += '<textarea class="dm-edit" id="cr-body-' + c.username + '" rows="5" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
+    }
+    // Last DM info
+    if (c.last_dm) html += '<div style="font-size:10px;color:var(--dim);margin-top:4px">Last DM: ' + c.last_dm + '</div>';
+
+    html += '</div>';
+  });
+  document.getElementById('creators-cards').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--dim)">No creators found</div>';
+  if (hasDrafts) updateCreatorSelectedCount();
+  // Pager
+  var totalPages = Math.ceil(filtered.length / _perPage);
+  var pagerHtml = '';
+  if (totalPages > 1) {
+    for (var i = 0; i < totalPages; i++) {
+      pagerHtml += '<button class="' + (i === _page ? 'on' : '') + '" onclick="_page=' + i + ';renderCreators()">' + (i + 1) + '</button>';
+    }
+  }
+  document.getElementById('creators-pager').innerHTML = pagerHtml;
+}
+function filterCreators() { _page = 0; renderCreators(); }
+
+// ─── Status changes via n8n ───
+function updateStatus(handle, newStatus) {
+  return n8nPost({ action: 'update_status', username: handle, status: newStatus })
+    .then(function(res) {
+      var c = _creators.find(function(x) { return x.username === handle; });
+      if (c) {
+        c.status = newStatus;
+        if (newStatus === 'sent') c.last_dm = new Date().toISOString().slice(0, 10);
+      }
+      return res;
+    });
+}
+
+function markSent(handle) {
+  if (isOverLimit()) { showToast('Daily limit reached! (' + _dailyLimit + '/day)', 'err'); return; }
+  var c = _creators.find(function(x) { return x.username === handle; });
+  if (!c) return;
+  // Log the draft as outbound DM
+  if (c.dm_draft) {
+    n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+  }
+  updateStatus(handle, 'sent').then(function() {
+    incDmCount();
+    updateStats(); renderCreators(); renderDmQueue();
+    showToast('DM sent: @' + handle + ' (' + _dmSentToday + '/' + _dailyLimit + ')');
+  }).catch(function() {
+    showToast('Failed to update status', 'err');
+  });
+}
+
+function markReplied(handle) {
+  updateStatus(handle, 'replied').then(function() {
+    updateStats(); renderCreators();
+    showToast('Replied: @' + handle);
+  });
+}
+
+function markAccepted(handle) {
+  updateStatus(handle, 'accepted').then(function() {
+    updateStats(); renderCreators(); renderInboundQueue();
+    showToast('Accepted: @' + handle);
+  });
+}
+
+// ─── Dashboard: Daily KPI ───
+function renderDailyKpi() {
+  // Build daily stats from creator data + DM logs
+  var today = new Date();
+  var days = [];
+  for (var i = 0; i < 14; i++) {
+    var d = new Date(today);
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().slice(0, 10));
+  }
+
+  // Count by status change dates (approximate from last_dm and added_at)
+  var dailyStats = {};
+  days.forEach(function(day) { dailyStats[day] = { outreach: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 }; });
+
+  _creators.forEach(function(c) {
+    var dm = c.last_dm || '';
+    if (dm && dailyStats[dm]) {
+      if (c.status === 'sent' || c.status === 'replied' || c.status === 'accepted' || c.status === 'sample_sent' || c.status === 'posted') {
+        dailyStats[dm].outreach++;
+      }
+      if (c.status === 'replied') dailyStats[dm].reply++;
+      if (c.status === 'accepted' || c.status === 'sample_sent' || c.status === 'posted') dailyStats[dm].accepted++;
+      if (c.status === 'posted') dailyStats[dm].posted++;
+      if (c.status === 'inbound' || c.status === 'needs_review') dailyStats[dm].inbound++;
+    }
+  });
+
+  // Also count today's DM budget
+  dailyStats[days[0]] = dailyStats[days[0]] || { outreach: 0, reply: 0, accepted: 0, posted: 0, inbound: 0 };
+  dailyStats[days[0]].outreach = Math.max(dailyStats[days[0]].outreach, _dmSentToday);
+
+  var html = '';
+  days.forEach(function(day) {
+    var s = dailyStats[day];
+    var total = s.outreach + s.inbound;
+    var replyRate = total > 0 ? Math.round((s.reply / total) * 100) + '%' : '-';
+    var isToday = day === days[0];
+    html += '<tr' + (isToday ? ' style="background:#fff5f5;font-weight:600"' : '') + '>';
+    html += '<td>' + day + (isToday ? ' <span class="b a">Today</span>' : '') + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.outreach + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.reply + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.accepted + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.posted + '</td>';
+    html += '<td style="font-family:var(--mono)">' + s.inbound + '</td>';
+    html += '<td>' + replyRate + '</td>';
+    html += '</tr>';
+  });
+  document.getElementById('daily-kpi-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">No data yet</td></tr>';
+}
+
+function renderDmQueue() { /* removed — DM Drafts tab handles this now */ }
+
+// ─── Dashboard: Inbound Queue ───
+function renderInboundQueue() {
+  var inbound = _creators.filter(function(c) { return c.status === 'inbound' || c.status === 'needs_review'; });
+  var html = '';
+  if (!inbound.length) {
+    html = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:11px">No inbound creators detected.</div>';
+    document.getElementById('inbound-queue').innerHTML = html;
+    return;
+  }
+  inbound.forEach(function(c) {
+    html += '<div class="dm-card">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    html += '<div><span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span> ';
+    html += statusBadge(c.status) + '</div>';
+    html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F50D; Review</button>';
+    html += '</div>';
+    html += '<div class="dm-meta">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + ' followers</div>';
+    html += '</div>';
+  });
+  document.getElementById('inbound-queue').innerHTML = html;
+}
+
+// ─── Dashboard: Recent Activity ───
+function loadRecentActivity() {
+  // Pull recent DM logs across all creators
+  var el = document.getElementById('activity-log');
+  el.innerHTML = '<div class="loading-overlay"><span class="loading-spinner"></span> Loading...</div>';
+  // Get recent logs from the last few creators who have activity
+  var active = _creators.filter(function(c) { return c.dm_count > 0 || c.status !== 'not_started'; }).slice(0, 10);
+  if (!active.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No activity yet</div>';
+    return;
+  }
+  var promises = active.map(function(c) {
+    return n8nPost({ action: 'dm_log', username: c.username }).then(function(res) {
+      var logs = Array.isArray(res) ? res : (res.logs || []);
+      return logs.map(function(l) { l._username = c.username; return l; });
+    }).catch(function() { return []; });
+  });
+  Promise.all(promises).then(function(results) {
+    var all = [];
+    results.forEach(function(logs) { all = all.concat(logs); });
+    all.sort(function(a, b) { return (b.ts || '').localeCompare(a.ts || ''); });
+    all = all.slice(0, 20);
+    if (!all.length) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No activity yet</div>';
+      return;
+    }
+    var html = '';
+    all.forEach(function(l) {
+      var time = l.ts ? new Date(l.ts) : new Date();
+      var timeStr = time.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }) + ' ' + time.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+      var dir = l.dir === 'out' ? '\u2192' : '\u2190';
+      var preview = (l.text || '').substring(0, 60).replace(/\n/g, ' ');
+      if ((l.text || '').length > 60) preview += '...';
+      html += '<div class="activity-item">';
+      html += '<div class="activity-time">' + timeStr + '</div>';
+      html += '<div class="activity-text">' + dir + ' <strong>@' + (l._username || l.username || '?') + '</strong>: ' + escapeHtml(preview) + '</div>';
+      html += '</div>';
+    });
+    el.innerHTML = html;
+  }).catch(function() {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">Failed to load activity</div>';
+  });
+}
+
+// ─── DM Drafts Tab ───
+function generateDrafts() {
+  var btn = document.getElementById('btn-generate');
+  var statusEl = document.getElementById('draft-status');
+  btn.disabled = true;
+  statusEl.innerHTML = '<span class="loading-spinner"></span> Generating via n8n...';
+
+  // Filter: only not_started AND no DM history AND not past-contacted
+  var eligible = _creators.filter(function(c) {
+    return c.status === 'not_started' && c.dm_count === 0 && !hasPastContact(c);
+  });
+
+  // Priority toggles
+  var videoPriority = document.getElementById('draft-video-priority').checked;
+  var viewPriority = document.getElementById('draft-view-priority').checked;
+  var qualityPriority = document.getElementById('draft-quality-priority').checked;
+  var babyFilter = document.getElementById('draft-baby-filter').checked;
+
+  // Baby filter: only creators who have at least one infant post (subject_age=infant)
+  if (babyFilter) {
+    eligible = eligible.filter(function(c) {
+      var sd = _sheetData.find(function(s) { return s.username === c.username; });
+      if (!sd) return false;
+      var posts = sd._posts || [];
+      return posts.some(function(p) { return p.subject_age === 'infant'; });
+    });
+  }
+
+  if (videoPriority || viewPriority || qualityPriority) {
+    eligible.forEach(function(c) {
+      var sd = _sheetData.find(function(s) { return s.username === c.username; });
+      c._hasVideo = sd ? creatorHasVideo(sd) : false;
+      c._bestViews = sd ? (sd._bestViews || 0) : 0;
+      if (sd && sd._posts) {
+        var scores = sd._posts.map(function(p) { return p.brand_fit_score || 0; });
+        c._bestQuality = scores.length ? Math.max.apply(null, scores) : 0;
+        // Also check delivery_verbal_score as proxy when brand_fit is 0
+        var dvScores = sd._posts.map(function(p) { return p.delivery_verbal_score || 0; });
+        c._bestDelivery = dvScores.length ? Math.max.apply(null, dvScores) : 0;
+      } else {
+        c._bestQuality = 0;
+        c._bestDelivery = 0;
+      }
+    });
+    eligible.sort(function(a, b) {
+      if (videoPriority) {
+        if (a._hasVideo && !b._hasVideo) return -1;
+        if (!a._hasVideo && b._hasVideo) return 1;
+      }
+      if (qualityPriority) {
+        // Use delivery_verbal_score as primary (brand_fit is mostly 0 for discovery)
+        var qDiff = (b._bestDelivery || 0) - (a._bestDelivery || 0);
+        if (qDiff !== 0) return qDiff;
+      }
+      if (viewPriority) {
+        return (b._bestViews || 0) - (a._bestViews || 0);
+      }
+      return 0;
+    });
+  }
+
+  var batch = parseInt(document.getElementById('draft-batch-size').value) || 10;
+  var igCount = document.getElementById('draft-ig-count').value ? parseInt(document.getElementById('draft-ig-count').value) : -1;
+  var ttCount = document.getElementById('draft-tt-count').value ? parseInt(document.getElementById('draft-tt-count').value) : -1;
+
+  var toGenerate;
+  if (igCount >= 0 || ttCount >= 0) {
+    var igPool = eligible.filter(function(c) { return (c.platform || '').toLowerCase() !== 'tiktok'; });
+    var ttPool = eligible.filter(function(c) { return (c.platform || '').toLowerCase() === 'tiktok'; });
+    var picked = [];
+    if (igCount >= 0) picked = picked.concat(igPool.slice(0, igCount));
+    else picked = picked.concat(igPool);
+    if (ttCount >= 0) picked = picked.concat(ttPool.slice(0, ttCount));
+    else picked = picked.concat(ttPool);
+    toGenerate = picked.slice(0, batch);
+  } else {
+    toGenerate = eligible.slice(0, batch);
+  }
+
+  if (!toGenerate.length) {
+    statusEl.textContent = 'No eligible creators (all have past contact or drafts).';
+    btn.disabled = false;
+    return;
+  }
+
+  var payload = toGenerate.map(function(c) {
+    // Attach best transcript + CI context for personalized DM opening
+    var sd = _sheetData.find(function(s) { return s.username === c.username; });
+    var script = c.content_script || '';
+    var ciContext = '';
+    if (sd && sd._posts) {
+      var bestPost = sd._posts.find(function(p) { return p.transcript && p.transcript.trim(); });
+      if (bestPost) {
+        if (!script) script = bestPost.transcript;
+        // Build CI context for DM personalization
+        var ci = bestPost.ci || {};
+        var parts = [];
+        if (ci.key_message) parts.push('content_theme: ' + ci.key_message);
+        if (ci.persuasion_type) parts.push('style: ' + ci.persuasion_type);
+        if (ci.emotional_tone) parts.push('tone: ' + ci.emotional_tone);
+        if (ci.delivery_verbal_score) parts.push('delivery_score: ' + ci.delivery_verbal_score + '/10');
+        if (bestPost.platform) parts.push('platform: ' + bestPost.platform);
+        if (parts.length) ciContext = parts.join(' | ');
+      }
+    }
+    return { username: c.username, name: c.name, followers: c.followers, content_script: script, ci_context: ciContext, platform: c.platform || '' };
+  });
+
+  n8nPost({ action: 'generate_draft', creators: payload })
+    .then(function(res) {
+      var drafts = Array.isArray(res) ? res : (res.drafts || []);
+      drafts.forEach(function(d) {
+        var c = _creators.find(function(x) { return x.username === d.username; });
+        if (c) {
+          c.status = 'draft_ready';
+          c.dm_draft = d.dm_draft || d.draft || '';
+          c.draft_by = _currentUser || '';
+          c.assigned_to = c.assigned_to || _currentUser || '';
+        }
+      });
+      statusEl.textContent = 'Done! ' + drafts.length + ' drafts generated.';
+      btn.disabled = false;
+      updateStats();
+      renderCreators();
+      renderDmQueue();
+      renderDraftsList();
+    })
+    .catch(function(err) {
+      statusEl.textContent = 'Error: ' + err.message;
+      btn.disabled = false;
+      showToast('Draft generation failed', 'err');
+    });
+}
+
+function renderDraftsList() {
+  var drafts = _creators.filter(function(c) { return c.status === 'draft_ready' && c.dm_draft; });
+  if (!drafts.length) {
+    document.getElementById('drafts-list').innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim)">No drafts available.</div>';
+    document.getElementById('exec-bar-container').style.display = 'none';
+    return;
+  }
+  // Show execute bar
+  document.getElementById('exec-bar-container').style.display = 'block';
+  updateSelectedCount();
+
+  var html = '';
+  drafts.forEach(function(c, idx) {
+    var dmLink = 'https://ig.me/m/' + c.username;
+    html += '<div class="dm-card" id="draft-card-' + c.username + '">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += '<input type="checkbox" class="draft-cb draft-select" data-username="' + c.username + '" checked onchange="updateSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
+    html += '<span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:4px">';
+    html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDmThread(\'' + c.username + '\')" title="View history">&#x1F4AC; History</button>';
+    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary">&#x2197; Open IG</a>';
+    html += '</div>';
+    html += '</div>';
+    html += '<textarea class="dm-edit" id="dm-body-' + c.username + '" rows="6" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
+    html += '<div class="dm-actions">';
+    html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
+    html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  document.getElementById('drafts-list').innerHTML = html;
+}
+
+function toggleAllDrafts(checked) {
+  document.querySelectorAll('.draft-select').forEach(function(cb) { cb.checked = checked; });
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  var checked = document.querySelectorAll('.draft-select:checked');
+  var count = checked.length;
+  document.getElementById('selected-count').textContent = count + ' selected';
+  var remaining = _dailyLimit - _dmSentToday;
+  var willSend = Math.min(count, remaining);
+  document.getElementById('exec-budget-info').textContent = 'Budget: ' + remaining + ' remaining (' + willSend + ' will send)';
+  document.getElementById('btn-execute').disabled = count === 0 || isOverLimit() || _executing;
+}
+
+// ─── Execute: Open IG links in sequence, copy draft, mark sent ───
+function executeDrafts() {
+  if (_executing) return;
+  var checked = document.querySelectorAll('.draft-select:checked');
+  var handles = [];
+  checked.forEach(function(cb) { handles.push(cb.dataset.username); });
+  if (!handles.length) { showToast('No drafts selected', 'err'); return; }
+
+  var remaining = _dailyLimit - _dmSentToday;
+  if (remaining <= 0) { showToast('Daily limit reached!', 'err'); return; }
+  handles = handles.slice(0, remaining); // Enforce limit
+
+  _executing = true;
+  document.getElementById('btn-execute').disabled = true;
+  document.getElementById('exec-progress').style.display = 'block';
+  document.getElementById('exec-progress-text').textContent = 'Executing...';
+
+  var idx = 0;
+  function processNext() {
+    if (idx >= handles.length || isOverLimit()) {
+      _executing = false;
+      document.getElementById('exec-progress-text').textContent = 'Done! ' + idx + ' DMs processed.';
+      document.getElementById('btn-execute').disabled = false;
+      updateStats(); renderCreators(); renderDmQueue(); renderDraftsList();
+      return;
+    }
+    var handle = handles[idx];
+    var c = _creators.find(function(x) { return x.username === handle; });
+    document.getElementById('exec-progress-count').textContent = (idx + 1) + '/' + handles.length;
+    document.getElementById('exec-fill').style.width = (((idx + 1) / handles.length) * 100) + '%';
+    document.getElementById('exec-current').textContent = 'Opening @' + handle + '...';
+
+    // Copy draft to clipboard
+    if (c && c.dm_draft) {
+      navigator.clipboard.writeText(c.dm_draft).catch(function() {});
+    }
+
+    // Open IG DM link
+    window.open('https://ig.me/m/' + handle, '_blank');
+
+    // Mark as sent via n8n
+    if (c && c.dm_draft) {
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+    }
+    updateStatus(handle, 'sent').then(function() {
+      incDmCount();
+    }).catch(function() {});
+
+    idx++;
+    setTimeout(processNext, 1200); // 1.2s delay between opens
+  }
+  processNext();
+}
+
+function saveDraftEdit(handle, newText) {
+  var c = _creators.find(function(x) { return x.username === handle; });
+  if (c) c.dm_draft = newText;
+  // Sync the other textarea if exists (dm-body vs dmq-body)
+  var other = document.getElementById('dmq-body-' + handle);
+  var main = document.getElementById('dm-body-' + handle);
+  if (other && other !== document.activeElement) other.value = newText;
+  if (main && main !== document.activeElement) main.value = newText;
+}
+
+function copyDraft(handle, btn) {
+  var el = document.getElementById('dm-body-' + handle) || document.getElementById('dmq-body-' + handle);
+  var text = el ? (el.value || el.textContent) : '';
+  if (text) {
+    navigator.clipboard.writeText(text).then(function() {
+      btn.textContent = '\u2705 Copied!';
+      btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = '\uD83D\uDCCB Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+}
+
+// ─── DM Thread Modal ───
+function openDmThread(handle) {
+  _threadHandle = handle;
+  var c = _creators.find(function(x) { return x.username === handle; });
+  document.getElementById('thread-handle').textContent = '@' + handle;
+  document.getElementById('thread-badge').innerHTML = c ? statusBadge(c.status) : '';
+  document.getElementById('thread-ig-link').href = 'https://ig.me/m/' + handle;
+
+  // Show "Mark Accepted" for replied / inbound / needs_review
+  var acceptBtn = document.getElementById('thread-accept-btn');
+  var declineBtn = document.getElementById('thread-decline-btn');
+  if (c && (c.status === 'replied' || c.status === 'inbound' || c.status === 'needs_review')) {
+    acceptBtn.style.display = 'inline-flex';
+    declineBtn.style.display = 'inline-flex';
+  } else {
+    acceptBtn.style.display = 'none';
+    declineBtn.style.display = 'none';
+  }
+
+  // Load thread from n8n
+  var body = document.getElementById('thread-body');
+  body.innerHTML = '<div class="loading-overlay"><span class="loading-spinner"></span> Loading messages...</div>';
+  document.getElementById('dm-thread').style.display = 'flex';
+
+  n8nPost({ action: 'dm_log', username: handle })
+    .then(function(res) {
+      _dmCache[handle] = Array.isArray(res) ? res : (res.logs || []);
+      renderThreadBody(handle);
+      setTimeout(function() {
+        body.scrollTop = body.scrollHeight;
+        document.getElementById('thread-input').focus();
+      }, 100);
+    })
+    .catch(function() {
+      _dmCache[handle] = [];
+      renderThreadBody(handle);
+    });
+}
+
+function closeDmThread() {
+  document.getElementById('dm-thread').style.display = 'none';
+  _threadHandle = '';
+}
+
+function renderThreadBody(handle) {
+  var logs = _dmCache[handle] || [];
+  var c = _creators.find(function(x) { return x.username === handle; });
+  var body = document.getElementById('thread-body');
+  if (!logs.length && !(c && c.dm_draft)) {
+    body.innerHTML = '<div class="dm-empty">No messages yet. Send the first DM via IG deeplink.</div>';
+    return;
+  }
+  // Show draft as pending message if no logs yet
+  if (!logs.length && c && c.dm_draft) {
+    body.innerHTML = '<div style="margin-bottom:8px;font-size:10px;color:var(--am);font-weight:600">📝 Draft (not sent yet)</div>'
+      + '<div class="dm-bubble out" style="background:var(--am);opacity:.8">' + escapeHtml(c.dm_draft).replace(/\n/g,'<br>') + '<span class="dm-time">Draft</span></div>'
+      + '<div style="text-align:center;margin-top:12px"><button class="btn btn-sm btn-success" onclick="markSent(\'' + handle + '\');closeDmThread()">✅ Mark as Sent</button></div>';
+    return;
+  }
+  var html = '';
+  logs.forEach(function(m) {
+    var cls = m.dir === 'out' ? 'out' : 'in';
+    var time = m.ts ? new Date(m.ts) : new Date();
+    var timeStr = time.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }) + ' ' + time.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    var sender = m.dir === 'out' ? ('\u2192 Sent' + (m.sent_by ? ' by ' + m.sent_by : '')) : '\u2190 Received';
+    html += '<div class="dm-bubble ' + cls + '">';
+    html += escapeHtml(m.text || '').replace(/\n/g, '<br>');
+    html += '<span class="dm-time">' + sender + ' ' + timeStr + '</span>';
+    html += '</div>';
+  });
+  body.innerHTML = html;
+}
+
+function sendThreadDm() {
+  var input = document.getElementById('thread-input');
+  var text = input.value.trim();
+  if (!text || !_threadHandle) return;
+
+  var dir = document.getElementById('thread-dir').value;
+  var sendBtn = document.getElementById('thread-send-btn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Saving...';
+
+  n8nPost({
+    action: 'dm_log',
+    sub_action: 'add',
+    username: _threadHandle,
+    dir: dir,
+    text: text,
+    sent_by: dir === 'out' ? (_currentUser || 'dashboard') : _threadHandle
+  }).then(function() {
+    // Add to local cache
+    if (!_dmCache[_threadHandle]) _dmCache[_threadHandle] = [];
+    _dmCache[_threadHandle].push({ dir: dir, text: text, ts: new Date().toISOString(), sent_by: dir === 'out' ? _currentUser : _threadHandle });
+    input.value = '';
+    renderThreadBody(_threadHandle);
+    var body = document.getElementById('thread-body');
+    body.scrollTop = body.scrollHeight;
+
+    // Update dm_count
+    var c = _creators.find(function(x) { return x.username === _threadHandle; });
+    if (c) c.dm_count = _dmCache[_threadHandle].length;
+
+    // Auto-mark as replied if incoming DM on a 'sent' creator
+    if (dir === 'in' && c && c.status === 'sent') {
+      updateStatus(_threadHandle, 'replied').then(function() {
+        document.getElementById('thread-badge').innerHTML = statusBadge('replied');
+        document.getElementById('thread-accept-btn').style.display = 'inline-flex';
+        document.getElementById('thread-decline-btn').style.display = 'inline-flex';
+        updateStats(); renderCreators();
+      });
+    }
+
+    if (dir === 'out') incDmCount();
+    updateStats();
+    renderCreators();
+    showToast('DM logged for @' + _threadHandle);
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Log';
+  }).catch(function(err) {
+    showToast('Failed to log DM: ' + err.message, 'err');
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Log';
+  });
+}
+
+function markAcceptedFromThread() {
+  if (!_threadHandle) return;
+  markAccepted(_threadHandle);
+  document.getElementById('thread-badge').innerHTML = statusBadge('accepted');
+  document.getElementById('thread-accept-btn').style.display = 'none';
+  document.getElementById('thread-decline-btn').style.display = 'none';
+  closeDmThread();
+}
+
+function markDeclinedFromThread() {
+  if (!_threadHandle) return;
+  updateStatus(_threadHandle, 'declined').then(function() {
+    updateStats(); renderCreators(); renderInboundQueue();
+    showToast('Declined: @' + _threadHandle);
+    closeDmThread();
+  });
+}
+
+// ─── Import Modal ───
+function showImportModal() {
+  document.getElementById('import-modal').style.display = 'flex';
+  document.getElementById('import-data').value = '';
+  document.getElementById('import-status').textContent = '';
+}
+
+function importCreators() {
+  var raw = document.getElementById('import-data').value.trim();
+  if (!raw) { document.getElementById('import-status').textContent = 'Paste data first.'; return; }
+
+  var btn = document.getElementById('btn-import');
+  btn.disabled = true;
+  document.getElementById('import-status').innerHTML = '<span class="loading-spinner"></span> Importing via n8n...';
+
+  var creators = [];
+  // Try JSON first
+  try {
+    var parsed = JSON.parse(raw);
+    creators = Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {
+    // CSV parse
+    raw.split('\n').forEach(function(line) {
+      line = line.trim();
+      if (!line) return;
+      var parts = line.split(',').map(function(s) { return s.trim(); });
+      if (parts[0]) {
+        creators.push({
+          username: parts[0].replace('@', ''),
+          name: parts[1] || '',
+          followers: parseInt(parts[2]) || 0
+        });
+      }
+    });
+  }
+
+  if (!creators.length) {
+    document.getElementById('import-status').textContent = 'No valid creators found.';
+    btn.disabled = false;
+    return;
+  }
+
+  n8nPost({ action: 'import_creators', creators: creators })
+    .then(function(res) {
+      var count = res.imported || res.count || creators.length;
+      document.getElementById('import-status').textContent = 'Imported ' + count + ' creators.';
+      btn.disabled = false;
+      showToast('Imported ' + count + ' creators');
+      // Reload
+      loadCreators();
+      setTimeout(function() { document.getElementById('import-modal').style.display = 'none'; }, 1500);
+    })
+    .catch(function(err) {
+      document.getElementById('import-status').textContent = 'Error: ' + err.message;
+      btn.disabled = false;
+      showToast('Import failed', 'err');
+    });
+}
+
+// ─── Utils ───
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function getStatusColor(s) {
+  var m = {not_started:'#94a3b8',draft_ready:'#f59e0b',sent:'#0ea5e9',replied:'#8b5cf6',accepted:'#10b981',form_submitted:'#f59e0b',contract_sent:'#0ea5e9',contract_signed:'#10b981',guidelines_sent:'#ec4899',sample_sent:'#ec4899',sample_shipped:'#0ea5e9',sample_delivered:'#10b981',posted:'#10b981',inbound:'#0ea5e9',needs_review:'#f59e0b',declined:'#ef4444'};
+  return m[s] || '#e2e8f0';
+}
+
+function toggleAllCreatorCb(checked) {
+  document.querySelectorAll('.creator-cb').forEach(function(cb) { cb.checked = checked; });
+  updateCreatorSelectedCount();
+}
+
+function updateCreatorSelectedCount() {
+  var checked = document.querySelectorAll('.creator-cb:checked');
+  document.getElementById('creators-selected-count').textContent = checked.length + ' selected';
+  document.getElementById('btn-creators-execute').disabled = checked.length === 0 || isOverLimit();
+}
+
+function executeCreatorsDrafts() {
+  var checked = document.querySelectorAll('.creator-cb:checked');
+  var handles = [];
+  checked.forEach(function(cb) { handles.push(cb.dataset.username); });
+  if (!handles.length) { showToast('No creators selected', 'err'); return; }
+  var remaining = _dailyLimit - _dmSentToday;
+  if (remaining <= 0) { showToast('Daily limit reached!', 'err'); return; }
+  handles = handles.slice(0, remaining);
+
+  var idx = 0;
+  showToast('Executing ' + handles.length + ' DMs...');
+  function processNext() {
+    if (idx >= handles.length) {
+      showToast('Done! ' + handles.length + ' DMs processed.');
+      loadCreators();
+      return;
+    }
+    var handle = handles[idx];
+    var c = _creators.find(function(x) { return x.username === handle; });
+    // Copy draft to clipboard
+    if (c && c.dm_draft) {
+      navigator.clipboard.writeText(c.dm_draft).catch(function(){});
+      n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
+    }
+    // Open IG DM
+    window.open('https://ig.me/m/' + handle, '_blank');
+    updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
+    idx++;
+    setTimeout(processNext, 1200);
+  }
+  processNext();
+}
+
+function goToStage(status) {
+  // Highlight funnel node
+  document.querySelectorAll('.fn').forEach(function(fn) { fn.classList.remove('on'); });
+  var target = document.querySelector('.fn[data-stage="' + status + '"]');
+  if (target) target.classList.add('on');
+  // Switch to Creators tab with status filter
+  var tab = document.querySelector('.mt>div[data-p="creators"]');
+  if (tab) tab.click();
+  var sel = document.getElementById('creator-status-filter');
+  if (sel) { sel.value = status; filterCreators(); }
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || 'ok') + ' show';
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+// ─── Stage-specific actions ───
+function sendFormLink(handle) {
+  var c = _creators.find(function(x) { return x.username === handle; });
+  var url = 'https://orbiters-dev.github.io/WJ-Test1/pipeline-dashboard-jp/gifting-form.html?handle=' + handle + '&name=' + encodeURIComponent(c ? (c.name || '') : '');
+  navigator.clipboard.writeText(url).then(function() {
+    showToast('Form link copied for @' + handle);
+  }).catch(function() {
+    showToast('Failed to copy link', 'err');
+  });
+}
+
+function sendContract(handle) {
+  // Switch to contracts tab
+  var tab = document.querySelector('.mt>div[data-p="contracts"]');
+  if (tab) tab.click();
+}
+
+function sendGuidelines(handle) {
+  n8nPost({ action: 'send_guidelines', username: handle }).then(function(res) {
+    if (res.status === 'ok') {
+      showToast('Guidelines sent to @' + handle);
+      loadCreators();
+    } else {
+      showToast('Error: ' + (res.message || 'unknown'), 'err');
+    }
+  }).catch(function() {
+    showToast('Guidelines send failed', 'err');
+  });
+}
+
+// ─── Scoring Lab ───
+var _labSortCol = 'score', _labSortAsc = false;
+function recalcScoreLab() {
+  var wDV = parseInt(document.getElementById('lab-w-dv').value) || 0;
+  var wViews = parseInt(document.getElementById('lab-w-views').value) || 0;
+  var wFol = parseInt(document.getElementById('lab-w-fol').value) || 0;
+  var wHook = parseInt(document.getElementById('lab-w-hook').value) || 0;
+  var wEng = parseInt(document.getElementById('lab-w-eng').value) || 0;
+  // Update display values
+  document.getElementById('lab-w-dv-val').textContent = wDV;
+  document.getElementById('lab-w-views-val').textContent = wViews;
+  document.getElementById('lab-w-fol-val').textContent = wFol;
+  document.getElementById('lab-w-hook-val').textContent = wHook;
+  document.getElementById('lab-w-eng-val').textContent = wEng;
+  var total = wDV + wViews + wFol + wHook + wEng;
+  document.getElementById('lab-total-pct').textContent = 'Total: ' + total + '%' + (total !== 100 ? ' ⚠️' : ' ✓');
+
+  // Gather creators with CI data
+  var scored = [];
+  _sheetData.forEach(function(c) {
+    if (!c._posts || c._posts.length === 0) return;
+    var bestDV = 0, bestHook = 0, bestViews = c._bestViews || 0;
+    c._posts.forEach(function(p) {
+      if ((p.delivery_verbal_score || 0) > bestDV) bestDV = p.delivery_verbal_score;
+      if ((p.hook_score || 0) > bestHook) bestHook = p.hook_score;
+    });
+    var fol = c.followers || 0;
+    var engRate = bestViews > 0 && fol > 0 ? Math.min(((c._bestLikes || 0) + (c._totalComments || 0)) / fol * 100, 100) : 0;
+    // Normalize: DV 0-10, Hook 0-10, Views log scale, Followers log scale, EngRate 0-100
+    var nDV = bestDV / 10;
+    var nHook = bestHook / 10;
+    var nViews = bestViews > 0 ? Math.min(Math.log10(bestViews) / 7, 1) : 0;
+    var nFol = fol > 0 ? Math.min(Math.log10(fol) / 7, 1) : 0;
+    var nEng = Math.min(engRate / 10, 1);
+    var score = (nDV * wDV + nViews * wViews + nFol * wFol + nHook * wHook + nEng * wEng) / (total || 1) * 100;
+    scored.push({
+      handle: c.username, platform: c._posts[0].platform || 'instagram',
+      score: Math.round(score * 10) / 10,
+      dv: bestDV, views: bestViews, fol: fol, hook: bestHook, eng: Math.round(engRate * 10) / 10
+    });
+  });
+  // Sort
+  scored.sort(function(a, b) {
+    var va = a[_labSortCol], vb = b[_labSortCol];
+    if (typeof va === 'string') return _labSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return _labSortAsc ? va - vb : vb - va;
+  });
+  // Render
+  var html = '';
+  scored.forEach(function(s, i) {
+    var platBadge = s.platform === 'tiktok' ? '<span style="font-size:9px;background:#000;color:#fff;padding:1px 5px;border-radius:3px">TT</span>' : '<span style="font-size:9px;background:linear-gradient(45deg,#f09433,#dc2743,#bc1888);color:#fff;padding:1px 5px;border-radius:3px">IG</span>';
+    var scoreColor = s.score >= 70 ? 'var(--g)' : s.score >= 40 ? 'var(--am)' : 'var(--dim)';
+    html += '<tr>';
+    html += '<td style="font-weight:700;color:' + scoreColor + '">#' + (i+1) + '</td>';
+    html += '<td>' + platBadge + '</td>';
+    html += '<td style="font-size:11px">@' + s.handle + '</td>';
+    html += '<td style="font-weight:700;color:' + scoreColor + '">' + s.score + '</td>';
+    html += '<td>' + s.dv + '</td>';
+    html += '<td>' + (s.views ? s.views.toLocaleString() : '-') + '</td>';
+    html += '<td>' + (s.fol ? s.fol.toLocaleString() : '-') + '</td>';
+    html += '<td>' + s.hook + '</td>';
+    html += '<td>' + s.eng + '%</td>';
+    html += '</tr>';
+  });
+  document.getElementById('lab-results-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:var(--dim)">Load Influencer Sheet first</td></tr>';
+}
+function sortLabTable(col) {
+  if (_labSortCol === col) _labSortAsc = !_labSortAsc;
+  else { _labSortCol = col; _labSortAsc = false; }
+  recalcScoreLab();
+}
+function applyScoreLabWeights() {
+  showToast('Score weights applied to DM queue sort', 'ok');
+}
+
+// ─── Config management ───
+function loadConfig() {
+  n8nPost({ action: 'get_config' }).then(function(cfg) {
+    if (cfg.mistake_log) document.getElementById('cfg-mistake-log').value = cfg.mistake_log;
+    if (cfg.dm_template) document.getElementById('cfg-dm-template').value = cfg.dm_template;
+    if (cfg.docuseal_template_id) document.getElementById('cfg-docuseal-template').value = cfg.docuseal_template_id;
+    if (cfg.faq_entries) renderFaqList(cfg.faq_entries);
+    if (cfg.content_guidelines) renderGuidelinesConfig(cfg.content_guidelines);
+  }).catch(function(){});
+}
+
+function saveConfig(key, value) {
+  n8nPost({ action: 'save_config', key: key, value: value }).then(function() {
+    showToast('Config saved: ' + key);
+  }).catch(function() { showToast('Save failed', 'err'); });
+}
+
+// ─── FAQ management ───
+var _faqEntries = [];
+function renderFaqList(entries) {
+  _faqEntries = entries || [];
+  var html = '';
+  _faqEntries.forEach(function(e, i) {
+    html += '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:start">';
+    html += '<div style="flex:1"><input type="text" class="faq-q" data-idx="' + i + '" value="' + escapeHtml(e.q || '') + '" placeholder="\u8CEA\u554F..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;margin-bottom:4px">';
+    html += '<textarea class="faq-a" data-idx="' + i + '" rows="2" placeholder="\u56DE\u7B54..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;resize:vertical">' + escapeHtml(e.a || '') + '</textarea></div>';
+    html += '<button class="btn btn-sm" style="background:var(--rbg);color:var(--r);border:1px solid var(--r)" onclick="removeFaq(' + i + ')">\u2715</button>';
+    html += '</div>';
+  });
+  document.getElementById('faq-list').innerHTML = html || '<div style="color:var(--dim);font-size:11px;padding:8px">No FAQ entries yet.</div>';
+}
+
+function addFaqEntry() {
+  _faqEntries.push({ q: '', a: '' });
+  renderFaqList(_faqEntries);
+}
+
+function removeFaq(idx) {
+  _faqEntries.splice(idx, 1);
+  renderFaqList(_faqEntries);
+}
+
+function saveFaq() {
+  document.querySelectorAll('.faq-q').forEach(function(el) {
+    _faqEntries[parseInt(el.dataset.idx)].q = el.value;
+  });
+  document.querySelectorAll('.faq-a').forEach(function(el) {
+    _faqEntries[parseInt(el.dataset.idx)].a = el.value;
+  });
+  n8nPost({ action: 'save_config', key: 'faq_entries', value: _faqEntries }).then(function() {
+    showToast('FAQ saved (' + _faqEntries.length + ' entries)');
+  });
+}
+
+// ─── Content Guidelines config ───
+var _guidelinesConfig = [];
+function renderGuidelinesConfig(entries) {
+  _guidelinesConfig = entries || [];
+  var html = '';
+  _guidelinesConfig.forEach(function(e, i) {
+    html += '<div style="display:flex;gap:8px;margin-bottom:6px;align-items:center">';
+    html += '<input type="text" class="gl-product" data-idx="' + i + '" value="' + escapeHtml(e.product || '') + '" placeholder="Product type" style="width:120px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">';
+    html += '<input type="text" class="gl-label" data-idx="' + i + '" value="' + escapeHtml(e.label || '') + '" placeholder="Label" style="width:140px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">';
+    html += '<input type="url" class="gl-url" data-idx="' + i + '" value="' + escapeHtml(e.url || '') + '" placeholder="PDF URL" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">';
+    html += '<button class="btn btn-sm" style="background:var(--rbg);color:var(--r);border:1px solid var(--r)" onclick="removeGuideline(' + i + ')">\u2715</button>';
+    html += '</div>';
+  });
+  document.getElementById('guidelines-config-list').innerHTML = html || '<div style="color:var(--dim);font-size:11px;padding:8px">No guidelines configured.</div>';
+}
+
+function addGuidelineEntry() {
+  _guidelinesConfig.push({ product: '', label: '', url: '' });
+  renderGuidelinesConfig(_guidelinesConfig);
+}
+
+function removeGuideline(idx) {
+  _guidelinesConfig.splice(idx, 1);
+  renderGuidelinesConfig(_guidelinesConfig);
+}
+
+function getGuidelinesData() {
+  document.querySelectorAll('.gl-product').forEach(function(el) { _guidelinesConfig[parseInt(el.dataset.idx)].product = el.value; });
+  document.querySelectorAll('.gl-label').forEach(function(el) { _guidelinesConfig[parseInt(el.dataset.idx)].label = el.value; });
+  document.querySelectorAll('.gl-url').forEach(function(el) { _guidelinesConfig[parseInt(el.dataset.idx)].url = el.value; });
+  return _guidelinesConfig;
+}
+
+// ─── Samples Tab ───
+function renderSamples() {
+  var sampleStatuses = ['form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered'];
+  var eligible = _creators.filter(function(c) {
+    return c.form_data && sampleStatuses.indexOf(c.status) !== -1;
+  });
+  var html = '';
+  eligible.forEach(function(c) {
+    var fd = c.form_data || {};
+    html += '<tr>';
+    html += '<td><input type="checkbox" class="sample-cb" data-username="' + c.username + '"' + (c.status === 'guidelines_sent' ? ' checked' : '') + '></td>';
+    html += '<td>@' + c.username + '</td>';
+    html += '<td>' + escapeHtml(fd.name || c.name || '') + '</td>';
+    html += '<td>' + escapeHtml(fd.product || '-') + '</td>';
+    html += '<td>' + escapeHtml(fd.color || '-') + '</td>';
+    html += '<td style="font-size:10px">' + (fd.address ? escapeHtml((fd.address.postal || '') + ' ' + (fd.address.prefecture || '') + (fd.address.city || '') + (fd.address.line || '')) : '-') + '</td>';
+    html += '<td>' + escapeHtml(fd.phone || '-') + '</td>';
+    html += '<td>' + statusBadge(c.status) + '</td>';
+    html += '</tr>';
+  });
+  document.getElementById('samples-tbody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--dim)">No samples to manage yet.</td></tr>';
+}
+
+function toggleAllSamples(checked) {
+  document.querySelectorAll('.sample-cb').forEach(function(cb) { cb.checked = checked; });
+}
+
+function markSamplesSent() {
+  var checked = document.querySelectorAll('.sample-cb:checked');
+  var promises = [];
+  checked.forEach(function(cb) {
+    promises.push(updateStatus(cb.dataset.username, 'sample_sent'));
+  });
+  Promise.all(promises).then(function() {
+    showToast(checked.length + ' samples marked as sent');
+    loadCreators();
+  });
+}
+
+// ─── Contracts Tab ───
+var _contractClassification = {};
+
+function contractCard(c, type) {
+  var checked = ' checked';
+  var fd = c.form_data || {};
+  var html = '<div class="dm-card" style="padding:10px;margin-bottom:8px;border-left:3px solid ' + (type === 'paid' ? 'var(--am)' : 'var(--g)') + '" data-username="' + c.username + '" data-type="' + type + '">';
+  // Header row
+  html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+  html += '<input type="checkbox" class="contract-cb" data-username="' + c.username + '"' + checked + ' style="accent-color:var(--a)">';
+  html += '<span style="font-weight:700;color:var(--a)">@' + c.username + '</span>';
+  if (c.followers) html += '<span style="font-size:9px;color:var(--muted)">' + c.followers.toLocaleString() + ' followers</span>';
+  html += '</div>';
+  // Contract info form (editable)
+  var uid = c.username.replace(/[^a-zA-Z0-9_]/g, '_');
+  html += '<div style="display:grid;grid-template-columns:90px 1fr;gap:4px 8px;font-size:11px;margin-bottom:8px">';
+  html += '<span style="color:var(--dim);font-weight:600">Name</span>';
+  html += '<input type="text" id="cf-name-' + uid + '" value="' + escapeHtml(fd.name || c.name || '') + '" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  html += '<span style="color:var(--dim);font-weight:600">Email</span>';
+  html += '<input type="text" id="cf-email-' + uid + '" value="' + escapeHtml(fd.email || '') + '" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  html += '<span style="color:var(--dim);font-weight:600">Product</span>';
+  html += '<input type="text" id="cf-product-' + uid + '" value="' + escapeHtml(fd.product || '') + '" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  html += '<span style="color:var(--dim);font-weight:600">Color</span>';
+  html += '<input type="text" id="cf-color-' + uid + '" value="' + escapeHtml(fd.color || '') + '" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  if (type === 'paid') {
+    html += '<span style="color:var(--dim);font-weight:600">Amount</span>';
+    html += '<input type="text" id="cf-amount-' + uid + '" value="' + escapeHtml(fd.payment_amount || '') + '" placeholder="e.g. 6000" style="padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  }
+  html += '</div>';
+  // Action buttons
+  html += '<div style="display:flex;gap:4px">';
+  html += '<button class="btn btn-sm" style="background:var(--c);color:#fff" onclick="saveContractForm(\'' + c.username + '\',\'' + type + '\')" title="Save form data">&#x1F4BE; Save</button>';
+  html += '<button class="btn btn-sm btn-secondary" onclick="moveContract(\'' + c.username + '\')" title="Move to ' + (type === 'gifting' ? 'Paid' : 'Gifting') + '">\u2195</button>';
+  html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')" title="View DM history">\uD83D\uDCAC</button>';
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+
+function saveContractForm(handle, type) {
+  var uid = handle.replace(/[^a-zA-Z0-9_]/g, '_');
+  var formData = {
+    name: document.getElementById('cf-name-' + uid).value.trim(),
+    email: document.getElementById('cf-email-' + uid).value.trim(),
+    product: document.getElementById('cf-product-' + uid).value.trim(),
+    color: document.getElementById('cf-color-' + uid).value.trim()
+  };
+  var amountEl = document.getElementById('cf-amount-' + uid);
+  if (amountEl) formData.payment_amount = amountEl.value.trim();
+  if (!formData.name || !formData.email) {
+    showToast('Name and Email are required', 'err');
+    return;
+  }
+  n8nPost({ action: 'submit_form', handle: handle, name: formData.name, email: formData.email, product: formData.product, color: formData.color, payment_amount: formData.payment_amount || '' })
+    .then(function(res) {
+      if (res.status === 'ok' || res.creator) {
+        showToast('Form data saved for @' + handle);
+        loadCreators();
+      } else {
+        showToast('Save failed: ' + (res.message || 'unknown'), 'err');
+      }
+    })
+    .catch(function() { showToast('Save failed', 'err'); });
+}
+
+function renderContracts() {
+  var eligible = _creators.filter(function(c) { return c.status === 'form_submitted'; });
+  // Initialize classification for new creators
+  eligible.forEach(function(c) {
+    if (!_contractClassification[c.username]) {
+      _contractClassification[c.username] = 'gifting'; // default
+    }
+  });
+  var giftingHtml = '';
+  var paidHtml = '';
+  var giftingCount = 0;
+  var paidCount = 0;
+  eligible.forEach(function(c) {
+    var type = _contractClassification[c.username] || 'gifting';
+    if (type === 'paid') {
+      paidHtml += contractCard(c, 'paid');
+      paidCount++;
+    } else {
+      giftingHtml += contractCard(c, 'gifting');
+      giftingCount++;
+    }
+  });
+  document.getElementById('contract-gifting-list').innerHTML = giftingHtml || '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No creators in gifting queue.</div>';
+  document.getElementById('contract-paid-list').innerHTML = paidHtml || '<div style="text-align:center;padding:20px;color:var(--dim);font-size:11px">No creators in paid queue.</div>';
+  document.getElementById('btn-exec-contracts').disabled = eligible.length === 0;
+  document.getElementById('contract-status').textContent = eligible.length ? (giftingCount + ' gifting, ' + paidCount + ' paid') : 'No form_submitted creators';
+}
+
+function classifyContracts() {
+  var eligible = _creators.filter(function(c) { return c.status === 'form_submitted'; });
+  if (!eligible.length) {
+    showToast('No form_submitted creators to classify', 'err');
+    return;
+  }
+  var statusEl = document.getElementById('contract-status');
+  statusEl.innerHTML = '<span class="loading-spinner"></span> Classifying...';
+  var paidKeywords = ['\u5831\u916C', '\u6709\u511F', '\u652F\u6255', 'payment', '\u30AE\u30E3\u30E9'];
+
+  // Check DM cache for keywords
+  var promises = eligible.map(function(c) {
+    if (_dmCache[c.username] && _dmCache[c.username].length) {
+      return Promise.resolve({ username: c.username, logs: _dmCache[c.username] });
+    }
+    return n8nPost({ action: 'dm_log', username: c.username }).then(function(res) {
+      var logs = Array.isArray(res) ? res : (res.logs || []);
+      _dmCache[c.username] = logs;
+      return { username: c.username, logs: logs };
+    }).catch(function() {
+      return { username: c.username, logs: [] };
+    });
+  });
+
+  Promise.all(promises).then(function(results) {
+    results.forEach(function(r) {
+      var isPaid = false;
+      r.logs.forEach(function(m) {
+        var text = (m.text || '').toLowerCase();
+        paidKeywords.forEach(function(kw) {
+          if (text.indexOf(kw.toLowerCase()) !== -1) isPaid = true;
+        });
+      });
+      _contractClassification[r.username] = isPaid ? 'paid' : 'gifting';
+    });
+    renderContracts();
+    showToast('Classification complete');
+  }).catch(function() {
+    statusEl.textContent = 'Classification failed';
+    showToast('Classification failed', 'err');
+  });
+}
+
+function moveContract(handle) {
+  var current = _contractClassification[handle] || 'gifting';
+  _contractClassification[handle] = current === 'gifting' ? 'paid' : 'gifting';
+  renderContracts();
+}
+
+function executeContracts() {
+  var eligible = _creators.filter(function(c) { return c.status === 'form_submitted'; });
+  // Get only checked ones
+  var toSend = [];
+  eligible.forEach(function(c) {
+    var cb = document.querySelector('.contract-cb[data-username="' + c.username + '"]');
+    if (cb && cb.checked) {
+      toSend.push({ username: c.username, type: _contractClassification[c.username] || 'gifting' });
+    }
+  });
+  if (!toSend.length) {
+    showToast('No creators selected', 'err');
+    return;
+  }
+  var btn = document.getElementById('btn-exec-contracts');
+  btn.disabled = true;
+  var statusEl = document.getElementById('contract-status');
+  statusEl.innerHTML = '<span class="loading-spinner"></span> Sending contracts...';
+
+  var idx = 0;
+  var ok = 0;
+  var fail = 0;
+  function processNext() {
+    if (idx >= toSend.length) {
+      btn.disabled = false;
+      statusEl.textContent = 'Done! ' + ok + ' sent, ' + fail + ' failed.';
+      showToast('Contracts: ' + ok + ' sent, ' + fail + ' failed');
+      loadCreators();
+      return;
+    }
+    var item = toSend[idx];
+    statusEl.textContent = 'Sending ' + (idx + 1) + '/' + toSend.length + ' (@' + item.username + ')...';
+    n8nPost({ action: 'create_contract', username: item.username, contract_type: item.type })
+      .then(function(res) {
+        if (res.status === 'ok' || res.ok) { ok++; } else { fail++; }
+      })
+      .catch(function() { fail++; })
+      .then(function() { // finally
+        idx++;
+        setTimeout(processNext, 500);
+      });
+  }
+  processNext();
+}
+
+function exportSamples() {
+  var sampleStatuses = ['form_submitted','contract_sent','contract_signed','guidelines_sent','sample_sent','sample_shipped','sample_delivered'];
+  var eligible = _creators.filter(function(c) {
+    return c.form_data && sampleStatuses.indexOf(c.status) !== -1;
+  });
+  var csv = '\ufeffHandle,Name,Product,Color,PostalCode,Prefecture,City,Address,Phone,Email,Status\n';
+  eligible.forEach(function(c) {
+    var fd = c.form_data || {};
+    var addr = fd.address || {};
+    csv += [c.username, fd.name||c.name||'', fd.product||'', fd.color||'', addr.postal||'', addr.prefecture||'', addr.city||'', addr.line||'', fd.phone||'', fd.email||'', c.status].map(function(v) { return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',') + '\n';
+  });
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'jp-samples-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported');
+}
+
+// ═══ INFLUENCER SHEET ═══
+var DISCOVERY_API = '/api/onzenna/discovery/posts/?region=jp&limit=5000';
+var _sheetData = []; // combined: _creators + discovery (deduped by handle)
+var _sheetSort = { key: 'username', asc: true };
+var _sheetPage = 0;
+var _sheetPerPage = 50;
+var _sheetLoading = false;
+var _sheetSubtab = 'all'; // 'all' | 'has_video' | 'image_only'
+
+// Video detection: TikTok = always video; IG = views>0 OR /reel/ in URL OR transcript exists
+function isVideoPost(post) {
+  if ((post.platform || '').toLowerCase().indexOf('tiktok') !== -1) return true;
+  if (post.views && post.views > 0) return true;
+  if (post.url && post.url.indexOf('/reel/') !== -1) return true;
+  if (post.transcript && post.transcript.trim().length > 0) return true;
+  return false;
+}
+
+function creatorHasVideo(c) {
+  if (!c._posts || c._posts.length === 0) return false;
+  return c._posts.some(isVideoPost);
+}
+
+function setSheetSubtab(filter) {
+  _sheetSubtab = filter;
+  _sheetPage = 0;
+  document.querySelectorAll('.sheet-subtab').forEach(function(el) {
+    el.classList.toggle('on', el.getAttribute('data-filter') === filter);
+  });
+  renderSheet();
+}
+
+function importFromDiscovery() {
+  var btn = document.getElementById('btn-import-discovery');
+  var statusEl = document.getElementById('import-discovery-status');
+  btn.disabled = true;
+  statusEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Importing...';
+
+  fetch('/api/onzenna/pipeline/creators/import-discovery/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ region: 'jp', limit: 200, min_followers: 1000 })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    statusEl.textContent = data.created + ' imported, ' + data.skipped + ' skipped (of ' + data.total_discovery_handles + ' handles)';
+    btn.disabled = false;
+    if (data.created > 0) {
+      showToast(data.created + ' creators added to pipeline!', 'ok');
+      loadCreators();
+      loadInfluencerSheet();
+    }
+  })
+  .catch(function(err) {
+    statusEl.textContent = 'Error: ' + err.message;
+    btn.disabled = false;
+    showToast('Import failed', 'err');
+  });
+}
+
+function loadInfluencerSheet() {
+  if (_sheetLoading) return;
+  _sheetLoading = true;
+  var countEl = document.getElementById('sheet-count');
+  if (countEl) countEl.innerHTML = '<span class="loading-spinner" style="width:10px;height:10px"></span> Loading discovery data...';
+
+  fetch(DISCOVERY_API)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var BRAND_KEYWORDS = ['official', 'shop', 'store', 'honpo', '公式'];
+      var rows = (data.results || []).filter(function(p) {
+        // Video only
+        if ((p.content_type || '').toLowerCase() !== 'video') return false;
+        // Filter brand/official accounts
+        var h = (p.handle || '').toLowerCase();
+        for (var i = 0; i < BRAND_KEYWORDS.length; i++) {
+          if (h.indexOf(BRAND_KEYWORDS[i]) !== -1) return false;
+        }
+        return true;
+      }).map(function(p) {
+        return {
+          'Handle': p.handle || '',
+          'Full Name': p.full_name || '',
+          'Views': p.views || 0,
+          'Likes': p.likes || 0,
+          'Comments Count': p.comments_count || 0,
+          'Followers': p.followers || 0,
+          'Date': (p.post_date || '').slice(0, 10),
+          'URL': p.url || '',
+          'Platform': p.platform || 'instagram',
+          'Source': p.source || '',
+          'Email': p.outreach_email || '',
+          'Caption': p.caption || '',
+          'Hashtags': p.hashtags || '',
+          'Transcript': p.transcript || '',
+          'BrandFit': p.brand_fit_score || null,
+          'SceneFit': p.scene_fit || '',
+          'SubjectAge': p.subject_age || '',
+          'SceneTags': p.scene_tags || '',
+          'CI': p.ci_analysis || null
+        };
+      });
+      mergeSheetData(rows);
+      _sheetLoading = false;
+    }).catch(function(e) {
+      console.error('Discovery API fetch failed:', e);
+      if (countEl) countEl.textContent = 'Failed to load discovery data — showing pipeline only';
+      mergeSheetData([]);
+      _sheetLoading = false;
+    });
+}
+
+function mergeSheetData(discoveryRows) {
+  var map = {};
+
+  // 1. Pipeline creators first (they have definitive status)
+  _creators.forEach(function(c) {
+    map[c.username] = Object.assign({}, c, {
+      _source: getCreatorSource(c),
+      _inPipeline: true,
+      _postCount: 0,
+      _bestViews: c.post_views || 0,
+      _latestPostDate: c.posted_at || '',
+      _latestPostUrl: c.post_url || '',
+      _posts: []
+    });
+  });
+
+  // 2. Discovery rows — dedup by Handle, aggregate metrics
+  discoveryRows.forEach(function(row) {
+    var handle = (row['Handle'] || '').trim();
+    if (!handle) return;
+
+    var views = parseInt(row['Views']) || 0;
+    var likes = parseInt(row['Likes']) || 0;
+    var comments = parseInt(row['Comments Count']) || 0;
+    var followers = parseInt(row['Followers']) || 0;
+    var date = row['Date'] || '';
+    var url = row['URL'] || '';
+    var platform = (row['Platform'] || 'instagram').toLowerCase();
+
+    var ci = row['CI'] || null;
+    var post = { url: url, date: date, views: views, likes: likes, comments: comments, platform: platform, source: row['Source'] || '', caption: row['Caption'] || '', hashtags: row['Hashtags'] || '', transcript: row['Transcript'] || '',
+      brand_fit_score: row['BrandFit'] || (ci && ci.brand_fit_score) || null,
+      delivery_verbal_score: ci && ci.delivery_verbal_score != null ? ci.delivery_verbal_score : null,
+      scene_fit: row['SceneFit'] || (ci && ci.scene_fit) || '',
+      subject_age: row['SubjectAge'] || (ci && ci.subject_age) || '',
+      hook_score: ci && ci.hook_score != null ? ci.hook_score : null,
+      storytelling_score: ci && ci.storytelling_score != null ? ci.storytelling_score : null,
+      authenticity_score: ci && ci.authenticity_score != null ? ci.authenticity_score : null,
+      scene_tags: row['SceneTags'] || (ci && ci.scene_tags) || '',
+      ci: ci
+    };
+
+    if (map[handle]) {
+      // Existing — update aggregates
+      var existing = map[handle];
+      existing._postCount++;
+      existing._posts.push(post);
+      if (views > existing._bestViews) existing._bestViews = views;
+      if (likes > (existing._bestLikes || 0)) existing._bestLikes = likes;
+      existing._totalComments = (existing._totalComments || 0) + comments;
+      if (followers > (existing.followers || 0)) existing.followers = followers;
+      if (date > (existing._latestPostDate || '')) {
+        existing._latestPostDate = date;
+        existing._latestPostUrl = url;
+      }
+    } else {
+      // New discovery creator — not yet in pipeline
+      map[handle] = {
+        username: handle,
+        name: row['Full Name'] || '',
+        followers: followers,
+        status: 'not_started',
+        source: 'discovery',
+        _source: 'discovery',
+        _inPipeline: false,
+        _postCount: 1,
+        _bestViews: views,
+        _bestLikes: likes,
+        _totalComments: comments,
+        _latestPostDate: date,
+        _latestPostUrl: url,
+        _posts: [post],
+        platform: platform,
+        email: row['Email'] || '',
+        is_parent: row['Is Parent'] || '',
+        syncly_kw: row['Syncly KW'] || ''
+      };
+    }
+  });
+
+  // Compute per-creator CI summary scores
+  Object.values(map).forEach(function(c) {
+    var bestBF = 0, bestDV = 0, ciCount = 0;
+    (c._posts || []).forEach(function(p) {
+      if (p.brand_fit_score && p.brand_fit_score > bestBF) bestBF = p.brand_fit_score;
+      if (p.delivery_verbal_score && p.delivery_verbal_score > bestDV) bestDV = p.delivery_verbal_score;
+      if (p.ci || p.brand_fit_score || p.delivery_verbal_score) ciCount++;
+    });
+    c._ciBrandFit = bestBF;
+    c._ciDelivery = bestDV;
+    c._ciCount = ciCount;
+    c._ciScore = bestDV || bestBF; // primary sort key
+  });
+
+  _sheetData = Object.values(map);
+  _sheetPage = 0;
+  renderSheet();
+}
+
+function filterSheet() {
+  _sheetPage = 0;
+  renderSheet();
+}
+
+function sortSheet(key) {
+  if (_sheetSort.key === key) _sheetSort.asc = !_sheetSort.asc;
+  else { _sheetSort.key = key; _sheetSort.asc = true; }
+  renderSheet();
+}
+
+function getFilteredSheet() {
+  var q = (document.getElementById('sheet-search').value || '').toLowerCase();
+  var sf = document.getElementById('sheet-filter-status').value;
+  var src = document.getElementById('sheet-filter-source').value;
+  var hideContacted = document.getElementById('sheet-hide-contacted').checked;
+
+  return _sheetData.filter(function(c) {
+    if (q && c.username.toLowerCase().indexOf(q) === -1 && (c.name || '').toLowerCase().indexOf(q) === -1) return false;
+    if (sf && c.status !== sf) return false;
+    if (src === 'discovery' && c._source !== 'discovery') return false;
+    if (src === 'pipeline' && c._source !== 'pipeline') return false;
+    if (src === 'inbound' && c._source !== 'inbound') return false;
+    if (src === 'manual' && c._source !== 'manual') return false;
+    if (hideContacted && hasPastContact(c)) return false;
+    // Sub-tab: video vs image filter
+    if (_sheetSubtab === 'has_video' && !creatorHasVideo(c)) return false;
+    if (_sheetSubtab === 'image_only' && (creatorHasVideo(c) || !c._posts || c._posts.length === 0)) return false;
+    return true;
+  }).sort(function(a, b) {
+    var va = a[_sheetSort.key] || '';
+    var vb = b[_sheetSort.key] || '';
+    if (typeof va === 'number' && typeof vb === 'number') return _sheetSort.asc ? va - vb : vb - va;
+    va = String(va).toLowerCase(); vb = String(vb).toLowerCase();
+    return _sheetSort.asc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+}
+
+function renderSheet() {
+  var filtered = getFilteredSheet();
+  var total = filtered.length;
+  var start = _sheetPage * _sheetPerPage;
+  var page = filtered.slice(start, start + _sheetPerPage);
+  var today = new Date();
+
+  // Update sub-tab counts
+  var allCount = _sheetData.length;
+  var videoCount = _sheetData.filter(creatorHasVideo).length;
+  var imageCount = _sheetData.filter(function(c) { return c._posts && c._posts.length > 0 && !creatorHasVideo(c); }).length;
+  var tabAll = document.querySelector('.sheet-subtab[data-filter="all"]');
+  var tabVideo = document.querySelector('.sheet-subtab[data-filter="has_video"]');
+  var tabImage = document.querySelector('.sheet-subtab[data-filter="image_only"]');
+  if (tabAll) tabAll.textContent = 'All (' + allCount + ')';
+  if (tabVideo) tabVideo.innerHTML = '&#x1F3AC; Has Video (' + videoCount + ')';
+  if (tabImage) tabImage.innerHTML = '&#x1F5BC; Image Only (' + imageCount + ')';
+
+  document.getElementById('sheet-count').textContent = total + ' influencers' + (total !== _sheetData.length ? ' (filtered from ' + _sheetData.length + ')' : '');
+
+  // Update CI summary stats
+  var ciAnalyzed = _sheetData.filter(function(c) { return c._ciCount > 0; });
+  var ciBar = document.getElementById('ci-stats-bar');
+  if (ciAnalyzed.length > 0) {
+    ciBar.style.display = 'block';
+    document.getElementById('ci-stat-count').textContent = ciAnalyzed.length;
+    var dvSum = 0, dvCnt = 0, bfSum = 0, bfCnt = 0, trCnt = 0, topCnt = 0;
+    ciAnalyzed.forEach(function(c) {
+      if (c._ciDelivery > 0) { dvSum += c._ciDelivery; dvCnt++; }
+      if (c._ciBrandFit > 0) { bfSum += c._ciBrandFit; bfCnt++; }
+      if (c._ciDelivery >= 7) topCnt++;
+      (c._posts || []).forEach(function(p) { if (p.transcript && p.transcript.trim()) trCnt++; });
+    });
+    document.getElementById('ci-stat-dv').textContent = dvCnt ? (dvSum / dvCnt).toFixed(1) : '-';
+    document.getElementById('ci-stat-bf').textContent = bfCnt ? (bfSum / bfCnt).toFixed(1) : '-';
+    document.getElementById('ci-stat-tr').textContent = trCnt;
+    document.getElementById('ci-stat-top').textContent = topCnt;
+  } else {
+    ciBar.style.display = 'none';
+  }
+
+  var html = '';
+  page.forEach(function(c) {
+    var contacted = hasPastContact(c);
+    var srcColor = c._source === 'inbound' ? '#0284c7' : c._source === 'manual' ? '#9333ea' : c._source === 'discovery' ? '#6366f1' : 'var(--a)';
+    var srcLabel = c._source === 'inbound' ? 'Inbound' : c._source === 'manual' ? 'Manual' : c._source === 'discovery' ? 'Discovery' : 'Pipeline';
+
+    // D+ days from latest post
+    var dPlus = '';
+    var latestDate = c._latestPostDate || c.posted_at || '';
+    if (latestDate) {
+      var pDate = new Date(latestDate);
+      if (!isNaN(pDate)) {
+        var diffDays = Math.floor((today - pDate) / 86400000);
+        dPlus = 'D+' + diffDays;
+      }
+    }
+
+    // Best metric: views for TikTok, likes for IG
+    var bestViews = c._bestViews || c.post_views || 0;
+    var bestLikes = c._bestLikes || 0;
+    var bestMetric = bestViews || bestLikes;
+    var metricLabel = bestViews ? 'views' : (bestLikes ? 'likes' : '');
+    var postCount = c._postCount || 0;
+    var totalComments = c._totalComments || 0;
+    var platformIcon = (c.platform || '').indexOf('tiktok') !== -1 ? '\uD83C\uDFB5' : '\uD83D\uDCF7';
+    var latestPostUrl = c._latestPostUrl || '';
+
+    html += '<tr style="' + (contacted ? 'background:#fef2f2' : '') + '">';
+    // Contacted indicator
+    html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">\uD83D\uDEAB</span>' : '<span style="color:var(--g);font-size:12px">\u2B55</span>') + '</td>';
+    // Handle
+    var detailId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
+    var handleLink = latestPostUrl || ('https://instagram.com/' + encodeURIComponent(c.username));
+    html += '<td><a href="' + escapeHtml(handleLink) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
+    if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="Toggle posts detail">\u25B2</span>';
+    if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';
+    if (c.email) html += '<div style="font-size:8px;color:var(--dim)">\u2709 ' + escapeHtml(c.email) + '</div>';
+    html += '</td>';
+    // Followers
+    html += '<td style="font-family:var(--mono);font-size:11px">' + (c.followers ? Number(c.followers).toLocaleString() : '-') + '</td>';
+    // Platform
+    html += '<td style="font-size:11px;text-align:center">' + platformIcon + '</td>';
+    // Source
+    html += '<td><span style="display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:' + srcColor + '22;color:' + srcColor + '">' + srcLabel + '</span></td>';
+    // Status
+    html += '<td>' + statusBadge(c.status) + '</td>';
+    // Post count
+    html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;font-weight:' + (postCount > 2 ? '700' : '400') + ';color:' + (postCount > 2 ? 'var(--a)' : 'var(--dim)') + '">' + (postCount || '-') + '</td>';
+    // Best views/likes
+    var metricColor = bestMetric > 10000 ? 'var(--g)' : bestMetric > 1000 ? 'var(--am)' : 'var(--dim)';
+    html += '<td style="font-family:var(--mono);font-size:11px;font-weight:600;color:' + metricColor + '">';
+    if (bestMetric) {
+      html += Number(bestMetric).toLocaleString();
+      html += '<div style="font-size:8px;font-weight:400;color:var(--dim)">' + metricLabel + '</div>';
+    } else { html += '-'; }
+    html += '</td>';
+    // Comments
+    html += '<td style="font-family:var(--mono);font-size:11px;text-align:center;color:' + (totalComments > 10 ? 'var(--am)' : 'var(--dim)') + '">' + (totalComments || '-') + '</td>';
+    // Latest post date
+    html += '<td style="font-size:10px;color:var(--dim)">' + (latestDate ? '<a href="' + escapeHtml(latestPostUrl || handleLink) + '" target="_blank" style="color:var(--dim);text-decoration:underline">' + latestDate + '</a>' : '-') + '</td>';
+    // D+
+    html += '<td style="font-family:var(--mono);font-size:10px;font-weight:600;color:' + (dPlus ? 'var(--dim)' : '') + '">' + (dPlus || '-') + '</td>';
+    // CI Score badge
+    var ciHtml = '';
+    if (c._ciCount > 0) {
+      var dvScore = c._ciDelivery || 0;
+      var bfScore = c._ciBrandFit || 0;
+      var dvColor = dvScore >= 7 ? 'var(--g)' : dvScore >= 4 ? 'var(--am)' : 'var(--dim)';
+      ciHtml += '<div style="display:flex;flex-direction:column;gap:1px;align-items:center">';
+      if (dvScore) ciHtml += '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:' + dvColor + '" title="Delivery Verbal">' + dvScore + '</span>';
+      if (bfScore) ciHtml += '<span style="font-size:8px;color:var(--dim)" title="Brand Fit">BF ' + bfScore + '</span>';
+      if (!dvScore && !bfScore) ciHtml += '<span class="b c" title="CI analyzed but scores=0">CI</span>';
+      ciHtml += '</div>';
+    }
+    html += '<td style="text-align:center">' + (ciHtml || '<span style="color:var(--muted);font-size:9px">-</span>') + '</td>';
+    // Actions
+    html += '<td>';
+    if (c._inPipeline) {
+      html += '<button class="btn btn-sm btn-secondary" onclick="goToCreator(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">View</button>';
+    } else if (!contacted) {
+      html += '<button class="btn btn-sm btn-primary" onclick="addToPipeline(\'' + escapeHtml(c.username) + '\')" style="font-size:9px">+ Pipeline</button>';
+    } else {
+      html += '<span style="font-size:9px;color:var(--dim)">contacted</span>';
+    }
+    html += '</td>';
+    html += '</tr>';
+
+    // Expandable post details row
+    if (c._posts && c._posts.length > 0) {
+      var rowId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
+      html += '<tr id="' + rowId + '"><td colspan="12" style="padding:4px 12px 12px;background:#f8fafc;border-left:3px solid var(--a)">';
+      c._posts.forEach(function(post, pi) {
+        html += '<div style="margin-bottom:8px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:6px">';
+        html += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">';
+        html += '<span style="font-weight:700;font-size:10px;color:var(--a)">Post ' + (pi+1) + '</span>';
+        html += '<span style="font-size:9px;color:var(--dim)">' + (post.date || '') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">\uD83D\uDC41 ' + (post.views ? Number(post.views).toLocaleString() : '0') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">\u2764 ' + (post.likes ? Number(post.likes).toLocaleString() : '0') + '</span>';
+        html += '<span style="font-family:var(--mono);font-size:9px">\uD83D\uDCAC ' + (post.comments ? Number(post.comments).toLocaleString() : '0') + '</span>';
+        if (post.url) html += '<a href="' + escapeHtml(post.url) + '" target="_blank" style="font-size:9px;color:var(--a)">\uD83D\uDD17 Link</a>';
+        html += '</div>';
+        if (post.caption) html += '<div style="font-size:10px;margin:4px 0;line-height:1.4;max-height:60px;overflow:auto"><b>Caption:</b> ' + escapeHtml(post.caption.substring(0, 300)) + '</div>';
+        if (post.hashtags) html += '<div style="font-size:9px;color:var(--a);margin:2px 0"><b>Tags:</b> ' + escapeHtml(post.hashtags.substring(0, 200)) + '</div>';
+        if (post.transcript) html += '<div style="font-size:9px;color:var(--dim);margin:2px 0"><b>Transcript:</b> ' + escapeHtml(post.transcript.substring(0, 300)) + (post.transcript.length > 300 ? '...' : '') + '</div>';
+        // CI Analysis card
+        if (post.ci || post.brand_fit_score || post.delivery_verbal_score) {
+          html += '<div style="margin-top:6px;padding:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px">';
+          html += '<div style="font-size:9px;font-weight:700;color:#0284c7;margin-bottom:4px">Content Intelligence</div>';
+          html += '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:9px">';
+          var scores = [
+            { label: 'Delivery', val: post.delivery_verbal_score, max: 10 },
+            { label: 'Brand Fit', val: post.brand_fit_score, max: 10 },
+            { label: 'Hook', val: post.hook_score, max: 10 },
+            { label: 'Story', val: post.storytelling_score, max: 10 },
+            { label: 'Auth', val: post.authenticity_score, max: 10 }
+          ];
+          scores.forEach(function(s) {
+            if (s.val == null) return;
+            var pct = Math.round((s.val / s.max) * 100);
+            var color = s.val >= 7 ? '#10b981' : s.val >= 4 ? '#f59e0b' : '#94a3b8';
+            html += '<div style="min-width:70px">';
+            html += '<div style="font-weight:600;color:var(--dim)">' + s.label + '</div>';
+            html += '<div style="display:flex;align-items:center;gap:4px">';
+            html += '<div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:2px"></div></div>';
+            html += '<span style="font-family:var(--mono);font-weight:700;color:' + color + '">' + s.val + '</span>';
+            html += '</div></div>';
+          });
+          html += '</div>';
+          // Scene tags + subject age
+          var tags = [];
+          if (post.scene_fit) tags.push('Scene: ' + post.scene_fit);
+          if (post.subject_age) tags.push('Age: ' + post.subject_age);
+          if (post.scene_tags) tags.push(typeof post.scene_tags === 'string' ? post.scene_tags : (post.scene_tags || []).join(', '));
+          if (tags.length) html += '<div style="margin-top:4px;font-size:8px;color:var(--dim)">' + escapeHtml(tags.join(' \u00B7 ')) + '</div>';
+          // Extended CI fields
+          var ci = post.ci || {};
+          var extras = [];
+          if (ci.hook_type) extras.push('Hook: ' + ci.hook_type);
+          if (ci.emotional_tone) extras.push('Tone: ' + ci.emotional_tone);
+          if (ci.persuasion_type) extras.push('Persuasion: ' + ci.persuasion_type);
+          if (ci.demo_present) extras.push('Demo shown');
+          if (ci.cta_present) extras.push('Has CTA');
+          if (extras.length) html += '<div style="margin-top:2px;font-size:8px;color:#6366f1">' + escapeHtml(extras.join(' \u00B7 ')) + '</div>';
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+      html += '</td></tr>';
+    }
+  });
+
+  document.getElementById('sheet-body').innerHTML = html || '<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--dim)">No influencers found.</td></tr>';
+
+  // Pager
+  var totalPages = Math.ceil(total / _sheetPerPage);
+  var pagerHtml = '';
+  if (totalPages > 1) {
+    pagerHtml += '<div style="display:flex;gap:4px;justify-content:center;margin-top:12px">';
+    if (_sheetPage > 0) pagerHtml += '<button class="btn btn-sm btn-secondary" onclick="_sheetPage--;renderSheet()">\u2190 Prev</button>';
+    pagerHtml += '<span style="font-size:11px;padding:4px 8px;color:var(--dim)">' + (_sheetPage + 1) + ' / ' + totalPages + '</span>';
+    if (_sheetPage < totalPages - 1) pagerHtml += '<button class="btn btn-sm btn-secondary" onclick="_sheetPage++;renderSheet()">Next \u2192</button>';
+    pagerHtml += '</div>';
+  }
+  document.getElementById('sheet-pager').innerHTML = pagerHtml;
+}
+
+function goToCreator(handle) {
+  document.getElementById('creator-search').value = handle;
+  var tab = document.querySelector('.mt>div[data-p="creators"]');
+  if (tab) tab.click();
+  renderCreators();
+}
+
+function togglePostDetail(rowId) {
+  var row = document.getElementById(rowId);
+  if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+function getISOWeek(dateStr) {
+  if (!dateStr) return 'Unknown';
+  var d = new Date(dateStr);
+  if (isNaN(d)) return 'Unknown';
+  var day = d.getDay() || 7;
+  d.setDate(d.getDate() + 4 - day);
+  var yearStart = new Date(d.getFullYear(), 0, 1);
+  var week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  var monday = new Date(d.getFullYear(), 0, 1 + (week - 1) * 7);
+  var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  var fmt = function(dt) { return (dt.getMonth()+1) + '/' + dt.getDate(); };
+  return d.getFullYear() + ' W' + String(week).padStart(2,'0') + ' (' + fmt(monday) + '~' + fmt(sunday) + ')';
+}
+
+function showSheetBatchModal() {
+  var modal = document.getElementById('sheet-batch-modal');
+  modal.style.pointerEvents = 'auto';
+  modal.style.display = 'flex';
+  renderSheetBatchBody();
+}
+
+function closeSheetBatchModal() {
+  var m = document.getElementById('sheet-batch-modal');
+  m.style.display = 'none';
+  m.style.pointerEvents = 'none';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var m = document.getElementById('sheet-batch-modal');
+    if (m && m.style.display === 'flex') closeSheetBatchModal();
+  }
+});
+
+function renderSheetBatchBody() {
+  var eligible = _sheetData.filter(function(c) { return !c._inPipeline; });
+  var body = document.getElementById('sheet-batch-body');
+  if (!eligible.length) {
+    body.innerHTML = '<div style="text-align:center;padding:32px;color:var(--dim)">\uCD94\uAC00\uD560 \uD06C\uB9AC\uC5D0\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4 (\uBAA8\uB450 \uD30C\uC774\uD504\uB77C\uC778\uC5D0 \uC788\uC74C)</div>';
+    return;
+  }
+  var weeks = {};
+  eligible.forEach(function(c) {
+    var wk = getISOWeek(c._latestPostDate);
+    if (!weeks[wk]) weeks[wk] = [];
+    weeks[wk].push(c);
+  });
+  var sortedWeeks = Object.keys(weeks).sort().reverse();
+  var html = '';
+  sortedWeeks.forEach(function(wk) {
+    var creators = weeks[wk];
+    creators.sort(function(a,b) { return (b._bestViews||0) - (a._bestViews||0); });
+    var weekId = 'wk-' + wk.replace(/[^a-zA-Z0-9]/g,'_');
+    html += '<div style="margin-bottom:20px">';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">';
+    html += '<input type="checkbox" id="cb-' + weekId + '" checked onchange="toggleWeekBatch(this,\'' + weekId + '\')" style="width:14px;height:14px;accent-color:var(--g)">';
+    html += '<span style="font-size:12px;font-weight:700;color:var(--text)">' + escapeHtml(wk) + '</span>';
+    html += '<span style="font-size:10px;color:var(--dim)">' + creators.length + '\uBA85</span>';
+    html += '</div>';
+    creators.forEach(function(c) {
+      var cbId = 'cb-creator-' + c.username;
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9" data-week="' + weekId + '">';
+      html += '<input type="checkbox" id="' + cbId + '" data-username="' + escapeHtml(c.username) + '" data-week="' + weekId + '" checked class="batch-creator-cb" onchange="updateSheetBatchCount()" style="width:13px;height:13px;accent-color:var(--g)">';
+      html += '<span style="font-size:11px;font-weight:600;color:var(--a)">@' + escapeHtml(c.username) + '</span>';
+      html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + '</span>';
+      if (c.followers) html += '<span style="font-size:10px;color:var(--dim)">' + c.followers.toLocaleString() + ' followers</span>';
+      if (c._bestViews) html += '<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px">' + (c._bestViews >= 1000 ? Math.round(c._bestViews/1000) + 'K' : c._bestViews) + ' views</span>';
+      if (c._latestPostDate) html += '<span style="font-size:9px;color:var(--muted)">' + c._latestPostDate + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  updateSheetBatchCount();
+}
+
+function toggleWeekBatch(weekCb, weekId) {
+  var checked = weekCb.checked;
+  document.querySelectorAll('.batch-creator-cb[data-week="' + weekId + '"]').forEach(function(cb) {
+    cb.checked = checked;
+  });
+  updateSheetBatchCount();
+}
+
+function updateSheetBatchCount() {
+  var selected = document.querySelectorAll('.batch-creator-cb:checked').length;
+  document.getElementById('sheet-batch-status').textContent = selected + '\uBA85 \uC120\uD0DD\uB428';
+}
+
+function confirmSheetBatchAdd() {
+  var selected = [];
+  document.querySelectorAll('.batch-creator-cb:checked').forEach(function(cb) {
+    var username = cb.dataset.username;
+    var c = _sheetData.find(function(x) { return x.username === username; });
+    if (c) selected.push({ username: c.username, name: c.name || '', followers: c.followers || 0, platform: c.platform || 'instagram', source: 'sheet_batch' });
+  });
+  if (!selected.length) { showToast('\uC120\uD0DD\uB41C \uD06C\uB9AC\uC5D0\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4', 'err'); return; }
+  var btn = document.getElementById('btn-sheet-batch-add');
+  btn.disabled = true;
+  document.getElementById('sheet-batch-status').textContent = '\uCD94\uAC00 \uC911...';
+  n8nPost({ action: 'import_creators', creators: selected })
+    .then(function(res) {
+      var count = res.imported || res.count || selected.length;
+      showToast(count + '\uBA85 \uD30C\uC774\uD504\uB77C\uC778\uC5D0 \uCD94\uAC00\uB428');
+      closeSheetBatchModal();
+      loadCreators();
+    })
+    .catch(function(err) {
+      document.getElementById('sheet-batch-status').textContent = '\uC624\uB958: ' + (err.message || err);
+      showToast('\uCD94\uAC00 \uC2E4\uD328', 'err');
+      btn.disabled = false;
+    });
+}
+
+function addToPipeline(handle) {
+  var c = _sheetData.find(function(x) { return x.username === handle; });
+  if (!c) return;
+  n8nPost({ action: 'add_creator', username: c.username, name: c.name || '', followers: c.followers || 0, platform: c.platform || '', source: 'discovery' })
+    .then(function(res) {
+      if (res.status === 'ok' || res.ok) {
+        showToast('@' + handle + ' added to pipeline!', 'ok');
+        loadCreators();
+      } else {
+        showToast('Failed to add: ' + (res.error || 'unknown'), 'err');
+      }
+    })
+    .catch(function(err) {
+      showToast('Add failed: ' + err.message, 'err');
+    });
+}
+</script>
+</body>
+</html>

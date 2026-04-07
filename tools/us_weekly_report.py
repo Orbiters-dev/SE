@@ -219,8 +219,10 @@ def push_to_db(reels):
             cur.execute("""
                 INSERT INTO gk_content_posts
                 (post_id, url, platform, username, caption, post_date, region, source,
-                 collected_at, views_30d, likes_30d, comments_30d)
-                VALUES (%s, %s, %s, %s, %s, %s, 'us', 'us_weekly_report', %s, %s, %s, %s)
+                 collected_at, views_30d, likes_30d, comments_30d, videos_30d,
+                 bio_text, text, transcript, product_types)
+                VALUES (%s, %s, %s, %s, %s, %s, 'us', 'us_weekly_report', %s, %s, %s, %s,
+                        0, '', '', '', '')
                 ON CONFLICT DO NOTHING
             """, (
                 r["shortcode"], r["post_url"], r["platform"], r["username"],
@@ -523,6 +525,7 @@ def main():
     load_env()
 
     # Step 1-3: Scrape + Push
+    cache_path = CACHE_DIR / f"reels_cache_{TODAY}.json"
     if not args.skip_scrape and not args.dry_run:
         from apify_client import ApifyClient
         token = os.environ.get("APIFY_API_TOKEN", "")
@@ -537,9 +540,21 @@ def main():
                     max_per_creator=5, days=args.days,
                 )
                 if reels:
+                    # Cache scraped data to JSON (insurance against DB errors)
+                    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                    with open(cache_path, "w", encoding="utf-8") as f:
+                        json.dump(reels, f, ensure_ascii=False, indent=2)
+                    print(f"[CACHE] Saved {len(reels)} reels to {cache_path}")
                     push_to_db(reels)
     elif args.skip_scrape:
-        print("[SKIP] Apify scraping")
+        # Try loading from cache if available
+        if cache_path.exists():
+            with open(cache_path, "r", encoding="utf-8") as f:
+                reels = json.load(f)
+            print(f"[CACHE] Loaded {len(reels)} reels from {cache_path}")
+            push_to_db(reels)
+        else:
+            print("[SKIP] Apify scraping (no cache found)")
 
     # Step 4: CI scoring
     if not args.skip_ci and not args.dry_run:

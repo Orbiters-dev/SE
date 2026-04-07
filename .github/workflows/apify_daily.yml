@@ -173,7 +173,7 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: US Weekly Baby Content Report (Scrape + CI + Excel + Email)
+      - name: US Weekly Baby Content Report (Scrape + Excel + Email)
         id: us_weekly_report
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
@@ -191,6 +191,22 @@ jobs:
               --to "wj.choi@orbiters.co.kr"
           else
             echo "[SKIP] US weekly report runs KST Mondays only (UTC DOW=$DOW)"
+          fi
+        continue-on-error: true
+
+      - name: Trigger US CI scoring on EC2 (Whisper + Vision + Score)
+        id: us_ci
+        run: |
+          DOW=$(date -u +%u)
+          if [ "$DOW" = "7" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            curl -s -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/run-ci/" \
+              -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
+              -H "Content-Type: application/json" \
+              -d '{"region": "us", "max": 50, "min_views": 5000}' \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'[US CI] {d.get(\"status\",\"?\")} pid={d.get(\"pid\",\"?\")} max={d.get(\"max\",\"?\")} min_views={d.get(\"min_views\",\"?\")}')" \
+              || echo "[US CI] trigger failed (non-fatal)"
+          else
+            echo "[SKIP] US CI runs KST Mondays only"
           fi
         continue-on-error: true
 

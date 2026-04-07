@@ -1,9 +1,18 @@
 from django.urls import path
 from . import views
+from . import views_dashboard
 
 app_name = "onzenna"
 
 urlpatterns = [
+    # Dashboards (server-rendered — replaces GitHub Pages HTML)
+    path("pipeline/dashboard/", views_dashboard.pipeline_dashboard, name="pipeline_dashboard"),
+    path("pipeline/dashboard/jp/", views_dashboard.pipeline_dashboard_jp, name="pipeline_dashboard_jp"),
+    path("ppc/dashboard/", views_dashboard.ppc_dashboard, name="ppc_dashboard"),
+    path("ppc/dashboard/<str:filename>", views_dashboard.ppc_data_js, name="ppc_data_js"),
+    path("content/dashboard/", views_dashboard.content_dashboard, name="content_dashboard"),
+    path("financial/dashboard/", views_dashboard.financial_dashboard, name="financial_dashboard"),
+
     # Users
     path("users/", views.create_user, name="create_user"),
     path("users/<uuid:user_id>/", views.get_or_update_user, name="get_or_update_user"),
@@ -78,6 +87,7 @@ urlpatterns = [
     path("pipeline/creators/transcript-lang-check/", views.transcript_lang_check, name="transcript_lang_check"),
     path("pipeline/creators/email-verify/", views.email_verify, name="email_verify"),
     path("pipeline/creators/gk-transcripts/", views.gk_transcripts, name="gk_transcripts"),
+    path("pipeline/creators/classify-region/", views.classify_region_by_transcript, name="classify_region"),
 
     # Email Reply Config (n8n + dashboard)
     path("pipeline/email-config/", views.email_config_list, name="email_config_list"),

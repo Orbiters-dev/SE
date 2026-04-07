@@ -1100,6 +1100,35 @@ def pipeline_creators_list(request):
     if request.GET.get("is_manychat_contact") == "true":
         qs = qs.filter(is_manychat_contact=True)
 
+    # Content type filter: video / image (based on gk_content_posts URL pattern)
+    content_type = request.GET.get("content_type")
+    if content_type in ("video", "image"):
+        from django.db import connection
+        if content_type == "video":
+            ct_sql = """
+                SELECT DISTINCT LOWER(username) FROM gk_content_posts
+                WHERE (url LIKE '%%/reel/%%' OR url LIKE '%%/reels/%%' OR url LIKE '%%tiktok%%'
+                       OR (transcript IS NOT NULL AND LENGTH(transcript) > 10))
+                AND username IS NOT NULL AND username != ''
+            """
+        else:
+            ct_sql = """
+                SELECT DISTINCT LOWER(username) FROM gk_content_posts
+                WHERE url NOT LIKE '%%/reel/%%' AND url NOT LIKE '%%/reels/%%'
+                AND url NOT LIKE '%%tiktok%%'
+                AND (transcript IS NULL OR LENGTH(transcript) <= 10)
+                AND username IS NOT NULL AND username != ''
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(ct_sql)
+            ct_handles = {r[0] for r in cursor.fetchall()}
+        if ct_handles:
+            from django.db.models import Q as _Q
+            qs = qs.filter(_Q(ig_handle__in=[h for h in ct_handles]) |
+                           _Q(tiktok_handle__in=[h for h in ct_handles]))
+        else:
+            qs = qs.none()
+
     # Ordering (whitelist to prevent field enumeration)
     ALLOWED_ORDERS = {
         "-created_at", "created_at", "-followers", "followers",
@@ -3465,6 +3494,153 @@ def transcript_lang_check(request):
         return _cors_headers(request, JsonResponse({"error": str(e)}, status=500))
 
     return _cors_headers(request, JsonResponse({"results": results}))
+
+
+@csrf_exempt
+def classify_region_by_transcript(request):
+    """POST: Auto-classify creator region based on transcript language ratio.
+
+    Analyzes all transcripts (gk_content_posts + top_post_transcript) per creator.
+    If Japanese char ratio >= threshold → region='jp', else → region='us'.
+
+    Body:
+      dry_run: true/false (default: true) — preview only, no DB update
+      threshold: float (default: 0.15) — min Japanese char ratio to classify as JP
+      min_chars: int (default: 30) — min combined transcript length to classify
+      only_empty: true/false (default: false) — only classify creators with empty region
+
+    Returns: {classified: [...], summary: {to_jp, to_us, unchanged, skipped}}
+    """
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST required"}, status=405))
+
+    body = _json_body(request)
+    dry_run = body.get("dry_run", True)
+    threshold = float(body.get("threshold", 0.15))
+    min_chars = int(body.get("min_chars", 30))
+    only_empty = body.get("only_empty", False)
+
+    from django.db import connection
+
+    try:
+        with connection.cursor() as cursor:
+            # Get all creators with their combined transcript text
+            sql = """
+                WITH content_transcripts AS (
+                    SELECT
+                        LOWER(cp.username) AS uname,
+                        STRING_AGG(cp.transcript, ' ') AS combined
+                    FROM gk_content_posts cp
+                    WHERE cp.transcript IS NOT NULL
+                      AND LENGTH(cp.transcript) >= 20
+                      AND cp.username IS NOT NULL AND cp.username != ''
+                    GROUP BY LOWER(cp.username)
+                ),
+                pipeline_transcripts AS (
+                    SELECT
+                        LOWER(pc.ig_handle) AS uname,
+                        pc.top_post_transcript AS combined
+                    FROM onz_pipeline_creators pc
+                    WHERE pc.top_post_transcript IS NOT NULL
+                      AND LENGTH(pc.top_post_transcript) >= 20
+                ),
+                merged AS (
+                    SELECT uname, combined FROM content_transcripts
+                    UNION ALL
+                    SELECT uname, combined FROM pipeline_transcripts
+                ),
+                per_creator AS (
+                    SELECT
+                        uname,
+                        STRING_AGG(combined, ' ') AS all_text
+                    FROM merged
+                    GROUP BY uname
+                )
+                SELECT
+                    pc.id, pc.ig_handle, pc.region, pc.country,
+                    pc.followers, pc.brand, pc.pipeline_status,
+                    LENGTH(m.all_text) AS total_chars,
+                    (LENGTH(m.all_text) - LENGTH(
+                        REGEXP_REPLACE(m.all_text, E'[\\u3040-\\u309F\\u30A0-\\u30FF]', '', 'g')
+                    )) AS jp_chars
+                FROM onz_pipeline_creators pc
+                INNER JOIN per_creator m ON LOWER(pc.ig_handle) = m.uname
+                WHERE LENGTH(m.all_text) >= %s
+                ORDER BY pc.ig_handle
+            """
+            cursor.execute(sql, [min_chars])
+            cols = [c[0] for c in cursor.description]
+            rows = [dict(zip(cols, r)) for r in cursor.fetchall()]
+
+        classified = []
+        to_jp = 0
+        to_us = 0
+        unchanged = 0
+        skipped = 0
+
+        for row in rows:
+            total = row['total_chars'] or 1
+            jp_pct = (row['jp_chars'] or 0) / total
+            new_region = 'jp' if jp_pct >= threshold else 'us'
+            current_region = (row['region'] or '').strip().lower()
+
+            if only_empty and current_region:
+                skipped += 1
+                continue
+
+            changed = (new_region != current_region)
+            if changed:
+                if new_region == 'jp':
+                    to_jp += 1
+                else:
+                    to_us += 1
+            else:
+                unchanged += 1
+
+            if changed:
+                classified.append({
+                    "ig_handle": row['ig_handle'],
+                    "current_region": row['region'] or '',
+                    "new_region": new_region,
+                    "jp_ratio": round(jp_pct, 3),
+                    "total_chars": total,
+                    "followers": row['followers'],
+                    "brand": row['brand'] or '',
+                    "status": row['pipeline_status'],
+                })
+
+        # Apply updates if not dry_run
+        updated = 0
+        if not dry_run and classified:
+            with connection.cursor() as cursor:
+                for item in classified:
+                    cursor.execute(
+                        "UPDATE onz_pipeline_creators SET region = %s, updated_at = NOW() WHERE ig_handle = %s",
+                        [item['new_region'], item['ig_handle']]
+                    )
+                    updated += 1
+
+        resp = {
+            "dry_run": dry_run,
+            "threshold": threshold,
+            "min_chars": min_chars,
+            "summary": {
+                "to_jp": to_jp,
+                "to_us": to_us,
+                "unchanged": unchanged,
+                "skipped": skipped,
+                "updated": updated,
+            },
+            "classified": classified,
+        }
+        return _cors_headers(request, JsonResponse(resp))
+
+    except Exception as e:
+        import traceback
+        return _cors_headers(request, JsonResponse({"error": str(e), "trace": traceback.format_exc()}, status=500))
 
 
 # --- Run CI Pipeline (Whisper transcript trigger) ---
