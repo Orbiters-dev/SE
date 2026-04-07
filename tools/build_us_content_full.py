@@ -1,12 +1,16 @@
-"""Build US_Content_Full export — Creator Pool + Content Pool from Syncly sheets.
+"""Social Enricher — Creator Pool + Content Pool from Syncly sheets.
 
 Joins Creators_updated + Output_updated, applies view/like thresholds,
-removes blacklisted, groups content per creator, and exports to Excel.
+removes blacklisted, groups content per creator, enriches via Apify,
+and exports to Excel or syncs to PostgreSQL.
 
 Usage:
     python tools/build_us_content_full.py
     python tools/build_us_content_full.py --dry-run
-    python tools/build_us_content_full.py --min-views 5000 --min-likes 50
+    python tools/build_us_content_full.py --enrich
+    python tools/build_us_content_full.py --min-views 5000 --min-likes 50 --min-er 0.03
+    python tools/build_us_content_full.py --pg-sync
+    python tools/build_us_content_full.py --platform instagram --language en --since 2025-01-01
 """
 
 import os, sys, re, json, io
@@ -170,10 +174,22 @@ def enrich_post_metrics(content_map, chunk_size=50):
                 if not matched_url and post_url:
                     matched_url = post_url
                 if matched_url:
+                    views = item.get("videoViewCount") or item.get("videoPlayCount", 0)
+                    likes = item.get("likesCount", 0)
+                    comments = item.get("commentsCount", 0)
+                    hashtags_raw = item.get("hashtags") or []
                     cache[matched_url] = {
-                        "views": item.get("videoViewCount") or item.get("videoPlayCount", 0),
-                        "likes": item.get("likesCount", 0),
-                        "comments": item.get("commentsCount", 0),
+                        "views": views,
+                        "likes": likes,
+                        "comments": comments,
+                        "caption": item.get("caption", ""),
+                        "hashtags": ",".join(h.get("name", "") for h in hashtags_raw if isinstance(h, dict)),
+                        "post_date": item.get("timestamp", ""),
+                        "engagement_rate": round((likes + comments) / views, 4) if views else 0,
+                        "media_type": item.get("type", ""),
+                        "shortcode": item.get("shortCode", ""),
+                        "owner_followers": item.get("ownerFollowersCount", ""),
+                        "thumbnail_url": item.get("displayUrl", ""),
                     }
                     ig_scraped += 1
             print(f"    Got {len(items)} results, total cached: {len(cache):,}")
@@ -209,10 +225,23 @@ def enrich_post_metrics(content_map, chunk_size=50):
                 if not matched_url and web_url:
                     matched_url = web_url
                 if matched_url:
+                    views = item.get("playCount", 0)
+                    likes = item.get("diggCount", 0)
+                    comments = item.get("commentCount", 0)
+                    hashtags_raw = item.get("hashtags") or []
+                    author = item.get("authorMeta") or {}
                     cache[matched_url] = {
-                        "views": item.get("playCount", 0),
-                        "likes": item.get("diggCount", 0),
-                        "comments": item.get("commentCount", 0),
+                        "views": views,
+                        "likes": likes,
+                        "comments": comments,
+                        "caption": item.get("text", ""),
+                        "hashtags": ",".join(h.get("name", "") for h in hashtags_raw if isinstance(h, dict)),
+                        "post_date": item.get("createTimeISO", ""),
+                        "engagement_rate": round((likes + comments) / views, 4) if views else 0,
+                        "media_type": "Video",
+                        "shortcode": str(item.get("id", "")),
+                        "owner_followers": author.get("fans", ""),
+                        "thumbnail_url": (item.get("videoMeta") or {}).get("coverUrl", ""),
                     }
                     tt_scraped += 1
             print(f"    Got {len(items)} results, total cached: {len(cache):,}")
@@ -227,10 +256,32 @@ def enrich_post_metrics(content_map, chunk_size=50):
 
 # ── Main Logic ───────────────────────────────────────────────────────
 
-def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
+def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False,
+                 min_er=0, min_followers=0, max_followers=0,
+                 platform_filter="", language_filter="", theme_filter="",
+                 since_filter="", pg_sync=False):
     print("=" * 60)
-    print("US Content Full Export Builder")
+    print("US Content Full Export Builder (Social Enricher)")
     print(f"  Thresholds: views >= {min_views:,} OR likes >= {min_likes:,}")
+    filters_active = []
+    if min_er > 0:
+        filters_active.append(f"ER >= {min_er}")
+    if min_followers > 0:
+        filters_active.append(f"followers >= {min_followers:,}")
+    if max_followers > 0:
+        filters_active.append(f"followers <= {max_followers:,}")
+    if platform_filter:
+        filters_active.append(f"platform = {platform_filter}")
+    if language_filter:
+        filters_active.append(f"language = {language_filter}")
+    if theme_filter:
+        filters_active.append(f"theme in [{theme_filter}]")
+    if since_filter:
+        filters_active.append(f"since {since_filter}")
+    if filters_active:
+        print(f"  Filters: {', '.join(filters_active)}")
+    if pg_sync:
+        print(f"  PG Sync: enabled")
     print("=" * 60)
 
     # 1. Load all tabs from cache
@@ -278,31 +329,55 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
         likes_30d = safe_num(c.get("최근 30일 좋아요 수 총합", ""))
 
         # OR condition
-        if views_30d >= min_views or likes_30d >= min_likes:
-            stats["passed"] += 1
-            platform = c.get("Platform", "").strip().lower()
-            eligible_creators[username_lower] = {
-                "username": username,
-                "email": c.get("Email", "").strip(),
-                "platform": platform,
-                "profile_url": c.get("Profile URL", "").strip(),
-                "first_discovered": c.get("최초 발견 일자", "").strip(),
-                "followers": c.get("Followers", "").strip(),
-                "views_30d": views_30d,
-                "likes_30d": likes_30d,
-                "comments_30d": safe_num(c.get("최근 30일 댓글 수 총합", "")),
-                "language": c.get("Language", "").strip(),
-                "age": c.get("Age", "").strip(),
-                "gender": c.get("Gender", "").strip(),
-                "race": c.get("Race", "").strip(),
-                "location": c.get("Location", "").strip(),
-                "collab_status": c.get("제휴 상태", "").strip(),
-            }
-        else:
+        if not (views_30d >= min_views or likes_30d >= min_likes):
             if views_30d == 0 and likes_30d == 0:
                 stats["no_data"] += 1
             else:
                 stats["below_threshold"] += 1
+            continue
+
+        # Advanced filters
+        comments_30d = safe_num(c.get("최근 30일 댓글 수 총합", ""))
+        creator_er = (likes_30d + comments_30d) / views_30d if views_30d > 0 else 0
+        followers_num = safe_num(c.get("Followers", ""))
+        platform = c.get("Platform", "").strip().lower()
+        language = c.get("Language", "").strip().lower()
+
+        if min_er > 0 and creator_er < min_er:
+            stats["below_threshold"] += 1
+            continue
+        if min_followers > 0 and followers_num < min_followers:
+            stats["below_threshold"] += 1
+            continue
+        if max_followers > 0 and followers_num > max_followers:
+            stats["below_threshold"] += 1
+            continue
+        if platform_filter and platform != platform_filter.lower():
+            stats["below_threshold"] += 1
+            continue
+        if language_filter and language != language_filter.lower():
+            stats["below_threshold"] += 1
+            continue
+
+        stats["passed"] += 1
+        eligible_creators[username_lower] = {
+            "username": username,
+            "email": c.get("Email", "").strip(),
+            "platform": platform,
+            "profile_url": c.get("Profile URL", "").strip(),
+            "first_discovered": c.get("최초 발견 일자", "").strip(),
+            "followers": c.get("Followers", "").strip(),
+            "views_30d": views_30d,
+            "likes_30d": likes_30d,
+            "comments_30d": comments_30d,
+            "engagement_rate": creator_er,
+            "language": language,
+            "age": c.get("Age", "").strip(),
+            "gender": c.get("Gender", "").strip(),
+            "race": c.get("Race", "").strip(),
+            "location": c.get("Location", "").strip(),
+            "collab_status": c.get("제휴 상태", "").strip(),
+        }
 
     print(f"  Total creators:     {stats['total']:,}")
     print(f"  Blacklisted:        {stats['blacklisted']:,}")
@@ -333,6 +408,16 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
         # Only match to eligible creators
         if out_username_lower not in eligible_creators:
             output_skipped_noeligible += 1
+            continue
+
+        # Content-level filters
+        content_theme = o.get("Theme", "").strip().lower()
+        content_date = o.get("date", "").strip()
+        if theme_filter:
+            themes = [t.strip().lower() for t in theme_filter.split(",")]
+            if not any(t in content_theme for t in themes):
+                continue
+        if since_filter and content_date and content_date < since_filter:
             continue
 
         output_matched += 1
@@ -413,10 +498,22 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
         else:
             print(f"\n[5a/6] No enrichment (use --enrich to fetch post metrics via Apify)")
 
-    # Helper to get post metrics
+    # Helper to get post metrics (11 fields)
     def get_post_metrics(post_url):
         m = enrich_data.get(post_url, {})
-        return m.get("views", ""), m.get("likes", ""), m.get("comments", "")
+        return {
+            "views": m.get("views", ""),
+            "likes": m.get("likes", ""),
+            "comments": m.get("comments", ""),
+            "caption": m.get("caption", ""),
+            "hashtags": m.get("hashtags", ""),
+            "post_date": m.get("post_date", ""),
+            "engagement_rate": m.get("engagement_rate", ""),
+            "media_type": m.get("media_type", ""),
+            "shortcode": m.get("shortcode", ""),
+            "owner_followers": m.get("owner_followers", ""),
+            "thumbnail_url": m.get("thumbnail_url", ""),
+        }
 
     # ── 5b. Write Excel ──
     print(f"\n[6/6] Writing Excel...")
@@ -435,7 +532,8 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
     creator_headers = [
         "username", "email", "platform", "profile_url",
         "first_discovered", "followers", "views_30d", "likes_30d",
-        "comments_30d", "language", "age", "gender", "race",
+        "comments_30d", "engagement_rate",
+        "language", "age", "gender", "race",
         "location", "collab_status", "bio_text", "content_count",
     ]
     ws_creators.append(creator_headers)
@@ -459,7 +557,8 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
             cr["views_30d"],
             cr["likes_30d"],
             cr["comments_30d"],
-            clean(cr["language"]),
+            round(cr.get("engagement_rate", 0), 4),
+            clean(cr.get("language", "")),
             clean(cr["age"]),
             clean(cr["gender"]),
             clean(cr["race"]),
@@ -474,6 +573,8 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
     content_headers = [
         "username", "content_num", "post_url", "platform",
         "post_date", "post_views", "post_likes", "post_comments",
+        "engagement_rate", "media_type", "hashtags", "shortcode",
+        "thumbnail_url",
         "caption", "transcript", "summary",
         "theme", "level", "score", "keyword_1", "bio_text",
     ]
@@ -483,17 +584,24 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
     for uname_lower, cr in sorted_creators:
         contents = content_map.get(uname_lower, [])
         for i, ct in enumerate(contents):
-            pv, pl, pc = get_post_metrics(ct["post_url"])
-            if pv != "":
+            pm = get_post_metrics(ct["post_url"])
+            if pm["views"] != "":
                 enriched_count += 1
+            # Use enriched post_date if available, fallback to Syncly
+            post_date = pm["post_date"] or ct["post_date"]
+            # Use enriched caption if available, fallback to Syncly
+            caption = pm["caption"] or ct["caption"]
             ws_content.append([
                 clean(cr["username"]),
                 i + 1,
                 clean(ct["post_url"]),
                 clean(ct["platform"]),
-                clean(ct["post_date"]),
-                pv, pl, pc,
-                clean(ct["caption"]),
+                clean(post_date),
+                pm["views"], pm["likes"], pm["comments"],
+                pm["engagement_rate"], clean(pm["media_type"]),
+                clean(pm["hashtags"]), clean(pm["shortcode"]),
+                clean(pm["thumbnail_url"]),
+                clean(caption),
                 clean(ct["transcript"]),
                 clean(ct["summary"]),
                 clean(ct["theme"]),
@@ -510,6 +618,7 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
         "views_30d", "likes_30d", "comments_30d",
         "content_num", "post_url", "post_date",
         "post_views", "post_likes", "post_comments",
+        "engagement_rate", "media_type", "hashtags",
         "caption", "transcript", "bio_text",
     ]
     ws_flat.append(flat_headers)
@@ -525,11 +634,13 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
                 cr["views_30d"],
                 cr["likes_30d"],
                 cr["comments_30d"],
-                0, "", "", "", "", "", "", "", "",
+                0, "", "", "", "", "", "", "", "", "", "", "",
             ])
         else:
             for i, ct in enumerate(contents):
-                pv, pl, pc = get_post_metrics(ct["post_url"])
+                pm = get_post_metrics(ct["post_url"])
+                post_date = pm["post_date"] or ct["post_date"]
+                caption = pm["caption"] or ct["caption"]
                 ws_flat.append([
                     clean(cr["username"]),
                     clean(cr["email"]),
@@ -540,9 +651,11 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
                     cr["comments_30d"],
                     i + 1,
                     clean(ct["post_url"]),
-                    clean(ct["post_date"]),
-                    pv, pl, pc,
-                    clean(ct["caption"]),
+                    clean(post_date),
+                    pm["views"], pm["likes"], pm["comments"],
+                    pm["engagement_rate"], clean(pm["media_type"]),
+                    clean(pm["hashtags"]),
+                    clean(caption),
                     clean(ct["transcript"]),
                     clean(ct["bio_text"]),
                 ])
@@ -554,6 +667,80 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False):
           f"Flat View")
     if enrich_data:
         print(f"  Enriched posts: {enriched_count:,}/{output_matched:,}")
+
+    # ── PG Sync ──
+    if pg_sync:
+        print(f"\n[PG SYNC] Pushing to PostgreSQL...")
+        try:
+            from push_content_to_pg import push_posts, push_metrics
+        except ImportError:
+            sys.path.insert(0, str(DIR))
+            from push_content_to_pg import push_posts, push_metrics
+
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        pg_posts = []
+        pg_metrics = []
+        seen_post_ids = set()
+        skipped_no_id = 0
+        skipped_dup = 0
+        for uname_lower, cr in sorted_creators:
+            contents = content_map.get(uname_lower, [])
+            for ct in contents:
+                pm = enrich_data.get(ct["post_url"], {})
+                shortcode = pm.get("shortcode", "")
+                if not shortcode:
+                    # Extract from URL
+                    url_parts = ct["post_url"].rstrip("/").split("/")
+                    shortcode = url_parts[-1] if url_parts else ""
+                if not shortcode:
+                    skipped_no_id += 1
+                    continue
+                if shortcode in seen_post_ids:
+                    skipped_dup += 1
+                    continue
+                seen_post_ids.add(shortcode)
+                post_date = pm.get("post_date", "") or ct.get("post_date", "")
+                caption = pm.get("caption", "") or ct.get("caption", "")
+                hashtags = pm.get("hashtags", "")
+
+                pg_posts.append({
+                    "post_id": shortcode,
+                    "url": ct["post_url"],
+                    "platform": ct["platform"],
+                    "username": cr["username"],
+                    "nickname": cr["username"],
+                    "followers": int(safe_num(cr["followers"])),
+                    "caption": caption[:500] if caption else "",
+                    "hashtags": hashtags,
+                    "tagged_account": "",
+                    "post_date": post_date[:10] if post_date else today_str,
+                    "brand": "",
+                    "region": "us",
+                    "source": "social_enricher",
+                    "bio_text": cr.get("bio_text", ""),
+                    "views_30d": int(cr["views_30d"]),
+                    "likes_30d": int(cr["likes_30d"]),
+                })
+
+                views = pm.get("views", 0)
+                likes = pm.get("likes", 0)
+                comments = pm.get("comments", 0)
+                if views or likes or comments:
+                    pg_metrics.append({
+                        "post_id": shortcode,
+                        "date": today_str,
+                        "views": int(views) if views else 0,
+                        "likes": int(likes) if likes else 0,
+                        "comments": int(comments) if comments else 0,
+                    })
+
+        if skipped_no_id or skipped_dup:
+            print(f"  PG dedup: {skipped_no_id} skipped (no post_id), {skipped_dup} skipped (duplicate)")
+        push_posts(pg_posts)
+        if pg_metrics:
+            push_metrics(pg_metrics)
+        print(f"  PG sync complete: {len(pg_posts)} posts, {len(pg_metrics)} metrics")
+
     print(f"\nDone!")
 
 
@@ -562,18 +749,46 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Social Enricher - Build US Content Full export with Apify post metrics"
     )
+    # Threshold filters
     parser.add_argument("--min-views", type=int, default=2000,
         help="Min 30-day views threshold (default: 2000)")
     parser.add_argument("--min-likes", type=int, default=30,
         help="Min 30-day likes threshold (default: 30)")
+    # Advanced filters
+    parser.add_argument("--min-er", type=float, default=0,
+        help="Min engagement rate filter (e.g. 0.03 = 3%%)")
+    parser.add_argument("--min-followers", type=int, default=0,
+        help="Min followers filter")
+    parser.add_argument("--max-followers", type=int, default=0,
+        help="Max followers filter (0 = no limit)")
+    parser.add_argument("--platform", type=str, default="",
+        help="Filter by platform: instagram, tiktok")
+    parser.add_argument("--language", type=str, default="",
+        help="Filter by language (e.g. en, ja)")
+    parser.add_argument("--theme", type=str, default="",
+        help="Filter content by theme (comma-separated, e.g. baby,family)")
+    parser.add_argument("--since", type=str, default="",
+        help="Filter content posted since date (YYYY-MM-DD)")
+    # Actions
     parser.add_argument("--dry-run", action="store_true",
         help="Show counts + samples without writing Excel")
     parser.add_argument("--enrich", action="store_true",
         help="Fetch per-post views/likes/comments via Apify (costs credits)")
+    parser.add_argument("--pg-sync", action="store_true",
+        help="Sync results to PostgreSQL via orbitools API")
     args = parser.parse_args()
+
     build_export(
         min_views=args.min_views,
         min_likes=args.min_likes,
         dry_run=args.dry_run,
         enrich=args.enrich,
+        min_er=args.min_er,
+        min_followers=args.min_followers,
+        max_followers=args.max_followers,
+        platform_filter=args.platform,
+        language_filter=args.language,
+        theme_filter=args.theme,
+        since_filter=args.since,
+        pg_sync=args.pg_sync,
     )
