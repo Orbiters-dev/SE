@@ -138,13 +138,14 @@ jobs:
 
       - name: Run Data Keeper
         if: steps.mode.outputs.notify_only == 'false'
+        continue-on-error: true
         run: |
           CHANNEL="${{ github.event.inputs.channel || 'all' }}"
           DAYS="${{ github.event.inputs.days || '35' }}"
           SKIP_PG="${{ github.event.inputs.skip_pg || 'false' }}"
           CMD="python -u tools/data_keeper.py --channel $CHANNEL --days $DAYS"
           if [ "$SKIP_PG" = "true" ]; then CMD="$CMD --skip-pg"; fi
-          # Only the main daily schedule (KST 22:00) sends email; manual dispatch = no email
+          # Only the PST 0:00 schedule sends email
           if [ "${{ github.event_name }}" = "schedule" ] && [ "${{ steps.mode.outputs.is_daily }}" = "true" ]; then
             CMD="$CMD --notify"
           fi
@@ -161,18 +162,18 @@ jobs:
           cd tools && python -u fetch_influencer_orders.py || echo "Influencer orders fetch failed (non-fatal)"
 
       - name: Collect Amazon Ads Keywords & Search Terms
-        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads_search_terms' || github.event.inputs.channel == 'amazon_ads_keywords')
+        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads_search_terms' || github.event.inputs.channel == 'amazon_ads_keywords')
         run: |
           python -u tools/data_keeper.py --channel amazon_ads_search_terms --days 35 || echo "Search terms collection failed (non-fatal)"
           python -u tools/data_keeper.py --channel amazon_ads_keywords --days 35 || echo "Keywords collection failed (non-fatal)"
 
       - name: Collect Google Ads Search Terms
-        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'google_ads_search_terms')
+        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'google_ads_search_terms')
         run: |
           python -u tools/data_keeper.py --channel google_ads_search_terms --days 35 || echo "Google Ads search terms collection failed (non-fatal)"
 
       - name: Collect Amazon Brand Analytics
-        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_brand_analytics')
+        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_brand_analytics')
         run: |
           python -u tools/data_keeper.py --channel amazon_brand_analytics --days 35 || echo "Brand Analytics collection failed (non-fatal)"
 
@@ -182,7 +183,7 @@ jobs:
           python -u tools/run_amazon_ppc_daily.py --dry-run || echo "PPC analysis failed (non-fatal)"
 
       - name: Collect Amazon Search Rankings
-        if: steps.mode.outputs.notify_only == 'false' && steps.mode.outputs.is_daily == 'true' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all')
+        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all')
         run: |
           python -u tools/collect_search_ranking.py || echo "Search ranking collection failed (non-fatal)"
         env:
