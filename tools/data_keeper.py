@@ -3193,6 +3193,23 @@ def collect_meta_ads_jp(date_from: str, date_to: str) -> list[dict]:
     return all_rows
 
 
+def collect_influencer_orders(date_from: str, date_to: str) -> list[dict]:
+    """Collect Shopify influencer/PR orders via fetch_influencer_orders + transform to PG schema."""
+    print("[Influencer Orders] Collecting...")
+    try:
+        from fetch_influencer_orders import fetch_by_tags, fetch_by_note_scan, to_pg_rows
+        tag_orders, seen_ids = fetch_by_tags()
+        note_orders = fetch_by_note_scan(seen_ids)
+        all_orders = tag_orders + note_orders
+        print(f"  [Influencer Orders] {len(all_orders)} orders ({len(tag_orders)} tags + {len(note_orders)} notes)")
+        if not all_orders:
+            return []
+        return to_pg_rows(all_orders)
+    except Exception as e:
+        print(f"  [Influencer Orders] FAILED: {e}")
+        raise
+
+
 CHANNEL_COLLECTORS = {
     "amazon_ads": ("amazon_ads_daily", collect_amazon_ads),
     "amazon_ads_search_terms": ("amazon_ads_search_terms", collect_amazon_ads_search_terms),
@@ -3213,6 +3230,7 @@ CHANNEL_COLLECTORS = {
     "dataforseo": ("dataforseo_keywords", collect_dataforseo),
     "rakuten": ("rakuten_orders_daily", collect_rakuten_orders),
     "amazon_autocomplete": ("amazon_autocomplete_daily", collect_amazon_autocomplete),
+    "influencer_orders": ("influencer_orders", collect_influencer_orders),
 }
 
 

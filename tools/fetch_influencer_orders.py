@@ -4,11 +4,13 @@ Two-pass approach:
   1) Tag-based queries (fast): PR, supporter, supporters, sample, free sample
   2) Full order scan (comprehensive): checks ALL orders' notes for keywords
 
-Saves to .tmp/polar_data/q10_influencer_orders.json
+Saves to .tmp/polar_data/q10_influencer_orders.json AND pushes to PostgreSQL gk_influencer_orders.
 """
-import os, json, urllib.parse, time, re
+import os, json, urllib.parse, time, re, sys
 import requests as _requests
 from dotenv import load_dotenv
+
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(DIR, "..")
@@ -171,10 +173,98 @@ def fetch_by_note_scan(seen_ids):
     return orders
 
 
+def _detect_brand(line_items):
+    """Detect brand from line item titles/SKUs."""
+    for li in line_items:
+        title = (li.get("title", "") or "").lower()
+        sku = (li.get("sku", "") or "").lower()
+        combined = title + " " + sku
+        if any(k in combined for k in ("grosmimi", "ppsu", "straw cup", "tumbler")):
+            return "Grosmimi"
+        if any(k in combined for k in ("chaenmom", "cha&mom", "cha &")):
+            return "CHA&MOM"
+        if any(k in combined for k in ("naeiae", "나이아이")):
+            return "Naeiae"
+    return "Other"
+
+
+def _extract_handle(note, tags):
+    """Try to extract IG handle from note or tags."""
+    # Check note for @handle pattern
+    if note:
+        m = re.search(r'@([a-zA-Z0-9_.]+)', note)
+        if m:
+            return m.group(0)
+    # Check tags for handle-like patterns
+    for tag in (tags or "").split(","):
+        tag = tag.strip()
+        if tag.startswith("@"):
+            return tag
+    return ""
+
+
+def _get_shipping_date(o_raw):
+    """Extract shipping date from fulfillment data if available."""
+    # parse_order doesn't include fulfillments, so we look at created_at as fallback
+    return o_raw.get("created_at", "")[:10] if o_raw.get("created_at") else None
+
+
+def to_pg_rows(orders):
+    """Transform parsed Shopify orders → gk_influencer_orders schema."""
+    rows = []
+    for o in orders:
+        product_types = set()
+        product_names = []
+        for li in o.get("line_items", []):
+            product_names.append(li.get("title", ""))
+            title_lower = (li.get("title", "") or "").lower()
+            if "straw cup" in title_lower:
+                product_types.add("Straw Cup")
+            elif "tumbler" in title_lower:
+                product_types.add("Tumbler")
+            elif "bottle" in title_lower:
+                product_types.add("Baby Bottle")
+            elif "accessory" in title_lower or "replacement" in title_lower:
+                product_types.add("Accessory")
+
+        rows.append({
+            "order_id": str(o["id"]),
+            "order_name": o.get("name", ""),
+            "customer_name": o.get("customer_name", ""),
+            "customer_email": o.get("customer_email", ""),
+            "account_handle": _extract_handle(o.get("note", ""), o.get("tags", "")),
+            "channel": "Shopify",
+            "product_types": ", ".join(sorted(product_types)) if product_types else "",
+            "product_names": " | ".join(product_names),
+            "influencer_fee": float(o.get("total_price", 0)),
+            "shipping_date": o.get("created_at", "")[:10] or None,
+            "fulfillment_status": o.get("fulfillment_status") or "unfulfilled",
+            "brand": _detect_brand(o.get("line_items", [])),
+            "tags": o.get("tags", ""),
+        })
+    return rows
+
+
+def push_to_pg(orders):
+    """Push orders to PostgreSQL via push_content_to_pg."""
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from push_content_to_pg import push_influencer_orders
+        pg_rows = to_pg_rows(orders)
+        result = push_influencer_orders(pg_rows)
+        print(f"  [PG] influencer_orders: +{result['created']} new, ~{result['updated']} updated")
+        if result.get("errors"):
+            print(f"  [PG WARN] {len(result['errors'])} errors")
+        return result
+    except Exception as e:
+        print(f"  [PG ERROR] Failed to push influencer orders: {e}")
+        return {"created": 0, "updated": 0, "errors": [str(e)]}
+
+
 def main():
     if not TOKEN:
         print("ERROR: SHOPIFY_ACCESS_TOKEN must be set in .env")
-        return
+        sys.exit(1)
 
     print(f"Fetching influencer orders from {SHOP}...")
 
@@ -199,10 +289,18 @@ def main():
     if dates:
         print(f"  Date range: {dates[0]} to {dates[-1]}")
 
+    # Save JSON (existing behavior)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump({"orders": all_orders}, f, indent=2, ensure_ascii=False)
     print(f"  Saved to {OUT}")
+
+    # Push to PostgreSQL (NEW)
+    if all_orders:
+        print("  Pushing to PostgreSQL...")
+        push_to_pg(all_orders)
+    else:
+        print("  No orders to push to PG")
 
 
 if __name__ == "__main__":

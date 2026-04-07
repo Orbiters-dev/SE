@@ -156,10 +156,10 @@ jobs:
         run: |
           cd tools && python -u fetch_paypal_transactions.py || echo "PayPal fetch failed (non-fatal)"
 
-      - name: Run influencer orders fetch
-        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all')
+      - name: Collect influencer orders (Shopify PR/sample → PG)
+        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'influencer_orders')
         run: |
-          cd tools && python -u fetch_influencer_orders.py || echo "Influencer orders fetch failed (non-fatal)"
+          python -u tools/data_keeper.py --channel influencer_orders --days 365
 
       - name: Collect Amazon Ads Keywords & Search Terms
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads_search_terms' || github.event.inputs.channel == 'amazon_ads_keywords')
