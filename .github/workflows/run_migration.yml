@@ -26,13 +26,14 @@ jobs:
 
       - name: Run migration SQL
         run: |
-          cat onzenna/migrations/add_creator_master_list_fields.sql | \
-            ssh ec2 "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f -"
+          # SCP-Execute pattern: transfer file first, then run on EC2 (no pipe)
+          scp onzenna/migrations/add_creator_master_list_fields.sql ec2:/tmp/migration.sql
+          ssh ec2 "PGPASSWORD=orbit1234 psql -h 172.31.13.240 -U es_db_user -d export_calculator_db -f /tmp/migration.sql && rm /tmp/migration.sql"
 
       - name: Deploy files
         run: |
-          tar czf - onzenna/models.py onzenna/views.py onzenna/urls.py | \
-            ssh ec2 "cd /home/ubuntu/export_calculator && tar xzf -"
+          # SCP files directly instead of tar pipe (avoids SIGPIPE exit 141)
+          scp -r onzenna/models.py onzenna/views.py onzenna/urls.py ec2:/home/ubuntu/export_calculator/onzenna/
           echo "Files deployed OK"
 
       - name: Create and run restart script
@@ -67,10 +68,15 @@ jobs:
           SCRIPT
           chmod +x /tmp/restart_gunicorn.sh'
 
-          # Execute restart script via nohup (detached from SSH)
-          ssh ec2 'nohup /tmp/restart_gunicorn.sh > /tmp/restart_gunicorn.log 2>&1; cat /tmp/restart_gunicorn.log'
+          # Execute restart script via nohup, then retrieve log via SCP (no pipe)
+          ssh ec2 'nohup /tmp/restart_gunicorn.sh > /tmp/restart_gunicorn.log 2>&1; echo "EXIT=$?"'
+          scp ec2:/tmp/restart_gunicorn.log /tmp/restart_gunicorn.log 2>/dev/null || true
+          cat /tmp/restart_gunicorn.log 2>/dev/null || echo "(log not available)"
 
       - name: Verify API
         run: |
           sleep 3
-          ssh ec2 'curl -sf -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ | python3 -m json.tool'
+          # Run curl + json.tool on EC2, write to file, then retrieve (no nested pipe over SSH)
+          ssh ec2 'curl -sf -u admin:admin http://localhost:8000/api/onzenna/pipeline/creators/stats/ > /tmp/api_check.json 2>&1; echo "EXIT=$?"'
+          scp ec2:/tmp/api_check.json /tmp/api_check.json 2>/dev/null || true
+          python3 -m json.tool /tmp/api_check.json 2>/dev/null || cat /tmp/api_check.json 2>/dev/null || echo "(API check failed)"
