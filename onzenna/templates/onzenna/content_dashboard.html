@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Content Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#6366f1;--abg:#eef2ff;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
+.ctr{max-width:1020px;margin:0 auto;padding:28px 20px 80px}
+.hero{text-align:center;margin-bottom:24px}
+.hero h1{font-size:26px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#ec4899,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{color:var(--dim);font-size:13px;margin-top:3px}
+.hero .meta{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:10px;color:var(--dim);display:inline-flex;align-items:center;gap:4px}
+.pill .dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 3px var(--g)}
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0}
+.tabs>div{padding:10px 24px;font-size:12px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s}
+.tabs>div:hover{color:var(--text)}.tabs>div.on{color:var(--a);border-bottom-color:var(--a)}
+.pnl{display:none;padding-top:20px}.pnl.on{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
+.card h3{font-size:12px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px}
+.stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+.stat .sv{font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
+.stat.green .sv{color:var(--g)}.stat.red .sv{color:var(--r)}.stat.amber .sv{color:var(--am)}.stat.accent .sv{color:var(--a)}.stat.cyan .sv{color:var(--c)}.stat.pink .sv{color:var(--p)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 7px;text-align:left;border-bottom:2px solid var(--border)}
+td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbff}
+.b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
+.race-line{stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:opacity .2s}
+.race-line:hover{stroke-width:4}
+.race-label{font-size:9px;font-weight:700;pointer-events:none}
+.race-dot{transition:r .15s}
+.content-toggle{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:10px}
+.content-toggle>div{padding:5px 12px;cursor:pointer;font-weight:600;color:var(--dim);transition:.12s}
+.content-toggle>div.on{background:var(--a);color:#fff}
+.content-toggle>div:hover:not(.on){background:var(--abg)}
+.link-btn{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600;color:var(--a);background:var(--abg);text-decoration:none;transition:.12s}
+.link-btn:hover{background:var(--a);color:#fff}
+.prod-tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:600;background:#f3e8ff;color:#7c3aed;margin:1px 2px}
+.nav-link{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--a);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;transition:.12s}
+.nav-link:hover{background:var(--abg);border-color:var(--a)}
+/* ── Mobile Responsive ── */
+@media(max-width:700px){
+  .ctr{padding:12px 8px 60px}
+  .hero h1{font-size:18px}
+  .hero .sub{font-size:11px}
+  /* Nav bar */
+  .ctr>div:first-child>div{flex-direction:column;border-radius:8px}
+  .ctr>div:first-child>div>*{padding:6px 14px!important;font-size:11px!important;text-align:center}
+  /* Tabs: horizontal scroll */
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+  .tabs>div{padding:8px 14px;font-size:10px;white-space:nowrap;flex-shrink:0}
+  /* Stats */
+  .stats{grid-template-columns:repeat(2,1fr);gap:4px}
+  .stat .sv{font-size:16px}
+  /* Tables: horizontal scroll */
+  .card{padding:10px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:500px}
+  th{padding:5px 4px;font-size:8px}td{padding:4px 4px;font-size:10px}
+  /* Login gate */
+  #login-gate>div{padding:28px 20px!important;width:92%!important}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="login-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
+  <div style="background:var(--card);border-radius:16px;padding:48px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.06);border:1px solid var(--border);text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">&#x1F3AC;</div>
+    <h2 style="font-size:18px;font-weight:800;margin-bottom:4px">Content Intelligence</h2>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:24px">Sign in to access the dashboard</p>
+    <input type="text" id="login-uid" placeholder="User ID" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:8px;font-family:inherit">
+    <input type="password" id="login-pw" placeholder="Password" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:16px;font-family:inherit" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" style="width:100%;background:var(--a);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Sign In</button>
+    <div id="login-err" style="color:var(--r);font-size:11px;margin-top:10px;display:none"></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" style="display:none">
+<div class="ctr">
+  <div id="top-nav" style="display:flex;justify-content:center;gap:4px;margin-bottom:20px">
+    <div style="display:inline-flex;border:2px solid #e2e8f0;border-radius:10px;overflow:hidden;font-size:12px;font-weight:700">
+      <a href="/api/onzenna/ppc/dashboard/" style="padding:8px 20px;color:#64748b;text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#eef2ff';this.style.color='#6366f1'" onmouseout="this.style.background='';this.style.color='#64748b'">Amazon PPC</a>
+      <div style="padding:8px 20px;background:#ec4899;color:#fff;cursor:default">Content Intelligence</div>
+      <a href="/api/onzenna/pipeline/dashboard/" style="padding:8px 20px;color:#64748b;text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#fef3c7';this.style.color='#f59e0b'" onmouseout="this.style.background='';this.style.color='#64748b'">Pipeline CRM</a>
+      <a href="/api/onzenna/financial/dashboard/" style="padding:8px 20px;color:#64748b;text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center" onmouseover="this.style.background='#ecfdf5';this.style.color='#10b981'" onmouseout="this.style.background='';this.style.color='#64748b'">Financial KPIs</a>
+    </div>
+  </div>
+
+  <div class="hero" style="margin-bottom:16px">
+    <h1>&#x1F3AC; Content <span>Intelligence</span></h1>
+    <div class="sub">Influencer content performance tracking &amp; sales correlation</div>
+    <div class="meta" id="hero-meta">
+      <span class="pill"><span class="dot"></span>Live Data</span>
+      <span class="pill">DataKeeper API</span>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+    <div id="regionToggle">
+      <div class="content-toggle" style="font-size:12px">
+        <div class="on" onclick="setRegion('us')">&#x1F1FA;&#x1F1F8; US</div>
+        <div onclick="setRegion('jp')">&#x1F1EF;&#x1F1F5; Japan</div>
+      </div>
+    </div>
+    <div id="brandToggle">
+      <div class="content-toggle" style="font-size:11px">
+        <div class="on" data-brand="all" onclick="setBrand('all')">All Brands</div>
+        <div data-brand="Grosmimi" onclick="setBrand('Grosmimi')" style="color:#059669">Grosmimi</div>
+        <div data-brand="CHA&MOM" onclick="setBrand('CHA&MOM')" style="color:#e11d48">CHA&amp;MOM</div>
+        <div data-brand="Naeiae" onclick="setBrand('Naeiae')" style="color:#ea580c">Naeiae</div>
+        <div data-brand="N/A" onclick="setBrand('N/A')">N/A</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs" id="mainTabs">
+    <div class="on" data-tab="alltime">Leaderboard</div>
+    <div data-tab="race">Content Race</div>
+    <div data-tab="pipeline">Pipeline KPI</div>
+    <div data-tab="aggregate">Aggregate</div>
+  </div>
+
+  <div id="loading" style="text-align:center;padding:40px;color:var(--dim);font-size:12px">Loading content data from DataKeeper...</div>
+
+  <div id="panel-alltime" class="pnl on"><div id="alltime-inner"></div></div>
+  <div id="panel-race" class="pnl"><div id="race-inner"></div></div>
+  <div id="panel-pipeline" class="pnl"><div id="pipeline-inner"></div></div>
+  <div id="panel-aggregate" class="pnl"><div id="aggregate-inner"></div></div>
+</div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div id="video-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;cursor:pointer" onclick="closeVideoModal()">
+  <div style="background:white;border-radius:16px;padding:20px;max-width:500px;width:90%;max-height:85vh;overflow:auto;position:relative;cursor:default" onclick="event.stopPropagation()">
+    <button onclick="closeVideoModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim)">x</button>
+    <div id="video-embed" style="margin-top:8px"></div>
+    <div id="video-meta" style="margin-top:12px;font-size:11px;color:var(--dim)"></div>
+  </div>
+</div>
+
+<script>
+// ─── Embed mode: hide nav when loaded in iframe ───
+if(new URLSearchParams(window.location.search).get('embed')==='1'){
+  document.addEventListener('DOMContentLoaded',function(){
+    var n=document.getElementById('top-nav'); if(n)n.style.display='none';
+  });
+  // Skip login when embedded — parent dashboard already authenticated
+  document.addEventListener('DOMContentLoaded',function(){
+    document.getElementById('login-gate').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    initContentDashboard();
+  });
+}
+// ══════════ AUTH ══════════
+var AUTH_USERS = {
+  'WJ':  'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
+  'CAL': 'a1a137c402f2a79391d3ecd012536dc6a2dc6e4e3ee32c2880d01afa04f7402c',
+  'MJ':  'c8fe37479a933b489c5d4a1ff509cbe60095246f1e42f383bc017cb77b3efcbb',
+  'HJ':  '75c2e5a66c6bcc985f42b6d402dbb10050a09c9f0371ed735e1983c145da3ffe',
+  'JS':  '89d0eb2d586787c34782b6fa71300419edb51538e74596a8c7948c0abca66e6d',
+  'HC':  '357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5',
+  'JHG': '4fde1cea77c9c59bed96bc884c846cb4eca99d28c3c031c2f46e6d00bad2f2a1',
+  'SY':  '02055f756ae94496a7f3a8eb3ee14454d9231b5689e15b60945fe8f3e7166964',
+  'LK':  'deacf4810dbd04dbfe9cb54a3e767067d40e7d50f1973f59e6c8ed7135d7e16a',
+  'JH':  '9b6b725c547356d40e3ce5dd1a985f1a4b35076792d621c76e356c13a531ec7b',
+  'SE':  '9346ed77d5684897c51838d0c98db23867810a7e4b120c1226a15b834f4af459',
+  'WC':  '1f3d8a8b4c971a06b1064ce6388ebf34e936e69f766014f5102e514ac13571bd'
+};
+async function sha256(s){var e=new TextEncoder().encode(s);var h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
+async function doLogin(){
+  var uid=document.getElementById('login-uid').value.trim().toUpperCase();
+  var pw=document.getElementById('login-pw').value;
+  if(!uid||!pw){document.getElementById('login-err').textContent='Enter ID and password';document.getElementById('login-err').style.display='block';return;}
+  var hash=await sha256(pw+uid.toLowerCase());
+  if(AUTH_USERS[uid]&&AUTH_USERS[uid]===hash){
+    localStorage.setItem('content_auth',JSON.stringify({uid:uid,ts:Date.now()}));
+    showDashboard();
+  }else{document.getElementById('login-err').textContent='Invalid credentials';document.getElementById('login-err').style.display='block';}
+}
+function checkAuth(){
+  var s=localStorage.getItem('content_auth');
+  if(!s)return false;
+  try{var d=JSON.parse(s);return(Date.now()-d.ts)<30*86400000;}catch(e){return false;}
+}
+function showDashboard(){
+  document.getElementById('login-gate').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  initContentDashboard();
+}
+if(checkAuth()) showDashboard();
+
+// ══════════ GLOBALS ══════════
+var API_BASE = '/api/datakeeper';
+var _loaded = false;
+var _posts = [];
+var _metrics = [];
+var _orders = [];
+var _amzSales = [];
+var _shopSales = [];
+var _metricsByPost = {};
+var _ordersByHandle = {};
+var _currentTab = 'alltime';
+var _region = (new URLSearchParams(window.location.search)).get('region') || 'us';
+var _brand = 'all'; // all, Grosmimi, CHA&MOM, Naeiae, N/A
+var _pipelineView = 'overview'; // overview, brand, products
+
+var RACE_COLORS = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#ec4899','#8b5cf6','#14b8a6','#f97316','#64748b'];
+var _aggGranularity = 'monthly';
+var _pipelineGranularity = 'monthly';
+var _alltimeWindow = 0; // 0=all-time, 7, 30
+
+// ══════════ HELPERS ══════════
+function fmtN(n){ return Math.round(n).toLocaleString('en-US'); }
+function fmtD(n){ return '$'+Math.round(n).toLocaleString('en-US'); }
+function escQ(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+function normHandle(s){ return (s||'').replace(/[_.\-@]/g,'').toLowerCase(); }
+function detectBrand(p){
+  var text = ((p.caption||'')+ ' ' +(p.hashtags||'')+ ' ' +(p.tagged_account||'')).toLowerCase();
+  var found = [];
+  if(/grosmimi|growmimi|grosmimi_usa|grosmimi_japan/.test(text)) found.push('Grosmimi');
+  if(/cha\s*&\s*mom|cha_mom|chaandmom|chamom/.test(text)) found.push('CHA&MOM');
+  if(/naeiae|naeia/.test(text)) found.push('Naeiae');
+  if(/goongbe/.test(text)) found.push('Goongbe');
+  if(/babyrabbit/.test(text)) found.push('Babyrabbit');
+  if(/commemoi/.test(text)) found.push('Commemoi');
+  return found.length ? found.join(', ') : 'N/A';
+}
+function setBrand(b){
+  _brand = b;
+  document.querySelectorAll('#brandToggle .content-toggle>div').forEach(function(x){ x.classList.remove('on'); });
+  document.querySelector('#brandToggle .content-toggle>div[data-brand="'+b+'"]').classList.add('on');
+  if(_loaded) renderTab(_currentTab);
+}
+function filterByBrand(p){ return _brand==='all' || (p._brand||'N/A').split(', ').indexOf(_brand)!==-1; }
+
+// ══════════ IMPACT SCORE ══════════
+// Score = view_velocity × engagement_rate × brand_fit × decay × 1000
+// Predicts relative sales contribution per post
+// Search Lift: estimated additional searches driven by this post
+// Requires regression β2 from run_content_impact.py (Module 3, needs 20+ days data)
+// Returns -1 (n.m.) until regression data is available
+function computeImpactScore(p){ return -1; }
+var _alltimeSortBy = 'views'; // 'views' or 'impact'
+function brandBadge(b){
+  var colors={'Grosmimi':'background:#ecfdf5;color:#059669','CHA&MOM':'background:#fef2f2;color:#e11d48','Naeiae':'background:#fff7ed;color:#ea580c',
+    'Onzenna':'background:#eef2ff;color:#6366f1','Goongbe':'background:#f0f9ff;color:#0ea5e9','Babyrabbit':'background:#fdf4ff;color:#c026d3','Commemoi':'background:#fffbeb;color:#d97706','N/A':'background:#f1f5f9;color:#94a3b8'};
+  return (b||'N/A').split(', ').map(function(x){ return '<span class="b" style="'+(colors[x]||colors['N/A'])+';font-size:9px">'+x+'</span>'; }).join(' ');
+}
+function formatViewsShort(v){
+  if(v>=1000000) return (v/1000000).toFixed(1)+'M';
+  if(v>=1000) return (v/1000).toFixed(1)+'K';
+  return Math.round(v)+'';
+}
+function platformBadge(p){
+  if(p==='instagram') return '<span class="b" style="background:#fef2f2;color:#e11d48">IG</span>';
+  if(p==='tiktok') return '<span class="b" style="background:#f0f9ff;color:#0ea5e9">TT</span>';
+  return '<span class="b">'+p+'</span>';
+}
+function highlightRacer(idx){
+  document.querySelectorAll('.race-line').forEach(function(l){ l.style.opacity=parseInt(l.dataset.idx)===idx?'1':'0.15'; });
+}
+function unhighlightRacer(){
+  document.querySelectorAll('.race-line').forEach(function(l){ l.style.opacity='1'; });
+}
+
+// ══════════ FRESHNESS ══════════
+function updateFreshness(){
+  var meta = document.getElementById('hero-meta');
+  if(!meta) return;
+
+  // Find latest post date
+  var latestPost = '';
+  _posts.forEach(function(p){ if(p.post_date && p.post_date > latestPost) latestPost = p.post_date; });
+
+  // Find latest metrics crawl date
+  var latestMetric = '';
+  _metrics.forEach(function(m){ if(m.date && m.date > latestMetric) latestMetric = m.date; });
+
+  // Convert to PST display
+  var now = new Date();
+  var pstOffset = -7; // PDT
+  var pstNow = new Date(now.getTime() + (now.getTimezoneOffset() + pstOffset*60)*60000);
+  var loadedPST = pstNow.toISOString().slice(0,16).replace('T',' ') + ' PST';
+
+  // March data range: "Mar 1-19" style
+  var dataRange = '';
+  if(latestMetric){
+    var mm = parseInt(latestMetric.slice(5,7));
+    var dd = parseInt(latestMetric.slice(8,10));
+    var yr = latestMetric.slice(0,4);
+    var months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    dataRange = months[mm] + ' ' + yr + ': 1\u2013' + dd;
+  }
+
+  var pills = '<span class="pill"><span class="dot"></span>Live Data</span>'
+    + '<span class="pill">DataKeeper API</span>';
+  if(dataRange) pills += '<span class="pill" style="color:var(--a);font-weight:600">' + dataRange + '</span>';
+  pills += '<span class="pill">Loaded: ' + loadedPST + '</span>';
+  if(latestMetric) pills += '<span class="pill">Metrics thru: ' + latestMetric + '</span>';
+  meta.innerHTML = pills;
+}
+
+// ══════════ DATA LOADING ══════════
+var _retryCount = 0;
+async function initContentDashboard(){
+  // Sync region toggle UI with _region (may be set from URL param)
+  if(_region==='jp'){
+    var btns=document.querySelectorAll('#regionToggle .content-toggle>div');
+    if(btns.length>=2){btns[0].classList.remove('on');btns[1].classList.add('on');}
+  }
+  if(_loaded){ renderTab(_currentTab); return; }
+  var loadEl = document.getElementById('loading');
+  loadEl.style.display = 'block';
+  loadEl.textContent = 'Loading content data from DataKeeper...';
+  try{
+    var _cb = '&_t='+Date.now();
+    var [postsRes, metricsRes, ordersRes, amzRes, shopRes] = await Promise.all([
+      fetch(API_BASE+'/query/?table=content_posts&limit=10000&source=apify'+_cb),
+      fetch(API_BASE+'/query/?table=content_metrics_daily&limit=50000'+_cb),
+      fetch(API_BASE+'/query/?table=influencer_orders&limit=10000'+_cb),
+      fetch(API_BASE+'/query/?table=amazon_sales_daily&limit=50000&date_from=2025-01-01'+_cb),
+      fetch(API_BASE+'/query/?table=shopify_orders_daily&limit=50000&date_from=2025-01-01'+_cb)
+    ]);
+    if(!postsRes.ok) throw new Error('content_posts: '+postsRes.status);
+    if(!metricsRes.ok) throw new Error('content_metrics_daily: '+metricsRes.status);
+    if(!ordersRes.ok) throw new Error('influencer_orders: '+ordersRes.status);
+    var EXCLUDED_CREATORS=['rosalieflorentin'];
+    _posts = ((await postsRes.json()).rows||[]).filter(function(p){return EXCLUDED_CREATORS.indexOf((p.username||'').toLowerCase())<0;});
+    _metrics = (await metricsRes.json()).rows||[];
+    _orders = (await ordersRes.json()).rows||[];
+    _amzSales = amzRes.ok ? ((await amzRes.json()).rows||[]) : [];
+    _shopSales = shopRes.ok ? ((await shopRes.json()).rows||[]) : [];
+    // Enrich posts with detected brand from caption + hashtags + tagged_account
+    _posts.forEach(function(p){ p._brand = p.brand || detectBrand(p); });
+    _loaded = true;
+    _retryCount = 0;
+    loadEl.style.display = 'none';
+
+    // Build lookup maps
+    _metricsByPost = {};
+    _metrics.forEach(function(m){
+      if(!_metricsByPost[m.post_id]) _metricsByPost[m.post_id]=[];
+      _metricsByPost[m.post_id].push(m);
+    });
+    _ordersByHandle = {};
+    _orders.forEach(function(o){
+      var h = normHandle(o.account_handle);
+      if(h){ if(!_ordersByHandle[h]) _ordersByHandle[h]=[]; _ordersByHandle[h].push(o); }
+    });
+
+    // Update hero with freshness info
+    updateFreshness();
+
+    renderTab(_currentTab);
+  }catch(e){
+    console.error('Content Dashboard load error (attempt '+ (_retryCount+1) +'):', e);
+    // Auto-retry up to 2 times with increasing delay
+    if(_retryCount < 2){
+      _retryCount++;
+      loadEl.textContent = 'Retrying... (attempt '+(_retryCount+1)+')';
+      setTimeout(function(){ initContentDashboard(); }, _retryCount * 1000);
+      return;
+    }
+    var errMsg = e.message || e.toString() || 'Unknown error';
+    if(errMsg==='Failed to fetch' || errMsg==='Load failed'){
+      errMsg += ' — Check browser console. Possible CORS or network issue. API: '+API_BASE;
+    }
+    loadEl.innerHTML = '<div class="card" style="border-left:3px solid var(--r)"><h3 style="color:var(--r)">Failed to load data</h3><div class="desc" style="word-break:break-all">'+errMsg+'</div>'
+      +'<button onclick="_loaded=false;_retryCount=0;initContentDashboard()" style="margin-top:8px;padding:6px 16px;border-radius:6px;border:1px solid var(--a);background:var(--abg);color:var(--a);font-weight:700;font-size:11px;cursor:pointer">Retry</button></div>';
+  }
+}
+
+// ══════════ TAB SWITCHING ══════════
+document.querySelectorAll('#mainTabs>div').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('#mainTabs>div').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('.pnl').forEach(function(x){x.classList.remove('on')});
+    t.classList.add('on');
+    _currentTab = t.dataset.tab;
+    document.getElementById('panel-'+_currentTab).classList.add('on');
+    if(_loaded) renderTab(_currentTab);
+  });
+});
+function renderTab(tab){
+  if(!_loaded) return;
+  if(tab==='race') renderContentRace();
+  else if(tab==='alltime') renderAllTimeTop();
+  else if(tab==='pipeline') renderPipelineKPI();
+  else if(tab==='aggregate') renderAggregatePerformance();
+}
+function setRegion(r){
+  _region = r;
+  var btns = document.querySelectorAll('#regionToggle .content-toggle>div');
+  btns.forEach(function(b){ b.classList.remove('on'); });
+  if(r==='us') btns[0].classList.add('on'); else btns[1].classList.add('on');
+  if(_loaded) renderTab(_currentTab);
+}
+
+// ══════════ VIDEO MODAL ══════════
+function openVideoModal(postId, platform, url, username, views, likes){
+  var modal = document.getElementById('video-modal');
+  var embedEl = document.getElementById('video-embed');
+  var metaEl = document.getElementById('video-meta');
+  var embedHtml = '';
+  if(platform==='instagram'){
+    var sc = postId;
+    var match = (url||'').match(/\/(p|reel|tv)\/([^\/\?]+)/);
+    if(match) sc = match[2];
+    embedHtml = '<iframe src="https://www.instagram.com/p/'+sc+'/embed/" width="100%" height="480" frameborder="0" scrolling="no" allowtransparency="true" style="border-radius:8px;border:1px solid var(--border)"></iframe>';
+  } else if(platform==='tiktok'){
+    var vid = postId;
+    var ttm = (url||'').match(/\/video\/(\d+)/);
+    if(ttm) vid = ttm[1];
+    embedHtml = '<iframe src="https://www.tiktok.com/embed/v2/'+vid+'" width="100%" height="520" frameborder="0" allowfullscreen style="border-radius:8px;border:1px solid var(--border)"></iframe>';
+  } else {
+    embedHtml = '<div style="padding:40px;text-align:center;color:var(--dim)">Embed not available for '+platform+'</div>';
+  }
+  embedEl.innerHTML = embedHtml;
+  metaEl.innerHTML = '<b>@'+username+'</b> &middot; '+fmtN(views)+' views &middot; '+fmtN(likes)+' likes'
+    +(url?'<br><a href="'+url+'" target="_blank" style="color:var(--a);font-size:10px">Open in new tab &rarr;</a>':'');
+  modal.style.display = 'flex';
+}
+function closeVideoModal(){
+  document.getElementById('video-modal').style.display = 'none';
+  document.getElementById('video-embed').innerHTML = '';
+}
+
+// ══════════ TAB 1: CONTENT RACE (Calendar Date X-axis) ══════════
+function renderContentRace(){
+  var el = document.getElementById('race-inner');
+  var now = new Date();
+
+  // Last 30 calendar dates for X-axis
+  var calDates = [];
+  for(var i=29;i>=0;i--){
+    var d=new Date(now); d.setDate(d.getDate()-i);
+    calDates.push(d.toISOString().slice(0,10));
+  }
+
+  // Posts uploaded within last 90 days
+  var cutoff90=new Date(now); cutoff90.setDate(cutoff90.getDate()-90);
+  var cutoff90Str=cutoff90.toISOString().slice(0,10);
+  var eligible=_posts.filter(function(p){ return p.post_date>=cutoff90Str && (p.region||'us')===_region && !(p.source==='syncly_sheets'&&!p.brand&&(!p._brand||p._brand==='N/A')) && filterByBrand(p); });
+
+  var racers=eligible.map(function(p){
+    var snaps=(_metricsByPost[p.post_id]||[]).slice();
+    var byDate={};
+    snaps.forEach(function(s){ byDate[s.date]={views:+(s.views||0),likes:+(s.likes||0)}; });
+
+    // Data points within last 30 calendar days
+    var series=[];
+    calDates.forEach(function(dt,idx){
+      if(byDate[dt]) series.push({dateIdx:idx,date:dt,views:byDate[dt].views,likes:byDate[dt].likes});
+    });
+
+    // Latest views overall
+    var latestViews=0, latestLikes=0;
+    snaps.forEach(function(s){ var v=+(s.views||0); if(v>latestViews){latestViews=v; latestLikes=+(s.likes||0);} });
+
+    // Match to order for product info
+    var nh=normHandle(p.username);
+    var matchedOrders=_ordersByHandle[nh]||[];
+    var productTypes='';
+    if(matchedOrders.length){
+      var pts={};
+      matchedOrders.forEach(function(o){ (o.product_types||'').split(',').forEach(function(t){ t=t.trim(); if(t) pts[t]=1; }); });
+      productTypes=Object.keys(pts).join(', ');
+    }
+
+    return {post_id:p.post_id, url:p.url, platform:p.platform, username:p.username,
+      followers:p.followers, post_date:p.post_date, series:series,
+      latestViews:latestViews, latestLikes:latestLikes, brand:p.brand, productTypes:productTypes};
+  });
+
+  racers.sort(function(a,b){ return b.latestViews-a.latestViews; });
+  racers=racers.slice(0,10);
+
+  // Header
+  var headerHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    +'<div style="font-size:14px;font-weight:800">Content Race &mdash; Top 10 by Views (Last 90d Posts)</div>'
+    +'<div style="font-size:10px;color:var(--dim)">X-axis: last 30 calendar days</div></div>';
+
+  if(!racers.length){
+    el.innerHTML=headerHtml+'<div class="card" style="text-align:center;padding:40px;color:var(--dim)">No posts found in the last 90 days.</div>';
+    return;
+  }
+
+  // Stats
+  var totalV=0,totalL=0;
+  racers.forEach(function(r){totalV+=r.latestViews;totalL+=r.latestLikes;});
+  var statsHtml='<div class="stats" style="margin-bottom:12px">'
+    +'<div class="stat accent"><div class="sl">POSTS IN 90D WINDOW</div><div class="sv">'+eligible.length+'</div></div>'
+    +'<div class="stat cyan"><div class="sl">TOP 10 TOTAL VIEWS</div><div class="sv">'+formatViewsShort(totalV)+'</div></div>'
+    +'<div class="stat green"><div class="sl">TOP 10 TOTAL LIKES</div><div class="sv">'+fmtN(totalL)+'</div></div>'
+    +'</div>';
+
+  // SVG chart — calendar dates on X-axis
+  var maxViews=1;
+  racers.forEach(function(r){ r.series.forEach(function(s){ if(s.views>maxViews) maxViews=s.views; }); });
+  var W=860, H=320, PL=60, PR=140, PT=20, PB=36;
+  var cW=W-PL-PR, cH=H-PT-PB;
+  function xP(idx){ return PL+idx/29*cW; }
+  function yP(v){ return PT+cH-v/maxViews*cH; }
+
+  var grid='';
+  for(var g=0;g<=4;g++){
+    var gv=maxViews/4*g, gy=yP(gv);
+    grid+='<line x1="'+PL+'" y1="'+gy+'" x2="'+(W-PR)+'" y2="'+gy+'" stroke="#f1f5f9"/>';
+    grid+='<text x="'+(PL-6)+'" y="'+(gy+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+formatViewsShort(gv)+'</text>';
+  }
+  var xLabels='';
+  for(var xi=0;xi<30;xi+=5){
+    xLabels+='<text x="'+xP(xi)+'" y="'+(H-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8">'+calDates[xi].slice(5)+'</text>';
+  }
+  if(29%5!==0) xLabels+='<text x="'+xP(29)+'" y="'+(H-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8">'+calDates[29].slice(5)+'</text>';
+
+  var lines='', endLabels='';
+  racers.forEach(function(r,idx){
+    var c=RACE_COLORS[idx%RACE_COLORS.length];
+    if(!r.series.length) return;
+    var pts=r.series.map(function(s){ return xP(s.dateIdx).toFixed(1)+','+yP(s.views).toFixed(1); }).join(' ');
+    var last=r.series[r.series.length-1];
+    var lx=xP(last.dateIdx), ly=yP(last.views);
+    lines+='<polyline class="race-line" points="'+pts+'" stroke="'+c+'" data-idx="'+idx+'" onmouseover="highlightRacer('+idx+')" onmouseout="unhighlightRacer()"/>';
+    lines+='<circle class="race-dot" cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="5" fill="'+c+'" style="cursor:pointer" onclick="openVideoModal(\''+escQ(r.post_id)+'\',\''+r.platform+'\',\''+escQ(r.url)+'\',\''+escQ(r.username)+'\','+r.latestViews+','+r.latestLikes+')"/>';
+    endLabels+='<text x="'+(lx+8).toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" class="race-label" fill="'+c+'">@'+r.username+'</text>';
+  });
+
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;min-width:480px;height:auto;display:block">'+grid+xLabels+lines+endLabels+'</svg>';
+  var note='<div style="font-size:9px;color:var(--muted);margin-top:6px">Showing view trajectory over the last 30 calendar days. Click circle or row to embed video.</div>';
+
+  // Leaderboard
+  var lb='<div class="card" style="padding:0;overflow:hidden;margin-top:12px">'
+    +'<div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">Leaderboard &mdash; click row for video embed</div>'
+    +'<table><thead><tr style="font-size:10px"><th>#</th><th>Username</th><th>Platform</th><th>Post Date</th><th>Views</th><th>Likes</th><th>Followers</th><th>Products</th><th>Link</th></tr></thead><tbody>';
+  racers.forEach(function(r,idx){
+    var prodHtml=r.productTypes?r.productTypes.split(',').map(function(t){ return '<span class="prod-tag">'+t.trim()+'</span>'; }).join(''):'<span style="color:var(--muted);font-size:9px">-</span>';
+    var linkHtml=r.url?'<a href="'+r.url+'" target="_blank" class="link-btn" onclick="event.stopPropagation()">View</a>':'';
+    lb+='<tr style="cursor:pointer" onclick="openVideoModal(\''+escQ(r.post_id)+'\',\''+r.platform+'\',\''+escQ(r.url)+'\',\''+escQ(r.username)+'\','+r.latestViews+','+r.latestLikes+')">'
+      +'<td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+RACE_COLORS[idx%RACE_COLORS.length]+';margin-right:4px"></span>'+(idx+1)+'</td>'
+      +'<td><b>@'+r.username+'</b></td>'
+      +'<td>'+platformBadge(r.platform)+'</td>'
+      +'<td style="font-family:var(--mono);font-size:10px">'+r.post_date+'</td>'
+      +'<td style="font-weight:700">'+fmtN(r.latestViews)+'</td>'
+      +'<td>'+fmtN(r.latestLikes)+'</td>'
+      +'<td style="color:var(--dim)">'+fmtN(r.followers)+'</td>'
+      +'<td>'+prodHtml+'</td>'
+      +'<td>'+linkHtml+'</td></tr>';
+  });
+  lb+='</tbody></table></div>';
+
+  el.innerHTML=headerHtml+statsHtml
+    +'<div class="card" style="padding:16px"><div style="overflow-x:auto;cursor:crosshair">'+svg+'</div>'+note+'</div>'
+    +lb;
+}
+
+// ══════════ TAB 2: ALL-TIME TOP ══════════
+function renderAllTimeTop(){
+  var el = document.getElementById('alltime-inner');
+  var now = new Date();
+
+  // Toggle header
+  var windowLabel = _alltimeWindow===0?'All-Time':(_alltimeWindow===7?'Last 7 Days':'Last 30 Days');
+  var toggleHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    +'<div style="font-size:14px;font-weight:800">Content Leaderboard &mdash; '+windowLabel+'</div>'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    +'<div class="content-toggle">'
+    +'<div '+(_alltimeWindow===7?'class="on"':'')+' onclick="setAlltimeWindow(7)">Last 7d</div>'
+    +'<div '+(_alltimeWindow===30?'class="on"':'')+' onclick="setAlltimeWindow(30)">Last 30d</div>'
+    +'<div '+(_alltimeWindow===0?'class="on"':'')+' onclick="setAlltimeWindow(0)">All-Time</div>'
+    +'</div>'
+    +'</div></div>';
+
+  // Get max metrics per post
+  var postMax={};
+  var cutoffStr='';
+  if(_alltimeWindow>0){
+    var cutoff=new Date(now); cutoff.setDate(cutoff.getDate()-_alltimeWindow);
+    cutoffStr=cutoff.toISOString().slice(0,10);
+  }
+  _posts.forEach(function(p){
+    if((p.region||'us')!==_region) return;
+    if(p.source==='syncly_sheets'&&!p.brand&&(!p._brand||p._brand==='N/A')) return;
+    if(!filterByBrand(p)) return;
+    if(cutoffStr && p.post_date<cutoffStr) return;
+    postMax[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date,
+      username:p.username,url:p.url,followers:p.followers,brand:p._brand||'N/A',post_id:p.post_id};
+  });
+  _metrics.forEach(function(m){
+    if(!postMax[m.post_id]) return;
+    var pm=postMax[m.post_id];
+    if(+(m.views||0)>pm.views) pm.views=+(m.views||0);
+    if(+(m.likes||0)>pm.likes) pm.likes=+(m.likes||0);
+    if(+(m.comments||0)>pm.comments) pm.comments=+(m.comments||0);
+  });
+
+  var allPosts=Object.values(postMax);
+  // compute impact score for each post
+  allPosts.forEach(function(p){
+    var postObj=_posts.find(function(pp){return pp.post_id===p.post_id;});
+    p.caption=postObj?postObj.caption:'';
+    p.hashtags=postObj?postObj.hashtags:'';
+    p.impactScore=computeImpactScore(p);
+  });
+  if(_alltimeSortBy==='impact'){
+    allPosts.sort(function(a,b){ return b.impactScore-a.impactScore; });
+  } else {
+    allPosts.sort(function(a,b){ return b.views-a.views; });
+  }
+
+  // Stats
+  var totalV=0,totalL=0,totalC=0;
+  allPosts.forEach(function(p){totalV+=p.views;totalL+=p.likes;totalC+=p.comments;});
+  var statsHtml='<div class="stats" style="margin-bottom:12px">'
+    +'<div class="stat accent"><div class="sl">TOTAL POSTS</div><div class="sv">'+fmtN(allPosts.length)+'</div></div>'
+    +'<div class="stat cyan"><div class="sl">TOTAL VIEWS</div><div class="sv">'+formatViewsShort(totalV)+'</div></div>'
+    +'<div class="stat green"><div class="sl">TOTAL LIKES</div><div class="sv">'+fmtN(totalL)+'</div></div>'
+    +'<div class="stat amber"><div class="sl">TOTAL COMMENTS</div><div class="sv">'+fmtN(totalC)+'</div></div>'
+    +'</div>';
+
+  // Leaderboard cards
+  var showCount = Math.min(50, allPosts.length);
+  var tb='<div class="card" style="padding:0;overflow:hidden">'
+    +'<div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center">'
+    +'<span>'+windowLabel+' Leaderboard</span>'
+    +'<span style="font-size:10px;color:var(--dim)">'+allPosts.length+' posts</span></div>'
+    +'<div style="padding:8px">';
+
+  for(var i=0;i<showCount;i++){
+    var p=allPosts[i];
+    var nh=normHandle(p.username);
+    var matchedOrders=_ordersByHandle[nh]||[];
+    var prodHtml='';
+    if(matchedOrders.length){
+      var pts={};
+      matchedOrders.forEach(function(o){(o.product_types||'').split(',').forEach(function(t){t=t.trim();if(t)pts[t]=1;});});
+      var ptArr=Object.keys(pts);
+      if(ptArr.length) prodHtml=ptArr.map(function(t){return '<span class="prod-tag">'+t+'</span>';}).join('');
+    } else if(p.product_types){
+      prodHtml=(p.product_types||'').split(',').map(function(t){t=t.trim();return t?'<span class="prod-tag">'+t+'</span>':'';}).join('');
+    }
+
+    // Rank badge style
+    var rankBg='var(--abg)'; var rankColor='var(--a)';
+    if(i===0){rankBg='linear-gradient(135deg,#fbbf24,#f59e0b)';rankColor='#fff';}
+    else if(i===1){rankBg='linear-gradient(135deg,#cbd5e1,#94a3b8)';rankColor='#fff';}
+    else if(i===2){rankBg='linear-gradient(135deg,#fdba74,#f97316)';rankColor='#fff';}
+
+    // Engagement rate
+    var engRate=p.followers>0?((p.likes+p.comments)/p.followers*100).toFixed(1):'--';
+
+    // Views bar width (relative to top)
+    var viewsPct=allPosts[0].views>0?Math.max(4,Math.round(p.views/allPosts[0].views*100)):0;
+
+    tb+='<div class="lb-row" style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:4px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:all .15s ease" '
+      +'onmouseover="this.style.background=\'var(--abg)\';this.style.borderColor=\'var(--a)\';this.style.transform=\'translateX(4px)\'" '
+      +'onmouseout="this.style.background=\'\';this.style.borderColor=\'transparent\';this.style.transform=\'\'" '
+      +'onclick="openVideoModal(\''+escQ(p.post_id)+'\',\''+p.platform+'\',\''+escQ(p.url)+'\',\''+escQ(p.username)+'\','+p.views+','+p.likes+')">'
+
+      // Rank badge
+      +'<div style="min-width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:'+rankColor+';background:'+rankBg+'">'+(i+1)+'</div>'
+
+      // Main info
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
+          +platformBadge(p.platform)
+          +brandBadge(p.brand)
+          +'<span style="font-weight:700;font-size:12px">@'+p.username+'</span>'
+          +'<span style="font-size:9px;color:var(--muted);font-family:var(--mono)">'+p.post_date+'</span>'
+        +'</div>'
+        // Views bar
+        +'<div style="display:flex;align-items:center;gap:8px">'
+          +'<div style="flex:1;background:#f1f5f9;border-radius:3px;height:6px;overflow:hidden"><div style="height:100%;border-radius:3px;width:'+viewsPct+'%;background:linear-gradient(90deg,var(--a),var(--c))"></div></div>'
+          +'<span style="font-weight:800;font-size:12px;font-family:var(--mono);min-width:60px;text-align:right">'+formatViewsShort(p.views)+'</span>'
+        +'</div>'
+        +(prodHtml?'<div style="margin-top:3px">'+prodHtml+'</div>':'')
+      +'</div>'
+
+      // Metrics
+      +'<div style="display:flex;gap:12px;align-items:center;flex-shrink:0">'
+        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Likes</div><div style="font-weight:700;font-size:12px;font-family:var(--mono)">'+formatViewsShort(p.likes)+'</div></div>'
+        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Comments</div><div style="font-weight:700;font-size:12px;font-family:var(--mono)">'+formatViewsShort(p.comments)+'</div></div>'
+        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Eng %</div><div style="font-weight:700;font-size:12px;font-family:var(--mono);color:'+(parseFloat(engRate)>=5?'var(--g)':parseFloat(engRate)>=2?'var(--am)':'var(--dim)')+'">'+engRate+'%</div></div>'
+        +'<div style="text-align:center"><div style="font-size:8px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px">Search Lift</div><div style="font-weight:700;font-size:12px;font-family:var(--mono);color:'+(p.impactScore>=1000?'var(--g)':p.impactScore>=100?'var(--a)':'var(--dim)')+'">'+formatImpact(p.impactScore)+'</div></div>'
+        +'<div style="color:var(--muted);font-size:14px;margin-left:4px">&#x203A;</div>'
+      +'</div>'
+    +'</div>';
+  }
+  tb+='</div></div>';
+
+  if(allPosts.length>showCount){
+    tb+='<div style="text-align:center;padding:12px;font-size:10px;color:var(--dim)">Showing top '+showCount+' of '+allPosts.length+' posts</div>';
+  }
+
+  el.innerHTML=toggleHtml+statsHtml+tb;
+}
+function setAlltimeWindow(d){ _alltimeWindow=d; renderAllTimeTop(); }
+function setAlltimeSort(s){ _alltimeSortBy=s; renderAllTimeTop(); }
+function formatImpact(n){ if(n<0) return 'n.m.'; if(n>=10000) return (n/1000).toFixed(0)+'K'; if(n>=1000) return (n/1000).toFixed(1)+'K'; if(n>=1) return n.toFixed(0); return n.toFixed(1); }
+
+// ══════════ TAB 3: PIPELINE KPI ══════════
+// Shared: compute order→post matching data
+function _pipelineData(){
+  var postsByUser={};
+  _posts.forEach(function(p){ if((p.region||'us')!==_region) return; if(!filterByBrand(p)) return; var u=(p.username||'').toLowerCase(); if(!postsByUser[u]) postsByUser[u]=[]; postsByUser[u].push(p); });
+  var results=[];
+  _orders.forEach(function(o){
+    if(!o.shipping_date) return;
+    var handle=(o.account_handle||'').toLowerCase().replace('@','');
+    var matchedPosts=postsByUser[handle];
+    if(!matchedPosts && handle){
+      var nh=normHandle(handle);
+      for(var uu in postsByUser){ if(normHandle(uu)===nh){matchedPosts=postsByUser[uu]; break;} }
+    }
+    var posted=false;
+    if(handle && matchedPosts){
+      var shipDate=new Date(o.shipping_date+'T00:00:00');
+      var deadline=new Date(shipDate); deadline.setDate(deadline.getDate()+60);
+      posted=matchedPosts.some(function(p){ var pd=new Date(p.post_date+'T00:00:00'); return pd>=shipDate && pd<=deadline; });
+    }
+    results.push({order:o, posted:posted, handle:handle});
+  });
+  return results;
+}
+
+function renderPipelineKPI(){
+  var el = document.getElementById('pipeline-inner');
+
+  // JP region: N/A placeholder
+  if(_region==='jp'){
+    el.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:300px;flex-direction:column;gap:12px">'
+      +'<div style="font-size:48px;opacity:.3">N/A</div>'
+      +'<div style="color:#888;font-size:14px">Japan Pipeline KPI data will be added later.</div>'
+      +'</div>';
+    return;
+  }
+
+  // Sub-tab selector
+  var subHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    +'<div style="font-size:14px;font-weight:800">Pipeline KPI</div>'
+    +'<div style="display:flex;gap:8px;align-items:center">'
+    +'<div class="content-toggle">'
+    +'<div '+(_pipelineView==='overview'?'class="on"':'')+' onclick="setPipelineView(\'overview\')">Overview</div>'
+    +'<div '+(_pipelineView==='brand'?'class="on"':'')+' onclick="setPipelineView(\'brand\')">By Brand</div>'
+    +'<div '+(_pipelineView==='products'?'class="on"':'')+' onclick="setPipelineView(\'products\')">By Products</div>'
+    +'</div>'
+    +'<div class="content-toggle">'
+    +'<div '+(_pipelineGranularity==='weekly'?'class="on"':'')+' onclick="setPipelineGran(\'weekly\')">Weekly</div>'
+    +'<div '+(_pipelineGranularity==='monthly'?'class="on"':'')+' onclick="setPipelineGran(\'monthly\')">Monthly</div>'
+    +'</div>'
+    +'</div></div>';
+
+  var data = _pipelineData();
+
+  if(_pipelineView==='brand') { el.innerHTML = subHtml + _renderPipelineByGroup(data, 'brand'); return; }
+  if(_pipelineView==='products') { el.innerHTML = subHtml + _renderPipelineByGroup(data, 'products'); return; }
+
+  // ── Overview (original) ──
+  var buckets={};
+  data.forEach(function(d){
+    var o=d.order;
+    var key;
+    if(_pipelineGranularity==='monthly'){ key=o.shipping_date.slice(0,7); }
+    else{ var dt=new Date(o.shipping_date+'T00:00:00'); var day=dt.getDay()||7; dt.setDate(dt.getDate()-day+1); key=dt.toISOString().slice(0,10); }
+    if(!buckets[key]) buckets[key]={shipped:0,posted:0};
+    buckets[key].shipped++;
+    if(d.posted) buckets[key].posted++;
+  });
+  var periods=Object.keys(buckets).sort();
+  var totShipped=0, totPosted=0;
+  periods.forEach(function(k){totShipped+=buckets[k].shipped; totPosted+=buckets[k].posted;});
+  var overallRate=totShipped>0?Math.round(totPosted/totShipped*100):0;
+  var summaryHtml='<div class="stats" style="margin-bottom:12px">'
+    +'<div class="stat accent"><div class="sl">TOTAL SHIPPED</div><div class="sv">'+fmtN(totShipped)+'</div></div>'
+    +'<div class="stat green"><div class="sl">TOTAL POSTED</div><div class="sv">'+fmtN(totPosted)+'</div></div>'
+    +'<div class="stat '+(overallRate>=50?'green':'amber')+'"><div class="sl">OVERALL RATE</div><div class="sv">'+overallRate+'%</div></div>'
+    +'</div>';
+
+  // SVG bar chart
+  var W=860,H=220,PL=48,PR=24,PT=16,PB=44;
+  var cW=W-PL-PR, cH=H-PT-PB;
+  var n=periods.length||1, maxVal=1;
+  periods.forEach(function(k){if(buckets[k].shipped>maxVal) maxVal=buckets[k].shipped;});
+  var barW=Math.max(8,Math.min(40,cW/n*0.3));
+  var bars='',xLabels='';
+  periods.forEach(function(k,i){
+    var b=buckets[k];
+    var x=PL+(i+0.5)/n*cW;
+    var hS=b.shipped/maxVal*cH, hP=b.posted/maxVal*cH;
+    bars+='<rect x="'+(x-barW-1)+'" y="'+(PT+cH-hS)+'" width="'+barW+'" height="'+hS+'" fill="#93c5fd" rx="2"/>';
+    bars+='<rect x="'+(x+1)+'" y="'+(PT+cH-hP)+'" width="'+barW+'" height="'+hP+'" fill="var(--g)" rx="2"/>';
+    if(hS>12) bars+='<text x="'+(x-barW/2-1)+'" y="'+(PT+cH-hS-4)+'" text-anchor="middle" font-size="8" fill="var(--dim)">'+b.shipped+'</text>';
+    if(hP>12) bars+='<text x="'+(x+barW/2+1)+'" y="'+(PT+cH-hP-4)+'" text-anchor="middle" font-size="8" fill="var(--g)">'+b.posted+'</text>';
+    var lbl=_pipelineGranularity==='monthly'?k:k.slice(5);
+    xLabels+='<text x="'+x+'" y="'+(H-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8" transform="rotate(-30,'+x+','+(H-4)+')">'+lbl+'</text>';
+  });
+  var yLabels='';
+  for(var yi=0;yi<=4;yi++){
+    var yv=maxVal/4*yi, yy=PT+cH-yi*(cH/4);
+    yLabels+='<text x="'+(PL-4)+'" y="'+(yy+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+Math.round(yv)+'</text>';
+    yLabels+='<line x1="'+PL+'" y1="'+yy+'" x2="'+(W-PR)+'" y2="'+yy+'" stroke="#f1f5f9"/>';
+  }
+  var svgChart='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;min-width:480px;height:auto;display:block">'+yLabels+bars+xLabels+'</svg>';
+  var legend='<div style="display:flex;gap:16px;font-size:10px;color:var(--dim);margin-top:4px">'
+    +'<span><span style="display:inline-block;width:10px;height:10px;background:#93c5fd;border-radius:2px;margin-right:3px"></span>Shipped</span>'
+    +'<span><span style="display:inline-block;width:10px;height:10px;background:var(--g);border-radius:2px;margin-right:3px"></span>Posted (within 60d)</span></div>';
+
+  var rateTable='<div class="card" style="margin-top:12px"><h3>Posting Rate by Shipping Cohort</h3>'
+    +'<div class="desc">Of influencers shipped in each period, what % posted content within 60 days?</div>'
+    +'<table><thead><tr><th>Period</th><th>Shipped</th><th>Posted</th><th>Rate</th><th style="width:120px">Progress</th></tr></thead><tbody>';
+  periods.slice().reverse().forEach(function(k){
+    var b=buckets[k];
+    var rate=b.shipped>0?Math.round(b.posted/b.shipped*100):0;
+    var barColor=rate>=70?'var(--g)':rate>=40?'var(--am)':'var(--r)';
+    rateTable+='<tr><td style="font-family:var(--mono);font-size:11px;font-weight:700">'+k+'</td>'
+      +'<td>'+b.shipped+'</td><td style="color:var(--g);font-weight:700">'+b.posted+'</td>'
+      +'<td style="font-weight:800;color:'+barColor+'">'+rate+'%</td>'
+      +'<td><div style="background:#f1f5f9;border-radius:3px;height:12px;position:relative">'
+      +'<div style="background:'+barColor+';border-radius:3px;height:12px;width:'+rate+'%"></div></div></td></tr>';
+  });
+  rateTable+='</tbody></table></div>';
+
+  el.innerHTML=subHtml+summaryHtml
+    +'<div class="card"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Shipped vs Posted by Period</div>'
+    +'<div style="overflow-x:auto">'+svgChart+'</div>'+legend+'</div>'
+    +rateTable;
+}
+
+// ── Pipeline: By Brand / By Products ──
+function _renderPipelineByGroup(data, mode){
+  var groups={};
+  data.forEach(function(d){
+    var o=d.order;
+    if(mode==='brand'){
+      var brands=(o.brand||'Unknown').split(', ');
+      var seenB={};
+      brands.forEach(function(g){
+        g=g.trim(); if(!g||seenB[g]) return; seenB[g]=1;
+        if(!groups[g]) groups[g]={shipped:0,posted:0};
+        groups[g].shipped++; if(d.posted) groups[g].posted++;
+      });
+    } else {
+      var types=(o.product_types||'').split(',');
+      var seen={};
+      types.forEach(function(t){
+        t=t.trim(); if(!t||seen[t]) return; seen[t]=1;
+        if(!groups[t]) groups[t]={shipped:0,posted:0};
+        groups[t].shipped++; if(d.posted) groups[t].posted++;
+      });
+      if(types.length===0||!o.product_types){
+        if(!groups['Unknown']) groups['Unknown']={shipped:0,posted:0};
+        groups['Unknown'].shipped++; if(d.posted) groups['Unknown'].posted++;
+      }
+    }
+  });
+
+  var sorted=Object.keys(groups).sort(function(a,b){return groups[b].shipped-groups[a].shipped;});
+  var maxShipped=1;
+  sorted.forEach(function(k){if(groups[k].shipped>maxShipped) maxShipped=groups[k].shipped;});
+
+  var title = mode==='brand' ? 'Shipped by Brand' : 'Shipped by Product Type';
+  var html='<div class="card"><h3>'+title+'</h3>'
+    +'<div class="desc">Shipping count and posting rate grouped by '+(mode==='brand'?'brand':'product type')+'</div>'
+    +'<div style="margin-top:12px">';
+
+  sorted.forEach(function(k){
+    var g=groups[k];
+    var rate=g.shipped>0?Math.round(g.posted/g.shipped*100):0;
+    var barColor=rate>=70?'var(--g)':rate>=40?'var(--am)':'var(--r)';
+    var barW=Math.round(g.shipped/maxShipped*100);
+
+    html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">'
+      +'<div style="min-width:140px;font-weight:700;font-size:11px">'+k+'</div>'
+      +'<div style="flex:1">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+          +'<div style="flex:1;background:#f1f5f9;border-radius:4px;height:16px;position:relative;overflow:hidden">'
+            +'<div style="position:absolute;left:0;top:0;height:100%;width:'+barW+'%;background:#93c5fd;border-radius:4px"></div>'
+            +'<div style="position:absolute;left:0;top:0;height:100%;width:'+Math.round(g.posted/maxShipped*100)+'%;background:var(--g);border-radius:4px"></div>'
+          +'</div>'
+          +'<span style="min-width:40px;font-family:var(--mono);font-size:11px;text-align:right">'+g.shipped+'</span>'
+        +'</div>'
+      +'</div>'
+      +'<div style="min-width:50px;text-align:center"><span style="font-weight:800;font-size:11px;color:var(--g)">'+g.posted+'</span><span style="font-size:9px;color:var(--dim)"> posted</span></div>'
+      +'<div style="min-width:50px;text-align:right;font-weight:800;font-size:12px;font-family:var(--mono);color:'+barColor+'">'+rate+'%</div>'
+    +'</div>';
+  });
+
+  html+='</div></div>';
+
+  // Summary stats
+  var totS=0,totP=0;
+  sorted.forEach(function(k){totS+=groups[k].shipped;totP+=groups[k].posted;});
+  var totR=totS>0?Math.round(totP/totS*100):0;
+  var statsHtml='<div class="stats" style="margin-bottom:12px">'
+    +'<div class="stat accent"><div class="sl">'+(mode==='brand'?'BRANDS':'PRODUCT TYPES')+'</div><div class="sv">'+sorted.length+'</div></div>'
+    +'<div class="stat cyan"><div class="sl">TOTAL SHIPPED</div><div class="sv">'+fmtN(totS)+'</div></div>'
+    +'<div class="stat green"><div class="sl">TOTAL POSTED</div><div class="sv">'+fmtN(totP)+'</div></div>'
+    +'<div class="stat '+(totR>=50?'green':'amber')+'"><div class="sl">OVERALL RATE</div><div class="sv">'+totR+'%</div></div>'
+    +'</div>';
+
+  return statsHtml+html;
+}
+
+function setPipelineView(v){ _pipelineView=v; renderPipelineKPI(); }
+function setPipelineGran(g){ _pipelineGranularity=g; renderPipelineKPI(); }
+
+// ══════════ TAB 4: AGGREGATE PERFORMANCE + SALES ══════════
+function renderAggregatePerformance(){
+  var el = document.getElementById('aggregate-inner');
+
+  var toggleHtml='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    +'<div style="font-size:14px;font-weight:800">Aggregate Content Performance + Sales</div>'
+    +'<div class="content-toggle">'
+    +'<div '+(_aggGranularity==='weekly'?'class="on"':'')+' onclick="setAggGran(\'weekly\')">Weekly</div>'
+    +'<div '+(_aggGranularity==='monthly'?'class="on"':'')+' onclick="setAggGran(\'monthly\')">Monthly</div>'
+    +'</div></div>';
+
+  // Build post aggregates (region-filtered)
+  var postAgg={};
+  _posts.forEach(function(p){ if((p.region||'us')!==_region) return; if(p.source==='syncly_sheets'&&!p.brand&&(!p._brand||p._brand==='N/A')) return; if(!filterByBrand(p)) return; postAgg[p.post_id]={views:0,likes:0,comments:0,platform:p.platform,post_date:p.post_date}; });
+  _metrics.forEach(function(m){
+    if(!postAgg[m.post_id]) return;
+    var pa=postAgg[m.post_id];
+    if(+(m.views||0)>pa.views) pa.views=+(m.views||0);
+    if(+(m.likes||0)>pa.likes) pa.likes=+(m.likes||0);
+    if(+(m.comments||0)>pa.comments) pa.comments=+(m.comments||0);
+  });
+
+  // Content buckets (from 2025-01)
+  var buckets={};
+  Object.keys(postAgg).forEach(function(pid){
+    var pa=postAgg[pid];
+    if(!pa.post_date || pa.post_date<'2025-01') return;
+    var key;
+    if(_aggGranularity==='monthly'){
+      key=pa.post_date.slice(0,7);
+    }else{
+      var d=new Date(pa.post_date+'T00:00:00');
+      var day=d.getDay()||7; d.setDate(d.getDate()-day+1);
+      key=d.toISOString().slice(0,10);
+    }
+    if(!buckets[key]) buckets[key]={views:0,likes:0,comments:0,posts:0,ig:0,tt:0};
+    var b=buckets[key];
+    b.views+=pa.views; b.likes+=pa.likes; b.comments+=pa.comments; b.posts++;
+    if(pa.platform==='instagram') b.ig++; else if(pa.platform==='tiktok') b.tt++;
+  });
+
+  // Sales buckets (Amazon + Shopify combined, from 2025-01)
+  var salesBuckets={};
+  function addSales(arr){
+    arr.forEach(function(r){
+      if(!r.date || r.date<'2025-01') return;
+      var key;
+      if(_aggGranularity==='monthly'){
+        key=r.date.slice(0,7);
+      }else{
+        var d=new Date(r.date+'T00:00:00');
+        var day=d.getDay()||7; d.setDate(d.getDate()-day+1);
+        key=d.toISOString().slice(0,10);
+      }
+      if(!salesBuckets[key]) salesBuckets[key]={revenue:0,orders:0};
+      salesBuckets[key].revenue+=+(r.net_sales||r.gross_sales||0);
+      salesBuckets[key].orders+=+(r.orders||0);
+    });
+  }
+  addSales(_amzSales);
+  addSales(_shopSales);
+
+  // Merge periods (union of content + sales)
+  var allKeys={};
+  Object.keys(buckets).forEach(function(k){allKeys[k]=1;});
+  Object.keys(salesBuckets).forEach(function(k){allKeys[k]=1;});
+  var periods=Object.keys(allKeys).sort();
+
+  // Summary
+  var tV=0,tL=0,tC=0,tP=0,tRev=0,tOrd=0;
+  periods.forEach(function(k){
+    var b=buckets[k]; if(b){tV+=b.views;tL+=b.likes;tC+=b.comments;tP+=b.posts;}
+    var s=salesBuckets[k]; if(s){tRev+=s.revenue;tOrd+=s.orders;}
+  });
+  var statsHtml='<div class="stats" style="margin-bottom:12px">'
+    +'<div class="stat accent"><div class="sl">TOTAL POSTS</div><div class="sv">'+fmtN(tP)+'</div></div>'
+    +'<div class="stat cyan"><div class="sl">TOTAL VIEWS</div><div class="sv">'+formatViewsShort(tV)+'</div></div>'
+    +'<div class="stat green"><div class="sl">TOTAL LIKES</div><div class="sv">'+fmtN(tL)+'</div></div>'
+    +'<div class="stat pink"><div class="sl">TOTAL REVENUE</div><div class="sv">'+fmtD(tRev)+'</div></div>'
+    +'</div>';
+
+  // Dual-axis SVG: bars=views (left), line=sales (right)
+  var W=860, H=280, PL=60, PR=70, PT=16, PB=44;
+  var cW=W-PL-PR, cH=H-PT-PB;
+  var n=periods.length||1;
+  var maxViews=1, maxSales=1;
+  periods.forEach(function(k){
+    var b=buckets[k]; if(b && b.views>maxViews) maxViews=b.views;
+    var s=salesBuckets[k]; if(s && s.revenue>maxSales) maxSales=s.revenue;
+  });
+
+  var barW=Math.max(8,Math.min(40,cW/n*0.5));
+  var bars='', trendPts=[], salesPts=[];
+
+  periods.forEach(function(k,i){
+    var b=buckets[k]||{views:0,posts:0,ig:0,tt:0};
+    var s=salesBuckets[k]||{revenue:0};
+    var x=PL+(i+0.5)/n*cW;
+
+    // Content bars (stacked IG + TT)
+    var hV=b.views/maxViews*cH;
+    var igR=b.posts>0?b.ig/b.posts:0.5;
+    var hIG=hV*igR, hTT=hV-hIG;
+
+    if(hTT>0) bars+='<rect x="'+(x-barW/2)+'" y="'+(PT+cH-hV)+'" width="'+barW+'" height="'+hTT+'" fill="var(--c)" rx="2"/>';
+    if(hIG>0) bars+='<rect x="'+(x-barW/2)+'" y="'+(PT+cH-hIG)+'" width="'+barW+'" height="'+hIG+'" fill="#e11d48" rx="2" opacity="0.7"/>';
+
+    trendPts.push(x.toFixed(1)+','+(PT+cH-hV).toFixed(1));
+
+    // Sales line point
+    var sH=s.revenue/maxSales*cH;
+    salesPts.push(x.toFixed(1)+','+(PT+cH-sH).toFixed(1));
+
+    // X label
+    var lbl=_aggGranularity==='monthly'?k:k.slice(5);
+    bars+='<text x="'+x+'" y="'+(H-4)+'" text-anchor="middle" font-size="8" fill="#94a3b8" transform="rotate(-30,'+x+','+(H-4)+')">'+lbl+'</text>';
+  });
+
+  // Left Y-axis (Views)
+  var yLabelsL='';
+  for(var yi=0;yi<=4;yi++){
+    var yv=maxViews/4*yi, yy=PT+cH-yi*(cH/4);
+    yLabelsL+='<text x="'+(PL-6)+'" y="'+(yy+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+formatViewsShort(yv)+'</text>';
+    yLabelsL+='<line x1="'+PL+'" y1="'+yy+'" x2="'+(W-PR)+'" y2="'+yy+'" stroke="#f1f5f9"/>';
+  }
+
+  // Right Y-axis (Sales)
+  var yLabelsR='';
+  for(var yr=0;yr<=4;yr++){
+    var sv=maxSales/4*yr, sy=PT+cH-yr*(cH/4);
+    yLabelsR+='<text x="'+(W-PR+6)+'" y="'+(sy+3)+'" text-anchor="start" font-size="8" fill="#ec4899">'+fmtD(sv)+'</text>';
+  }
+
+  var salesLine=salesPts.length>1?'<polyline points="'+salesPts.join(' ')+'" fill="none" stroke="#ec4899" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>':'';
+  // Sales dots
+  var salesDots='';
+  salesPts.forEach(function(pt){
+    var parts=pt.split(',');
+    salesDots+='<circle cx="'+parts[0]+'" cy="'+parts[1]+'" r="3" fill="#ec4899"/>';
+  });
+
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;min-width:480px;height:auto;display:block">'+yLabelsL+yLabelsR+bars+salesLine+salesDots+'</svg>';
+  var legend='<div style="display:flex;gap:16px;font-size:10px;color:var(--dim);margin-top:4px;flex-wrap:wrap">'
+    +'<span><span style="display:inline-block;width:10px;height:10px;background:#e11d48;border-radius:2px;margin-right:3px;opacity:.7"></span>Instagram Views (left axis)</span>'
+    +'<span><span style="display:inline-block;width:10px;height:10px;background:var(--c);border-radius:2px;margin-right:3px"></span>TikTok Views (left axis)</span>'
+    +'<span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:20px;border-bottom:2.5px solid #ec4899"></span>Total Revenue (right axis)</span></div>';
+
+  // Detail table
+  var dt='<div class="card" style="margin-top:12px"><h3>Period Breakdown &mdash; Content + Sales</h3>'
+    +'<div style="overflow-x:auto"><table><thead><tr><th>Period</th><th>Posts</th><th>Views</th><th>Likes</th><th>Comments</th><th>IG</th><th>TT</th><th>Views/Post</th><th>Revenue</th><th>Orders</th></tr></thead><tbody>';
+  periods.slice().reverse().forEach(function(k){
+    var b=buckets[k]||{posts:0,views:0,likes:0,comments:0,ig:0,tt:0};
+    var s=salesBuckets[k]||{revenue:0,orders:0};
+    var vpp=b.posts>0?Math.round(b.views/b.posts):0;
+    dt+='<tr><td style="font-family:var(--mono);font-weight:700">'+k+'</td>'
+      +'<td>'+b.posts+'</td><td style="font-weight:700">'+fmtN(b.views)+'</td>'
+      +'<td>'+fmtN(b.likes)+'</td><td>'+fmtN(b.comments)+'</td>'
+      +'<td>'+b.ig+'</td><td>'+b.tt+'</td>'
+      +'<td style="color:var(--a)">'+fmtN(vpp)+'</td>'
+      +'<td style="font-weight:700;color:var(--p)">'+fmtD(s.revenue)+'</td>'
+      +'<td>'+fmtN(s.orders)+'</td></tr>';
+  });
+  dt+='</tbody></table></div></div>';
+
+  el.innerHTML=toggleHtml+statsHtml
+    +'<div class="card"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px">Content Views (bars) + Total Revenue (line) from Jan 2025</div>'
+    +'<div style="overflow-x:auto">'+svg+'</div>'+legend+'</div>'
+    +dt;
+}
+function setAggGran(g){ _aggGranularity=g; renderAggregatePerformance(); }
+
+</script>
+</body>
+</html>

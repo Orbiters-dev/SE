@@ -246,18 +246,56 @@ class PipelineCreator(models.Model):
     ig_handle = models.CharField(max_length=200, blank=True, default="")
     tiktok_handle = models.CharField(max_length=200, blank=True, default="")
     full_name = models.CharField(max_length=200, blank=True, default="")
-    platform = models.CharField(max_length=30, blank=True, default="")
+    PLATFORM_CHOICES = [
+        ("instagram", "Instagram"),
+        ("tiktok", "TikTok"),
+        ("youtube", "YouTube"),
+        ("x", "X (Twitter)"),
+        ("multi", "Multi-platform"),
+    ]
+    platform = models.CharField(max_length=30, blank=True, default="", choices=PLATFORM_CHOICES)
 
     # Pipeline status (single source of truth)
-    pipeline_status = models.CharField(max_length=30, default="Not Started")
-    # Not Started / Draft Ready / Sent / Replied / Needs Review /
-    # Accepted / Declined / Sample Sent / Sample Shipped / Sample Delivered / Posted
+    STATUS_CHOICES = [
+        ("Not Started", "Not Started"),
+        ("Draft Ready", "Draft Ready"),
+        ("Sent", "Sent"),
+        ("Replied", "Replied"),
+        ("Need Review", "Need Review"),
+        ("Accepted", "Accepted"),
+        ("Declined", "Declined"),
+        ("Sample Sent", "Sample Sent"),
+        ("Sample Shipped", "Sample Shipped"),
+        ("Sample Delivered", "Sample Delivered"),
+        ("Posted", "Posted"),
+        ("Archived", "Archived"),
+    ]
+    pipeline_status = models.CharField(max_length=30, default="Not Started", choices=STATUS_CHOICES)
 
     # Classification
     brand = models.CharField(max_length=30, blank=True, default="")
-    outreach_type = models.CharField(max_length=10, blank=True, default="")  # HT, LT
-    source = models.CharField(max_length=30, default="outbound")  # outbound, inbound
-    region = models.CharField(max_length=10, default="us", blank=True)  # us, jp
+    TIER_CHOICES = [
+        ("HT", "High-tier (100K+ followers)"),
+        ("LT", "Low-tier (<100K followers)"),
+        ("EXISTING", "Existing partner"),
+    ]
+    outreach_type = models.CharField(max_length=10, blank=True, default="", choices=TIER_CHOICES)
+    SOURCE_CHOICES = [
+        ("syncly", "Syncly sheet import"),
+        ("apify", "Apify crawl"),
+        ("gmail_inbound", "Gmail inbound"),
+        ("ig_inbound", "IG DM inbound"),
+        ("tiktok_inbound", "TikTok inbound"),
+        ("manual", "Manual add"),
+    ]
+    source = models.CharField(max_length=30, default="syncly", choices=SOURCE_CHOICES)
+    REGION_CHOICES = [
+        ("us", "United States"),
+        ("jp", "Japan"),
+        ("ca", "Canada"),
+        ("gb", "United Kingdom"),
+    ]
+    region = models.CharField(max_length=10, default="us", blank=True, choices=REGION_CHOICES)
 
     # Metrics
     followers = models.IntegerField(null=True, blank=True)
@@ -332,6 +370,100 @@ class PipelineCreator(models.Model):
 
     def __str__(self):
         return f"{self.ig_handle or self.email} [{self.pipeline_status}]"
+
+
+class CreatorPipeline(models.Model):
+    """Per-brand CRM pipeline state. One creator can have multiple pipeline entries
+    (e.g., grosmimi campaign + naeiae campaign). Links to PipelineCreator (identity SSOT).
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    creator = models.ForeignKey(PipelineCreator, on_delete=models.CASCADE, related_name="pipelines")
+
+    BRAND_CHOICES = [
+        ("grosmimi", "Grosmimi"),
+        ("naeiae", "Naeiae"),
+        ("cha&mom", "CHA&MOM"),
+    ]
+    brand = models.CharField(max_length=30, choices=BRAND_CHOICES)
+
+    STATUS_CHOICES = PipelineCreator.STATUS_CHOICES
+    pipeline_status = models.CharField(max_length=30, default="Not Started", choices=STATUS_CHOICES)
+    outreach_type = models.CharField(max_length=10, blank=True, default="")  # HT, LT, EXISTING
+
+    # Shopify refs (per-campaign)
+    shopify_customer_id = models.CharField(max_length=50, blank=True, default="")
+    shopify_draft_order_id = models.CharField(max_length=50, blank=True, default="")
+    shopify_draft_order_name = models.CharField(max_length=50, blank=True, default="")
+
+    # Contact tracking
+    first_contacted_at = models.DateTimeField(null=True, blank=True)
+    last_contacted_at = models.DateTimeField(null=True, blank=True)
+    contact_count = models.IntegerField(default=0)
+
+    # PR products sent in this campaign
+    pr_products = models.JSONField(default=list, blank=True)
+
+    notes = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "onz_creator_pipeline"
+        ordering = ["-created_at"]
+        unique_together = [("creator", "brand")]
+
+    def __str__(self):
+        return f"{self.creator.ig_handle or self.creator.email} | {self.brand} [{self.pipeline_status}]"
+
+
+class CreatorContent(models.Model):
+    """Individual content post tracking. Links to creator (and optionally to a pipeline campaign).
+    Same creator can have multiple posts — each tracked independently with daily metrics.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    creator = models.ForeignKey(PipelineCreator, on_delete=models.CASCADE, related_name="content_posts")
+    pipeline = models.ForeignKey(CreatorPipeline, on_delete=models.SET_NULL, null=True, blank=True, related_name="content_posts")
+
+    # Post identity
+    post_url = models.URLField(max_length=500)
+    PLATFORM_CHOICES = PipelineCreator.PLATFORM_CHOICES
+    platform = models.CharField(max_length=30, choices=PLATFORM_CHOICES)
+    post_date = models.DateField(null=True, blank=True)
+
+    # Content classification
+    CONTENT_TYPE_CHOICES = [
+        ("non_partnered", "Non-partnered (discovery)"),
+        ("partnered", "Partnered (post-collab)"),
+    ]
+    content_type = models.CharField(max_length=20, default="non_partnered", choices=CONTENT_TYPE_CHOICES)
+    partner_brand = models.CharField(max_length=30, blank=True, default="")  # grosmimi, naeiae, cha&mom
+
+    # Metrics snapshot (at discovery time)
+    views = models.IntegerField(null=True, blank=True)
+    likes = models.IntegerField(null=True, blank=True)
+    comments = models.IntegerField(null=True, blank=True)
+
+    # Content analysis
+    transcript = models.TextField(blank=True, default="")
+    caption = models.TextField(blank=True, default="")
+    product_mention = models.BooleanField(default=False)
+    scene_fit = models.CharField(max_length=10, blank=True, default="")  # HIGH, MEDIUM, LOW
+    quality_score = models.IntegerField(null=True, blank=True)
+    fit_score = models.IntegerField(null=True, blank=True)
+
+    # Daily metric tracking (for partnered content D+0 ~ D+90)
+    daily_metrics = models.JSONField(default=list, blank=True)
+    # [{"date": "2026-04-07", "views": 1200, "likes": 85, "comments": 12}, ...]
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "onz_creator_content"
+        ordering = ["-post_date", "-created_at"]
+
+    def __str__(self):
+        return f"{self.creator.ig_handle} | {self.post_url[:50]} [{self.content_type}]"
 
 
 class PipelineExecutionLog(models.Model):

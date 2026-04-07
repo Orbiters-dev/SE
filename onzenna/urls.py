@@ -12,6 +12,8 @@ urlpatterns = [
     path("ppc/dashboard/<str:filename>", views_dashboard.ppc_data_js, name="ppc_data_js"),
     path("content/dashboard/", views_dashboard.content_dashboard, name="content_dashboard"),
     path("financial/dashboard/", views_dashboard.financial_dashboard, name="financial_dashboard"),
+    path("datapool/dashboard/", views_dashboard.datapool_dashboard, name="datapool_dashboard"),
+    path("datapool/content/", views_dashboard.content_pool_dashboard, name="content_pool_dashboard"),
 
     # Users
     path("users/", views.create_user, name="create_user"),
@@ -57,6 +59,8 @@ urlpatterns = [
 
     # Pipeline Creators (CRM Dashboard)
     path("pipeline/creators/stats/", views.pipeline_creators_stats, name="pipeline_creators_stats"),
+    path("pipeline/creators/datapool-stats/", views.datapool_stats, name="datapool_stats"),
+    path("pipeline/content/", views.creator_content_list, name="creator_content_list"),
     path("pipeline/creators/filter-stats/", views.pipeline_filter_stats, name="pipeline_filter_stats"),
     path("pipeline/creators/bulk-status/", views.pipeline_creators_bulk_status, name="pipeline_creators_bulk_status"),
     path("pipeline/creators/cross-check/", views.pipeline_creators_cross_check, name="pipeline_creators_cross_check"),

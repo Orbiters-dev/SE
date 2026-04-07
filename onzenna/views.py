@@ -41,6 +41,8 @@ from .models import (
     FAQEntry,
     EmailReplyLog,
     PipelineConversation,
+    CreatorPipeline,
+    CreatorContent,
 )
 
 
@@ -509,7 +511,7 @@ def save_outreach(request):
         "outreach_status": body.get("outreach_status", "Not Started"),
         "airtable_base_id": body.get("airtable_base_id", ""),
         "airtable_conversation_id": body.get("airtable_conversation_id", ""),
-        "source": body.get("source", "pathlight_outbound"),
+        "source": body.get("source", "manual"),
         "environment": body.get("environment", "wj_test"),
     }
     for field in ("shopify_customer_id", "shopify_draft_order_id", "shopify_draft_order_name"):
@@ -954,7 +956,7 @@ def pipeline_creators_list(request):
             "pipeline_status": body.get("pipeline_status", "Not Started"),
             "brand": body.get("brand", ""),
             "outreach_type": body.get("outreach_type", ""),
-            "source": body.get("source", "outbound"),
+            "source": body.get("source", "manual"),
             "notes": body.get("notes", ""),
         }
         if body.get("followers") is not None:
@@ -1381,6 +1383,333 @@ def pipeline_creators_stats(request):
         "manychat_count": manychat_count,
         "data_sources": data_sources,
         "by_discovery_date": by_discovery_date,
+    }))
+
+
+@csrf_exempt
+def datapool_stats(request):
+    """Aggregate stats for Creator Datapool Dashboard visualization."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    from django.db.models import Count, Q, Avg, Max, Min
+    from django.db.models.functions import TruncDate
+    from datetime import date as date_cls
+
+    qs = PipelineCreator.objects.all()
+    total = qs.count()
+
+    # --- Region distribution ---
+    region_counts = dict(
+        qs.values_list('region')
+        .annotate(c=Count('id'))
+        .values_list('region', 'c')
+    )
+
+    # --- Pipeline status distribution ---
+    status_counts = dict(
+        qs.values_list('pipeline_status')
+        .annotate(c=Count('id'))
+        .values_list('pipeline_status', 'c')
+    )
+
+    # --- Brand distribution ---
+    brand_counts = dict(
+        qs.values_list('brand')
+        .annotate(c=Count('id'))
+        .values_list('brand', 'c')
+    )
+
+    # --- Outreach type (LT/HT) ---
+    type_counts = dict(
+        qs.values_list('outreach_type')
+        .annotate(c=Count('id'))
+        .values_list('outreach_type', 'c')
+    )
+
+    # --- Email source (normal vs @discovered.* vs @noemail.placeholder) ---
+    discovered_count = qs.filter(email__contains='@discovered.').count()
+    noemail_count = qs.filter(email__contains='@noemail.').count()
+    no_email = qs.filter(Q(email='') | Q(email__isnull=True)).count()
+    valid_email = total - discovered_count - noemail_count - no_email
+
+    # --- Followers distribution (buckets) ---
+    followers_buckets = {
+        '0-1K': qs.filter(followers__gte=0, followers__lt=1000).count(),
+        '1K-5K': qs.filter(followers__gte=1000, followers__lt=5000).count(),
+        '5K-10K': qs.filter(followers__gte=5000, followers__lt=10000).count(),
+        '10K-50K': qs.filter(followers__gte=10000, followers__lt=50000).count(),
+        '50K-100K': qs.filter(followers__gte=50000, followers__lt=100000).count(),
+        '100K+': qs.filter(followers__gte=100000).count(),
+        'Unknown': qs.filter(followers__isnull=True).count(),
+    }
+
+    # --- Daily intake (last 30 days) ---
+    thirty_days_ago = date_cls.today() - timedelta(days=30)
+    daily_intake = list(
+        qs.filter(created_at__date__gte=thirty_days_ago)
+        .annotate(day=TruncDate('created_at'))
+        .values('day')
+        .annotate(c=Count('id'))
+        .order_by('day')
+        .values_list('day', 'c')
+    )
+    daily_intake_dict = {str(d): c for d, c in daily_intake}
+
+    # --- Platform distribution ---
+    platform_counts = dict(
+        qs.values_list('platform')
+        .annotate(c=Count('id'))
+        .values_list('platform', 'c')
+    )
+
+    # --- Business account ratio ---
+    biz_true = qs.filter(is_business_account=True).count()
+    biz_false = total - biz_true
+
+    # --- Source tags distribution ---
+    from django.db import connection
+    source_tag_counts = {}
+    try:
+        with connection.cursor() as cur:
+            cur.execute("""
+                SELECT s.val, COUNT(*)
+                FROM onz_pipeline_creators c,
+                     LATERAL jsonb_array_elements_text(c.sources) AS s(val)
+                GROUP BY s.val ORDER BY COUNT(*) DESC
+            """)
+            for row in cur.fetchall():
+                source_tag_counts[row[0]] = row[1]
+    except Exception:
+        pass
+
+    # --- Follower stats ---
+    fstats = qs.exclude(followers__isnull=True).aggregate(
+        avg=Avg('followers'), mx=Max('followers'), mn=Min('followers')
+    )
+
+    # --- Content Pool stats (CreatorContent table) ---
+    from django.db.models import Sum
+    content_qs = CreatorContent.objects.all()
+    content_total = content_qs.count()
+    content_non_partnered = content_qs.filter(content_type="non_partnered").count()
+    content_partnered = content_qs.filter(content_type="partnered").count()
+    content_with_transcript = content_qs.exclude(transcript="").count()
+    content_with_views = content_qs.exclude(views__isnull=True).exclude(views=0)
+    content_views_stats = content_with_views.aggregate(
+        avg=Avg('views'), total=Sum('views')
+    )
+    content_by_platform = dict(
+        content_qs.values_list('platform')
+        .annotate(c=Count('id'))
+        .values_list('platform', 'c')
+    )
+
+    # Last 30 days content stats
+    thirty_days_ago_content = date_cls.today() - timedelta(days=30)
+    recent_content = content_qs.filter(post_date__gte=thirty_days_ago_content)
+    content_30d_posts = recent_content.count()
+    content_30d_views = recent_content.aggregate(total=Sum('views'))['total'] or 0
+
+    # Creators with content (linked)
+    creators_with_content = content_qs.values('creator_id').distinct().count()
+
+    # Top creators by content count
+    top_creators = list(
+        content_qs.values('creator__ig_handle', 'creator_id')
+        .annotate(post_count=Count('id'))
+        .order_by('-post_count')[:10]
+    )
+
+    # --- Pipeline campaigns stats (CreatorPipeline table) ---
+    pipeline_qs = CreatorPipeline.objects.all()
+    pipeline_total = pipeline_qs.count()
+    pipeline_by_brand = dict(
+        pipeline_qs.values_list('brand')
+        .annotate(c=Count('id'))
+        .values_list('brand', 'c')
+    )
+    pipeline_by_status = dict(
+        pipeline_qs.values_list('pipeline_status')
+        .annotate(c=Count('id'))
+        .values_list('pipeline_status', 'c')
+    )
+
+    return _cors_headers(request, JsonResponse({
+        "total": total,
+        "by_region": region_counts,
+        "by_status": status_counts,
+        "by_brand": brand_counts,
+        "by_outreach_type": type_counts,
+        "email_source": {
+            "valid": valid_email,
+            "discovered": discovered_count,
+            "noemail_placeholder": noemail_count,
+            "no_email": no_email,
+        },
+        "followers_buckets": followers_buckets,
+        "followers_stats": {
+            "avg": round(fstats['avg'] or 0),
+            "max": fstats['mx'] or 0,
+            "min": fstats['mn'] or 0,
+        },
+        "daily_intake": daily_intake_dict,
+        "by_platform": platform_counts,
+        "business_account": {"yes": biz_true, "no": biz_false},
+        "by_source_tag": source_tag_counts,
+        "content_pool": {
+            "total": content_total,
+            "non_partnered": content_non_partnered,
+            "partnered": content_partnered,
+            "with_transcript": content_with_transcript,
+            "creators_linked": creators_with_content,
+            "avg_views": round(content_views_stats['avg'] or 0),
+            "total_views": content_views_stats['total'] or 0,
+            "posts_30d": content_30d_posts,
+            "views_30d": content_30d_views,
+            "by_platform": content_by_platform,
+            "top_creators": [
+                {"handle": t['creator__ig_handle'] or '(unknown)', "count": t['post_count']}
+                for t in top_creators
+            ],
+        },
+        "pipeline_campaigns": {
+            "total": pipeline_total,
+            "by_brand": pipeline_by_brand,
+            "by_status": pipeline_by_status,
+        },
+    }))
+
+
+@csrf_exempt
+def creator_content_list(request):
+    """GET: list CreatorContent with pagination + filters."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    from django.db.models import Q
+
+    qs = CreatorContent.objects.select_related('creator').all()
+
+    # Filters
+    search = request.GET.get("search", "").strip()
+    if search:
+        qs = qs.filter(
+            Q(creator__ig_handle__icontains=search) |
+            Q(creator__tiktok_handle__icontains=search) |
+            Q(caption__icontains=search) |
+            Q(transcript__icontains=search)
+        )
+    platform = request.GET.get("platform", "").strip()
+    if platform:
+        qs = qs.filter(platform__iexact=platform)
+    content_type = request.GET.get("content_type", "").strip()
+    if content_type:
+        qs = qs.filter(content_type=content_type)
+    region = request.GET.get("region", "").strip()
+    if region:
+        qs = qs.filter(creator__region__iexact=region)
+    has_transcript = request.GET.get("has_transcript", "").strip()
+    if has_transcript == "1":
+        qs = qs.exclude(transcript="")
+    elif has_transcript == "0":
+        qs = qs.filter(Q(transcript="") | Q(transcript__isnull=True))
+    has_caption = request.GET.get("has_caption", "").strip()
+    if has_caption == "1":
+        qs = qs.exclude(caption="").exclude(caption__isnull=True)
+    elif has_caption == "0":
+        qs = qs.filter(Q(caption="") | Q(caption__isnull=True))
+    views_filter = request.GET.get("views_min", "").strip()
+    if views_filter == "1m":
+        qs = qs.filter(views__gte=1000000)
+    elif views_filter == "100k":
+        qs = qs.filter(views__gte=100000)
+    elif views_filter == "10k":
+        qs = qs.filter(views__gte=10000)
+    elif views_filter == "1k":
+        qs = qs.filter(views__gte=1000)
+    elif views_filter == "0":
+        qs = qs.filter(Q(views=0) | Q(views__isnull=True))
+    likes_filter = request.GET.get("likes_min", "").strip()
+    if likes_filter == "100k":
+        qs = qs.filter(likes__gte=100000)
+    elif likes_filter == "10k":
+        qs = qs.filter(likes__gte=10000)
+    elif likes_filter == "1k":
+        qs = qs.filter(likes__gte=1000)
+    elif likes_filter == "100":
+        qs = qs.filter(likes__gte=100)
+    elif likes_filter == "0":
+        qs = qs.filter(Q(likes=0) | Q(likes__isnull=True))
+    has_comments = request.GET.get("has_comments", "").strip()
+    if has_comments == "1":
+        qs = qs.filter(comments__gt=0)
+    elif has_comments == "0":
+        qs = qs.filter(Q(comments=0) | Q(comments__isnull=True))
+    post_date_range = request.GET.get("post_date_range", "").strip()
+    if post_date_range:
+        from datetime import timedelta
+        from django.utils import timezone
+        days_map = {"7d": 7, "30d": 30, "60d": 60, "90d": 90}
+        days = days_map.get(post_date_range)
+        if days:
+            cutoff = (timezone.now() - timedelta(days=days)).date()
+            qs = qs.filter(post_date__gte=cutoff)
+
+    # Ordering
+    order = request.GET.get("order", "-views")
+    ALLOWED = {"-views", "views", "-created_at", "created_at", "-post_date", "post_date", "-likes", "likes", "-comments", "comments"}
+    if order not in ALLOWED:
+        order = "-views"
+    from django.db.models import F
+    # Push NULLs to the end for descending sorts
+    if order.startswith("-"):
+        field = order[1:]
+        qs = qs.order_by(F(field).desc(nulls_last=True))
+    else:
+        qs = qs.order_by(F(order).asc(nulls_last=True))
+
+    # Pagination
+    try:
+        page = max(1, int(request.GET.get("page", 1)))
+    except (ValueError, TypeError):
+        page = 1
+    try:
+        limit = min(500, max(1, int(request.GET.get("limit", 100))))
+    except (ValueError, TypeError):
+        limit = 100
+    total = qs.count()
+    offset = (page - 1) * limit
+    items = qs[offset:offset + limit]
+
+    results = []
+    for c in items:
+        results.append({
+            "id": str(c.id),
+            "creator_handle": c.creator.ig_handle or c.creator.tiktok_handle or "",
+            "creator_region": c.creator.region or "",
+            "post_url": c.post_url,
+            "platform": c.platform,
+            "post_date": str(c.post_date) if c.post_date else "",
+            "content_type": c.content_type,
+            "partner_brand": c.partner_brand,
+            "views": c.views,
+            "likes": c.likes,
+            "comments": c.comments,
+            "transcript": c.transcript or "",
+            "caption": c.caption or "",
+            "quality_score": c.quality_score,
+            "fit_score": c.fit_score,
+            "scene_fit": c.scene_fit,
+            "created_at": c.created_at.isoformat() if c.created_at else "",
+        })
+
+    return _cors_headers(request, JsonResponse({
+        "results": results,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "pages": (total + limit - 1) // limit,
     }))
 
 
@@ -2442,8 +2771,9 @@ def syncly_autofill_emails(request):
 
     # Find placeholder creators (respect region filter from dashboard)
     region = request.GET.get("region", "").strip().lower()
+    from django.db.models import Q
     qs = PipelineCreator.objects.filter(
-        email__icontains="@discovered."
+        Q(email__icontains="@discovered.") | Q(email__icontains="@noemail.")
     ).exclude(
         ig_handle=""
     ).exclude(
@@ -2489,8 +2819,16 @@ def syncly_autofill_emails(request):
 
         if emails:
             best_email = emails[0]
+            # Check uniqueness before saving
+            if PipelineCreator.objects.filter(email=best_email).exclude(pk=c.pk).exists():
+                not_found_list.append(handle)
+                continue
             c.email = best_email
-            c.save(update_fields=["email"])
+            try:
+                c.save(update_fields=["email"])
+            except Exception:
+                not_found_list.append(handle)
+                continue
             found_list.append({
                 "handle": handle,
                 "email": best_email,

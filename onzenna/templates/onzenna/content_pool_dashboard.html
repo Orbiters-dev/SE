@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>Content Pool Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#06b6d4;--abg:#ecfeff;--g:#10b981;--am:#f59e0b;--r:#ef4444;--c:#0ea5e9;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
+.ctr{max-width:100%;margin:0 auto;padding:28px 24px 80px}
+.hero{text-align:center;margin-bottom:20px}
+.hero h1{font-size:22px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#06b6d4,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{color:var(--dim);font-size:11px;margin-top:2px}
+
+#login-gate{max-width:340px;margin:100px auto;text-align:center}
+#login-gate h2{font-size:18px;font-weight:700;margin-bottom:16px}
+#login-gate input{display:block;width:100%;padding:10px 14px;margin:8px 0;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit}
+#login-gate input:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 2px rgba(6,182,212,.15)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 20px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.btn-a{background:var(--a);color:#fff}.btn-a:hover{opacity:.85}
+#login-err{color:var(--r);font-size:11px;display:none;margin-top:8px}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:16px}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.scard .label{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+.scard .val{font-size:22px;font-weight:800;font-family:var(--mono);letter-spacing:-.5px}
+.scard.cyan .val{color:var(--c)}.scard.green .val{color:var(--g)}.scard.accent .val{color:var(--a)}.scard.amber .val{color:var(--am)}.scard.pink .val{color:var(--p)}
+
+.nav-bar{display:flex;justify-content:center;gap:0;margin-bottom:20px}
+.nav-bar>div{display:inline-flex;border:2px solid var(--border);border-radius:10px;overflow:hidden;font-size:12px;font-weight:700}
+.nav-bar a{padding:8px 16px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center}
+.nav-bar a:hover{background:var(--abg);color:var(--a)}
+.nav-bar .active{background:var(--a);color:#fff;cursor:default}
+
+.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.tbl-header{display:flex;align-items:center;gap:10px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.tbl-header input,.tbl-header select{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit}
+.tbl-header input{width:220px}
+.tbl-header input:focus,.tbl-header select:focus{outline:none;border-color:var(--a)}
+.tbl-header .count{font-size:11px;color:var(--muted);margin-left:auto}
+.scroll-wrap{max-height:700px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:11px;min-width:1600px}
+thead{background:#f1f5f9;position:sticky;top:0;z-index:2}
+th{padding:8px 12px;text-align:left;font-weight:700;color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;cursor:pointer}
+th:hover{color:var(--a)}
+td{padding:7px 12px;border-top:1px solid var(--border);white-space:nowrap}
+tr:hover{background:var(--abg)}
+.badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-np{background:#ecfdf5;color:#047857}.badge-p{background:#fce7f3;color:#be185d}
+.badge-ig{background:#fce7f3;color:#be185d}.badge-tt{background:#e0e7ff;color:#4338ca}
+.badge-us{background:#dbeafe;color:#1d4ed8}.badge-jp{background:#fce7f3;color:#be185d}
+.transcript-snip{max-width:400px;white-space:normal;word-break:break-word;color:var(--dim);font-size:11px;line-height:1.5}
+td{vertical-align:top}
+td.transcript-snip{white-space:normal}
+</style>
+</head>
+<body>
+
+<!-- Login Gate -->
+<div id="login-gate">
+  <h2>Content Pool Explorer</h2>
+  <input type="text" id="login-uid" placeholder="User ID" onkeydown="if(event.key==='Enter')doLogin()">
+  <input type="password" id="login-pw" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+  <button class="btn btn-a" onclick="doLogin()" style="width:100%;justify-content:center;margin-top:8px">Sign In</button>
+  <div id="login-err"></div>
+</div>
+
+<!-- Main Content -->
+<div id="main-content" style="display:none">
+<div class="ctr">
+
+<!-- Nav -->
+<div class="nav-bar"><div>
+  <a href="/api/onzenna/pipeline/dashboard/">US CRM</a>
+  <a href="/api/onzenna/pipeline/dashboard/jp/">JP CRM</a>
+  <a href="/api/onzenna/content/dashboard/">Content CI</a>
+  <a href="/api/onzenna/datapool/dashboard/">Creator Pool</a>
+  <a class="active">Content Pool</a>
+  <a href="/api/onzenna/financial/dashboard/">Financial</a>
+</div></div>
+
+<div class="hero">
+  <h1><span>Content Pool</span> Explorer</h1>
+  <div class="sub">Browse all tracked creator posts &middot; onz_creator_content &middot; <span id="refresh-ts">&mdash;</span></div>
+</div>
+
+<!-- Summary -->
+<div class="summary">
+  <div class="scard cyan"><div class="label">Total Posts</div><div class="val" id="s-total">&mdash;</div></div>
+  <div class="scard accent"><div class="label">Non-Partnered</div><div class="val" id="s-np">&mdash;</div></div>
+  <div class="scard pink"><div class="label">Partnered</div><div class="val" id="s-p">&mdash;</div></div>
+  <div class="scard green"><div class="label">W/ Transcript</div><div class="val" id="s-tx">&mdash;</div></div>
+  <div class="scard amber"><div class="label">Linked Creators</div><div class="val" id="s-linked">&mdash;</div></div>
+  <div class="scard"><div class="label">Avg Views</div><div class="val" id="s-avgv">&mdash;</div></div>
+  <div class="scard cyan"><div class="label">Posts (30d)</div><div class="val" id="s-30d-posts">&mdash;</div></div>
+  <div class="scard green"><div class="label">Views (30d)</div><div class="val" id="s-30d-views">&mdash;</div></div>
+</div>
+
+<!-- Table -->
+<div class="tbl-wrap">
+  <div class="tbl-header">
+    <input type="text" id="tbl-search" placeholder="Search handle, caption, transcript...">
+    <select id="tbl-platform"><option value="">All Platforms</option><option value="instagram">Instagram</option><option value="tiktok">TikTok</option></select>
+    <select id="tbl-type"><option value="">All Types</option><option value="non_partnered">Non-Partnered</option><option value="partnered">Partnered</option></select>
+    <select id="tbl-region"><option value="">All Regions</option><option value="us">US</option><option value="jp">JP</option></select>
+    <select id="tbl-transcript"><option value="">Transcript: Any</option><option value="1">Has Transcript (O)</option><option value="0">No Transcript (X)</option></select>
+    <select id="tbl-caption"><option value="">Caption: Any</option><option value="1">Has Caption (O)</option><option value="0">No Caption (X)</option></select>
+    <select id="tbl-views"><option value="">Views: Any</option><option value="1m">1M+</option><option value="100k">100K+</option><option value="10k">10K+</option><option value="1k">1K+</option><option value="0">0 or None</option></select>
+    <select id="tbl-likes"><option value="">Likes: Any</option><option value="100k">100K+</option><option value="10k">10K+</option><option value="1k">1K+</option><option value="100">100+</option><option value="0">0 or None</option></select>
+    <select id="tbl-comments"><option value="">Comments: Any</option><option value="1">Has Comments (O)</option><option value="0">No Comments (X)</option></select>
+    <select id="tbl-postdate"><option value="">Post Date: Any</option><option value="7d">Last 7 days</option><option value="30d">Last 30 days</option><option value="60d">Last 60 days</option><option value="90d">Last 90 days</option></select>
+    <select id="tbl-sort">
+      <option value="-views">Views (High&#8594;Low)</option>
+      <option value="-likes">Likes (High&#8594;Low)</option>
+      <option value="-comments">Comments (High&#8594;Low)</option>
+      <option value="-post_date">Post Date (Recent)</option>
+      <option value="post_date">Post Date (Oldest)</option>
+      <option value="-created_at">Added (Recent)</option>
+    </select>
+    <button class="btn" onclick="resetFilters()" style="background:var(--abg);color:var(--a);font-size:11px;padding:6px 12px;border:1px solid var(--a)">Reset All</button>
+    <div class="count" id="tbl-count">Loading...</div>
+  </div>
+  <div class="scroll-wrap">
+    <table>
+      <thead><tr>
+        <th>Creator</th><th>Region</th><th>Platform</th><th>Type</th><th>Views</th><th>Likes</th><th>Comments</th>
+        <th>Post Date</th><th>Post URL</th><th>Transcript</th><th>Caption</th>
+        <th>Quality</th><th>Fit</th><th>Scene</th><th>Added</th>
+      </tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+  <div id="tbl-pager" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-top:1px solid var(--border)"></div>
+</div>
+
+</div></div>
+<script>
+var AUTH_USERS={
+  'WJ':'a619397d21c5fd5daa1d55bbdef5e99383dadb69f602a0110a9d56cb7b776fbd',
+  'CAL':'a1a137c402f2a79391d3ecd012536dc6a2dc6e4e3ee32c2880d01afa04f7402c',
+  'MJ':'c8fe37479a933b489c5d4a1ff509cbe60095246f1e42f383bc017cb77b3efcbb',
+  'HJ':'75c2e5a66c6bcc985f42b6d402dbb10050a09c9f0371ed735e1983c145da3ffe',
+  'JS':'89d0eb2d586787c34782b6fa71300419edb51538e74596a8c7948c0abca66e6d',
+  'HC':'357fca21bafbd5f23f141ff9433fe47422f58e9b0521c04e5735ae727313aef5',
+  'JHG':'4fde1cea77c9c59bed96bc884c846cb4eca99d28c3c031c2f46e6d00bad2f2a1',
+  'SY':'02055f756ae94496a7f3a8eb3ee14454d9231b5689e15b60945fe8f3e7166964',
+  'LK':'deacf4810dbd04dbfe9cb54a3e767067d40e7d50f1973f59e6c8ed7135d7e16a',
+  'JH':'9b6b725c547356d40e3ce5dd1a985f1a4b35076792d621c76e356c13a531ec7b',
+  'SE':'9346ed77d5684897c51838d0c98db23867810a7e4b120c1226a15b834f4af459',
+  'WC':'1f3d8a8b4c971a06b1064ce6388ebf34e936e69f766014f5102e514ac13571bd'
+};
+var _currentUser='';
+var API_BASE='/api/onzenna';
+
+async function sha256(s){var e=new TextEncoder().encode(s);var h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
+async function doLogin(){
+  var uid=document.getElementById('login-uid').value.trim().toUpperCase();
+  var pw=document.getElementById('login-pw').value;
+  if(!uid||!pw){document.getElementById('login-err').textContent='Enter ID and password';document.getElementById('login-err').style.display='block';return}
+  var hash=await sha256(pw+uid.toLowerCase());
+  if(AUTH_USERS[uid]&&AUTH_USERS[uid]===hash){
+    _currentUser=uid;
+    localStorage.setItem('datapool_auth',JSON.stringify({uid:uid,ts:Date.now()}));
+    showDashboard();
+  }else{document.getElementById('login-err').textContent='Invalid credentials';document.getElementById('login-err').style.display='block'}
+}
+function checkAuth(){
+  var s=localStorage.getItem('datapool_auth');
+  if(!s)return null;
+  try{var d=JSON.parse(s);if(Date.now()-d.ts<30*86400000)return d.uid}catch(e){}
+  return null;
+}
+function showDashboard(){
+  document.getElementById('login-gate').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  loadStats();
+  loadTable(1);
+}
+(function(){var uid=checkAuth();if(uid){_currentUser=uid;showDashboard()}})();
+
+function fmt(n){if(n==null)return '—';if(n>=1000000)return (n/1000000).toFixed(1)+'M';if(n>=1000)return (n/1000).toFixed(1)+'K';return n.toLocaleString()}
+function esc(s){if(!s)return '';var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function snip(s,len){if(!s)return '—';s=String(s);if(s.length<=len)return esc(s);return esc(s.slice(0,len))+'…'}
+
+// Stats
+async function loadStats(){
+  try{
+    var r=await fetch(API_BASE+'/pipeline/creators/datapool-stats/');
+    var d=await r.json();
+    document.getElementById('refresh-ts').textContent='Updated '+new Date().toLocaleTimeString();
+    if(d.content_pool){
+      var cp=d.content_pool;
+      document.getElementById('s-total').textContent=fmt(cp.total);
+      document.getElementById('s-np').textContent=fmt(cp.non_partnered);
+      document.getElementById('s-p').textContent=fmt(cp.partnered);
+      document.getElementById('s-tx').textContent=fmt(cp.with_transcript);
+      document.getElementById('s-linked').textContent=fmt(cp.creators_linked);
+      document.getElementById('s-avgv').textContent=fmt(cp.avg_views);
+      document.getElementById('s-30d-posts').textContent=fmt(cp.posts_30d);
+      document.getElementById('s-30d-views').textContent=fmt(cp.views_30d);
+    }
+  }catch(e){console.error('Stats failed',e)}
+}
+
+// Table
+var _page=1,_pageSize=500,_totalPages=1,_totalRows=0,_loading=false;
+
+function loadTable(page){_page=page||1;fetchPage()}
+
+async function fetchPage(){
+  if(_loading)return;
+  _loading=true;
+  var params=new URLSearchParams();
+  params.set('limit',String(_pageSize));
+  params.set('page',String(_page));
+
+  var search=document.getElementById('tbl-search').value.trim();
+  if(search)params.set('search',search);
+  var platform=document.getElementById('tbl-platform').value;
+  if(platform)params.set('platform',platform);
+  var ctype=document.getElementById('tbl-type').value;
+  if(ctype)params.set('content_type',ctype);
+  var region=document.getElementById('tbl-region').value;
+  if(region)params.set('region',region);
+  var tx=document.getElementById('tbl-transcript').value;
+  if(tx)params.set('has_transcript',tx);
+  var cap=document.getElementById('tbl-caption').value;
+  if(cap)params.set('has_caption',cap);
+  var vmin=document.getElementById('tbl-views').value;
+  if(vmin)params.set('views_min',vmin);
+  var lmin=document.getElementById('tbl-likes').value;
+  if(lmin)params.set('likes_min',lmin);
+  var cmts=document.getElementById('tbl-comments').value;
+  if(cmts)params.set('has_comments',cmts);
+  var pd=document.getElementById('tbl-postdate').value;
+  if(pd)params.set('post_date_range',pd);
+  var order=document.getElementById('tbl-sort').value;
+  if(order)params.set('order',order);
+
+  try{
+    var r=await fetch(API_BASE+'/pipeline/content/?'+params.toString());
+    var d=await r.json();
+    var rows=d.results||[];
+    _totalRows=d.total||0;
+    _totalPages=d.pages||1;
+    renderRows(rows);
+    renderPager();
+  }catch(e){console.error('Table failed',e)}
+  _loading=false;
+}
+
+function renderRows(rows){
+  var tb=document.getElementById('tbl-body');
+  tb.innerHTML='';
+  rows.forEach(function(c){
+    var tr=document.createElement('tr');
+    var platBadge='<span class="badge badge-'+(c.platform==='tiktok'?'tt':'ig')+'">'+esc(c.platform)+'</span>';
+    var typeBadge='<span class="badge badge-'+(c.content_type==='partnered'?'p':'np')+'">'+esc(c.content_type)+'</span>';
+    var regionBadge=c.creator_region?'<span class="badge badge-'+c.creator_region+'">'+c.creator_region.toUpperCase()+'</span>':'';
+    var urlHtml=c.post_url?'<a href="'+esc(c.post_url)+'" target="_blank" style="color:var(--a)">link</a>':'';
+    tr.innerHTML=
+      '<td>'+esc(c.creator_handle)+'</td>'+
+      '<td>'+regionBadge+'</td>'+
+      '<td>'+platBadge+'</td>'+
+      '<td>'+typeBadge+'</td>'+
+      '<td style="font-family:var(--mono);font-weight:600">'+fmt(c.views)+'</td>'+
+      '<td style="font-family:var(--mono)">'+fmt(c.likes)+'</td>'+
+      '<td style="font-family:var(--mono)">'+fmt(c.comments)+'</td>'+
+      '<td>'+(c.post_date?c.post_date.slice(0,10):'')+'</td>'+
+      '<td>'+urlHtml+'</td>'+
+      '<td class="transcript-snip">'+esc(c.transcript||'')+'</td>'+
+      '<td class="transcript-snip">'+esc(c.caption||'')+'</td>'+
+      '<td style="font-family:var(--mono)">'+(c.quality_score||'—')+'</td>'+
+      '<td style="font-family:var(--mono)">'+(c.fit_score||'—')+'</td>'+
+      '<td>'+esc(c.scene_fit||'')+'</td>'+
+      '<td>'+(c.created_at?c.created_at.slice(0,10):'')+'</td>';
+    tb.appendChild(tr);
+  });
+  document.getElementById('tbl-count').textContent=rows.length+' of '+_totalRows.toLocaleString()+' posts';
+}
+
+function renderPager(){
+  var pager=document.getElementById('tbl-pager');
+  pager.innerHTML='';
+  if(_totalPages<=1)return;
+  function mkBtn(label,pg,active){
+    var b=document.createElement('button');
+    b.textContent=label;
+    b.style.cssText='padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:'+(active?'var(--a)':'#fff')+';color:'+(active?'#fff':'var(--dim)');
+    if(!active)b.addEventListener('click',function(){loadTable(pg)});
+    return b;
+  }
+  if(_page>1)pager.appendChild(mkBtn('\u25C0 Prev',_page-1,false));
+  var start=Math.max(1,_page-2),end=Math.min(_totalPages,_page+2);
+  if(start>1){pager.appendChild(mkBtn('1',1,false));if(start>2){var sp=document.createElement('span');sp.textContent='...';sp.style.color='var(--muted)';pager.appendChild(sp)}}
+  for(var i=start;i<=end;i++)pager.appendChild(mkBtn(String(i),i,i===_page));
+  if(end<_totalPages){if(end<_totalPages-1){var sp=document.createElement('span');sp.textContent='...';sp.style.color='var(--muted)';pager.appendChild(sp)}pager.appendChild(mkBtn(String(_totalPages),_totalPages,false))}
+  if(_page<_totalPages)pager.appendChild(mkBtn('Next \u25B6',_page+1,false));
+  var info=document.createElement('span');
+  info.style.cssText='font-size:11px;color:var(--muted);margin-left:12px';
+  info.textContent='Page '+_page+' of '+_totalPages+' ('+_totalRows.toLocaleString()+' total)';
+  pager.appendChild(info);
+}
+
+function resetFilters(){
+  document.getElementById('tbl-search').value='';
+  document.getElementById('tbl-platform').value='';
+  document.getElementById('tbl-type').value='';
+  document.getElementById('tbl-region').value='';
+  document.getElementById('tbl-transcript').value='';
+  document.getElementById('tbl-caption').value='';
+  document.getElementById('tbl-views').value='';
+  document.getElementById('tbl-likes').value='';
+  document.getElementById('tbl-comments').value='';
+  document.getElementById('tbl-postdate').value='';
+  document.getElementById('tbl-sort').value='-views';
+  loadTable(1);
+}
+
+// Filter handlers
+var _debounce=null;
+document.getElementById('tbl-search').addEventListener('input',function(){
+  clearTimeout(_debounce);
+  _debounce=setTimeout(function(){loadTable(1)},400);
+});
+['tbl-platform','tbl-type','tbl-region','tbl-transcript','tbl-caption','tbl-views','tbl-likes','tbl-comments','tbl-postdate','tbl-sort'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',function(){loadTable(1)});
+});
+</script>
+</body>
+</html>
