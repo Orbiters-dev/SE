@@ -537,3 +537,76 @@ class GoogleAdsSearchTerms(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.brand} {self.search_term}"
+
+
+# ── Influencer Pipeline tables ───────────────────────────────────────
+# Persistent storage for JP Pipeline (o7AIsTafivOdR0JC).
+# Replaces n8n staticData to survive restarts.
+
+
+class PipelineCreators(models.Model):
+    """Influencer creators tracked by JP Pipeline."""
+    username = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=500, blank=True, default="")
+    followers = models.IntegerField(default=0)
+    platform = models.CharField(max_length=20, default="instagram")
+    program = models.CharField(max_length=20, default="collab")  # collab, affiliate
+    status = models.CharField(max_length=50, default="not_started")
+    assigned_to = models.CharField(max_length=50, blank=True, default="")
+    manychat_id = models.CharField(max_length=100, blank=True, default="")
+    dm_draft = models.TextField(blank=True, default="")
+    dm_link = models.CharField(max_length=500, blank=True, default="")
+    dm_count = models.IntegerField(default=0)
+    last_dm = models.CharField(max_length=50, blank=True, default="")
+    content_script = models.TextField(blank=True, default="")
+    recommended_product = models.CharField(max_length=300, blank=True, default="")
+    # form_data fields (STEP 6)
+    real_name = models.CharField(max_length=200, blank=True, default="")
+    email = models.CharField(max_length=200, blank=True, default="")
+    product = models.CharField(max_length=300, blank=True, default="")
+    color = models.CharField(max_length=100, blank=True, default="")
+    # contract
+    contract_type = models.CharField(max_length=20, blank=True, default="")
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+    docuseal_submission_id = models.CharField(max_length=100, blank=True, default="")
+    contract_status = models.CharField(max_length=50, blank=True, default="")
+    # timestamps
+    added_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_pipeline_creators"
+        unique_together = (("username",),)
+
+    def __str__(self):
+        return f"@{self.username} [{self.status}]"
+
+
+class PipelineDmLogs(models.Model):
+    """DM conversation log entries per creator."""
+    username = models.CharField(max_length=200, db_index=True)
+    direction = models.CharField(max_length=10, default="out")  # in, out
+    message = models.TextField(blank=True, default="")
+    step = models.CharField(max_length=20, blank=True, default="")
+    sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "gk_pipeline_dm_logs"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"@{self.username} [{self.direction}] {self.created_at}"
+
+
+class PipelineConfig(models.Model):
+    """Key-value config store for JP Pipeline."""
+    key = models.CharField(max_length=200, unique=True)
+    value = models.TextField(blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "gk_pipeline_config"
+
+    def __str__(self):
+        return f"{self.key}"

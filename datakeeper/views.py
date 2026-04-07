@@ -78,6 +78,9 @@ TABLE_MAP = {
     "amazon_autocomplete_daily": models.AmazonAutocompleteDaily,
     "amazon_search_ranking": models.AmazonSearchRanking,
     "google_ads_search_terms": models.GoogleAdsSearchTerms,
+    "pipeline_creators": models.PipelineCreators,
+    "pipeline_dm_logs": models.PipelineDmLogs,
+    "pipeline_config": models.PipelineConfig,
 }
 
 
@@ -365,3 +368,191 @@ def status(request):
         except Exception as e:
             result[name] = {"error": str(e)}
     return JsonResponse({"status": result})
+
+
+# ── Pipeline API ─────────────────────────────────────────────────────
+# Dedicated CRUD for JP Influencer Pipeline.
+# n8n calls these instead of staticData.
+
+
+@csrf_exempt
+@cors_headers
+@require_http_methods(["GET", "POST", "OPTIONS"])
+def pipeline_creators(request):
+    """CRUD for pipeline creators.
+
+    GET  ?username=X        → single creator
+    GET  (no params)        → all creators
+    POST {creators: [...]}  → upsert creators
+    POST {username, ...}    → upsert single creator
+    """
+    if request.method == "GET":
+        username = request.GET.get("username")
+        if username:
+            try:
+                c = models.PipelineCreators.objects.get(username=username)
+                return JsonResponse({"status": "ok", "creator": _creator_to_dict(c)})
+            except models.PipelineCreators.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "not found"}, status=404)
+        else:
+            qs = models.PipelineCreators.objects.all().order_by("-updated_at")
+            return JsonResponse({
+                "status": "ok",
+                "total": qs.count(),
+                "creators": [_creator_to_dict(c) for c in qs],
+            })
+
+    # POST: upsert
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"status": "error", "message": "invalid JSON"}, status=400)
+
+    rows = data.get("creators", [data] if "username" in data else [])
+    created, updated = 0, 0
+    for row in rows:
+        uname = row.get("username", "").strip().lstrip("@")
+        if not uname:
+            continue
+        obj, is_new = models.PipelineCreators.objects.get_or_create(username=uname)
+        _update_creator_fields(obj, row)
+        obj.save()
+        if is_new:
+            created += 1
+        else:
+            updated += 1
+
+    return JsonResponse({"status": "ok", "created": created, "updated": updated})
+
+
+@csrf_exempt
+@cors_headers
+@require_http_methods(["GET", "POST", "OPTIONS"])
+def pipeline_dm_logs(request):
+    """DM log CRUD.
+
+    GET  ?username=X        → logs for creator
+    POST {username, direction, message, step, sent_at}  → add log entry
+    """
+    if request.method == "GET":
+        username = request.GET.get("username", "")
+        qs = models.PipelineDmLogs.objects.all()
+        if username:
+            qs = qs.filter(username=username)
+        qs = qs.order_by("-created_at")[:100]
+        return JsonResponse({
+            "status": "ok",
+            "logs": [
+                {
+                    "id": log.id,
+                    "username": log.username,
+                    "direction": log.direction,
+                    "message": log.message,
+                    "step": log.step,
+                    "sent_at": _safe_iso(log.sent_at),
+                    "created_at": _safe_iso(log.created_at),
+                }
+                for log in qs
+            ],
+        })
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"status": "error", "message": "invalid JSON"}, status=400)
+
+    log = models.PipelineDmLogs.objects.create(
+        username=data.get("username", ""),
+        direction=data.get("direction", "out"),
+        message=data.get("message", ""),
+        step=data.get("step", ""),
+        sent_at=data.get("sent_at"),
+    )
+    return JsonResponse({"status": "ok", "id": log.id})
+
+
+@csrf_exempt
+@cors_headers
+@require_http_methods(["GET", "POST", "OPTIONS"])
+def pipeline_config(request):
+    """Pipeline config key-value store.
+
+    GET  ?key=X           → single value
+    GET  (no params)      → all config
+    POST {key, value}     → set config
+    """
+    if request.method == "GET":
+        key = request.GET.get("key")
+        if key:
+            try:
+                c = models.PipelineConfig.objects.get(key=key)
+                return JsonResponse({"status": "ok", "key": c.key, "value": c.value})
+            except models.PipelineConfig.DoesNotExist:
+                return JsonResponse({"status": "ok", "key": key, "value": ""})
+        else:
+            configs = models.PipelineConfig.objects.all()
+            return JsonResponse({
+                "status": "ok",
+                "config": {c.key: c.value for c in configs},
+            })
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"status": "error", "message": "invalid JSON"}, status=400)
+
+    key = data.get("key", "")
+    value = data.get("value", "")
+    if not key:
+        return JsonResponse({"status": "error", "message": "key required"}, status=400)
+
+    obj, _ = models.PipelineConfig.objects.update_or_create(
+        key=key, defaults={"value": value}
+    )
+    return JsonResponse({"status": "ok", "key": obj.key})
+
+
+def _creator_to_dict(c):
+    """Convert PipelineCreators model to dict."""
+    return {
+        "username": c.username,
+        "name": c.name,
+        "followers": c.followers,
+        "platform": c.platform,
+        "program": c.program,
+        "status": c.status,
+        "assigned_to": c.assigned_to,
+        "manychat_id": c.manychat_id,
+        "dm_draft": c.dm_draft,
+        "dm_link": c.dm_link,
+        "dm_count": c.dm_count,
+        "last_dm": c.last_dm,
+        "content_script": c.content_script,
+        "recommended_product": c.recommended_product,
+        "real_name": c.real_name,
+        "email": c.email,
+        "product": c.product,
+        "color": c.color,
+        "contract_type": c.contract_type,
+        "payment_amount": float(c.payment_amount),
+        "docuseal_submission_id": c.docuseal_submission_id,
+        "contract_status": c.contract_status,
+        "added_at": _safe_iso(c.added_at),
+        "updated_at": _safe_iso(c.updated_at),
+    }
+
+
+CREATOR_FIELDS = {
+    "name", "followers", "platform", "program", "status", "assigned_to", "manychat_id",
+    "dm_draft", "dm_link", "dm_count", "last_dm", "content_script",
+    "recommended_product", "real_name", "email", "product", "color",
+    "contract_type", "payment_amount", "docuseal_submission_id",
+    "contract_status", "added_at",
+}
+
+
+def _update_creator_fields(obj, data):
+    """Update creator model fields from dict, only setting provided keys."""
+    for k, v in data.items():
+        if k in CREATOR_FIELDS and v is not None:
+            setattr(obj, k, v)
