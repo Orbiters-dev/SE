@@ -633,7 +633,7 @@ def generate():
     # ── Brand × Platform DAILY (for Hero Products ad overlay) ─────────────────
     # brand_ad_daily_raw[brand][metric][date] = float
     # metrics: amz_spend, amz_clicks, amz_sales, mt_spend, mt_clicks, mt_sales,
-    #          gads_spend, gads_clicks, gads_sales
+    #          mc_spend, mc_clicks, mc_sales, gads_spend, gads_clicks, gads_sales
     brand_ad_daily_raw = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
 
     for r in amazon_ads:
@@ -679,11 +679,15 @@ def generate():
         brand_ad_by_platform_wk[label][brand][wk]["sales"] += float(r.get("purchase_value") or 0)
         brand_ad_by_platform_wk[label][brand][wk]["impressions"] += int(r.get("impressions") or 0)
         brand_ad_by_platform_wk[label][brand][wk]["clicks"] += int(r.get("clicks") or 0)
-        # Daily accumulation for Hero tab (Meta Traffic = AMZ landing)
+        # Daily accumulation for Hero tab
         if is_amz:
             brand_ad_daily_raw[brand]["mt_spend"][d] += float(r.get("spend") or 0)
             brand_ad_daily_raw[brand]["mt_clicks"][d] += int(r.get("clicks") or 0)
             brand_ad_daily_raw[brand]["mt_sales"][d] += float(r.get("purchase_value") or 0)
+        else:
+            brand_ad_daily_raw[brand]["mc_spend"][d] += float(r.get("spend") or 0)
+            brand_ad_daily_raw[brand]["mc_clicks"][d] += int(r.get("clicks") or 0)
+            brand_ad_daily_raw[brand]["mc_sales"][d] += float(r.get("purchase_value") or 0)
 
     # NOTE: Attribution sales injection happens after attribution data loaded (see below)
 
@@ -990,17 +994,17 @@ def generate():
     for b in _brand_data_dates:
         _brand_data_dates[b] = sorted(set(_brand_data_dates[b]), reverse=True)
 
-    def _kw_agg_by_brand_ndays(rows, n_data_days):
-        """Aggregate search terms, keeping most recent N data-days PER BRAND."""
+    def _kw_agg_by_brand_ndays(rows, n_calendar_days):
+        """Aggregate search terms from the last N calendar days (full days only, excluding today)."""
+        cutoff = (today - timedelta(days=n_calendar_days)).isoformat()
+        today_s = today.isoformat()
         brand_kw = defaultdict(lambda: defaultdict(lambda: {
             "spend": 0.0, "sales": 0.0, "clicks": 0, "impressions": 0, "purchases": 0
         }))
-        # Pre-compute keep set per brand
-        brand_keep = {b: set(dates[:n_data_days]) for b, dates in _brand_data_dates.items()}
         for r in rows:
             brand = r.get("brand", "Other")
             d = _parse_st_end_date(r.get("date", ""))[:10]
-            if d not in brand_keep.get(brand, set()):
+            if d < cutoff or d >= today_s:
                 continue
             kw = (r.get("search_term") or r.get("query") or "").strip().lower()
             if not kw:
@@ -1036,6 +1040,11 @@ def generate():
     if "Grosmimi" in kw_brands:
         kw_brands.remove("Grosmimi")
         kw_brands.insert(0, "Grosmimi")
+
+    def _kw_date_filter(n_calendar_days):
+        cutoff = (today - timedelta(days=n_calendar_days)).isoformat()
+        today_s = today.isoformat()
+        return lambda d: cutoff <= _parse_st_end_date(d)[:10] < today_s
 
     keyword_performance = {
         "periods": {
@@ -1569,7 +1578,8 @@ def generate():
                 continue
             cn = (r.get("campaign_name", "") or "")
             cl = cn.lower()
-            if "traffic" in cl or "amz" in cl:
+            landing = (r.get("landing_url") or "").lower()
+            if "traffic" in cl or "amz" in cl or "amazon" in cl or "amazon" in landing:
                 meta_traffic["clicks"] += int(r.get("clicks", 0) or 0)
                 meta_traffic["spend"] += float(r.get("spend", 0) or 0)
                 meta_traffic["purchases"] += int(r.get("purchases", 0) or 0)
@@ -3082,6 +3092,7 @@ def generate():
 
     DAILY_METRICS = ["amz_spend", "amz_clicks", "amz_sales",
                      "mt_spend", "mt_clicks", "mt_sales",
+                     "mc_spend", "mc_clicks", "mc_sales",
                      "gads_spend", "gads_clicks", "gads_sales"]
     brand_ad_daily_out = {"dates": ad_dates_sorted}
     for brand in BRAND_ORDER:
@@ -3862,6 +3873,7 @@ def generate():
                 if cat:
                     cat_ad_daily_raw[cat]["mt_spend"][d] += float(r.get("spend") or 0)
                     cat_ad_daily_raw[cat]["mt_clicks"][d] += int(r.get("clicks") or 0)
+                    cat_ad_daily_raw[cat]["mt_sales"][d] += float(r.get("purchase_value") or 0)
 
         # Serialize cat_ad_daily (include ad-only categories like Replacements)
         cat_ad_daily_out = {"dates": spend_dates}
@@ -3874,7 +3886,7 @@ def generate():
                 continue
             cd = cat_ad_daily_raw[cat_name]
             cat_out = {}
-            for metric in ["amz_spend", "amz_clicks", "amz_sales", "mt_spend", "mt_clicks"]:
+            for metric in ["amz_spend", "amz_clicks", "amz_sales", "mt_spend", "mt_clicks", "mt_sales"]:
                 vals = [round(cd[metric].get(d, 0), 2) for d in spend_dates]
                 if any(v > 0 for v in vals):
                     cat_out[metric] = vals
