@@ -1,0 +1,280 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   ORBI Dashboard Base CSS — Shared Design System
+   Each dashboard overrides --a, --abg, and hero gradient via inline <style>.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Design Tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --bg: #f8fafc;
+  --card: #fff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --dim: #64748b;
+  --muted: #94a3b8;
+  /* Accent — override per dashboard */
+  --a: #10b981;
+  --abg: #ecfdf5;
+  /* Semantic colors */
+  --g: #10b981; --gbg: #ecfdf5;
+  --am: #f59e0b; --ambg: #fffbeb;
+  --r: #ef4444; --rbg: #fef2f2;
+  --c: #0ea5e9; --cbg: #f0f9ff;
+  --p: #ec4899;
+  --mono: 'SF Mono', 'Fira Code', Consolas, monospace;
+}
+
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+/* ── Container ─────────────────────────────────────────────────────────────── */
+.ctr { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+
+/* ── Hero ──────────────────────────────────────────────────────────────────── */
+.hero { text-align: center; margin-bottom: 20px; }
+.hero h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+.hero h1 span {
+  background: linear-gradient(135deg, var(--a), #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero .sub { color: var(--dim); font-size: 13px; margin-top: 3px; }
+.hero .meta { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+
+/* ── Pill / Badge ──────────────────────────────────────────────────────────── */
+.pill {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 2px 10px; font-size: 10px; color: var(--dim);
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--g); box-shadow: 0 0 3px var(--g); }
+
+/* ── Card ──────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; margin-bottom: 10px;
+}
+.card h3 { font-size: 12px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.card .desc { font-size: 10px; color: var(--dim); margin-bottom: 8px; }
+
+/* ── Stats Grid ────────────────────────────────────────────────────────────── */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; margin: 10px 0; }
+.stat {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px;
+}
+.stat .sl { font-size: 8px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 600; }
+.stat .sv { font-size: 22px; font-weight: 800; letter-spacing: -.5px; font-family: var(--mono); }
+.stat .ss { font-size: 9px; color: var(--dim); margin-top: 2px; }
+.stat.green .sv { color: var(--g); }
+.stat.red .sv { color: var(--r); }
+.stat.amber .sv { color: var(--am); }
+.stat.accent .sv { color: var(--a); }
+.stat.cyan .sv { color: var(--c); }
+.stat.purple .sv { color: #6366f1; }
+.stat.pink .sv { color: var(--p); }
+
+/* ── Tables ────────────────────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+th {
+  background: #f8fafc; color: var(--dim); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .3px; font-size: 9px;
+  padding: 6px 8px; text-align: left; border-bottom: 2px solid var(--border);
+  position: sticky; top: 0; z-index: 1;
+}
+td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; }
+tr:hover td { background: #f8fffe; }
+
+/* ── Inline Badges ─────────────────────────────────────────────────────────── */
+.b { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 600; }
+.b.g { background: var(--gbg); color: var(--g); }
+.b.r { background: var(--rbg); color: var(--r); }
+.b.am { background: var(--ambg); color: var(--am); }
+.b.c { background: var(--cbg); color: var(--c); }
+.b.a { background: var(--abg); color: var(--a); }
+.b.p { background: #fdf2f8; color: var(--p); }
+
+/* ── Tabs (main-level) ─────────────────────────────────────────────────────── */
+.mt { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 0; overflow-x: auto; }
+.mt > div {
+  padding: 10px 20px; font-size: 12px; font-weight: 700; cursor: pointer;
+  color: var(--dim); border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: .12s; white-space: nowrap;
+}
+.mt > div:hover { color: var(--text); }
+.mt > div.on { color: var(--a); border-bottom-color: var(--a); }
+.mp { display: none; padding-top: 20px; }
+.mp.on { display: block; }
+
+/* ── Sub-tabs ──────────────────────────────────────────────────────────────── */
+.sub-tabs { display: flex; gap: 2px; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 0; overflow-x: auto; }
+.sub-tab {
+  padding: 8px 16px; font-size: 11px; font-weight: 700; color: var(--dim);
+  cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: .15s; white-space: nowrap; border-radius: 6px 6px 0 0;
+}
+.sub-tab:hover { color: var(--text); background: #f1f5f9; }
+.sub-tab.active { color: var(--a); border-bottom-color: var(--a); background: var(--abg); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Period Tabs ───────────────────────────────────────────────────────────── */
+.period-tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-size: 10px; }
+.period-tabs > div { padding: 5px 14px; cursor: pointer; font-weight: 700; color: var(--dim); transition: .12s; }
+.period-tabs > div.on { background: var(--a); color: #fff; }
+.period-tabs > div:hover:not(.on) { background: var(--abg); }
+
+/* ── Section Titles ────────────────────────────────────────────────────────── */
+.sec { margin-bottom: 24px; }
+.sec-title {
+  font-size: 14px; font-weight: 800; margin-bottom: 10px; padding-bottom: 8px;
+  border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 8px;
+}
+.sec-title .num {
+  width: 24px; height: 24px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff; background: var(--a); flex-shrink: 0;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 20px; border: none; border-radius: 8px;
+  font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: .15s;
+}
+.btn-primary { background: var(--a); color: #fff; }
+.btn-primary:hover { opacity: .9; }
+.btn-secondary { background: var(--abg); color: var(--a); border: 1px solid var(--border); }
+.btn-secondary:hover { opacity: .85; }
+.btn-danger { background: var(--r); color: #fff; }
+.btn-success { background: var(--g); color: #fff; }
+.btn-sm { padding: 4px 10px; font-size: 10px; border-radius: 5px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Forms ──────────────────────────────────────────────────────────────────── */
+.form-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.form-row label { font-size: 11px; font-weight: 600; color: var(--dim); min-width: 140px; }
+.form-row input[type="text"], .form-row input[type="number"], .form-row input[type="date"],
+.form-row input[type="url"], .form-row input[type="email"], .form-row select {
+  flex: 1; min-width: 160px; padding: 7px 10px;
+  border: 1px solid var(--border); border-radius: 6px;
+  font-size: 12px; font-family: inherit; background: var(--card);
+}
+.form-row input:focus, .form-row select:focus {
+  outline: none; border-color: var(--a);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--a) 15%, transparent);
+}
+
+/* ── Filter Bar ────────────────────────────────────────────────────────────── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.filter-bar input[type="text"] {
+  flex: 1; min-width: 180px; padding: 7px 12px;
+  border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: inherit;
+}
+.filter-bar input:focus { outline: none; border-color: var(--a); box-shadow: 0 0 0 2px color-mix(in srgb, var(--a) 15%, transparent); }
+.filter-bar select {
+  padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 11px; font-family: inherit; background: var(--card); color: var(--text);
+}
+
+/* ── Funnel / Flow Bar ─────────────────────────────────────────────────────── */
+.funnel, .fb {
+  display: flex; align-items: center; gap: 0; background: var(--card);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; margin-bottom: 16px; overflow-x: auto;
+}
+.fn {
+  flex: 1; min-width: 80px; text-align: center; padding: 8px 4px;
+  border-radius: 8px; cursor: pointer; transition: .12s; border: 2px solid transparent;
+}
+.fn:hover { background: var(--abg); }
+.fn.on { background: var(--abg); border-color: var(--a); }
+.fn .fi { font-size: 18px; font-weight: 800; font-family: var(--mono); }
+.fn .ft { font-size: 9px; font-weight: 700; color: var(--dim); }
+.fn .fs { font-size: 8px; color: var(--muted); }
+.fa { color: var(--muted); font-size: 10px; flex-shrink: 0; padding: 0 1px; }
+
+/* ── Toast ──────────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 20px; right: 20px; padding: 10px 18px;
+  border-radius: 8px; font-size: 12px; font-weight: 600; color: #fff;
+  z-index: 999; transform: translateY(100px); opacity: 0; transition: .3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok { background: var(--g); }
+.toast.err { background: var(--r); }
+
+/* ── Source Grid ────────────────────────────────────────────────────────────── */
+.src-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.src-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 10px; }
+.src-card .sn { font-weight: 700; font-size: 11px; font-family: var(--mono); color: var(--text); margin-bottom: 2px; }
+.src-card .sd { color: var(--dim); line-height: 1.4; }
+.src-card .sr { float: right; font-size: 9px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-weight: 600; }
+
+/* ── Tooltip ───────────────────────────────────────────────────────────────── */
+.fin-tooltip {
+  position: fixed; pointer-events: none; background: #1e293b; color: #fff;
+  padding: 6px 10px; border-radius: 6px; font-size: 10px; font-family: var(--mono);
+  line-height: 1.5; z-index: 9999; display: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2); max-width: 220px; white-space: nowrap;
+}
+.fin-tooltip .tt-date { color: #94a3b8; font-size: 9px; margin-bottom: 2px; }
+.fin-tooltip .tt-row { display: flex; align-items: center; gap: 4px; }
+.fin-tooltip .tt-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Pager ──────────────────────────────────────────────────────────────────── */
+.pager { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 12px; }
+.pager button { padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--card); cursor: pointer; font-size: 11px; font-family: inherit; }
+.pager button.on { background: var(--a); color: #fff; border-color: var(--a); }
+.pager button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Sparkline ─────────────────────────────────────────────────────────────── */
+.sparkline { display: inline-flex; align-items: end; gap: 1px; height: 20px; vertical-align: middle; }
+.sparkline .bar { width: 4px; border-radius: 1px; min-height: 1px; }
+
+/* ── Volume Bar ────────────────────────────────────────────────────────────── */
+.vol-bar { height: 6px; border-radius: 3px; background: #e2e8f0; position: relative; overflow: hidden; min-width: 60px; }
+.vol-bar .fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #10b981, #0ea5e9); }
+
+/* ── Projection Badge ──────────────────────────────────────────────────────── */
+.proj { color: #8b5cf6; font-size: 9px; font-weight: 600; font-family: var(--mono); }
+
+/* ── Position Badge ────────────────────────────────────────────────────────── */
+.pos-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; font-family: var(--mono); }
+.pos-top3 { background: #ecfdf5; color: #10b981; }
+.pos-top10 { background: #fffbeb; color: #f59e0b; }
+.pos-low { background: #fef2f2; color: #ef4444; }
+
+/* ── Mobile Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .ctr { padding: 12px 8px 60px; }
+  .hero h1 { font-size: 18px; }
+  .hero .sub { font-size: 11px; }
+  /* Stats */
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+  .stat { padding: 8px; }
+  .stat .sv { font-size: 16px; }
+  /* Source grid */
+  .src-grid { grid-template-columns: 1fr; }
+  /* Tabs: horizontal scroll */
+  .mt, .sub-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+  .mt > div { padding: 8px 14px; font-size: 10px; white-space: nowrap; flex-shrink: 0; }
+  .sub-tab { padding: 6px 12px; font-size: 10px; flex-shrink: 0; }
+  /* Tables */
+  .card { padding: 10px 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 500px; }
+  th { padding: 5px 5px; font-size: 8px; }
+  td { padding: 4px 5px; font-size: 10px; }
+  /* Section titles */
+  .sec-title { font-size: 12px; flex-wrap: wrap; }
+  .sec-title .num { width: 20px; height: 20px; font-size: 10px; }
+  /* Period tabs */
+  .period-tabs > div { padding: 5px 10px; font-size: 9px; }
+  /* Login gate */
+  #login-gate > div { padding: 28px 20px !important; width: 92% !important; }
+}

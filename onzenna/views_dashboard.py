@@ -10,9 +10,10 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-# Base directories for data JS files
+# Base directories for data JS / shared CSS files
 _PPC_DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "ppc-dashboard"
 _FIN_DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "financial-dashboard"
+_SHARED_DIR = Path(__file__).resolve().parent.parent / "docs" / "shared"
 
 
 @xframe_options_sameorigin
@@ -74,3 +75,11 @@ def fin_data_js(request):
     if not filepath.is_file():
         raise Http404
     return HttpResponse(filepath.read_text(encoding="utf-8"), content_type="application/javascript")
+
+
+def dashboard_base_css(request):
+    """Serve shared dashboard base CSS."""
+    filepath = _SHARED_DIR / "dashboard_base.css"
+    if not filepath.is_file():
+        raise Http404
+    return HttpResponse(filepath.read_text(encoding="utf-8"), content_type="text/css")

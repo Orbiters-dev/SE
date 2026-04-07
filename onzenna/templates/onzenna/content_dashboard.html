@@ -8,37 +8,25 @@
 <meta http-equiv="Expires" content="0">
 <title>Content Intelligence Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/api/onzenna/shared/dashboard_base.css">
 <style>
-:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--a:#6366f1;--abg:#eef2ff;--g:#10b981;--gbg:#ecfdf5;--am:#f59e0b;--ambg:#fffbeb;--r:#ef4444;--rbg:#fef2f2;--c:#0ea5e9;--cbg:#f0f9ff;--p:#ec4899;--mono:'SF Mono','Fira Code',Consolas,monospace}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:13px}
-.ctr{max-width:1020px;margin:0 auto;padding:28px 20px 80px}
-.hero{text-align:center;margin-bottom:24px}
-.hero h1{font-size:26px;font-weight:800;letter-spacing:-.5px}.hero h1 span{background:linear-gradient(135deg,#ec4899,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .sub{color:var(--dim);font-size:13px;margin-top:3px}
-.hero .meta{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
-.pill{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2px 10px;font-size:10px;color:var(--dim);display:inline-flex;align-items:center;gap:4px}
-.pill .dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 3px var(--g)}
+/* Content Intelligence — accent + dashboard-specific */
+:root{--a:#6366f1;--abg:#eef2ff}
+.ctr{max-width:1020px}
+.hero{margin-bottom:24px}
+.hero h1 span{background:linear-gradient(135deg,#ec4899,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+tr:hover td{background:#fafbff}
+/* Tabs (uses .tabs not .mt) */
 .tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0}
 .tabs>div{padding:10px 24px;font-size:12px;font-weight:700;cursor:pointer;color:var(--dim);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.12s}
 .tabs>div:hover{color:var(--text)}.tabs>div.on{color:var(--a);border-bottom-color:var(--a)}
 .pnl{display:none;padding-top:20px}.pnl.on{display:block}
-.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
-.card h3{font-size:12px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.card .desc{font-size:10px;color:var(--dim);margin-bottom:8px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin:10px 0}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px}
-.stat .sl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
-.stat .sv{font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:var(--mono)}
-.stat.green .sv{color:var(--g)}.stat.red .sv{color:var(--r)}.stat.amber .sv{color:var(--am)}.stat.accent .sv{color:var(--a)}.stat.cyan .sv{color:var(--c)}.stat.pink .sv{color:var(--p)}
-table{width:100%;border-collapse:collapse;font-size:11px}
-th{background:#f8fafc;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.3px;font-size:9px;padding:6px 7px;text-align:left;border-bottom:2px solid var(--border)}
-td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbff}
-.b{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
+/* Race chart */
 .race-line{stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:opacity .2s}
 .race-line:hover{stroke-width:4}
 .race-label{font-size:9px;font-weight:700;pointer-events:none}
 .race-dot{transition:r .15s}
+/* Content toggle */
 .content-toggle{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:10px}
 .content-toggle>div{padding:5px 12px;cursor:pointer;font-weight:600;color:var(--dim);transition:.12s}
 .content-toggle>div.on{background:var(--a);color:#fff}
@@ -48,26 +36,11 @@ td{padding:6px 7px;border-bottom:1px solid #f1f5f9}tr:hover td{background:#fafbf
 .prod-tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:600;background:#f3e8ff;color:#7c3aed;margin:1px 2px}
 .nav-link{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--a);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;transition:.12s}
 .nav-link:hover{background:var(--abg);border-color:var(--a)}
-/* ── Mobile Responsive ── */
 @media(max-width:700px){
-  .ctr{padding:12px 8px 60px}
-  .hero h1{font-size:18px}
-  .hero .sub{font-size:11px}
-  /* Nav bar */
   .ctr>div:first-child>div{flex-direction:column;border-radius:8px}
   .ctr>div:first-child>div>*{padding:6px 14px!important;font-size:11px!important;text-align:center}
-  /* Tabs: horizontal scroll */
   .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
   .tabs>div{padding:8px 14px;font-size:10px;white-space:nowrap;flex-shrink:0}
-  /* Stats */
-  .stats{grid-template-columns:repeat(2,1fr);gap:4px}
-  .stat .sv{font-size:16px}
-  /* Tables: horizontal scroll */
-  .card{padding:10px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table{min-width:500px}
-  th{padding:5px 4px;font-size:8px}td{padding:4px 4px;font-size:10px}
-  /* Login gate */
-  #login-gate>div{padding:28px 20px!important;width:92%!important}
 }
 </style>
 </head>
