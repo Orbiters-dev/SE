@@ -706,8 +706,7 @@ function renderSearchRankTab(F){
 
 // ── JP Render Helpers ────────────────────────────────────────────────────────
 function _jpNoData(icon, title, desc) {
-  return '<div class="hero"><h1>'+title+'</h1></div>'
-    +'<div class="card" style="text-align:center;padding:56px 24px;margin-top:8px">'
+  return '<div class="card" style="text-align:center;padding:56px 24px;margin-top:8px">'
     +'<div style="font-size:44px;margin-bottom:12px">'+icon+'</div>'
     +'<h3 style="margin:0 0 8px;font-size:18px">'+title+'</h3>'
     +'<div class="desc" style="margin-bottom:16px">'+desc+'</div>'
@@ -715,102 +714,313 @@ function _jpNoData(icon, title, desc) {
     +'</div>';
 }
 
-function _jpRevenueChart(label, data) {
+function _jpBar(pct, color) {
+  return '<div style="height:8px;border-radius:4px;background:#e2e8f0;min-width:80px;position:relative;overflow:hidden">'
+    +'<div style="height:100%;width:'+pct+'%;border-radius:4px;background:'+(color||'#ef4444')+'"></div></div>';
+}
+
+function _jpY(v) { return v > 0 ? '&#165;'+Math.round(v).toLocaleString() : '<span style="color:var(--dim)">&mdash;</span>'; }
+
+function _jpRevenueTable(secNum, label, data, color) {
   var months = data.months || [];
   var rev = data.revenue || [];
   var units = data.units || [];
   var orders = data.orders || [];
-  var currency = data.currency || 'JPY';
   var maxRev = Math.max.apply(null, rev.concat([1]));
-  var html = '<div class="sec"><div class="sec-title"><div class="num" style="background:#ef4444">1</div> Monthly Revenue — '+label+'</div>';
-  html += '<div style="overflow-x:auto"><table class="tbl"><thead><tr>'
-    +'<th>Month</th><th>Revenue ('+currency+')</th><th>Chart</th><th>Orders</th><th>Units</th></tr></thead><tbody>';
-  months.forEach(function(m, i) {
+  var html = '<div class="sec"><div class="sec-title"><div class="num" style="background:'+(color||'#ef4444')+'">'+secNum+'</div> Monthly Revenue &mdash; '+label+'</div>';
+  html += '<div class="card"><div style="overflow-x:auto"><table><thead><tr>'
+    +'<th>Month</th><th style="text-align:right">Revenue (JPY)</th><th style="min-width:100px">Chart</th><th style="text-align:right">Orders</th><th style="text-align:right">Units</th><th style="text-align:right">AOV</th></tr></thead><tbody>';
+  for (var i = months.length - 1; i >= 0; i--) {
     var r = rev[i] || 0;
-    var pct = maxRev > 0 ? (r / maxRev * 100).toFixed(1) : 0;
-    var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
+    var pctVal = maxRev > 0 ? (r / maxRev * 100).toFixed(1) : 0;
+    var mLabel = months[i].split('-')[1]+'/'+months[i].split('-')[0].substring(2);
+    var aov = orders[i] > 0 ? Math.round(r / orders[i]) : 0;
     html += '<tr>'
-      +'<td>'+mLabel+'</td>'
-      +'<td style="text-align:right;font-weight:700">'+(r > 0 ? '¥'+Math.round(r).toLocaleString() : '<span style="color:var(--dim)">—</span>')+'</td>'
-      +'<td style="min-width:120px">'+barChart(pct, '#ef4444')+'</td>'
-      +'<td style="text-align:right">'+(orders[i] || 0)+'</td>'
-      +'<td style="text-align:right">'+(units[i] || 0)+'</td>'
+      +'<td style="font-weight:600">'+mLabel+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);font-weight:700">'+_jpY(r)+'</td>'
+      +'<td>'+_jpBar(pctVal, color)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+(orders[i]||0).toLocaleString()+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+(units[i]||0).toLocaleString()+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:var(--dim)">'+_jpY(aov)+'</td>'
       +'</tr>';
-  });
-  html += '</tbody></table></div></div>';
+  }
+  html += '</tbody></table></div></div></div>';
+  return html;
+}
+
+function _jpAdTable(secNum, label, data, color) {
+  var months = data.months || [];
+  var spend = data.spend || [];
+  var sales = data.sales || [];
+  var roas = data.roas || [];
+  var acos = data.acos || [];
+  var impr = data.impressions || [];
+  var clicks = data.clicks || [];
+  var html = '<div class="sec"><div class="sec-title"><div class="num" style="background:'+(color||'#f59e0b')+'">'+secNum+'</div> '+label+'</div>';
+  html += '<div class="card"><div style="overflow-x:auto"><table><thead><tr>'
+    +'<th>Month</th><th style="text-align:right">Spend</th><th style="text-align:right">Ad Sales</th>'
+    +'<th style="text-align:right">ROAS</th><th style="text-align:right">ACOS</th>'
+    +'<th style="text-align:right">Impressions</th><th style="text-align:right">Clicks</th><th style="text-align:right">CTR</th></tr></thead><tbody>';
+  for (var i = months.length - 1; i >= 0; i--) {
+    var mLabel = months[i].split('-')[1]+'/'+months[i].split('-')[0].substring(2);
+    var sp = spend[i] || 0;
+    var sa = sales[i] || 0;
+    var ro = roas[i] || (sp > 0 ? (sa / sp) : 0);
+    var ac = acos[i] || (sa > 0 ? (sp / sa * 100) : 0);
+    var im = impr[i] || 0;
+    var cl = clicks[i] || 0;
+    var ctr = im > 0 ? (cl / im * 100).toFixed(2) : '0.00';
+    var roasColor = ro >= 3 ? 'var(--g)' : ro >= 1.5 ? 'var(--am)' : ro > 0 ? 'var(--r)' : 'var(--muted)';
+    var acosColor = ac > 0 && ac <= 20 ? 'var(--g)' : ac <= 35 ? 'var(--am)' : ac > 0 ? 'var(--r)' : 'var(--muted)';
+    html += '<tr>'
+      +'<td style="font-weight:600">'+mLabel+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+_jpY(sp)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);font-weight:700">'+_jpY(sa)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);font-weight:700;color:'+roasColor+'">'+ro.toFixed(1)+'x</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:'+acosColor+'">'+ac.toFixed(1)+'%</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:var(--dim)">'+im.toLocaleString()+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:var(--dim)">'+cl.toLocaleString()+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:var(--dim)">'+ctr+'%</td>'
+      +'</tr>';
+  }
+  html += '</tbody></table></div></div></div>';
+  return html;
+}
+
+function _jpMetaAdTable(secNum, metaData) {
+  // Merge Meta CVR + Meta Traffic into one table
+  var labels = Object.keys(metaData);
+  if (!labels.length) return '';
+  // Collect all months
+  var monthSet = {};
+  labels.forEach(function(l){ (metaData[l].months||[]).forEach(function(m){ monthSet[m]=1; }); });
+  var months = Object.keys(monthSet).sort();
+  if (!months.length) return '';
+
+  var html = '<div class="sec"><div class="sec-title"><div class="num" style="background:#3b82f6">'+secNum+'</div> Meta Ads JP</div>';
+  html += '<div class="card"><div style="overflow-x:auto"><table><thead><tr>'
+    +'<th>Month</th><th style="text-align:right">Type</th><th style="text-align:right">Spend</th>'
+    +'<th style="text-align:right">Sales</th><th style="text-align:right">ROAS</th>'
+    +'<th style="text-align:right">Impr</th><th style="text-align:right">Clicks</th></tr></thead><tbody>';
+  for (var mi = months.length - 1; mi >= 0; mi--) {
+    var m = months[mi];
+    var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
+    var totalSpend = 0, totalSales = 0;
+    labels.forEach(function(l) {
+      var d = metaData[l];
+      var idx = (d.months||[]).indexOf(m);
+      if (idx >= 0) { totalSpend += (d.spend[idx]||0); totalSales += (d.sales[idx]||0); }
+    });
+    // Total row
+    var tRoas = totalSpend > 0 ? (totalSales / totalSpend) : 0;
+    var tColor = tRoas >= 3 ? 'var(--g)' : tRoas >= 1.5 ? 'var(--am)' : tRoas > 0 ? 'var(--r)' : 'var(--muted)';
+    html += '<tr style="background:#f8fafc;font-weight:700">'
+      +'<td>'+mLabel+'</td><td style="text-align:right;font-size:9px">TOTAL</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+_jpY(totalSpend)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+_jpY(totalSales)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:'+tColor+'">'+tRoas.toFixed(1)+'x</td>'
+      +'<td></td><td></td></tr>';
+    // Sub-rows per type
+    labels.forEach(function(l) {
+      var d = metaData[l];
+      var idx = (d.months||[]).indexOf(m);
+      if (idx < 0) return;
+      var sp = d.spend[idx]||0, sa = d.sales[idx]||0;
+      var ro = sp > 0 ? (sa/sp) : 0;
+      var im = d.impressions ? (d.impressions[idx]||0) : 0;
+      var cl = d.clicks ? (d.clicks[idx]||0) : 0;
+      html += '<tr style="font-size:10px;color:var(--dim)">'
+        +'<td></td><td style="text-align:right;font-size:9px">'+l.replace('Meta ','')+'</td>'
+        +'<td style="text-align:right;font-family:var(--mono)">'+_jpY(sp)+'</td>'
+        +'<td style="text-align:right;font-family:var(--mono)">'+_jpY(sa)+'</td>'
+        +'<td style="text-align:right;font-family:var(--mono)">'+ro.toFixed(1)+'x</td>'
+        +'<td style="text-align:right;font-family:var(--mono)">'+im.toLocaleString()+'</td>'
+        +'<td style="text-align:right;font-family:var(--mono)">'+cl.toLocaleString()+'</td>'
+        +'</tr>';
+    });
+  }
+  html += '</tbody></table></div></div></div>';
   return html;
 }
 
 function renderJpAmazon() {
   var jp = (typeof FIN_DATA !== 'undefined' && FIN_DATA.jp) ? FIN_DATA.jp : null;
   var el = document.getElementById('sec-jp-amazon');
-  var html = '<div class="hero"><h1>Amazon <span>JP</span> &amp; 라쿠텐</h1>'
-    +'<div class="sub">Japan Marketplace — Amazon JP + Rakuten</div></div>';
+  var html = '<div class="hero"><h1>Amazon <span style="color:#ef4444">JP</span> &amp; 라쿠텐</h1>'
+    +'<div class="sub">Japan Marketplace &mdash; Amazon Seller Central + Rakuten + Amazon Ads + Meta Ads</div></div>';
 
   var hasAmazon = jp && jp.amazon && jp.amazon.months && jp.amazon.revenue && jp.amazon.revenue.some(function(v){return v>0;});
   var hasRakuten = jp && jp.rakuten && jp.rakuten.months && jp.rakuten.revenue && jp.rakuten.revenue.some(function(v){return v>0;});
+  var hasAds = jp && jp.amazon_ads && jp.amazon_ads.months && jp.amazon_ads.months.length > 0;
+  var hasMeta = jp && jp.meta_ads && Object.keys(jp.meta_ads).length > 0;
 
-  if (!hasAmazon && !hasRakuten) {
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px">'
-      +'<div class="card" style="text-align:center;padding:56px 24px">'
-      +'<div style="font-size:44px;margin-bottom:12px">🛒</div>'
-      +'<h3 style="margin:0 0 8px;font-size:18px">Amazon JP</h3>'
-      +'<div class="desc" style="margin-bottom:16px">marketplace_id: A1VC38T7YXB528<br>SP-API 수집 설정 후 자동으로 채워집니다</div>'
-      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
-      +'</div>'
-      +'<div class="card" style="text-align:center;padding:56px 24px">'
-      +'<div style="font-size:44px;margin-bottom:12px">🏪</div>'
-      +'<h3 style="margin:0 0 8px;font-size:18px">라쿠텐</h3>'
-      +'<div class="desc" style="margin-bottom:16px">rakuten_orders_daily<br>Rakuten API 연동 후 자동으로 채워집니다</div>'
-      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
-      +'</div></div>';
-  } else {
-    if (hasAmazon) html += _jpRevenueChart('🛒 Amazon JP', jp.amazon);
-    else html += '<div class="card" style="text-align:center;padding:32px"><div style="font-size:32px">🛒</div><div class="desc">Amazon JP 데이터 준비 중</div></div>';
-    if (hasRakuten) html += _jpRevenueChart('🏪 라쿠텐', jp.rakuten);
-    else html += '<div class="card" style="text-align:center;padding:32px;margin-top:16px"><div style="font-size:32px">🏪</div><div class="desc">라쿠텐 데이터 준비 중</div></div>';
+  // ── KPI Summary Cards ─────────────────────────────────────────────────────
+  if (jp && jp.summary && jp.summary.months && jp.summary.months.length > 0) {
+    var sm = jp.summary;
+    var lastM = sm.months[sm.months.length - 1];
+    var lastIdx = sm.months.length - 1;
+    var prevIdx = lastIdx > 0 ? lastIdx - 1 : 0;
+    var curRev = sm.total_revenue[lastIdx] || 0;
+    var prevRev = sm.total_revenue[prevIdx] || 0;
+    var momRev = prevRev > 0 ? ((curRev - prevRev) / prevRev * 100).toFixed(1) : '—';
+    var curAd = sm.total_ad_spend[lastIdx] || 0;
+    var curAdSales = sm.total_ad_sales[lastIdx] || 0;
+    var totalRoas = curAd > 0 ? (curAdSales / curAd).toFixed(1) : '—';
+    var mLabel = lastM.split('-')[1]+'/'+lastM.split('-')[0].substring(2);
+
+    html += '<div class="stats" style="margin-bottom:16px">';
+    html += '<div class="stat accent"><div class="sl">'+mLabel+' Total Revenue</div><div class="sv">&#165;'+Math.round(curRev).toLocaleString()+'</div>'
+      +'<div class="ss">MoM '+(typeof momRev==='string'?momRev:momRev+'%')+'</div></div>';
+    // Amazon revenue for latest month
+    var amzLatest = 0;
+    if (jp.amazon && jp.amazon.months) {
+      var ai = jp.amazon.months.indexOf(lastM);
+      if (ai >= 0) amzLatest = jp.amazon.revenue[ai] || 0;
+    }
+    html += '<div class="stat" style="border-left:3px solid #f59e0b"><div class="sl">Amazon JP</div><div class="sv" style="color:#f59e0b">&#165;'+Math.round(amzLatest).toLocaleString()+'</div></div>';
+    // Rakuten revenue for latest month
+    var rakLatest = 0;
+    if (jp.rakuten && jp.rakuten.months) {
+      var ri = jp.rakuten.months.indexOf(lastM);
+      if (ri >= 0) rakLatest = jp.rakuten.revenue[ri] || 0;
+    }
+    html += '<div class="stat" style="border-left:3px solid #ef4444"><div class="sl">Rakuten</div><div class="sv" style="color:#ef4444">&#165;'+Math.round(rakLatest).toLocaleString()+'</div></div>';
+    html += '<div class="stat cyan"><div class="sl">Ad Spend</div><div class="sv">&#165;'+Math.round(curAd).toLocaleString()+'</div>'
+      +'<div class="ss">ROAS '+totalRoas+'x</div></div>';
+    html += '</div>';
   }
+
+  // ── Revenue Sections ──────────────────────────────────────────────────────
+  var secIdx = 1;
+  if (hasAmazon) { html += _jpRevenueTable(secIdx++, '&#x1F6D2; Amazon JP (Seller Central)', jp.amazon, '#f59e0b'); }
+  else { html += _jpNoData('&#x1F6D2;', 'Amazon JP', 'marketplace_id: A1VC38T7YXB528<br>SP-API 수집 설정 후 자동으로 채워집니다'); }
+
+  if (hasRakuten) { html += _jpRevenueTable(secIdx++, '&#x1F3EA; 라쿠텐', jp.rakuten, '#bf0000'); }
+  else { html += _jpNoData('&#x1F3EA;', '라쿠텐', 'rakuten_orders_daily<br>Rakuten API 연동 후 자동으로 채워집니다'); }
+
+  // ── Ad Performance Sections ───────────────────────────────────────────────
+  if (hasAds) { html += _jpAdTable(secIdx++, 'Amazon Ads JP (Sponsored Products / Brands / Display)', jp.amazon_ads, '#f59e0b'); }
+  else { html += _jpNoData('&#x1F4E2;', 'Amazon Ads JP', 'amazon_ads_daily (brand=Grosmimi JP)<br>Ads API 수집 후 자동으로 채워집니다'); }
+
+  // Ad type breakdown
+  if (jp && jp.amazon_ads_by_type && Object.keys(jp.amazon_ads_by_type).length > 1) {
+    html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#fb923c">'+secIdx+'</div> Amazon Ads JP &mdash; By Ad Type</div>';
+    html += '<div class="card"><div style="overflow-x:auto"><table><thead><tr>'
+      +'<th>Month</th>';
+    var atypes = Object.keys(jp.amazon_ads_by_type).sort();
+    atypes.forEach(function(t){ html += '<th style="text-align:right" colspan="2">'+t+'</th>'; });
+    html += '</tr><tr><th></th>';
+    atypes.forEach(function(){ html += '<th style="text-align:right;font-size:8px;color:var(--muted)">Spend</th><th style="text-align:right;font-size:8px;color:var(--muted)">Sales</th>'; });
+    html += '</tr></thead><tbody>';
+    // Collect all months
+    var atMonths = {};
+    atypes.forEach(function(t){ (jp.amazon_ads_by_type[t].months||[]).forEach(function(m){ atMonths[m]=1; }); });
+    var atSorted = Object.keys(atMonths).sort().reverse();
+    atSorted.forEach(function(m) {
+      var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
+      html += '<tr><td style="font-weight:600">'+mLabel+'</td>';
+      atypes.forEach(function(t) {
+        var d = jp.amazon_ads_by_type[t];
+        var idx = (d.months||[]).indexOf(m);
+        var sp = idx >= 0 ? (d.spend[idx]||0) : 0;
+        var sa = idx >= 0 ? (d.sales[idx]||0) : 0;
+        html += '<td style="text-align:right;font-family:var(--mono);font-size:10px">'+_jpY(sp)+'</td>';
+        html += '<td style="text-align:right;font-family:var(--mono);font-size:10px;font-weight:700">'+_jpY(sa)+'</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div></div></div>';
+    secIdx++;
+  }
+
+  if (hasMeta) { html += _jpMetaAdTable(secIdx++, jp.meta_ads); }
+
   el.innerHTML = html;
 }
 
 function renderJpFin() {
   var jp = (typeof FIN_DATA !== 'undefined' && FIN_DATA.jp) ? FIN_DATA.jp : null;
   var el = document.getElementById('sec-jp-fin');
-  var html = '<div class="hero"><h1>Financial <span>KPIs</span> — JP</h1>'
-    +'<div class="sub">Japan Revenue Summary</div></div>';
+  var html = '<div class="hero"><h1>Financial <span>KPIs</span> &mdash; JP</h1>'
+    +'<div class="sub">Japan Revenue, Ad Performance &amp; P&amp;L Summary</div></div>';
 
-  var hasData = jp && ((jp.amazon && jp.amazon.revenue && jp.amazon.revenue.some(function(v){return v>0;}))
-                    || (jp.rakuten && jp.rakuten.revenue && jp.rakuten.revenue.some(function(v){return v>0;})));
+  var hasData = jp && jp.summary && jp.summary.months && jp.summary.months.length > 0;
   if (!hasData) {
-    html += '<div class="card" style="text-align:center;padding:56px 24px;margin-top:8px">'
-      +'<div style="font-size:44px;margin-bottom:12px">📊</div>'
-      +'<h3 style="margin:0 0 8px;font-size:18px">JP Financial KPIs</h3>'
-      +'<div class="desc" style="margin-bottom:16px">Amazon JP + 라쿠텐 매출 데이터 수집 후<br>자동으로 채워집니다</div>'
-      +'<div style="padding:8px 16px;background:#fef3c7;border-radius:8px;font-size:11px;color:#92400e;display:inline-block">⏳ 데이터 준비 중</div>'
-      +'</div>';
-  } else {
-    // Combined JP revenue KPI cards
-    var amzRev = jp.amazon && jp.amazon.revenue ? jp.amazon.revenue : [];
-    var rakRev = jp.rakuten && jp.rakuten.revenue ? jp.rakuten.revenue : [];
-    var months = (jp.amazon && jp.amazon.months) || (jp.rakuten && jp.rakuten.months) || [];
-    var last3 = months.slice(-3);
-    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px">';
-    last3.forEach(function(m, idx) {
-      var mi = months.indexOf(m);
-      var amz = amzRev[mi] || 0;
-      var rak = rakRev[mi] || 0;
-      var total = amz + rak;
-      var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
-      html += '<div class="card"><div class="kpi-label">'+mLabel+' Total JP</div>'
-        +'<div class="kpi-val">¥'+(total>0?Math.round(total).toLocaleString():'—')+'</div>'
-        +'<div class="desc" style="margin-top:4px">Amazon JP ¥'+(amz>0?Math.round(amz).toLocaleString():'—')
-        +' · 라쿠텐 ¥'+(rak>0?Math.round(rak).toLocaleString():'—')+'</div>'
-        +'</div>';
-    });
-    html += '</div>';
-    if (jp.amazon && jp.amazon.revenue) html += _jpRevenueChart('🛒 Amazon JP', jp.amazon);
-    if (jp.rakuten && jp.rakuten.revenue) html += _jpRevenueChart('🏪 라쿠텐', jp.rakuten);
+    html += _jpNoData('&#x1F4CA;', 'JP Financial KPIs', 'Amazon JP + 라쿠텐 + Amazon Ads + Meta Ads<br>데이터 수집 후 자동으로 채워집니다');
+    el.innerHTML = html;
+    return;
   }
+
+  var sm = jp.summary;
+  var months = sm.months;
+
+  // ── Combined P&L Table ─────────────────────────────────────────────────────
+  html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#10b981">1</div> JP Monthly P&amp;L Overview</div>';
+  html += '<div class="card"><div style="overflow-x:auto"><table><thead><tr>'
+    +'<th>Month</th><th style="text-align:right">Amazon JP</th><th style="text-align:right">Rakuten</th>'
+    +'<th style="text-align:right;font-weight:800">Total Revenue</th>'
+    +'<th style="text-align:right">Ad Spend</th><th style="text-align:right">Ad Sales</th>'
+    +'<th style="text-align:right">ROAS</th><th style="text-align:right">Ad %</th></tr></thead><tbody>';
+
+  var amzMonths = (jp.amazon && jp.amazon.months) || [];
+  var amzRev = (jp.amazon && jp.amazon.revenue) || [];
+  var rakMonths = (jp.rakuten && jp.rakuten.months) || [];
+  var rakRev = (jp.rakuten && jp.rakuten.revenue) || [];
+
+  for (var i = months.length - 1; i >= 0; i--) {
+    var m = months[i];
+    var mLabel = m.split('-')[1]+'/'+m.split('-')[0].substring(2);
+    var amzIdx = amzMonths.indexOf(m);
+    var rakIdx = rakMonths.indexOf(m);
+    var amz = amzIdx >= 0 ? (amzRev[amzIdx]||0) : 0;
+    var rak = rakIdx >= 0 ? (rakRev[rakIdx]||0) : 0;
+    var rev = sm.total_revenue[i] || 0;
+    var adSp = sm.total_ad_spend[i] || 0;
+    var adSa = sm.total_ad_sales[i] || 0;
+    var roas = adSp > 0 ? (adSa / adSp) : 0;
+    var adPct = rev > 0 ? (adSp / rev * 100) : 0;
+    var roasColor = roas >= 3 ? 'var(--g)' : roas >= 1.5 ? 'var(--am)' : roas > 0 ? 'var(--r)' : 'var(--muted)';
+    html += '<tr>'
+      +'<td style="font-weight:600">'+mLabel+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:#f59e0b">'+_jpY(amz)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:#ef4444">'+_jpY(rak)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);font-weight:800">'+_jpY(rev)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+_jpY(adSp)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono)">'+_jpY(adSa)+'</td>'
+      +'<td style="text-align:right;font-family:var(--mono);font-weight:700;color:'+roasColor+'">'+roas.toFixed(1)+'x</td>'
+      +'<td style="text-align:right;font-family:var(--mono);color:var(--dim)">'+adPct.toFixed(1)+'%</td>'
+      +'</tr>';
+  }
+  html += '</tbody></table></div></div></div>';
+
+  // ── Revenue Trend SVG Chart ────────────────────────────────────────────────
+  if (months.length >= 2) {
+    var chartMonths = months.slice(-12);  // last 12 months
+    var chartLabels = chartMonths.map(function(m){ return m.split('-')[1]+'/'+m.split('-')[0].substring(2); });
+    var amzData = chartMonths.map(function(m){ var ai=amzMonths.indexOf(m); return ai>=0?(amzRev[ai]||0):0; });
+    var rakData = chartMonths.map(function(m){ var ri=rakMonths.indexOf(m); return ri>=0?(rakRev[ri]||0):0; });
+    html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#8b5cf6">2</div> Revenue Trend</div>';
+    html += '<div class="card">'+barChart(
+      [{label:'Amazon JP',data:amzData,color:'#f59e0b'},{label:'Rakuten',data:rakData,color:'#ef4444'}],
+      chartLabels,
+      {w:900,h:200,barW:14,stacked:true,prefix:'&#165;'}
+    )+'</div></div>';
+  }
+
+  // ── Ad Spend Trend Chart ──────────────────────────────────────────────────
+  if (jp.amazon_ads && jp.amazon_ads.months && jp.amazon_ads.months.length >= 2) {
+    var adsM = jp.amazon_ads.months.slice(-12);
+    var adsLabels = adsM.map(function(m){ return m.split('-')[1]+'/'+m.split('-')[0].substring(2); });
+    var adsSpend = adsM.map(function(m){ var ai=jp.amazon_ads.months.indexOf(m); return ai>=0?(jp.amazon_ads.spend[ai]||0):0; });
+    var adsSales = adsM.map(function(m){ var ai=jp.amazon_ads.months.indexOf(m); return ai>=0?(jp.amazon_ads.sales[ai]||0):0; });
+    html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#f59e0b">3</div> Amazon Ads JP &mdash; Spend vs Sales</div>';
+    html += '<div class="card">'+barChart(
+      [{label:'Spend',data:adsSpend,color:'#f59e0b'},{label:'Ad Sales',data:adsSales,color:'#10b981'}],
+      adsLabels,
+      {w:900,h:180,barW:12,prefix:'&#165;'}
+    )+'</div></div>';
+  }
+
   el.innerHTML = html;
 }
 
