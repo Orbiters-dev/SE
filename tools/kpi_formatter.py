@@ -43,6 +43,9 @@ from run_kpi_monthly import (
     update_ads_summary,
     update_unit_economics,
     update_campaign_details,
+    update_keyword_performance,
+    update_search_term_performance,
+    update_brand_analytics,
     update_influencer_dashboard,
     update_legacy_sales,
     update_legacy_cm,
@@ -243,6 +246,9 @@ def format_kpi_report(
     update_ads_summary(wb, through_date)
     update_unit_economics(wb, through_date)
     update_campaign_details(wb, through_date)
+    update_keyword_performance(wb, through_date)
+    update_search_term_performance(wb, through_date)
+    update_brand_analytics(wb, through_date)
     update_influencer_dashboard(wb, through_date)
 
     # 5. Legacy tabs

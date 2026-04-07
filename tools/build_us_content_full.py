@@ -131,7 +131,10 @@ def enrich_post_metrics(content_map, chunk_size=50):
     for contents in content_map.values():
         for ct in contents:
             url = ct.get("post_url", "")
-            if not url or url in cache or url in seen:
+            # Re-fetch if cache entry is legacy (3-field, missing 'caption')
+            cached = cache.get(url)
+            is_full = isinstance(cached, dict) and "caption" in cached
+            if not url or is_full or url in seen:
                 continue
             seen.add(url)
             platform = detect_platform_from_url(url)

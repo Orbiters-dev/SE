@@ -2791,6 +2791,290 @@ def update_campaign_details(wb, through_date):
     print(f"  -> {TAB} updated ({len(sorted_camps)} campaigns, {len(months)} months)")
 
 
+def update_keyword_performance(wb, through_date):
+    """Amazon Keywords tab: keyword-level monthly spend/sales/ACOS."""
+    import calendar
+    from openpyxl.styles import PatternFill, Font, Alignment
+    from openpyxl.utils import get_column_letter
+
+    TAB = "AMZ Keywords"
+    months, ytd_year = _summary_month_range(through_date)
+
+    kw_data = load_dk("amazon_ads_keywords", days=800)
+    if not kw_data:
+        print(f"  [WARN] No keyword data, skipping {TAB}")
+        return
+
+    # Aggregate: (brand, keyword, match_type) -> month -> {impressions, clicks, spend, sales, purchases}
+    agg = defaultdict(lambda: defaultdict(lambda: {"imp": 0, "clicks": 0, "spend": 0.0, "sales": 0.0, "purchases": 0}))
+
+    for r in kw_data:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m not in months:
+            continue
+        brand = r.get("brand", "Unknown")
+        kw = r.get("keyword_text", "")
+        mt = r.get("match_type", "")
+        key = (brand, kw, mt)
+        agg[key][m]["imp"] += int(r.get("impressions", 0) or 0)
+        agg[key][m]["clicks"] += int(r.get("clicks", 0) or 0)
+        agg[key][m]["spend"] += float(r.get("spend", 0) or 0)
+        agg[key][m]["sales"] += float(r.get("sales", 0) or 0)
+        agg[key][m]["purchases"] += int(r.get("purchases", 0) or 0)
+
+    if not agg:
+        print(f"  [WARN] No keyword aggregates, skipping {TAB}")
+        return
+
+    # Sort by total spend desc
+    sorted_kws = sorted(agg.keys(),
+                        key=lambda k: -sum(agg[k][m]["spend"] for m in months))
+
+    # Write tab
+    if TAB in wb.sheetnames:
+        idx = wb.sheetnames.index(TAB)
+        del wb[TAB]
+        ws = wb.create_sheet(TAB, idx)
+    else:
+        ws = wb.create_sheet(TAB)
+
+    FILL_HDR = PatternFill("solid", fgColor="002060")
+    FONT_W = Font(bold=True, color="FFFFFF")
+    FONT_B = Font(bold=True)
+    ALIGN_C = Alignment(horizontal="center", wrap_text=True)
+
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+
+    # For each metric section: Spend, Sales, ACOS
+    for section_idx, (section_label, calc) in enumerate([
+        ("SPEND", lambda d: d["spend"]),
+        ("SALES", lambda d: d["sales"]),
+        ("ACOS %", lambda d: (d["spend"] / d["sales"] * 100) if d["sales"] > 0 else 0),
+    ]):
+        start_row = 1 + section_idx * (min(len(sorted_kws), 200) + 6)
+
+        ws.cell(row=start_row, column=1, value=f"KEYWORD — {section_label}").font = FONT_B
+        r = start_row + 1
+
+        headers = ["Brand", "Keyword", "Match"]
+        for m in months:
+            y, mo = int(m[:4]), int(m[5:7])
+            label = f"{calendar.month_abbr[mo]} {y}"
+            if y == td.year and mo == td.month:
+                label += f"\n(~{td.strftime('%b %d')})"
+            headers.append(label)
+        headers.append("YTD")
+
+        for ci, h in enumerate(headers, 1):
+            cell = ws.cell(row=r, column=ci, value=h)
+            cell.fill = FILL_HDR
+            cell.font = FONT_W
+            cell.alignment = ALIGN_C
+        r += 1
+
+        # Top 200 keywords only to keep file manageable
+        for brand, kw, mt in sorted_kws[:200]:
+            ws.cell(row=r, column=1, value=brand)
+            ws.cell(row=r, column=2, value=kw)
+            ws.cell(row=r, column=3, value=mt)
+            ytd = 0
+            for ci, m in enumerate(months, 4):
+                val = round(calc(agg[(brand, kw, mt)][m]), 2)
+                cell = ws.cell(row=r, column=ci, value=val)
+                cell.number_format = '#,##0.00' if section_label != "ACOS %" else '0.0"%"'
+                if m[:4] == ytd_year:
+                    ytd += val if section_label != "ACOS %" else 0
+            if section_label != "ACOS %":
+                ws.cell(row=r, column=len(months) + 4, value=round(ytd, 2)).number_format = '#,##0.00'
+            r += 1
+
+    # Column widths
+    ws.column_dimensions["A"].width = 14
+    ws.column_dimensions["B"].width = 35
+    ws.column_dimensions["C"].width = 10
+    for ci in range(4, len(months) + 5):
+        ws.column_dimensions[get_column_letter(ci)].width = 13
+    ws.freeze_panes = ws.cell(row=3, column=4)
+    print(f"  -> {TAB} updated ({min(len(sorted_kws), 200)} keywords, {len(months)} months)")
+
+
+def update_search_term_performance(wb, through_date):
+    """Amazon Search Terms tab: search-term-level monthly spend/sales/ACOS."""
+    import calendar
+    from openpyxl.styles import PatternFill, Font, Alignment
+    from openpyxl.utils import get_column_letter
+
+    TAB = "AMZ Search Terms"
+    months, ytd_year = _summary_month_range(through_date)
+
+    st_data = load_dk("amazon_ads_search_terms", days=800)
+    if not st_data:
+        print(f"  [WARN] No search term data, skipping {TAB}")
+        return
+
+    # Aggregate: (brand, search_term) -> month -> {imp, clicks, spend, sales, purchases}
+    agg = defaultdict(lambda: defaultdict(lambda: {"imp": 0, "clicks": 0, "spend": 0.0, "sales": 0.0, "purchases": 0}))
+
+    for r in st_data:
+        d = r.get("date", "")
+        if d > through_date:
+            continue
+        m = d[:7]
+        if m not in months:
+            continue
+        brand = r.get("brand", "Unknown")
+        st = r.get("search_term", "")
+        key = (brand, st)
+        agg[key][m]["imp"] += int(r.get("impressions", 0) or 0)
+        agg[key][m]["clicks"] += int(r.get("clicks", 0) or 0)
+        agg[key][m]["spend"] += float(r.get("spend", 0) or 0)
+        agg[key][m]["sales"] += float(r.get("sales", 0) or 0)
+        agg[key][m]["purchases"] += int(r.get("purchases", 0) or 0)
+
+    if not agg:
+        print(f"  [WARN] No search term aggregates, skipping {TAB}")
+        return
+
+    # Sort by total spend desc
+    sorted_sts = sorted(agg.keys(),
+                        key=lambda k: -sum(agg[k][m]["spend"] for m in months))
+
+    if TAB in wb.sheetnames:
+        idx = wb.sheetnames.index(TAB)
+        del wb[TAB]
+        ws = wb.create_sheet(TAB, idx)
+    else:
+        ws = wb.create_sheet(TAB)
+
+    FILL_HDR = PatternFill("solid", fgColor="002060")
+    FONT_W = Font(bold=True, color="FFFFFF")
+    FONT_B = Font(bold=True)
+    ALIGN_C = Alignment(horizontal="center", wrap_text=True)
+
+    from datetime import date as _d
+    td = _d.fromisoformat(through_date)
+
+    for section_idx, (section_label, calc) in enumerate([
+        ("SPEND", lambda d: d["spend"]),
+        ("SALES", lambda d: d["sales"]),
+        ("ACOS %", lambda d: (d["spend"] / d["sales"] * 100) if d["sales"] > 0 else 0),
+    ]):
+        start_row = 1 + section_idx * (min(len(sorted_sts), 300) + 6)
+
+        ws.cell(row=start_row, column=1, value=f"SEARCH TERM — {section_label}").font = FONT_B
+        r = start_row + 1
+
+        headers = ["Brand", "Search Term"]
+        for m in months:
+            y, mo = int(m[:4]), int(m[5:7])
+            label = f"{calendar.month_abbr[mo]} {y}"
+            if y == td.year and mo == td.month:
+                label += f"\n(~{td.strftime('%b %d')})"
+            headers.append(label)
+        headers.append("YTD")
+
+        for ci, h in enumerate(headers, 1):
+            cell = ws.cell(row=r, column=ci, value=h)
+            cell.fill = FILL_HDR
+            cell.font = FONT_W
+            cell.alignment = ALIGN_C
+        r += 1
+
+        # Top 300
+        for brand, st in sorted_sts[:300]:
+            ws.cell(row=r, column=1, value=brand)
+            ws.cell(row=r, column=2, value=st)
+            ytd = 0
+            for ci, m in enumerate(months, 3):
+                val = round(calc(agg[(brand, st)][m]), 2)
+                cell = ws.cell(row=r, column=ci, value=val)
+                cell.number_format = '#,##0.00' if section_label != "ACOS %" else '0.0"%"'
+                if m[:4] == ytd_year:
+                    ytd += val if section_label != "ACOS %" else 0
+            if section_label != "ACOS %":
+                ws.cell(row=r, column=len(months) + 3, value=round(ytd, 2)).number_format = '#,##0.00'
+            r += 1
+
+    ws.column_dimensions["A"].width = 14
+    ws.column_dimensions["B"].width = 40
+    for ci in range(3, len(months) + 4):
+        ws.column_dimensions[get_column_letter(ci)].width = 13
+    ws.freeze_panes = ws.cell(row=3, column=3)
+    print(f"  -> {TAB} updated ({min(len(sorted_sts), 300)} search terms, {len(months)} months)")
+
+
+def update_brand_analytics(wb, through_date):
+    """Amazon Brand Analytics tab: weekly search frequency rank + click/conversion share."""
+    from openpyxl.styles import PatternFill, Font, Alignment
+    from openpyxl.utils import get_column_letter
+
+    TAB = "AMZ Brand Analytics"
+
+    ba_data = load_dk("amazon_brand_analytics", days=800)
+    if not ba_data:
+        print(f"  [WARN] No brand analytics data, skipping {TAB}")
+        return
+
+    # Filter to our ASINs only
+    our_data = [r for r in ba_data if r.get("is_ours")]
+    if not our_data:
+        print(f"  [WARN] No 'is_ours' brand analytics data, skipping {TAB}")
+        return
+
+    # Sort by date desc, then search_frequency_rank asc
+    our_data.sort(key=lambda r: (-int(r.get("search_frequency_rank", 999999)), r.get("date", "")))
+    our_data.sort(key=lambda r: r.get("week_end", ""), reverse=True)
+
+    if TAB in wb.sheetnames:
+        idx = wb.sheetnames.index(TAB)
+        del wb[TAB]
+        ws = wb.create_sheet(TAB, idx)
+    else:
+        ws = wb.create_sheet(TAB)
+
+    FILL_HDR = PatternFill("solid", fgColor="002060")
+    FONT_W = Font(bold=True, color="FFFFFF")
+    ALIGN_C = Alignment(horizontal="center", wrap_text=True)
+
+    headers = ["Week End", "Brand", "Search Term", "Search Freq Rank",
+               "ASIN", "ASIN Name", "ASIN Rank", "Click Share %", "Conv Share %"]
+
+    for ci, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=ci, value=h)
+        cell.fill = FILL_HDR
+        cell.font = FONT_W
+        cell.alignment = ALIGN_C
+
+    for ri, r in enumerate(our_data[:500], 2):
+        ws.cell(row=ri, column=1, value=r.get("week_end", ""))
+        ws.cell(row=ri, column=2, value=r.get("brand", ""))
+        ws.cell(row=ri, column=3, value=r.get("search_term", ""))
+        ws.cell(row=ri, column=4, value=int(r.get("search_frequency_rank", 0) or 0))
+        ws.cell(row=ri, column=5, value=r.get("asin", ""))
+        ws.cell(row=ri, column=6, value=(r.get("asin_name", "") or "")[:60])
+        ws.cell(row=ri, column=7, value=int(r.get("asin_rank", 0) or 0))
+        cs = float(r.get("click_share", 0) or 0) * 100
+        cvs = float(r.get("conversion_share", 0) or 0) * 100
+        ws.cell(row=ri, column=8, value=round(cs, 2)).number_format = '0.00"%"'
+        ws.cell(row=ri, column=9, value=round(cvs, 2)).number_format = '0.00"%"'
+
+    ws.column_dimensions["A"].width = 12
+    ws.column_dimensions["B"].width = 14
+    ws.column_dimensions["C"].width = 35
+    ws.column_dimensions["D"].width = 16
+    ws.column_dimensions["E"].width = 14
+    ws.column_dimensions["F"].width = 45
+    ws.column_dimensions["G"].width = 10
+    ws.column_dimensions["H"].width = 12
+    ws.column_dimensions["I"].width = 12
+    ws.freeze_panes = ws.cell(row=2, column=1)
+    print(f"  -> {TAB} updated ({min(len(our_data), 500)} rows)")
+
+
 def update_influencer_dashboard(wb, through_date):
     """Influencer Dashboard tab: PR orders monthly by brand x product."""
     import calendar

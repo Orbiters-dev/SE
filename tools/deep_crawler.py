@@ -562,9 +562,9 @@ def main():
         print("[ERROR] apify-client not installed. Run: pip install apify-client")
         sys.exit(1)
 
-    token = os.getenv("APIFY_TOKEN", "")
+    token = os.getenv("APIFY_API_TOKEN", "") or os.getenv("APIFY_TOKEN", "")
     if not token:
-        print("[ERROR] APIFY_TOKEN not set in environment.")
+        print("[ERROR] APIFY_API_TOKEN not set in environment.")
         sys.exit(1)
 
     client = ApifyClient(token)

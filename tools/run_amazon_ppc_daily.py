@@ -36,8 +36,16 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 # DataKeeper 수집
 # ===========================================================================
 
-def fetch_from_datakeeper(days: int) -> List[Dict]:
-    """DataKeeper에서 amazon_ads_daily 데이터를 가져와 compute_metrics 형식으로 변환."""
+REGION_BRANDS = {
+    "us": ["Grosmimi", "Naeiae", "CHA&MOM"],
+    "jp": ["Grosmimi JP"],
+}
+
+
+def fetch_from_datakeeper(days: int, region: str = "us") -> List[Dict]:
+    """DataKeeper에서 amazon_ads_daily 데이터를 가져와 compute_metrics 형식으로 변환.
+    region='us' -> US brands only, 'jp' -> JP brands only, 'all' -> no filter.
+    """
     from data_keeper_client import DataKeeper
 
     dk = DataKeeper()
@@ -46,9 +54,15 @@ def fetch_from_datakeeper(days: int) -> List[Dict]:
         print("[ERROR] DataKeeper에서 amazon_ads_daily 데이터 없음")
         return []
 
+    # Filter by region brands
+    allowed_brands = REGION_BRANDS.get(region)
+    if allowed_brands:
+        rows = [r for r in rows if r.get("brand", "") in allowed_brands]
+        if not rows:
+            print(f"[ERROR] {region} 리전 브랜드({allowed_brands}) 데이터 없음")
+            return []
+
     # DataKeeper 필드 -> compute_metrics 입력 형식 변환
-    # DK: spend, sales, campaign_id, campaign_name, purchases
-    # compute_metrics expects: cost, sales14d, campaignId, campaignName, purchases14d
     out = []
     for r in rows:
         out.append({
@@ -65,7 +79,7 @@ def fetch_from_datakeeper(days: int) -> List[Dict]:
 
     brands = set(r["brand"] for r in out)
     dates = sorted(set(r["date"] for r in out))
-    print(f"  DataKeeper -> {len(out)}행 | 브랜드: {brands}")
+    print(f"  DataKeeper -> {len(out)}행 | 브랜드: {brands} | 리전: {region}")
     print(f"  기간: {dates[0]} ~ {dates[-1]}" if dates else "  기간: 없음")
     return out
 
@@ -1238,13 +1252,22 @@ def main():
                         help="이메일 발송 없이 HTML 파일만 저장")
     parser.add_argument("--from-payload", type=str, default=None,
                         help="기존 payload JSON 파일로 Step 1 스킵 (Claude 분석 + 이메일만)")
+    parser.add_argument("--region", choices=["us", "jp", "all"], default="us",
+                        help="리전: us (default), jp, all")
     args = parser.parse_args()
 
-    # PST (UTC-8) 기준 어제 = 아마존 US 광고 날짜 기준
-    PST = timezone(timedelta(hours=-8))
-    pst_today = datetime.now(PST).date()
-    analysis_date = pst_today           # build_analysis_payload의 기준일 (어제 = analysis_date-1)
-    data_end = pst_today - timedelta(days=1)  # 어제까지 수집 (오늘 데이터 미완성)
+    is_jp = args.region == "jp"
+
+    # JP: JST (UTC+9), US: PST (UTC-8)
+    if is_jp:
+        tz = timezone(timedelta(hours=9))
+        tz_label = "JST"
+    else:
+        tz = timezone(timedelta(hours=-8))
+        tz_label = "PST"
+    tz_today = datetime.now(tz).date()
+    analysis_date = tz_today
+    data_end = tz_today - timedelta(days=1)
 
     # --from-payload: skip Step 1+2 and use existing payload
     if args.from_payload:
@@ -1259,12 +1282,13 @@ def main():
         print(f"  어제 광고비: ${payload['summary']['yesterday']['spend']:,.2f}")
         print(f"  30일 총 ROAS: {payload['summary']['30d']['roas']:.2f}x")
     else:
-        print(f"\n[PPC Agent] PST 기준 오늘: {pst_today}")
-        print(f"[PPC Agent] 분석 기준일: {analysis_date} / 어제(PST): {data_end}")
+        region_label = "JP" if is_jp else "US"
+        print(f"\n[PPC Agent {region_label}] {tz_label} 기준 오늘: {tz_today}")
+        print(f"[PPC Agent {region_label}] 분석 기준일: {analysis_date} / 어제({tz_label}): {data_end}")
 
         # Step 1: DataKeeper에서 데이터 로드
-        print("\n[Step 1] DataKeeper에서 amazon_ads_daily 로드 중...")
-        raw_rows = fetch_from_datakeeper(days=args.days)
+        print(f"\n[Step 1] DataKeeper에서 amazon_ads_daily 로드 중 (region={args.region})...")
+        raw_rows = fetch_from_datakeeper(days=args.days, region=args.region)
         if not raw_rows:
             print("[ERROR] 수집된 데이터 없음")
             sys.exit(1)
@@ -1296,8 +1320,11 @@ def main():
     print(f"  저장됨: {html_path}")
 
     # Step 5: Send email
+    _ppc_tag = "[Amazon PPC JP]" if is_jp else "[Amazon PPC]"
+    _yd_spend = payload['summary']['yesterday']['spend']
+    _spend_fmt = f"¥{_yd_spend:,.0f}" if is_jp else f"${_yd_spend:,.2f}"
     subject = (
-        f"[Amazon PPC] 일간 리포트 - {data_end.strftime('%Y-%m-%d')} PST | "
+        f"{_ppc_tag} 일간 리포트 - {data_end.strftime('%Y-%m-%d')} {tz_label} | "
         f"ROAS {payload['summary']['yesterday']['roas']:.2f}x | "
         f"ACOS {payload['summary']['yesterday']['acos'] or '-'}%"
     )

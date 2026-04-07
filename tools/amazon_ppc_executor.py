@@ -71,12 +71,19 @@ def _get_tier_number(tier_str: str) -> int:
         return 3
     return 4  # monitor
 
-# --- credentials ---
+# --- credentials (US) ---
 AD_CLIENT_ID     = os.getenv("AMZ_ADS_CLIENT_ID")
 AD_CLIENT_SECRET = os.getenv("AMZ_ADS_CLIENT_SECRET")
 AD_REFRESH_TOKEN = os.getenv("AMZ_ADS_REFRESH_TOKEN")
 
-API_BASE = "https://advertising-api.amazon.com"
+# --- credentials (JP) ---
+AD_JP_CLIENT_ID     = os.getenv("AMZ_ADS_JP_CLIENT_ID")
+AD_JP_CLIENT_SECRET = os.getenv("AMZ_ADS_JP_CLIENT_SECRET")
+AD_JP_REFRESH_TOKEN = os.getenv("AMZ_ADS_JP_REFRESH_TOKEN")
+AD_JP_PROFILE_ID    = os.getenv("AMZ_ADS_JP_PROFILE_ID", "3736142261021843")
+
+API_BASE    = "https://advertising-api.amazon.com"
+API_BASE_FE = "https://advertising-api-fe.amazon.com"
 
 # ===========================================================================
 # Multi-Brand Configuration
@@ -116,9 +123,26 @@ BRAND_CONFIGS = {
             "AUTO":   {"target_acos": 40.0, "min_roas": 1.5, "budget_share": 0.40},
         },
     },
+    # ── JP brands ──────────────────────────────────────────────────────────
+    "grosmimi_jp": {
+        "seller_name": "GROSMIMI JP",
+        "brand_display": "Grosmimi JP",
+        "region": "jp",
+        "api_base": API_BASE_FE,
+        "currency": "JPY",
+        "profile_id": int(AD_JP_PROFILE_ID) if AD_JP_PROFILE_ID else 0,
+        "total_daily_budget": 50000,          # ¥50,000/day
+        "max_single_campaign_budget": 20000,  # ¥20,000 per campaign
+        "max_bid": 300,                       # ¥300
+        "targeting": {
+            "MANUAL": {"target_acos": 25.0, "min_roas": 2.5, "budget_share": 0.60},
+            "AUTO":   {"target_acos": 35.0, "min_roas": 1.5, "budget_share": 0.40},
+        },
+    },
 }
 
-ALL_BRAND_KEYS = list(BRAND_CONFIGS.keys())
+ALL_BRAND_KEYS = [k for k, v in BRAND_CONFIGS.items() if v.get("region", "us") == "us"]
+JP_BRAND_KEYS = [k for k, v in BRAND_CONFIGS.items() if v.get("region") == "jp"]
 
 # --- Backward compat: default brand context (set per-iteration) ---
 _active_brand_key = "naeiae"
@@ -262,25 +286,73 @@ def get_access_token() -> str:
 
 
 class TokenManager:
-    def __init__(self):
+    def __init__(self, client_id=None, client_secret=None, refresh_token=None):
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._refresh_token = refresh_token
         self._token: Optional[str] = None
         self._expires_at: float = 0.0
 
     def get(self) -> str:
         if self._token and time.time() < self._expires_at - 60:
             return self._token
-        self._token = get_access_token()
+        if self._client_id and self._client_secret and self._refresh_token:
+            resp = requests.post(
+                "https://api.amazon.com/auth/o2/token",
+                data={
+                    "grant_type": "refresh_token",
+                    "refresh_token": self._refresh_token,
+                    "client_id": self._client_id,
+                    "client_secret": self._client_secret,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            self._token = resp.json()["access_token"]
+        else:
+            self._token = get_access_token()
         self._expires_at = time.time() + 3600
         return self._token
 
 
-TM = TokenManager()
+TM = TokenManager()  # US (backward compat - uses get_access_token())
+TM_JP = TokenManager(AD_JP_CLIENT_ID, AD_JP_CLIENT_SECRET, AD_JP_REFRESH_TOKEN)
+
+# Active brand context (set per-brand during execution)
+_active_brand_key: Optional[str] = None
+
+
+def _cfg() -> Dict:
+    """Get active brand config."""
+    return BRAND_CONFIGS.get(_active_brand_key or "", {})
+
+
+def _is_jp() -> bool:
+    return _cfg().get("region") == "jp"
+
+
+def _api_base() -> str:
+    return _cfg().get("api_base", API_BASE)
+
+
+def _tm() -> TokenManager:
+    return TM_JP if _is_jp() else TM
+
+
+def _client_id() -> str:
+    return AD_JP_CLIENT_ID if _is_jp() else AD_CLIENT_ID
+
+
+def _fmt_currency(value: float) -> str:
+    if _cfg().get("currency") == "JPY":
+        return f"¥{value:,.0f}"
+    return f"${value:,.2f}"
 
 
 def _headers(profile_id: int) -> Dict:
     return {
-        "Authorization": f"Bearer {TM.get()}",
-        "Amazon-Advertising-API-ClientId": AD_CLIENT_ID,
+        "Authorization": f"Bearer {_tm().get()}",
+        "Amazon-Advertising-API-ClientId": _client_id(),
         "Amazon-Advertising-API-Scope": str(profile_id),
     }
 

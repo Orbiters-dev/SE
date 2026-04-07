@@ -7,7 +7,10 @@ Optimized for baby/toddler product brands (Grosmimi, Onzenna, zezebaebae).
 Weight rationale: authenticity > hook (mom audience skips ad-like content),
 demo & proof heavily weighted (functional products need usage scenes).
 
-Scoring version: v1.0
+v1.0 — Original 2-score (content_quality + creator_fit)
+v2.0 — Extended 4-tier framework with 7 new sub-scores:
+        duration, comment_quality, posting_frequency, collab_history,
+        bot_score, content_consistency, multi_platform
 """
 
 # ---------------------------------------------------------------------------
@@ -168,4 +171,353 @@ def calculate_scores(ci_results: dict, followers: int = 0,
         "content_quality_score": content_quality,
         "creator_fit_score": creator_fit,
         "scoring_version": "v1.0",
+    }
+
+
+# ===========================================================================
+# v2.0 — Extended 4-Tier Creator Quality Framework
+# ===========================================================================
+
+# Ideal video duration range (seconds)
+DURATION_IDEAL_MIN = 20
+DURATION_IDEAL_MAX = 60
+
+# Comment quality: minimum meaningful ratio
+COMMENT_MEANINGFUL_THRESHOLD = 0.50  # 50% of comments should be meaningful
+
+# Posting frequency: ideal range (posts per week)
+POSTING_FREQ_IDEAL_MIN = 2
+POSTING_FREQ_IDEAL_MAX = 7
+
+# Brand collab sweet spot
+COLLAB_IDEAL_MIN = 1
+COLLAB_IDEAL_MAX = 5  # 0 = no experience, 10+ = too ad-heavy
+
+# Bot/fake follower ER thresholds
+BOT_ER_SUSPICIOUS_LOW = 0.5   # ER < 0.5% with 10K+ followers = suspicious
+BOT_ER_SUSPICIOUS_HIGH = 20.0  # ER > 20% = likely engagement pods
+
+
+def calc_duration_score(duration_seconds: float) -> dict:
+    """
+    TIER 2: Video duration scoring.
+    Ideal: 20-60 seconds for baby product reels.
+    Returns 0-10 score + tier label.
+    """
+    if not duration_seconds or duration_seconds <= 0:
+        return {"duration_score": 0, "duration_tier": "unknown"}
+
+    d = duration_seconds
+    if DURATION_IDEAL_MIN <= d <= DURATION_IDEAL_MAX:
+        score = 10
+        tier = "ideal"
+    elif 15 <= d < DURATION_IDEAL_MIN:
+        score = 7
+        tier = "slightly_short"
+    elif DURATION_IDEAL_MAX < d <= 90:
+        score = 7
+        tier = "slightly_long"
+    elif 10 <= d < 15:
+        score = 4
+        tier = "too_short"
+    elif 90 < d <= 180:
+        score = 5
+        tier = "long"
+    elif d > 180:
+        score = 2
+        tier = "too_long"
+    else:
+        score = 1
+        tier = "too_short"
+
+    return {"duration_score": score, "duration_tier": tier}
+
+
+def calc_comment_quality(total_comments: int, meaningful_comments: int,
+                         bot_comments: int = 0) -> dict:
+    """
+    TIER 3A: Comment quality scoring.
+    meaningful = non-emoji, non-tag-only, >3 words
+    bot_comments = detected spam/bot comments
+    Returns 0-10 score.
+    """
+    if not total_comments or total_comments == 0:
+        return {"comment_quality_score": 0, "meaningful_ratio": 0.0,
+                "bot_comment_ratio": 0.0}
+
+    meaningful_ratio = round(meaningful_comments / total_comments, 2)
+    bot_ratio = round(bot_comments / total_comments, 2) if bot_comments else 0.0
+
+    # Score: meaningful ratio drives it, bot ratio penalizes
+    base = min(meaningful_ratio * 10, 10)
+    penalty = bot_ratio * 5  # up to -5 for 100% bot
+    score = max(0, int(base - penalty))
+
+    return {
+        "comment_quality_score": score,
+        "meaningful_ratio": meaningful_ratio,
+        "bot_comment_ratio": bot_ratio,
+    }
+
+
+def calc_posting_frequency(posts_last_30d: int) -> dict:
+    """
+    TIER 4: Posting frequency scoring.
+    Ideal: 2-7 posts/week = 8-28 posts/30d.
+    """
+    if posts_last_30d is None or posts_last_30d < 0:
+        return {"frequency_score": 0, "posts_per_week": 0.0, "frequency_tier": "unknown"}
+
+    ppw = round(posts_last_30d / 4.3, 1)  # posts per week
+
+    if POSTING_FREQ_IDEAL_MIN <= ppw <= POSTING_FREQ_IDEAL_MAX:
+        score = 10
+        tier = "ideal"
+    elif 1 <= ppw < POSTING_FREQ_IDEAL_MIN:
+        score = 6
+        tier = "low"
+    elif POSTING_FREQ_IDEAL_MAX < ppw <= 14:
+        score = 7
+        tier = "high"
+    elif ppw > 14:
+        score = 4
+        tier = "spam"
+    else:  # ppw < 1
+        score = 2
+        tier = "dormant"
+
+    return {"frequency_score": score, "posts_per_week": ppw, "frequency_tier": tier}
+
+
+def calc_collab_history(sponsored_count: int, total_posts_checked: int = 30) -> dict:
+    """
+    TIER 4: Brand collaboration history.
+    1-5 collabs per 30 posts = experienced but not oversaturated.
+    0 = no experience (risky), 10+ = ad-heavy (audience fatigue).
+    """
+    if total_posts_checked <= 0:
+        return {"collab_score": 0, "collab_ratio": 0.0, "collab_tier": "unknown"}
+
+    ratio = round(sponsored_count / total_posts_checked, 2)
+
+    if COLLAB_IDEAL_MIN <= sponsored_count <= COLLAB_IDEAL_MAX:
+        score = 10
+        tier = "experienced"
+    elif sponsored_count == 0:
+        score = 5
+        tier = "no_experience"
+    elif 6 <= sponsored_count <= 10:
+        score = 6
+        tier = "frequent"
+    else:  # >10
+        score = 3
+        tier = "oversaturated"
+
+    return {"collab_score": score, "collab_ratio": ratio, "collab_tier": tier}
+
+
+def calc_bot_score(followers: int, avg_likes: float, avg_comments: float,
+                   follower_growth_30d: float = None) -> dict:
+    """
+    TIER 3B: Bot/fake follower detection heuristic.
+    Uses engagement rate anomalies + follower growth spikes.
+    Returns 0-10 credibility score (10 = very credible, 0 = likely fake).
+    """
+    if not followers or followers <= 0:
+        return {"credibility_score": 0, "bot_risk": "unknown",
+                "er_check": "no_data"}
+
+    er = round((avg_likes + avg_comments) / followers * 100, 2) if followers > 0 else 0
+
+    # Start at 10, deduct for red flags
+    score = 10
+
+    # ER anomaly checks
+    if followers >= 10000 and er < BOT_ER_SUSPICIOUS_LOW:
+        score -= 4  # very low ER for follower count = bought followers
+        er_check = "suspiciously_low"
+    elif er > BOT_ER_SUSPICIOUS_HIGH:
+        score -= 3  # engagement pods or bot likes
+        er_check = "suspiciously_high"
+    elif followers >= 50000 and er < 1.0:
+        score -= 2
+        er_check = "low_for_size"
+    else:
+        er_check = "normal"
+
+    # Follower growth spike
+    if follower_growth_30d is not None:
+        if follower_growth_30d > 50:  # >50% growth in 30d = suspicious
+            score -= 3
+        elif follower_growth_30d > 20:
+            score -= 1
+
+    score = max(0, min(10, score))
+    risk = "high" if score <= 3 else ("medium" if score <= 6 else "low")
+
+    return {
+        "credibility_score": score,
+        "bot_risk": risk,
+        "er_check": er_check,
+        "effective_er": er,
+    }
+
+
+def calc_content_consistency(quality_scores: list) -> dict:
+    """
+    TIER 4: Content consistency across recent posts.
+    Input: list of content_quality_scores from recent N posts.
+    Low variance = consistent quality. High variance = unreliable.
+    """
+    if not quality_scores or len(quality_scores) < 2:
+        return {"consistency_score": 0, "quality_std": 0.0,
+                "quality_mean": 0.0, "consistency_tier": "insufficient_data"}
+
+    n = len(quality_scores)
+    mean = sum(quality_scores) / n
+    variance = sum((x - mean) ** 2 for x in quality_scores) / n
+    std = variance ** 0.5
+
+    # Low std = high consistency score
+    if std <= 5:
+        score = 10
+        tier = "very_consistent"
+    elif std <= 10:
+        score = 8
+        tier = "consistent"
+    elif std <= 15:
+        score = 6
+        tier = "moderate"
+    elif std <= 20:
+        score = 4
+        tier = "inconsistent"
+    else:
+        score = 2
+        tier = "very_inconsistent"
+
+    return {
+        "consistency_score": score,
+        "quality_std": round(std, 1),
+        "quality_mean": round(mean, 1),
+        "consistency_tier": tier,
+    }
+
+
+def calc_multi_platform(platforms: list) -> dict:
+    """
+    TIER 4: Multi-platform presence.
+    Input: list of platforms where creator is active (e.g., ["instagram", "tiktok"])
+    """
+    if not platforms:
+        return {"platform_score": 0, "platform_count": 0}
+
+    unique = list(set(p.lower().strip() for p in platforms if p))
+    count = len(unique)
+
+    if count >= 3:
+        score = 10
+    elif count == 2:
+        score = 8
+    else:
+        score = 4
+
+    return {"platform_score": score, "platform_count": count, "platforms": unique}
+
+
+def calculate_scores_v2(ci_results: dict, followers: int = 0,
+                        views: int = 0, likes: int = 0, comments: int = 0,
+                        enrichment: dict = None) -> dict:
+    """
+    v2 Main entry point: raw CI signals + enrichment data → full framework scores.
+
+    Args:
+        ci_results: merged dict from vision_tagger + whisper_transcriber
+        followers: creator's follower count
+        views/likes/comments: post engagement metrics
+        enrichment: dict with optional keys:
+            - duration_seconds: float
+            - total_comments: int, meaningful_comments: int, bot_comments: int
+            - posts_last_30d: int
+            - sponsored_count: int, total_posts_checked: int
+            - avg_likes: float, avg_comments: float
+            - follower_growth_30d: float
+            - quality_scores_history: list[int]
+            - platforms: list[str]
+
+    Returns:
+        Full scoring dict with v1 scores + all v2 sub-scores + composite
+    """
+    enrichment = enrichment or {}
+
+    # v1 scores (backward compatible)
+    v1 = calculate_scores(ci_results, followers, views, likes, comments)
+
+    # --- TIER 2: Content Specs ---
+    duration = calc_duration_score(enrichment.get("duration_seconds", 0))
+
+    # --- TIER 3A: Engagement Quality ---
+    comment_q = calc_comment_quality(
+        enrichment.get("total_comments", comments),
+        enrichment.get("meaningful_comments", 0),
+        enrichment.get("bot_comments", 0),
+    )
+
+    # --- TIER 3B: Audience Quality ---
+    bot = calc_bot_score(
+        followers,
+        enrichment.get("avg_likes", likes),
+        enrichment.get("avg_comments", comments),
+        enrichment.get("follower_growth_30d"),
+    )
+
+    # --- TIER 4: Performance ---
+    frequency = calc_posting_frequency(enrichment.get("posts_last_30d", 0))
+    collab = calc_collab_history(
+        enrichment.get("sponsored_count", 0),
+        enrichment.get("total_posts_checked", 30),
+    )
+    consistency = calc_content_consistency(
+        enrichment.get("quality_scores_history", []),
+    )
+    multi_plat = calc_multi_platform(enrichment.get("platforms", []))
+
+    # --- Composite v2 score ---
+    # Weighted blend: Content (40%) + Creator Fit (30%) + Audience (15%) + Performance (15%)
+    tier_scores = {
+        "content": v1["content_quality_score"],  # 0-100
+        "fit": v1["creator_fit_score"],           # 0-100
+        "audience": _clamp(
+            bot["credibility_score"] * 10,  # 0-100
+        ),
+        "performance": _clamp(
+            (frequency["frequency_score"] * 3 +
+             collab["collab_score"] * 2 +
+             consistency["consistency_score"] * 3 +
+             multi_plat["platform_score"] * 2) ,  # max 10*3+10*2+10*3+10*2 = 100
+        ),
+    }
+
+    composite_v2 = _clamp(
+        tier_scores["content"] * 0.40 +
+        tier_scores["fit"] * 0.30 +
+        tier_scores["audience"] * 0.15 +
+        tier_scores["performance"] * 0.15
+    )
+
+    return {
+        # v1 backward compatible
+        **v1,
+        # v2 sub-scores
+        "duration": duration,
+        "comment_quality": comment_q,
+        "bot_detection": bot,
+        "posting_frequency": frequency,
+        "collab_history": collab,
+        "content_consistency": consistency,
+        "multi_platform": multi_plat,
+        # v2 tier scores (0-100 each)
+        "tier_scores": tier_scores,
+        # v2 composite
+        "composite_v2_score": composite_v2,
+        "scoring_version": "v2.0",
     }

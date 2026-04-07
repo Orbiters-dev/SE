@@ -3110,6 +3110,114 @@ def collect_amazon_ads_jp(date_from: str, date_to: str) -> list[dict]:
     return all_rows
 
 
+def collect_amazon_ads_search_terms_jp(date_from: str, date_to: str) -> list[dict]:
+    """Collect Amazon JP Ads search term reports (FE endpoint, single profile, 7-day chunks)."""
+    if not AMZ_ADS_JP_REFRESH_TOKEN:
+        print("[Amazon Ads JP ST] SKIP — no AMZ_ADS_JP_REFRESH_TOKEN")
+        return []
+    print("[Amazon Ads JP Search Terms] Collecting...")
+    FE_BASE = "https://advertising-api-fe.amazon.com"
+    pid = AMZ_ADS_JP_PROFILE_ID
+
+    all_rows = []
+    d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+    d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+
+    cur = d_from
+    while cur <= d_to:
+        chunk_end = min(cur + timedelta(days=6), d_to)
+        print(f"  [Grosmimi JP] Search terms {cur}~{chunk_end}...")
+        headers = _fresh_amz_ads_jp_headers()
+        h = {**headers, "Amazon-Advertising-API-Scope": pid}
+        rows = _fetch_amz_ads_report_generic(
+            h, pid, cur.isoformat(), chunk_end.isoformat(),
+            report_type_id="spSearchTerm",
+            group_by=["searchTerm"],
+            columns=["campaignId", "adGroupId", "keywordId",
+                     "searchTerm", "impressions", "clicks", "cost",
+                     "sales14d", "purchases14d"],
+            time_unit="DAILY",
+            base_url=FE_BASE,
+        )
+        for row in rows:
+            row_date = row.get("date", f"{cur}~{chunk_end}")
+            all_rows.append({
+                "date": row_date,
+                "profile_id": pid,
+                "brand": "Grosmimi JP",
+                "campaign_id": str(row.get("campaignId", "")),
+                "ad_group_id": str(row.get("adGroupId", "")),
+                "keyword_id": str(row.get("keywordId", "")),
+                "search_term": row.get("searchTerm", ""),
+                "impressions": int(row.get("impressions", 0)),
+                "clicks": int(row.get("clicks", 0)),
+                "spend": float(row.get("cost", 0)),
+                "sales": float(row.get("sales14d", 0)),
+                "purchases": int(row.get("purchases14d", 0)),
+            })
+        if not rows:
+            print(f"    [WARN] Grosmimi JP returned 0 search terms for {cur}~{chunk_end}")
+        cur = chunk_end + timedelta(days=1)
+        time.sleep(3)
+
+    print(f"  [Amazon Ads JP Search Terms] Total: {len(all_rows)} rows")
+    return all_rows
+
+
+def collect_amazon_ads_keywords_jp(date_from: str, date_to: str) -> list[dict]:
+    """Collect Amazon JP Ads keyword-level reports (FE endpoint, single profile, 7-day chunks)."""
+    if not AMZ_ADS_JP_REFRESH_TOKEN:
+        print("[Amazon Ads JP KW] SKIP — no AMZ_ADS_JP_REFRESH_TOKEN")
+        return []
+    print("[Amazon Ads JP Keywords] Collecting...")
+    FE_BASE = "https://advertising-api-fe.amazon.com"
+    pid = AMZ_ADS_JP_PROFILE_ID
+
+    all_rows = []
+    d_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+    d_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+
+    cur = d_from
+    while cur <= d_to:
+        chunk_end = min(cur + timedelta(days=6), d_to)
+        print(f"  [Grosmimi JP] Keywords {cur}~{chunk_end}...")
+        headers = _fresh_amz_ads_jp_headers()
+        h = {**headers, "Amazon-Advertising-API-Scope": pid}
+        rows = _fetch_amz_ads_report_generic(
+            h, pid, cur.isoformat(), chunk_end.isoformat(),
+            report_type_id="spKeywords",
+            group_by=["adGroup"],
+            columns=["campaignId", "adGroupId", "keywordId",
+                     "keywordText", "matchType",
+                     "impressions", "clicks", "cost",
+                     "sales14d", "purchases14d"],
+            time_unit="DAILY",
+            base_url=FE_BASE,
+        )
+        for row in rows:
+            row_date = row.get("date", f"{cur}~{chunk_end}")
+            all_rows.append({
+                "date": row_date,
+                "profile_id": pid,
+                "brand": "Grosmimi JP",
+                "campaign_id": str(row.get("campaignId", "")),
+                "ad_group_id": str(row.get("adGroupId", "")),
+                "keyword_id": str(row.get("keywordId", "")),
+                "keyword_text": row.get("keywordText", ""),
+                "match_type": row.get("matchType", ""),
+                "impressions": int(row.get("impressions", 0)),
+                "clicks": int(row.get("clicks", 0)),
+                "spend": float(row.get("cost", 0)),
+                "sales": float(row.get("sales14d", 0)),
+                "purchases": int(row.get("purchases14d", 0)),
+            })
+        cur = chunk_end + timedelta(days=1)
+        time.sleep(3)
+
+    print(f"  [Amazon Ads JP Keywords] Total: {len(all_rows)} rows")
+    return all_rows
+
+
 def collect_meta_ads_jp(date_from: str, date_to: str) -> list[dict]:
     """Collect Meta JP Ads ad-level daily insights (KRW currency)."""
     if not META_JP_ACCESS_TOKEN or not META_JP_AD_ACCOUNT_ID:
@@ -3218,6 +3326,8 @@ CHANNEL_COLLECTORS = {
     "amazon_brand_analytics": ("amazon_brand_analytics", collect_amazon_brand_analytics),
     "amazon_campaigns": ("amazon_campaigns", collect_amazon_campaigns),
     "amazon_ads_jp": ("amazon_ads_daily", collect_amazon_ads_jp),
+    "amazon_ads_search_terms_jp": ("amazon_ads_search_terms", collect_amazon_ads_search_terms_jp),
+    "amazon_ads_keywords_jp": ("amazon_ads_keywords", collect_amazon_ads_keywords_jp),
     "meta": ("meta_ads_daily", collect_meta_ads),
     "meta_jp": ("meta_ads_daily", collect_meta_ads_jp),
     "meta_campaigns": ("meta_campaigns", collect_meta_campaigns),
