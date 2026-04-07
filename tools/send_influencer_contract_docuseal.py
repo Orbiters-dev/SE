@@ -119,15 +119,24 @@ def create_submission(data: dict) -> dict:
                 ],
             }
         ],
+        # ⚠️ CRITICAL: body must contain {{submitter.link}} or recipients get no signing link
         "message": {
             "subject": "Influencer Content Agreement - Signature Required",
             "body": (
                 f"Hi {data['influencer_name']},\n\n"
-                "Please review and sign the attached Influencer Content Agreement.\n\n"
+                "Please review and sign the Influencer Content Agreement.\n\n"
+                "Click here to sign: {{submitter.link}}\n\n"
                 "Thank you!"
             ),
         },
     }
+
+    # ── 서명 링크 누락 방지 검증 ──────────────────────────────────────────
+    email_body = payload.get("message", {}).get("body", "")
+    if "{{submitter.link}}" not in email_body:
+        print("[FATAL] Email body missing {{submitter.link}}!")
+        print("        Without this, recipients won't receive the signing link.")
+        sys.exit(1)
 
     resp = requests.post(
         f"{DOCUSEAL_BASE_URL}/api/submissions",

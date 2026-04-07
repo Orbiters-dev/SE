@@ -25,6 +25,8 @@ from env_loader import load_env
 DIR = os.path.dirname(os.path.abspath(__file__))
 load_env()
 
+from n8n_api_client import n8n_request
+
 N8N_API_KEY = os.getenv("N8N_API_KEY", "")
 N8N_BASE_URL = os.getenv("N8N_BASE_URL", "https://n8n.orbiters.co.kr")
 AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY", "")
@@ -37,23 +39,6 @@ WORKFLOW_NAME = "Onzenna: Airtable Update -> Shopify Metafields"
 AIRTABLE_URL = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_TABLE_ID}"
 SHOPIFY_API = f"https://{SHOPIFY_SHOP}/admin/api/2024-01"
 
-
-def n8n_request(method, path, body=None):
-    url = f"{N8N_BASE_URL}/api/v1/{path}"
-    data = json.dumps(body).encode() if body else None
-    req = urllib.request.Request(
-        url, data=data, method=method,
-        headers={
-            "X-N8N-API-KEY": N8N_API_KEY,
-            "Content-Type": "application/json",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req) as resp:
-            return json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        err = e.read().decode()
-        raise RuntimeError(f"n8n API error {e.code}: {err}")
 
 
 def get_existing_workflow():

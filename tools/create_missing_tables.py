@@ -166,6 +166,49 @@ TABLES = [
         changed_by VARCHAR(50) DEFAULT '',
         changed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     )""",
+    # ===== JP Influencer Pipeline tables (리공이) =====
+    """CREATE TABLE IF NOT EXISTS gk_pipeline_creators (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(200) UNIQUE NOT NULL,
+        name VARCHAR(500) DEFAULT '',
+        followers INTEGER DEFAULT 0,
+        platform VARCHAR(20) DEFAULT 'instagram',
+        program VARCHAR(20) DEFAULT 'collab',
+        status VARCHAR(50) DEFAULT 'not_started',
+        assigned_to VARCHAR(50) DEFAULT '',
+        manychat_id VARCHAR(100) DEFAULT '',
+        dm_draft TEXT DEFAULT '',
+        dm_link VARCHAR(500) DEFAULT '',
+        dm_count INTEGER DEFAULT 0,
+        last_dm VARCHAR(50) DEFAULT '',
+        content_script TEXT DEFAULT '',
+        recommended_product VARCHAR(300) DEFAULT '',
+        real_name VARCHAR(200) DEFAULT '',
+        email VARCHAR(200) DEFAULT '',
+        product VARCHAR(300) DEFAULT '',
+        color VARCHAR(100) DEFAULT '',
+        contract_type VARCHAR(20) DEFAULT '',
+        payment_amount NUMERIC(10,0) DEFAULT 0,
+        docuseal_submission_id VARCHAR(100) DEFAULT '',
+        contract_status VARCHAR(50) DEFAULT '',
+        added_at TIMESTAMP WITH TIME ZONE,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
+    """CREATE TABLE IF NOT EXISTS gk_pipeline_dm_logs (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(200) NOT NULL,
+        direction VARCHAR(10) DEFAULT 'out',
+        message TEXT DEFAULT '',
+        step VARCHAR(20) DEFAULT '',
+        sent_at TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
+    """CREATE TABLE IF NOT EXISTS gk_pipeline_config (
+        id SERIAL PRIMARY KEY,
+        key VARCHAR(200) UNIQUE NOT NULL,
+        value TEXT DEFAULT '',
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )""",
     """CREATE TABLE IF NOT EXISTS gk_gmail_contacts (
         id SERIAL PRIMARY KEY,
         email VARCHAR(254) UNIQUE NOT NULL,
@@ -189,6 +232,9 @@ INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_pipeline_exec_action ON onz_pipeline_execution_log(action_type)",
     "CREATE INDEX IF NOT EXISTS idx_pipeline_status_email ON onz_pipeline_status_changes(creator_email)",
     "CREATE INDEX IF NOT EXISTS idx_gmail_contacts_domain ON gk_gmail_contacts(domain)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_dm_logs_username ON gk_pipeline_dm_logs(username)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_status ON gk_pipeline_creators(status)",
+    "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_program ON gk_pipeline_creators(program)",
 ]
 
 if __name__ == "__main__":

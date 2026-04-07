@@ -34,9 +34,15 @@ def generate_ec2_commands():
     print("=" * 70)
     print()
 
+    # Step 0: Clean __pycache__ to prevent stale .pyc conflicts (M-050)
+    print("# Step 0: Clean __pycache__ (prevents import conflicts on redeploy)")
+    print("cd /home/ubuntu/export_calculator")
+    print("find . -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true")
+    print("find . -name '*.pyc' -delete 2>/dev/null || true")
+    print()
+
     # Step 1: Create app directory
     print("# Step 1: Create datakeeper app directory")
-    print("cd /home/ubuntu/export_calculator")
     print("mkdir -p datakeeper")
     print()
 
