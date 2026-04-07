@@ -1563,6 +1563,7 @@ def generate():
             return {}
 
     attribution = _load_attribution()
+    attr_brb_monthly = {}
     if attribution:
         attr_total = {k: sum(v[k] for v in attribution.values()) for k in ["clicks", "purchases", "sales", "brb"]}
         print(f"  Attribution: {len(attribution)} campaigns, {attr_total['clicks']:,} clicks, ${attr_total['sales']:,.0f} sales, ${attr_total['brb']:,.0f} BRB")
@@ -1590,10 +1591,21 @@ def generate():
                 brand_ad_daily_raw["Grosmimi"]["mt_sales"][date_str] += sales
                 attr_injected_monthly[month] += sales
                 attr_injected_daily[date_str] += sales
+        # Distribute BRB proportionally to monthly sales
+        attr_brb_monthly = defaultdict(float)
+        total_attr_brb = sum(v.get("brb", 0) for v in attribution.values())
+        total_attr_sales_for_brb = sum(attr_injected_monthly.values()) if attr_injected_monthly else 0
+        if total_attr_brb > 0 and total_attr_sales_for_brb > 0:
+            for m, s in attr_injected_monthly.items():
+                attr_brb_monthly[m] = total_attr_brb * (s / total_attr_sales_for_brb)
+
         if attr_injected_monthly:
             total_injected = sum(attr_injected_monthly.values())
             months_str = ", ".join(f"{m}: ${v:,.0f}" for m, v in sorted(attr_injected_monthly.items()))
             print(f"  Attribution injected into Meta Traffic: ${total_injected:,.0f} ({months_str})")
+            if total_attr_brb > 0:
+                brb_str = ", ".join(f"{m}: ${v:,.0f}" for m, v in sorted(attr_brb_monthly.items()))
+                print(f"  BRB distributed monthly: ${total_attr_brb:,.0f} ({brb_str})")
         else:
             # Fallback: inject total attribution as lump sum into latest month
             attr_total_sales_val = attr_total["sales"]
@@ -1943,7 +1955,7 @@ def generate():
         impr_vals = [ad_monthly.get(platform, {}).get(m, {}).get("impressions", 0) for m in months]
         click_vals = [ad_monthly.get(platform, {}).get(m, {}).get("clicks", 0) for m in months]
         if any(v > 0 for v in spend_vals):
-            ad_out[platform] = {
+            entry = {
                 "spend": spend_vals,
                 "spend_proj": proj_array(spend_vals),
                 "sales": sales_vals,
@@ -1952,6 +1964,11 @@ def generate():
                 "clicks": click_vals,
                 "color": AD_COLORS.get(platform, "#94a3b8"),
             }
+            # Add BRB array for Meta Traffic (proportionally distributed from Attribution)
+            if platform == "Meta Traffic" and attr_brb_monthly:
+                brb_vals = [round(attr_brb_monthly.get(m, 0)) for m in months]
+                entry["brb"] = brb_vals
+            ad_out[platform] = entry
 
     # ── Ads Landing Channel TROAS ─────────────────────────────────────────
     # Onzenna channel: Google Ads + Meta CVR -> Shopify D2C revenue
@@ -4231,7 +4248,7 @@ def generate():
         "weekly": weekly_data,
         "hero_products": hero_data,
         "search_ranking": _build_search_ranking_data(),
-        "jp": _build_jp_data(amazon_sales, dk),
+        "jp": _build_jp_data(amazon_sales, amazon_ads, meta_ads, dk),
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
@@ -4355,26 +4372,25 @@ def _build_autocomplete_data() -> dict:
     return {"latest": latest, "trends": trends, "dates": all_dates}
 
 
-def _build_jp_data(amazon_sales: list, dk) -> dict:
+def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk) -> dict:
     """Build JP marketplace data for dashboard JP tab.
 
-    Returns:
-    {
-      "amazon": {"months": [...], "revenue": [...], "orders": [...], "units": [...]},
-      "rakuten": {"months": [...], "revenue": [...], "orders": [...], "units": [...]}
-    }
-    Revenue in JPY (as-is from API).
+    Returns full JP financial data: Amazon JP sales, Rakuten, Amazon Ads JP,
+    Meta JP Ads, and combined summary KPIs. Revenue/spend in JPY for JP sources.
     """
     from collections import defaultdict
 
-    # ── Amazon JP ─────────────────────────────────────────────────────────────
     JP_SELLER_ID = "A1A01CME113JSP"
-    amz_monthly = defaultdict(lambda: {"revenue": 0.0, "orders": 0, "units": 0})
+    JP_ADS_BRAND = "Grosmimi JP"
+
+    # ── Amazon JP Sales ───────────────────────────────────────────────────────
+    amz_monthly = defaultdict(lambda: {"revenue": 0.0, "gross": 0.0, "orders": 0, "units": 0})
     for r in amazon_sales:
         if r.get("seller_id") == JP_SELLER_ID:
             m = (r.get("date") or "")[:7]
             if m:
                 amz_monthly[m]["revenue"] += float(r.get("net_sales") or 0)
+                amz_monthly[m]["gross"] += float(r.get("gross_sales") or r.get("ordered_product_sales") or 0)
                 amz_monthly[m]["orders"] += int(r.get("orders") or 0)
                 amz_monthly[m]["units"] += int(r.get("units") or 0)
 
@@ -4382,8 +4398,10 @@ def _build_jp_data(amazon_sales: list, dk) -> dict:
     amz_out = {
         "months": amz_months,
         "revenue": [round(amz_monthly[m]["revenue"]) for m in amz_months],
+        "gross": [round(amz_monthly[m]["gross"]) for m in amz_months],
         "orders": [amz_monthly[m]["orders"] for m in amz_months],
         "units": [amz_monthly[m]["units"] for m in amz_months],
+        "currency": "JPY",
     }
 
     # ── Rakuten ───────────────────────────────────────────────────────────────
@@ -4397,7 +4415,7 @@ def _build_jp_data(amazon_sales: list, dk) -> dict:
     for r in rak_rows:
         m = (r.get("date") or "")[:7]
         if m:
-            rak_monthly[m]["revenue"] += float(r.get("revenue") or 0)
+            rak_monthly[m]["revenue"] += float(r.get("revenue") or r.get("net_sales") or 0)
             rak_monthly[m]["orders"] += int(r.get("orders") or 0)
             rak_monthly[m]["units"] += int(r.get("units") or 0)
 
@@ -4407,10 +4425,112 @@ def _build_jp_data(amazon_sales: list, dk) -> dict:
         "revenue": [round(rak_monthly[m]["revenue"]) for m in rak_months],
         "orders": [rak_monthly[m]["orders"] for m in rak_months],
         "units": [rak_monthly[m]["units"] for m in rak_months],
+        "currency": "JPY",
     }
 
-    print(f"  [JP] Amazon JP: {len(amz_months)} months, Rakuten: {len(rak_months)} months")
-    return {"amazon": amz_out, "rakuten": rak_out}
+    # ── Amazon Ads JP (brand = "Grosmimi JP", spend in JPY) ──────────────────
+    ads_monthly = defaultdict(lambda: {"spend": 0.0, "sales": 0.0, "impressions": 0, "clicks": 0})
+    ads_by_type = defaultdict(lambda: defaultdict(lambda: {"spend": 0.0, "sales": 0.0, "impressions": 0, "clicks": 0}))
+    for r in amazon_ads:
+        if (r.get("brand") or "") == JP_ADS_BRAND:
+            m = (r.get("date") or "")[:7]
+            if m:
+                spend = float(r.get("spend") or 0)
+                sales = float(r.get("sales") or 0)
+                impr = int(r.get("impressions") or 0)
+                clicks = int(r.get("clicks") or 0)
+                ads_monthly[m]["spend"] += spend
+                ads_monthly[m]["sales"] += sales
+                ads_monthly[m]["impressions"] += impr
+                ads_monthly[m]["clicks"] += clicks
+                ad_type = r.get("ad_type", "SP")
+                ads_by_type[ad_type][m]["spend"] += spend
+                ads_by_type[ad_type][m]["sales"] += sales
+                ads_by_type[ad_type][m]["impressions"] += impr
+                ads_by_type[ad_type][m]["clicks"] += clicks
+
+    ads_months = sorted(ads_monthly.keys())
+    ads_out = {
+        "months": ads_months,
+        "spend": [round(ads_monthly[m]["spend"]) for m in ads_months],
+        "sales": [round(ads_monthly[m]["sales"]) for m in ads_months],
+        "impressions": [ads_monthly[m]["impressions"] for m in ads_months],
+        "clicks": [ads_monthly[m]["clicks"] for m in ads_months],
+        "roas": [round(ads_monthly[m]["sales"] / ads_monthly[m]["spend"], 2) if ads_monthly[m]["spend"] > 0 else 0 for m in ads_months],
+        "acos": [round(ads_monthly[m]["spend"] / ads_monthly[m]["sales"] * 100, 1) if ads_monthly[m]["sales"] > 0 else 0 for m in ads_months],
+        "currency": "JPY",
+    }
+    # By ad type breakdown
+    ads_by_type_out = {}
+    for atype, mdata in ads_by_type.items():
+        at_months = sorted(mdata.keys())
+        ads_by_type_out[atype] = {
+            "months": at_months,
+            "spend": [round(mdata[m]["spend"]) for m in at_months],
+            "sales": [round(mdata[m]["sales"]) for m in at_months],
+        }
+
+    # ── Meta JP Ads (JPY) ─────────────────────────────────────────────────────
+    meta_jp_monthly = defaultdict(lambda: defaultdict(lambda: {"spend": 0.0, "sales": 0.0, "impressions": 0, "clicks": 0}))
+    for r in meta_ads:
+        if _is_jp_meta(r):
+            m = (r.get("date") or "")[:7]
+            if m:
+                cname = (r.get("campaign_name") or "").lower()
+                landing = (r.get("landing_url") or "").lower()
+                is_amz = "amazon" in cname or "amz" in cname or "amazon" in landing
+                label = "Meta Traffic" if is_amz else "Meta CVR"
+                meta_jp_monthly[label][m]["spend"] += float(r.get("spend") or 0)
+                meta_jp_monthly[label][m]["sales"] += float(r.get("purchase_value") or 0)
+                meta_jp_monthly[label][m]["impressions"] += int(r.get("impressions") or 0)
+                meta_jp_monthly[label][m]["clicks"] += int(r.get("clicks") or 0)
+
+    meta_out = {}
+    for label, mdata in meta_jp_monthly.items():
+        mt_months = sorted(mdata.keys())
+        meta_out[label] = {
+            "months": mt_months,
+            "spend": [round(mdata[m]["spend"]) for m in mt_months],
+            "sales": [round(mdata[m]["sales"]) for m in mt_months],
+            "impressions": [mdata[m]["impressions"] for m in mt_months],
+            "clicks": [mdata[m]["clicks"] for m in mt_months],
+        }
+
+    # ── Combined summary ──────────────────────────────────────────────────────
+    all_months = sorted(set(amz_months) | set(rak_months) | set(ads_months))
+    combined_revenue = []
+    combined_ad_spend = []
+    combined_ad_sales = []
+    for m in all_months:
+        rev = amz_monthly[m]["revenue"] + rak_monthly[m]["revenue"]
+        combined_revenue.append(round(rev))
+        ad_s = ads_monthly[m]["spend"]
+        for label in meta_jp_monthly:
+            ad_s += meta_jp_monthly[label][m]["spend"]
+        combined_ad_spend.append(round(ad_s))
+        ad_sa = ads_monthly[m]["sales"]
+        for label in meta_jp_monthly:
+            ad_sa += meta_jp_monthly[label][m]["sales"]
+        combined_ad_sales.append(round(ad_sa))
+
+    summary = {
+        "months": all_months,
+        "total_revenue": combined_revenue,
+        "total_ad_spend": combined_ad_spend,
+        "total_ad_sales": combined_ad_sales,
+    }
+
+    print(f"  [JP] Amazon JP Sales: {len(amz_months)}m, Rakuten: {len(rak_months)}m, "
+          f"Amazon Ads JP: {len(ads_months)}m, Meta JP: {sum(len(v) for v in meta_out.values())} platform-months")
+
+    return {
+        "amazon": amz_out,
+        "rakuten": rak_out,
+        "amazon_ads": ads_out,
+        "amazon_ads_by_type": ads_by_type_out,
+        "meta_ads": meta_out,
+        "summary": summary,
+    }
 
 
 def _build_search_ranking_data() -> dict:

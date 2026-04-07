@@ -3048,6 +3048,25 @@ function buildAdTable(F, months, mLabels, lastIdx, isPartialLast, compact){
       html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;color:'+rc+'">'+roas.toFixed(1)+'x</td>';
     }
     html+='</tr>';
+    // Sub-row: Meta Traffic BRB-adjusted ROAS (spend already paid, BRB = Amazon rebate)
+    if(p==='Meta Traffic' && ap.brb){
+      html+='<tr style="background:#f0fdf4"><td style="padding-left:20px;font-size:8px;color:#16a34a">&#8627; incl. BRB (net cost)</td>';
+      for(var j=0;j<aLen;j++){
+        var gj=si+j;
+        var sp2=ap.spend[gj]||0, sl2=ap.sales[gj]||0, brb2=ap.brb[gj]||0;
+        var netSpend=Math.max(0, sp2-brb2);
+        var adjRoas=netSpend>0?(sl2/netSpend):0;
+        var arc=adjRoas>=3?'var(--g)':adjRoas>=1.5?'var(--am)':'var(--r)';
+        var isL2=j===aLastIdx&&isPartialA;
+        // Net spend cell
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:#16a34a'+(isL2?';background:#f5f3ff':'')+'">$'+Math.round(netSpend).toLocaleString()+'</td>';
+        // Sales (same)
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;color:var(--muted)'+(isL2?';background:#f5f3ff':'')+'">-</td>';
+        // Adjusted ROAS
+        html+='<td style="text-align:right;font-family:var(--mono);font-size:8px;font-weight:700;color:'+arc+'">'+adjRoas.toFixed(1)+'x</td>';
+      }
+      html+='</tr>';
+    }
   });
   html+='<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL</td>';
   for(var i=0;i<aLen;i++){
@@ -3354,7 +3373,9 @@ function buildPolarPnL(P){
   pnlRow('(-) Discounts', P.discounts, {color:'var(--r)',neg:true});
   if(P.discounts_detail){
     pnlRow('Shopify Promo Disc', P.discounts_detail.shopify_disc, {indent:2,color:'var(--muted)',fs:'8',neg:true,noproj:true});
-    pnlRow('Amazon Ref Fee (15%)', P.discounts_detail.amz_ref_fee, {indent:2,color:'var(--muted)',fs:'8',neg:true,noproj:true});
+  }
+  if(P.platform_fees_detail && P.platform_fees_detail.amz_ref_fee){
+    pnlRow('Amazon Ref Fee (15%)', P.platform_fees_detail.amz_ref_fee, {indent:2,color:'var(--muted)',fs:'8',neg:true,noproj:true});
   }
 
   // Influencer
