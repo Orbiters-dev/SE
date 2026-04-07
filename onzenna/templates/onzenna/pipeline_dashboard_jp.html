@@ -121,6 +121,8 @@ tr:hover td{background:#fff5f5}
   <div id="standalone-header">
   <div class="nav-bar" style="margin-bottom:16px">
     <div>
+      <a href="/api/onzenna/datapool/content/" title="Content Pool (SSOT)">Content Pool</a>
+      <a href="/api/onzenna/datapool/dashboard/" title="Creator Pool (SSOT)">Creator Pool</a>
       <a href="/api/onzenna/ppc/dashboard/" title="Amazon PPC Intelligence">Amazon PPC</a>
       <a href="/api/onzenna/content/dashboard/" title="Content Intelligence">Content Intelligence</a>
       <a class="active">Pipeline CRM (JP)</a>
@@ -942,7 +944,7 @@ function loadCreators() {
   // Load from both n8n (active pipeline) and EC2 (Not Started discovery creators)
   Promise.all([
     n8nGet().catch(function() { return []; }),
-    fetch('/api/onzenna/pipeline/creators/?status=Not+Started&source=apify_discovery&region=jp&limit=500').then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
+    fetch('/api/onzenna/pipeline/creators/?status=Not+Started&region=jp&limit=500').then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
   ]).then(function(results) {
     var n8nData = results[0];
     var ec2Data = results[1];
@@ -2370,7 +2372,7 @@ function importFromDiscovery() {
   fetch('/api/onzenna/pipeline/creators/import-discovery/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ region: 'jp', limit: 200, min_followers: 1000 })
+    body: JSON.stringify({ region: 'jp', limit: 200, min_followers: 1000, source: 'apify_discovery', days: 90 })
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {

@@ -1898,7 +1898,7 @@ def import_syncly_discovery(request):
     region = body.get("region", "")
     source_label = body.get("source", "syncly")
     limit = int(body.get("limit", 50))
-    days = int(body.get("days", 30))
+    days = int(body.get("days", 90))
 
     from django.db import connection
     from datetime import timedelta
