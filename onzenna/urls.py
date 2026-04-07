@@ -12,6 +12,7 @@ urlpatterns = [
     path("ppc/dashboard/<str:filename>", views_dashboard.ppc_data_js, name="ppc_data_js"),
     path("content/dashboard/", views_dashboard.content_dashboard, name="content_dashboard"),
     path("financial/dashboard/", views_dashboard.financial_dashboard, name="financial_dashboard"),
+    path("financial/dashboard/fin_data.js", views_dashboard.fin_data_js, name="fin_data_js"),
     path("datapool/dashboard/", views_dashboard.datapool_dashboard, name="datapool_dashboard"),
     path("datapool/content/", views_dashboard.content_pool_dashboard, name="content_pool_dashboard"),
 

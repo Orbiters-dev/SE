@@ -10,8 +10,9 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-# Base directory for PPC data JS files
+# Base directories for data JS files
 _PPC_DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "ppc-dashboard"
+_FIN_DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "financial-dashboard"
 
 
 @xframe_options_sameorigin
@@ -62,6 +63,14 @@ def ppc_data_js(request, filename):
     if filename not in allowed:
         raise Http404
     filepath = _PPC_DATA_DIR / filename
+    if not filepath.is_file():
+        raise Http404
+    return HttpResponse(filepath.read_text(encoding="utf-8"), content_type="application/javascript")
+
+
+def fin_data_js(request):
+    """Serve Financial KPIs data (fin_data.js)."""
+    filepath = _FIN_DATA_DIR / "fin_data.js"
     if not filepath.is_file():
         raise Http404
     return HttpResponse(filepath.read_text(encoding="utf-8"), content_type="application/javascript")
