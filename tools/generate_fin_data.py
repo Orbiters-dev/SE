@@ -47,8 +47,13 @@ CHANNEL_COLORS = {
 }
 JP_BRAND_KEYWORDS = ("jp", "japan", "rakuten")  # brands/campaigns to exclude from US dashboard
 
+# Meta JP ad account is billed in KRW (Korean Won), not JPY.
+# Raw spend from API is in KRW → convert to JPY for dashboard display.
+# 1 KRW ≈ 0.115 JPY (approximate; update if rate drifts significantly)
+KRW_TO_JPY = 0.115
+
 def _is_jp_meta(row):
-    """Return True if this Meta Ads row belongs to a JP campaign (JPY currency)."""
+    """Return True if this Meta Ads row belongs to a JP campaign (KRW-billed)."""
     brand = (row.get("brand") or "").lower()
     cname = (row.get("campaign_name") or "").lower()
     if any(k in brand for k in JP_BRAND_KEYWORDS):
@@ -4490,8 +4495,8 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
                 landing = (r.get("landing_url") or "").lower()
                 is_amz = "amazon" in cname or "amz" in cname or "amazon" in landing
                 label = "Meta Traffic" if is_amz else "Meta CVR"
-                meta_jp_monthly[label][m]["spend"] += float(r.get("spend") or 0)
-                meta_jp_monthly[label][m]["sales"] += float(r.get("purchase_value") or 0)
+                meta_jp_monthly[label][m]["spend"] += float(r.get("spend") or 0) * KRW_TO_JPY
+                meta_jp_monthly[label][m]["sales"] += float(r.get("purchase_value") or 0) * KRW_TO_JPY
                 meta_jp_monthly[label][m]["impressions"] += int(r.get("impressions") or 0)
                 meta_jp_monthly[label][m]["clicks"] += int(r.get("clicks") or 0)
 
@@ -4566,8 +4571,8 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
             d = r.get("date") or ""
             if len(d) >= 10:
                 wk = _week_key(d)
-                traffic_weekly[wk]["spend"] += float(r.get("spend") or 0)
-                traffic_weekly[wk]["sales"] += float(r.get("purchase_value") or 0)
+                traffic_weekly[wk]["spend"] += float(r.get("spend") or 0) * KRW_TO_JPY
+                traffic_weekly[wk]["sales"] += float(r.get("purchase_value") or 0) * KRW_TO_JPY
                 traffic_weekly[wk]["impressions"] += int(r.get("impressions") or 0)
                 traffic_weekly[wk]["clicks"] += int(r.get("clicks") or 0)
 

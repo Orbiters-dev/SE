@@ -862,189 +862,299 @@ function renderJpAmazon() {
 
   if (hasMeta) { html += _jpMetaAdTable(secIdx++, jp.meta_ads); }
 
-  // ── Weekly Trends Section ─────────────────────────────────────────────
+  // ── Trends Section (Weekly / Monthly toggle) ─────────────────────────
   var W = jp.weekly;
   if (W && W.weeks && W.weeks.length >= 2) {
     var wLen = W.weeks.length;
     var wL = W.week_labels;
     var pm = jp.partial_month || {};
 
-    // Section: Weekly Revenue + Content Views (dual axis)
-    html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#8b5cf6">'+(secIdx++)+'</div> Weekly Revenue Trend + Content Views</div>';
-    html += '<div class="card">';
-    html += '<div class="desc">Amazon JP + Rakuten combined weekly revenue (bars) with JP creator content views overlay (line). Last week may be partial.</div>';
+    // Build monthly equivalents from existing jp data
+    var mAmz = jp.amazon || {months:[],revenue:[]};
+    var mRak = jp.rakuten || {months:[],revenue:[]};
+    var mAds = jp.amazon_ads || {months:[],spend:[],sales:[],impressions:[],clicks:[],roas:[],acos:[]};
+    var mMeta = jp.meta_ads || {};
+    var mMetaFirst = mMeta[Object.keys(mMeta)[0]] || {months:[],spend:[],impressions:[],clicks:[]};
+    // Combined monthly revenue aligned to amazon months
+    var mMonths = mAmz.months || [];
+    var mRevAmz = mAmz.revenue || [];
+    var mRevRak = mMonths.map(function(m){ var ri=(mRak.months||[]).indexOf(m); return ri>=0?(mRak.revenue[ri]||0):0; });
+    var mRevTotal = mMonths.map(function(_,i){ return (mRevAmz[i]||0)+mRevRak[i]; });
+    // Monthly labels
+    var mLabels = mMonths.map(function(m){ return m.split('-')[1]+'/'+m.split('-')[0].substring(2); });
 
-    // SVG dual-axis chart
+    // Section: Revenue Trend (Weekly/Monthly toggle)
+    html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#8b5cf6">'+(secIdx++)+'</div> Revenue Trend + Content Views';
+    html += ' <div class="period-tabs" id="jp-rev-grain" style="margin-left:auto"><div data-g="weekly" class="on" onclick="window._jpRevGrain=\'weekly\';renderJpAmazon();">Weekly</div><div data-g="monthly" onclick="window._jpRevGrain=\'monthly\';renderJpAmazon();">Monthly</div></div>';
+    html += '</div><div class="card">';
+    html += '<div class="desc">Amazon JP + Rakuten stacked revenue (bars) with Content Views overlay (line).</div>';
+
+    var isWeekly = (window._jpRevGrain||'weekly') === 'weekly';
+    // Set active toggle
+    if(!isWeekly) html += '<script>document.querySelectorAll("#jp-rev-grain>div").forEach(function(d){d.className=d.dataset.g==="monthly"?"on":"";})<\/script>';
+
+    var labels, amzArr, rakArr, totalArr, viewsArr;
+    if (isWeekly) {
+      labels = wL; amzArr = W.revenue.amazon; rakArr = W.revenue.rakuten; totalArr = W.revenue.total; viewsArr = W.content_views;
+    } else {
+      labels = mLabels; amzArr = mRevAmz; rakArr = mRevRak; totalArr = mRevTotal; viewsArr = [];
+    }
+    var nBars = labels.length;
+
+    // SVG stacked bar + line chart
     var cW=900, cH=220, pad=60, padR=60, barArea=cW-pad-padR;
-    var bw=Math.min(24, Math.floor(barArea/wLen*0.6));
-    var gap=Math.floor(barArea/wLen);
-    var maxRev=Math.max.apply(null, W.revenue.total)||1;
-    var maxViews=Math.max.apply(null, W.content_views)||1;
-    if(maxViews===0) maxViews=1;
+    var bw=Math.min(36, Math.floor(barArea/nBars*0.6));
+    var gap=Math.floor(barArea/nBars);
+    var maxRev=1; for(var i=0;i<nBars;i++) maxRev=Math.max(maxRev,(amzArr[i]||0)+(rakArr[i]||0));
+    maxRev=Math.ceil(maxRev*1.15);
+    var maxViews=1; if(viewsArr) for(var i=0;i<viewsArr.length;i++) maxViews=Math.max(maxViews,viewsArr[i]||0);
+    if(maxViews<=1) maxViews=1;
 
-    html += '<svg width="'+cW+'" height="'+(cH+30)+'" style="font-family:var(--sans)">';
-    // Grid
+    html += '<svg width="'+cW+'" height="'+(cH+35)+'" style="font-family:var(--sans);max-width:100%">';
     for(var g=0;g<=4;g++){
       var gy=cH-cH/4*g;
       html += '<line x1="'+pad+'" y1="'+gy+'" x2="'+(cW-padR)+'" y2="'+gy+'" stroke="#e2e8f0" stroke-dasharray="3"/>';
       html += '<text x="'+(pad-4)+'" y="'+(gy+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">'+_jpY(Math.round(maxRev/4*g))+'</text>';
-      if(maxViews>0) html += '<text x="'+(cW-padR+4)+'" y="'+(gy+3)+'" font-size="8" fill="#10b981">'+Math.round(maxViews/4*g).toLocaleString()+'</text>';
+      if(viewsArr&&viewsArr.length>0&&maxViews>1) html += '<text x="'+(cW-padR+4)+'" y="'+(gy+3)+'" font-size="8" fill="#10b981">'+Math.round(maxViews/4*g).toLocaleString()+'</text>';
     }
-
-    // Stacked bars (Amazon blue + Rakuten red)
-    for(var i=0;i<wLen;i++){
+    // Stacked bars
+    for(var i=0;i<nBars;i++){
       var x=pad+i*gap+gap/2-bw/2;
-      var amzH=W.revenue.amazon[i]/maxRev*cH;
-      var rakH=W.revenue.rakuten[i]/maxRev*cH;
+      var amzH=(amzArr[i]||0)/maxRev*cH;
+      var rakH=(rakArr[i]||0)/maxRev*cH;
       // Amazon bar (bottom)
-      html += '<rect x="'+x+'" y="'+(cH-amzH-rakH)+'" width="'+bw+'" height="'+amzH+'" fill="#f59e0b" rx="2"><title>Amazon: '+_jpY(W.revenue.amazon[i])+'</title></rect>';
-      // Rakuten bar (top)
-      if(rakH>0) html += '<rect x="'+x+'" y="'+(cH-amzH-rakH)+'" width="'+bw+'" height="'+rakH+'" fill="#ef4444" rx="2"><title>Rakuten: '+_jpY(W.revenue.rakuten[i])+'</title></rect>';
-      // X label
-      html += '<text x="'+(x+bw/2)+'" y="'+(cH+14)+'" text-anchor="middle" font-size="7" fill="#64748b">'+wL[i]+'</text>';
+      if(amzH>0) html += '<rect x="'+x+'" y="'+(cH-amzH-rakH)+'" width="'+bw+'" height="'+amzH+'" fill="#f59e0b" rx="2"><title>Amazon: '+_jpY(amzArr[i])+'</title></rect>';
+      // Rakuten bar (stacked on top)
+      if(rakH>0) html += '<rect x="'+x+'" y="'+(cH-amzH-rakH)+'" width="'+bw+'" height="'+rakH+'" fill="#ef4444" rx="2"><title>Rakuten: '+_jpY(rakArr[i])+'</title></rect>';
+      // Value label on top
+      var total=(amzArr[i]||0)+(rakArr[i]||0);
+      if(total>0) html += '<text x="'+(x+bw/2)+'" y="'+(cH-amzH-rakH-4)+'" text-anchor="middle" font-size="7" fill="#64748b">'+_jpY(total)+'</text>';
+      html += '<text x="'+(x+bw/2)+'" y="'+(cH+14)+'" text-anchor="middle" font-size="7" fill="#64748b">'+labels[i]+'</text>';
     }
-
-    // Content views line overlay
-    if(W.content_views.some(function(v){return v>0;})){
+    // Content views line (weekly only)
+    if(viewsArr&&viewsArr.some(function(v){return v>0;})){
       var pts=[];
-      for(var i=0;i<wLen;i++){
-        var lx=pad+i*gap+gap/2;
-        var ly=cH-W.content_views[i]/maxViews*cH;
-        pts.push(lx+','+ly);
+      for(var i=0;i<Math.min(nBars,viewsArr.length);i++){
+        pts.push((pad+i*gap+gap/2)+','+(cH-(viewsArr[i]||0)/maxViews*cH));
       }
       html += '<polyline points="'+pts.join(' ')+'" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-      // Dots
-      for(var i=0;i<wLen;i++){
-        var lx=pad+i*gap+gap/2;
-        var ly=cH-W.content_views[i]/maxViews*cH;
-        if(W.content_views[i]>0) html += '<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="#10b981"><title>Views: '+W.content_views[i].toLocaleString()+'</title></circle>';
+      for(var i=0;i<Math.min(nBars,viewsArr.length);i++){
+        if(viewsArr[i]>0){
+          var cx2=pad+i*gap+gap/2, cy2=cH-viewsArr[i]/maxViews*cH;
+          html += '<circle cx="'+cx2+'" cy="'+cy2+'" r="3" fill="#10b981"><title>Views: '+viewsArr[i].toLocaleString()+'</title></circle>';
+        }
       }
     }
-
     // Legend
-    html += '<rect x="'+pad+'" y="'+(cH+20)+'" width="10" height="10" fill="#f59e0b" rx="2"/><text x="'+(pad+14)+'" y="'+(cH+29)+'" font-size="9" fill="#64748b">Amazon JP</text>';
-    html += '<rect x="'+(pad+80)+'" y="'+(cH+20)+'" width="10" height="10" fill="#ef4444" rx="2"/><text x="'+(pad+94)+'" y="'+(cH+29)+'" font-size="9" fill="#64748b">Rakuten</text>';
-    html += '<line x1="'+(pad+150)+'" y1="'+(cH+25)+'" x2="'+(pad+168)+'" y2="'+(cH+25)+'" stroke="#10b981" stroke-width="2.5"/><text x="'+(pad+172)+'" y="'+(cH+29)+'" font-size="9" fill="#10b981">Content Views</text>';
-    html += '</svg>';
-    html += '</div></div>';
+    var ly2=cH+22;
+    html += '<rect x="'+pad+'" y="'+ly2+'" width="10" height="10" fill="#f59e0b" rx="2"/><text x="'+(pad+14)+'" y="'+(ly2+9)+'" font-size="9" fill="#64748b">Amazon JP</text>';
+    html += '<rect x="'+(pad+80)+'" y="'+ly2+'" width="10" height="10" fill="#ef4444" rx="2"/><text x="'+(pad+94)+'" y="'+(ly2+9)+'" font-size="9" fill="#64748b">Rakuten</text>';
+    if(viewsArr&&viewsArr.length>0) html += '<line x1="'+(pad+150)+'" y1="'+(ly2+5)+'" x2="'+(pad+168)+'" y2="'+(ly2+5)+'" stroke="#10b981" stroke-width="2.5"/><text x="'+(pad+172)+'" y="'+(ly2+9)+'" font-size="9" fill="#10b981">Content Views</text>';
+    html += '</svg></div></div>';
 
-    // Section: Ads Performance Split (Conversion vs Traffic)
-    html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#f59e0b">'+(secIdx++)+'</div> Ads Weekly &mdash; Conversion vs Traffic</div>';
-    html += '<div class="card">';
-    html += '<div class="desc">Conversion = Amazon SP (purchase-oriented). Traffic = Meta JP (Rakuten LP, awareness). All values in JPY.</div>';
+    // ── Section: Ads Performance (Weekly/Monthly toggle) — Table + Graph ──
+    var cAds = W.ads.conversion;
+    var tAds = W.ads.traffic;
+    html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#f59e0b">'+(secIdx++)+'</div> Ads Performance &mdash; Conversion vs Traffic';
+    html += ' <div class="period-tabs" id="jp-ads-grain" style="margin-left:auto"><div data-g="weekly" class="on" onclick="window._jpAdsGrain=\'weekly\';renderJpAmazon();">Weekly</div><div data-g="monthly" onclick="window._jpAdsGrain=\'monthly\';renderJpAmazon();">Monthly</div></div>';
+    html += '</div><div class="card">';
+    html += '<div class="desc">Conversion = Amazon SP (purchase). Traffic = Meta JP (Rakuten LP, awareness). All values in JPY.</div>';
+
+    var adsWeekly = (window._jpAdsGrain||'weekly') === 'weekly';
+    if(!adsWeekly) html += '<script>document.querySelectorAll("#jp-ads-grain>div").forEach(function(d){d.className=d.dataset.g==="monthly"?"on":"";})<\/script>';
+
+    // Build ads arrays (weekly or monthly)
+    var adsLabels, convSpend, convSales, convImpr, convClicks, convCpc, convCtr, convRoas;
+    var trafSpend, trafImpr, trafClicks, trafCpc, trafCtr;
+    if (adsWeekly) {
+      adsLabels=wL; convSpend=cAds.spend; convSales=cAds.sales; convImpr=cAds.impressions;
+      convClicks=cAds.clicks; convCpc=cAds.cpc; convCtr=cAds.ctr; convRoas=cAds.roas;
+      trafSpend=tAds.spend; trafImpr=tAds.impressions; trafClicks=tAds.clicks;
+      trafCpc=tAds.cpc; trafCtr=tAds.ctr;
+    } else {
+      // Monthly from jp.amazon_ads + jp.meta_ads
+      adsLabels = (mAds.months||[]).map(function(m){ return m.split('-')[1]+'/'+m.split('-')[0].substring(2); });
+      convSpend=mAds.spend||[]; convSales=mAds.sales||[]; convImpr=mAds.impressions||[];
+      convClicks=mAds.clicks||[]; convRoas=mAds.roas||[];
+      convCpc=(mAds.clicks||[]).map(function(c,i){return c>0?Math.round((mAds.spend[i]||0)/c):0;});
+      convCtr=(mAds.impressions||[]).map(function(imp,i){return imp>0?((mAds.clicks[i]||0)/imp*100):0;});
+      var metaMonths=mMetaFirst.months||[];
+      trafSpend=adsLabels.map(function(_,i){var m=(mAds.months||[])[i];var mi=metaMonths.indexOf(m);return mi>=0?(mMetaFirst.spend[mi]||0):0;});
+      trafImpr=adsLabels.map(function(_,i){var m=(mAds.months||[])[i];var mi=metaMonths.indexOf(m);return mi>=0?(mMetaFirst.impressions[mi]||0):0;});
+      trafClicks=adsLabels.map(function(_,i){var m=(mAds.months||[])[i];var mi=metaMonths.indexOf(m);return mi>=0?(mMetaFirst.clicks[mi]||0):0;});
+      trafCpc=trafClicks.map(function(c,i){return c>0?Math.round(trafSpend[i]/c):0;});
+      trafCtr=trafImpr.map(function(imp,i){return imp>0?(trafClicks[i]/imp*100):0;});
+    }
+    var adsN = adsLabels.length;
+
+    // ── Ads Table ──
     html += '<div style="overflow-x:auto"><table><thead><tr><th>Type / Metric</th>';
-    wL.forEach(function(l,i){
-      html += '<th style="text-align:right;font-size:8px'+(i===wLen-1?';background:#f5f3ff':'')+'">'+l+'</th>';
+    adsLabels.forEach(function(l,i){
+      html += '<th style="text-align:right;font-size:8px'+(i===adsN-1?';background:#f5f3ff':'')+'">'+l+'</th>';
     });
     html += '</tr></thead><tbody>';
 
     // Conversion rows
-    var cAds = W.ads.conversion;
-    html += '<tr style="background:#fffbeb"><td colspan="'+(wLen+1)+'" style="font-weight:700;font-size:11px;color:#f59e0b;padding:6px 8px">&#x1F3AF; Conversion (Amazon SP)</td></tr>';
-    var convMetrics = [
-      {label:'Spend', arr:cAds.spend, neg:true},
-      {label:'Sales', arr:cAds.sales, bold:true},
-      {label:'ROAS', arr:cAds.roas, suffix:'x', colorFn:function(v){return v>=2?'var(--g)':v>=1?'var(--am)':'var(--r)';}},
-      {label:'CPC', arr:cAds.cpc, prefix:'&#165;'},
-      {label:'CTR', arr:cAds.ctr, suffix:'%'}
+    html += '<tr style="background:#fffbeb"><td colspan="'+(adsN+1)+'" style="font-weight:700;font-size:11px;color:#f59e0b;padding:6px 8px">&#x1F3AF; Conversion (Amazon SP)</td></tr>';
+    var cMetrics = [
+      {label:'Spend', arr:convSpend}, {label:'Sales', arr:convSales, bold:true},
+      {label:'ROAS', arr:convRoas, suffix:'x', colorFn:function(v){return v>=2?'var(--g)':v>=1?'var(--am)':'var(--r)';}},
+      {label:'CPC', arr:convCpc, prefix:'&#165;'}, {label:'CTR', arr:convCtr, suffix:'%'}
     ];
-    convMetrics.forEach(function(met){
+    cMetrics.forEach(function(met){
       html += '<tr><td style="font-size:9px;padding-left:16px;color:var(--dim)">'+met.label+'</td>';
-      met.arr.forEach(function(v,i){
+      (met.arr||[]).forEach(function(v,i){
         var sty='text-align:right;font-family:var(--mono);font-size:9px';
-        if(i===wLen-1) sty+=';background:#f5f3ff';
+        if(i===adsN-1) sty+=';background:#f5f3ff';
         if(met.bold) sty+=';font-weight:700';
         if(met.colorFn) sty+=';color:'+met.colorFn(v)+';font-weight:700';
-        var txt = (met.prefix||'')+(met.suffix ? v.toFixed(met.suffix==='x'?1:2) : _jpY(v))+(met.suffix||'');
-        if(!met.suffix && !met.prefix) txt = _jpY(v);
-        html += '<td style="'+sty+'">'+txt+'</td>';
+        var txt;
+        if(met.suffix==='x') txt=v.toFixed(1)+'x';
+        else if(met.suffix==='%') txt=v.toFixed(2)+'%';
+        else if(met.prefix) txt=met.prefix+Math.round(v);
+        else txt=_jpY(v);
+        html += '<td style="'+sty+'">'+(v===0?'&mdash;':txt)+'</td>';
       });
       html += '</tr>';
     });
 
     // Traffic rows
-    var tAds = W.ads.traffic;
-    html += '<tr style="background:#ecfdf5"><td colspan="'+(wLen+1)+'" style="font-weight:700;font-size:11px;color:#10b981;padding:6px 8px">&#x1F310; Traffic (Meta &rarr; Rakuten)</td></tr>';
-    var trafficMetrics = [
-      {label:'Spend', arr:tAds.spend, neg:true},
-      {label:'Impressions', arr:tAds.impressions, fmt:'num'},
-      {label:'Clicks', arr:tAds.clicks, fmt:'num'},
-      {label:'CPC', arr:tAds.cpc, prefix:'&#165;'},
-      {label:'CTR', arr:tAds.ctr, suffix:'%'}
+    html += '<tr style="background:#ecfdf5"><td colspan="'+(adsN+1)+'" style="font-weight:700;font-size:11px;color:#10b981;padding:6px 8px">&#x1F310; Traffic (Meta &rarr; Rakuten)</td></tr>';
+    var tMetrics = [
+      {label:'Spend', arr:trafSpend}, {label:'Impressions', arr:trafImpr, fmt:'num'},
+      {label:'Clicks', arr:trafClicks, fmt:'num'},
+      {label:'CPC', arr:trafCpc, prefix:'&#165;'}, {label:'CTR', arr:trafCtr, suffix:'%'}
     ];
-    trafficMetrics.forEach(function(met){
+    tMetrics.forEach(function(met){
       html += '<tr><td style="font-size:9px;padding-left:16px;color:var(--dim)">'+met.label+'</td>';
-      met.arr.forEach(function(v,i){
+      (met.arr||[]).forEach(function(v,i){
         var sty='text-align:right;font-family:var(--mono);font-size:9px';
-        if(i===wLen-1) sty+=';background:#f5f3ff';
+        if(i===adsN-1) sty+=';background:#f5f3ff';
         var txt;
-        if(met.fmt==='num') txt=v.toLocaleString();
-        else if(met.suffix) txt=v.toFixed(met.suffix==='%'?2:1)+met.suffix;
-        else if(met.prefix) txt=met.prefix+v.toFixed(1);
+        if(met.fmt==='num') txt=Math.round(v).toLocaleString();
+        else if(met.suffix==='%') txt=v.toFixed(2)+'%';
+        else if(met.prefix) txt=met.prefix+Math.round(v);
         else txt=_jpY(v);
-        html += '<td style="'+sty+'">'+txt+'</td>';
+        html += '<td style="'+sty+'">'+(v===0?'&mdash;':txt)+'</td>';
       });
       html += '</tr>';
     });
+    html += '</tbody></table></div>';
 
-    // Total row
-    html += '<tr style="border-top:2px solid var(--border);font-weight:700"><td>TOTAL Spend</td>';
-    W.ads.total_spend.forEach(function(v,i){
-      html += '<td style="text-align:right;font-family:var(--mono);font-size:9px'+(i===wLen-1?';background:#f5f3ff':'')+'">'+_jpY(v)+'</td>';
-    });
-    html += '</tr>';
-    html += '</tbody></table></div></div></div>';
+    // ── Ads Graph: Spend bars + CPC/CTR/ROAS lines ──
+    html += '<div style="margin-top:16px">';
+    html += '<div class="desc">Ad Spend (bars: Amazon amber, Meta green) + CPC line + ROAS line.</div>';
+    var aW=900, aH=200, aPad=60, aPadR=60;
+    var aGap=Math.floor((aW-aPad-aPadR)/adsN);
+    var aBw=Math.min(isWeekly?14:28, Math.floor(aGap*0.3));
+    var maxSpend=1;
+    for(var i=0;i<adsN;i++) maxSpend=Math.max(maxSpend,(convSpend[i]||0)+(trafSpend[i]||0));
+    maxSpend=Math.ceil(maxSpend*1.2);
+    var maxCPC2=1;
+    for(var i=0;i<adsN;i++) maxCPC2=Math.max(maxCPC2,convCpc[i]||0,trafCpc[i]||0);
+    maxCPC2=Math.ceil(maxCPC2*1.3); if(maxCPC2<10) maxCPC2=100;
+    var maxROAS2=1;
+    for(var i=0;i<adsN;i++) maxROAS2=Math.max(maxROAS2,(convRoas||[])[i]||0);
+    maxROAS2=Math.ceil(maxROAS2*1.3); if(maxROAS2<2) maxROAS2=5;
 
-    // Section: CPC + ROAS Trend (dual line chart)
-    html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#6366f1">'+(secIdx++)+'</div> CPC &amp; ROAS Weekly Trend</div>';
-    html += '<div class="card">';
-    html += '<div class="desc">Left axis: CPC (&#165;). Right axis: ROAS (Conversion only). Compare cost efficiency vs return.</div>';
-
-    var cW2=900, cH2=180;
-    var maxCPC=Math.max.apply(null, cAds.cpc.concat(tAds.cpc))||1;
-    var maxROAS=Math.max.apply(null, cAds.roas)||1;
-    if(maxCPC<10) maxCPC=10;
-    if(maxROAS<2) maxROAS=3;
-    maxCPC=Math.ceil(maxCPC*1.2);
-    maxROAS=Math.ceil(maxROAS*1.2);
-
-    html += '<svg width="'+cW2+'" height="'+(cH2+30)+'" style="font-family:var(--sans)">';
+    html += '<svg width="'+aW+'" height="'+(aH+35)+'" style="font-family:var(--sans);max-width:100%">';
+    // Grid
     for(var g=0;g<=4;g++){
-      var gy=cH2-cH2/4*g;
-      html += '<line x1="'+pad+'" y1="'+gy+'" x2="'+(cW2-padR)+'" y2="'+gy+'" stroke="#e2e8f0" stroke-dasharray="3"/>';
-      html += '<text x="'+(pad-4)+'" y="'+(gy+3)+'" text-anchor="end" font-size="8" fill="#94a3b8">&#165;'+Math.round(maxCPC/4*g)+'</text>';
-      html += '<text x="'+(cW2-padR+4)+'" y="'+(gy+3)+'" font-size="8" fill="#6366f1">'+(maxROAS/4*g).toFixed(1)+'x</text>';
+      var gy=aH-aH/4*g;
+      html += '<line x1="'+aPad+'" y1="'+gy+'" x2="'+(aW-aPadR)+'" y2="'+gy+'" stroke="#e2e8f0" stroke-dasharray="3"/>';
+      html += '<text x="'+(aPad-4)+'" y="'+(gy+3)+'" text-anchor="end" font-size="7" fill="#94a3b8">'+_jpY(Math.round(maxSpend/4*g))+'</text>';
+      html += '<text x="'+(aW-aPadR+4)+'" y="'+(gy+3)+'" font-size="7" fill="#6366f1">'+(maxROAS2/4*g).toFixed(1)+'x</text>';
     }
-
-    // CPC lines
-    function drawLine(arr, maxV, color, dashArr){
-      var pts2=[];
-      for(var i=0;i<wLen;i++){
-        var lx2=pad+i*gap+gap/2;
-        var ly2=cH2-(arr[i]||0)/maxV*cH2;
-        pts2.push(lx2+','+ly2);
+    // Stacked spend bars
+    for(var i=0;i<adsN;i++){
+      var bx=aPad+i*aGap+aGap/2-aBw;
+      var cH1=(convSpend[i]||0)/maxSpend*aH;
+      var tH1=(trafSpend[i]||0)/maxSpend*aH;
+      if(cH1>0) html += '<rect x="'+bx+'" y="'+(aH-cH1)+'" width="'+aBw+'" height="'+cH1+'" fill="#f59e0b" opacity="0.7" rx="1"><title>Amazon: '+_jpY(convSpend[i])+'</title></rect>';
+      if(tH1>0) html += '<rect x="'+(bx+aBw)+'" y="'+(aH-tH1)+'" width="'+aBw+'" height="'+tH1+'" fill="#10b981" opacity="0.7" rx="1"><title>Meta: '+_jpY(trafSpend[i])+'</title></rect>';
+      html += '<text x="'+(bx+aBw)+'" y="'+(aH+14)+'" text-anchor="middle" font-size="7" fill="#64748b">'+adsLabels[i]+'</text>';
+    }
+    // CPC lines (left axis mapped to spend scale — use separate visual scale)
+    function jpDrawLine2(arr,maxV,color,dash,label){
+      var p2=[];
+      for(var i=0;i<adsN;i++){
+        var lx=aPad+i*aGap+aGap/2;
+        var ly=aH-(arr[i]||0)/maxV*aH;
+        p2.push(lx+','+ly);
       }
-      html += '<polyline points="'+pts2.join(' ')+'" fill="none" stroke="'+color+'" stroke-width="2" '+(dashArr?'stroke-dasharray="'+dashArr+'"':'')+' stroke-linecap="round" stroke-linejoin="round"/>';
-      for(var i=0;i<wLen;i++){
-        var lx2=pad+i*gap+gap/2;
-        var ly2=cH2-(arr[i]||0)/maxV*cH2;
-        if(arr[i]>0) html += '<circle cx="'+lx2+'" cy="'+ly2+'" r="3" fill="'+color+'"><title>'+arr[i]+'</title></circle>';
+      html += '<polyline points="'+p2.join(' ')+'" fill="none" stroke="'+color+'" stroke-width="2" '+(dash?'stroke-dasharray="'+dash+'"':'')+' stroke-linecap="round" stroke-linejoin="round"/>';
+      for(var i=0;i<adsN;i++){
+        if((arr[i]||0)>0){
+          var lx=aPad+i*aGap+aGap/2, ly=aH-(arr[i]||0)/maxV*aH;
+          html += '<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="'+color+'"><title>'+label+': '+(arr[i]||0)+'</title></circle>';
+        }
       }
     }
+    jpDrawLine2(convRoas||[], maxROAS2, '#6366f1', '', 'ROAS');
+    jpDrawLine2(convCpc, maxCPC2, '#f59e0b', '6,3', 'Conv CPC');
+    jpDrawLine2(trafCpc, maxCPC2, '#10b981', '6,3', 'Traffic CPC');
 
-    drawLine(cAds.cpc, maxCPC, '#f59e0b', '');      // Conv CPC (solid amber)
-    drawLine(tAds.cpc, maxCPC, '#10b981', '6,3');     // Traffic CPC (dashed green)
-    drawLine(cAds.roas, maxROAS, '#6366f1', '');       // Conv ROAS (solid purple)
-
-    // X labels
-    for(var i=0;i<wLen;i++){
-      html += '<text x="'+(pad+i*gap+gap/2)+'" y="'+(cH2+14)+'" text-anchor="middle" font-size="7" fill="#64748b">'+wL[i]+'</text>';
-    }
     // Legend
-    html += '<line x1="'+pad+'" y1="'+(cH2+24)+'" x2="'+(pad+18)+'" y2="'+(cH2+24)+'" stroke="#f59e0b" stroke-width="2"/><text x="'+(pad+22)+'" y="'+(cH2+28)+'" font-size="9" fill="#64748b">Conv CPC</text>';
-    html += '<line x1="'+(pad+85)+'" y1="'+(cH2+24)+'" x2="'+(pad+103)+'" y2="'+(cH2+24)+'" stroke="#10b981" stroke-width="2" stroke-dasharray="6,3"/><text x="'+(pad+107)+'" y="'+(cH2+28)+'" font-size="9" fill="#64748b">Traffic CPC</text>';
-    html += '<line x1="'+(pad+185)+'" y1="'+(cH2+24)+'" x2="'+(pad+203)+'" y2="'+(cH2+24)+'" stroke="#6366f1" stroke-width="2"/><text x="'+(pad+207)+'" y="'+(cH2+28)+'" font-size="9" fill="#64748b">Conv ROAS</text>';
-    html += '</svg></div></div>';
+    var ly3=aH+22;
+    html += '<rect x="'+aPad+'" y="'+ly3+'" width="'+aBw+'" height="8" fill="#f59e0b" opacity="0.7" rx="1"/><text x="'+(aPad+aBw+4)+'" y="'+(ly3+8)+'" font-size="8" fill="#64748b">Amazon Spend</text>';
+    html += '<rect x="'+(aPad+100)+'" y="'+ly3+'" width="'+aBw+'" height="8" fill="#10b981" opacity="0.7" rx="1"/><text x="'+(aPad+100+aBw+4)+'" y="'+(ly3+8)+'" font-size="8" fill="#64748b">Meta Spend</text>';
+    html += '<line x1="'+(aPad+210)+'" y1="'+(ly3+4)+'" x2="'+(aPad+228)+'" y2="'+(ly3+4)+'" stroke="#6366f1" stroke-width="2"/><text x="'+(aPad+232)+'" y="'+(ly3+8)+'" font-size="8" fill="#64748b">ROAS</text>';
+    html += '<line x1="'+(aPad+272)+'" y1="'+(ly3+4)+'" x2="'+(aPad+290)+'" y2="'+(ly3+4)+'" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,3"/><text x="'+(aPad+294)+'" y="'+(ly3+8)+'" font-size="8" fill="#64748b">Conv CPC</text>';
+    html += '<line x1="'+(aPad+360)+'" y1="'+(ly3+4)+'" x2="'+(aPad+378)+'" y2="'+(ly3+4)+'" stroke="#10b981" stroke-width="2" stroke-dasharray="6,3"/><text x="'+(aPad+382)+'" y="'+(ly3+8)+'" font-size="8" fill="#64748b">Traffic CPC</text>';
+    html += '</svg></div>';
+    html += '</div></div>';
+
+    // ── Section: Content Intelligence Views ──
+    if(W.content_views && W.content_views.some(function(v){return v>0;})){
+      html += '<div class="sec"><div class="sec-title"><div class="num" style="background:#10b981">'+(secIdx++)+'</div> Content Intelligence &mdash; Views</div>';
+      html += '<div class="card">';
+      html += '<div class="desc">Weekly creator content views (JP). Delta = week-over-week change. Cumulative = running total.</div>';
+      // Compute delta and cumulative
+      var cv = W.content_views;
+      var cvDelta = cv.map(function(v,i){ return i>0?(v-(cv[i-1]||0)):0; });
+      var cvCum = []; var cum=0; cv.forEach(function(v){ cum+=v; cvCum.push(cum); });
+      // Table
+      html += '<div style="overflow-x:auto"><table><thead><tr><th>Metric</th>';
+      wL.forEach(function(l,i){ html += '<th style="text-align:right;font-size:8px'+(i===wLen-1?';background:#f5f3ff':'')+'">'+l+'</th>'; });
+      html += '</tr></thead><tbody>';
+      // Views row
+      html += '<tr><td style="font-size:9px;color:var(--dim)">Views</td>';
+      cv.forEach(function(v,i){ html += '<td style="text-align:right;font-family:var(--mono);font-size:9px'+(i===wLen-1?';background:#f5f3ff':'')+'">'+((v>0)?v.toLocaleString():'&mdash;')+'</td>'; });
+      html += '</tr>';
+      // Delta row
+      html += '<tr><td style="font-size:9px;color:var(--dim)">WoW Delta</td>';
+      cvDelta.forEach(function(d,i){
+        var color = d>0?'var(--g)':d<0?'var(--r)':'var(--dim)';
+        var sign = d>0?'+':'';
+        html += '<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+color+(i===wLen-1?';background:#f5f3ff':'')+'">'+(d!==0?sign+d.toLocaleString():'&mdash;')+'</td>';
+      });
+      html += '</tr>';
+      // Cumulative row
+      html += '<tr style="font-weight:700"><td style="font-size:9px">Cumulative</td>';
+      cvCum.forEach(function(c,i){ html += '<td style="text-align:right;font-family:var(--mono);font-size:9px'+(i===wLen-1?';background:#f5f3ff':'')+'">'+((c>0)?c.toLocaleString():'&mdash;')+'</td>'; });
+      html += '</tr>';
+      html += '</tbody></table></div>';
+
+      // Mini line chart for cumulative
+      var cvW=900, cvH=100;
+      var cvMax=Math.max.apply(null,cvCum)||1;
+      html += '<svg width="'+cvW+'" height="'+(cvH+20)+'" style="font-family:var(--sans);max-width:100%;margin-top:8px">';
+      var cvPts=[];
+      for(var i=0;i<wLen;i++){
+        var cx3=pad+i*gap+gap/2, cy3=cvH-(cvCum[i]||0)/cvMax*cvH;
+        cvPts.push(cx3+','+cy3);
+      }
+      // Fill area
+      html += '<polygon points="'+(pad+gap/2)+','+cvH+' '+cvPts.join(' ')+' '+(pad+(wLen-1)*gap+gap/2)+','+cvH+'" fill="#10b98122"/>';
+      html += '<polyline points="'+cvPts.join(' ')+'" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+      for(var i=0;i<wLen;i++){
+        var cx3=pad+i*gap+gap/2, cy3=cvH-(cvCum[i]||0)/cvMax*cvH;
+        if(cvCum[i]>0) html += '<circle cx="'+cx3+'" cy="'+cy3+'" r="3" fill="#10b981"><title>Cumulative: '+cvCum[i].toLocaleString()+'</title></circle>';
+        html += '<text x="'+cx3+'" y="'+(cvH+12)+'" text-anchor="middle" font-size="7" fill="#64748b">'+wL[i]+'</text>';
+      }
+      html += '</svg>';
+      html += '</div></div>';
+    }
   }
 
   // ── Partial month annotation on monthly tables ──────────────────────────
