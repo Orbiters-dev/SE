@@ -977,8 +977,10 @@ function loadCreators() {
         platform: c.platform || '',
         outreach_type: c.outreach_type || 'LT',
         source: c.source || 'apify_discovery',
-        content_script: '',
-        _ec2_id: c.id
+        content_script: c.top_post_transcript || '',
+        _ec2_id: c.id,
+        _top_post_transcript: c.top_post_transcript || '',
+        _top_post_url: c.top_post_url || ''
       });
     });
 
@@ -1359,6 +1361,24 @@ function generateDrafts() {
   var btn = document.getElementById('btn-generate');
   var statusEl = document.getElementById('draft-status');
   btn.disabled = true;
+
+  // Wait for _sheetData if still loading (prevents empty transcript race condition)
+  if (_sheetLoading) {
+    statusEl.innerHTML = '<span class="loading-spinner"></span> Waiting for discovery data to finish loading...';
+    var waitInterval = setInterval(function() {
+      if (!_sheetLoading) {
+        clearInterval(waitInterval);
+        _generateDraftsInner();
+      }
+    }, 300);
+    return;
+  }
+  _generateDraftsInner();
+}
+
+function _generateDraftsInner() {
+  var btn = document.getElementById('btn-generate');
+  var statusEl = document.getElementById('draft-status');
   statusEl.innerHTML = '<span class="loading-spinner"></span> Generating via n8n...';
 
   // Filter: only not_started AND no DM history AND not past-contacted
@@ -1442,7 +1462,7 @@ function generateDrafts() {
   var payload = toGenerate.map(function(c) {
     // Attach best transcript + CI context for personalized DM opening
     var sd = _sheetData.find(function(s) { return s.username === c.username; });
-    var script = c.content_script || '';
+    var script = c.content_script || c._top_post_transcript || '';
     var ciContext = '';
     if (sd && sd._posts) {
       var bestPost = sd._posts.find(function(p) { return p.transcript && p.transcript.trim(); });

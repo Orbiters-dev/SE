@@ -2005,10 +2005,70 @@ def import_syncly_discovery(request):
             "skipped": skipped,
         }, status=500))
 
+    # Auto-sync transcripts after import (fixes 85% missing transcripts)
+    transcript_result = {"updated": 0, "checked": 0, "matched": 0}
+    if created > 0 and region:
+        try:
+            from django.db import connection as _conn
+            _sync_sql = """
+                SELECT
+                    cp.username, cp.transcript, cp.url, cp.views_30d,
+                    cp.post_date, pc.id AS creator_id
+                FROM gk_content_posts cp
+                INNER JOIN onz_pipeline_creators pc
+                    ON LOWER(cp.username) = LOWER(pc.ig_handle)
+                WHERE cp.transcript IS NOT NULL
+                  AND LENGTH(cp.transcript) >= 20
+                  AND cp.username IS NOT NULL AND cp.username != ''
+                  AND LOWER(cp.region) = LOWER(%s)
+                ORDER BY cp.views_30d DESC NULLS LAST
+                LIMIT 500
+            """
+            with _conn.cursor() as cur:
+                cur.execute(_sync_sql, [region])
+                t_rows = cur.fetchall()
+
+            best_by_creator = {}
+            for uname, transcript, t_url, views, pdate, cid in t_rows:
+                cid_str = str(cid)
+                if cid_str not in best_by_creator or (views or 0) > (best_by_creator[cid_str].get("views") or 0):
+                    best_by_creator[cid_str] = {
+                        "transcript": transcript, "url": t_url or "",
+                        "views": views, "post_date": pdate,
+                    }
+
+            t_updated = 0
+            for cid_str, data in best_by_creator.items():
+                try:
+                    cr = PipelineCreator.objects.get(id=cid_str)
+                    changed = False
+                    if data["transcript"] and data["transcript"] != cr.top_post_transcript:
+                        cr.top_post_transcript = data["transcript"]
+                        changed = True
+                    if data["url"] and data["url"] != cr.top_post_url:
+                        cr.top_post_url = data["url"]
+                        changed = True
+                    if data["views"] and data["views"] != cr.top_post_views:
+                        cr.top_post_views = data["views"]
+                        changed = True
+                    if data["post_date"] and data["post_date"] != cr.top_post_date:
+                        cr.top_post_date = data["post_date"]
+                        changed = True
+                    if changed:
+                        cr.save()
+                        t_updated += 1
+                except PipelineCreator.DoesNotExist:
+                    continue
+
+            transcript_result = {"updated": t_updated, "checked": len(t_rows), "matched": len(best_by_creator)}
+        except Exception as te:
+            transcript_result["error"] = str(te)
+
     return _cors_headers(request, JsonResponse({
         "created": created,
         "skipped": skipped,
         "imported": imported,
+        "transcript_sync": transcript_result,
     }, status=201))
 
 
