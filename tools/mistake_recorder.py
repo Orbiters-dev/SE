@@ -11,10 +11,24 @@ from datetime import datetime
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-MISTAKES_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    'memory', 'mistakes.md'
-)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MISTAKES_PATH = os.path.join(PROJECT_ROOT, 'memory', 'mistakes.md')
+VAULT_ERRLOG_DIR = os.path.join(PROJECT_ROOT, 'vault', 'errlog')
+
+# Agent → vault domain mapping
+AGENT_DOMAIN_MAP = {
+    '아마존퍼포마': 'ads', 'ppc시뮬이': 'ads', 'Meta Ads': 'ads', 'Google Ads': 'ads',
+    '파이프라이너': 'pipeline', 'n8n 매니저': 'pipeline', '쇼피파이 UI': 'pipeline',
+    '그로미미 컨텐츠 트래커': 'pipeline', '차앤맘 컨텐츠 트래커': 'pipeline', 'CI 팀장': 'pipeline',
+    '골만이': 'finance', 'KPI 리포트': 'finance',
+    '앱스터': 'app', '쇼피파이 테스터': 'app',
+    '데이터키퍼': 'infra', '커뮤니케이터': 'infra',
+    '이메일 지니': 'infra',
+}
+DOMAIN_MOC_MAP = {
+    'ads': '광고', 'pipeline': '파이프라인', 'finance': '재무',
+    'app': '앱', 'infra': '인프라', 'ops': '운영',
+}
 
 # ─────────────────────────────────────────────────
 # Tool filename → Agent mapping
@@ -435,6 +449,66 @@ def record_mistake(mid, title, agent, situation, error_msg, fix_hint, is_known):
     return mid
 
 
+def create_vault_errlog(mid, title, agent, situation, error_msg, fix_hint):
+    """Create a vault errlog note for the new mistake. Returns filepath or None."""
+    try:
+        os.makedirs(VAULT_ERRLOG_DIR, exist_ok=True)
+        slug = re.sub(r'[^a-z0-9]+', '_', title.lower())[:50].strip('_')
+        filepath = os.path.join(VAULT_ERRLOG_DIR, f'errlog_{slug}.md')
+        if os.path.exists(filepath):
+            return None
+
+        domain = AGENT_DOMAIN_MAP.get(agent, 'ops')
+        moc_name = DOMAIN_MOC_MAP.get(domain, '운영')
+        today = datetime.now().strftime('%Y-%m-%d')
+
+        # Extract tags from title and error
+        tag_words = set(re.findall(r'[a-zA-Z]{3,}', f'{title} {error_msg}'.lower()))
+        tags = ', '.join(sorted(list(tag_words)[:5]))
+
+        content = f"""---
+type: errlog
+domain: {domain}
+agents: [{agent}]
+severity: medium
+status: open
+created: {today}
+tags: [{tags}]
+moc: "[[MOC_{moc_name}]]"
+---
+
+# {mid}: {title}
+
+## Situation
+{situation}
+
+## Error
+`{error_msg[:300]}`
+
+## Fix
+{fix_hint or '(수동 확인 필요)'}
+
+## Prevention
+(TBD)
+"""
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return filepath
+    except Exception:
+        return None
+
+
+def index_vault_note(filepath):
+    """Index a vault note into LightRAG. Fire-and-forget."""
+    try:
+        sys.path.insert(0, os.path.join(PROJECT_ROOT, 'tools'))
+        from rag_client import index_file, enqueue_for_index
+        if not index_file(filepath, timeout=5):
+            enqueue_for_index(filepath)
+    except Exception:
+        pass
+
+
 def main():
     try:
         hook_input = json.loads(sys.stdin.read())
@@ -486,6 +560,11 @@ def main():
     mid = get_next_id(content)
     record_mistake(mid, error_title, agent, situation, error_msg, fix_hint, is_known)
 
+    # Auto-create vault errlog note + RAG index (fire-and-forget)
+    vault_path = create_vault_errlog(mid, error_title, agent, situation, error_msg, fix_hint)
+    if vault_path:
+        index_vault_note(vault_path)
+
     # Auto pull → commit → push (실패해도 메인 흐름 영향 없음)
     try:
         import subprocess
@@ -493,7 +572,7 @@ def main():
         # pull 먼저 — union merge로 기존 내용 보존
         subprocess.run(['git', 'pull', '--rebase', 'origin', 'main'],
                        cwd=project_root, capture_output=True, timeout=20)
-        subprocess.run(['git', 'add', 'memory/mistakes.md'],
+        subprocess.run(['git', 'add', 'memory/mistakes.md', 'vault/errlog/'],
                        cwd=project_root, capture_output=True, timeout=10)
         subprocess.run(['git', 'commit', '-m', f'auto: mistakes [{mid}] {error_title[:50]}'],
                        cwd=project_root, capture_output=True, timeout=10)

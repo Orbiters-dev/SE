@@ -2,6 +2,7 @@
 """
 Mistake Checker Hook - PreToolUse hook that warns about past mistakes.
 Reads mistakes.md and pattern-matches against current tool input.
+Also queries vault/LightRAG for related past issues (Karpathy auto-context loop).
 """
 import sys
 import json
@@ -10,9 +11,15 @@ import os
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-MISTAKES_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    'memory', 'mistakes.md'
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MISTAKES_PATH = os.path.join(PROJECT_ROOT, 'memory', 'mistakes.md')
+
+# Commands that are too trivial to warrant vault lookup
+SKIP_VAULT_PATTERNS = re.compile(
+    r'^(ls|cat|head|tail|echo|pwd|cd|mkdir|cp|mv|rm|wc|'
+    r'git\s+(status|log|diff|branch|show|stash)|'
+    r'which|whoami|hostname|date|env|set|export)(\s|$)',
+    re.IGNORECASE
 )
 
 # Bash command patterns → mistake IDs to warn about
@@ -104,6 +111,44 @@ def check_write_edit(tool_input, entries):
     return warnings
 
 
+def check_vault_context(tool_name, tool_input):
+    """Query vault/RAG for related past issues. Returns context string or empty."""
+    try:
+        sys.path.insert(0, os.path.join(PROJECT_ROOT, 'tools'))
+        from rag_client import query as rag_query
+    except Exception:
+        return ''
+
+    # Extract search terms based on tool type
+    if tool_name == 'Bash':
+        cmd = tool_input.get('command', '')
+        # Skip trivial commands
+        if SKIP_VAULT_PATTERNS.match(cmd.strip()):
+            return ''
+        # Extract script name or key command
+        script_match = re.search(r'python\S*\s+\S*?(\w+)\.py', cmd)
+        if script_match:
+            search_term = script_match.group(1).replace('_', ' ')
+        else:
+            # Use first meaningful token
+            tokens = cmd.strip().split()
+            search_term = tokens[0] if tokens else ''
+    else:
+        file_path = tool_input.get('file_path', '')
+        basename = os.path.basename(file_path).replace('.py', '').replace('_', ' ')
+        search_term = basename
+
+    if not search_term or len(search_term) < 3:
+        return ''
+
+    # Query with tight timeout (1s) to avoid blocking UX
+    result = rag_query(f"{search_term} error issues", mode="local", top_k=2, timeout=1)
+    if result and len(result.strip()) > 20:
+        # Truncate to keep systemMessage short
+        return result[:400]
+    return ''
+
+
 def main():
     try:
         hook_input = json.loads(sys.stdin.read())
@@ -117,20 +162,18 @@ def main():
         sys.exit(0)
 
     entries = parse_mistakes(MISTAKES_PATH)
-    if not entries:
-        sys.exit(0)
 
-    if tool_name == 'Bash':
-        matched = check_bash(tool_input.get('command', ''), entries)
-    else:
-        matched = check_write_edit(tool_input, entries)
+    # Pattern-based mistake warnings
+    matched = []
+    if entries:
+        if tool_name == 'Bash':
+            matched = check_bash(tool_input.get('command', ''), entries)
+        else:
+            matched = check_write_edit(tool_input, entries)
 
     # Deduplicate
     seen = set()
     unique = [(mid, e) for mid, e in matched if mid not in seen and not seen.add(mid)]
-
-    if not unique:
-        sys.exit(0)
 
     lines = []
     for mid, entry in unique:
@@ -138,6 +181,19 @@ def main():
         lines.append(f"[{mid}]{agent_tag} {entry['title']}")
         if entry['prevention'] and entry['prevention'] != '(확인 후 추가)':
             lines.append(f"  → {entry['prevention']}")
+
+    # Vault/RAG context lookup (non-blocking)
+    vault_ctx = ''
+    try:
+        vault_ctx = check_vault_context(tool_name, tool_input)
+    except Exception:
+        pass
+
+    if vault_ctx:
+        lines.append(f"\n📚 VAULT CONTEXT:\n{vault_ctx}")
+
+    if not lines:
+        sys.exit(0)
 
     print(json.dumps(
         {"systemMessage": "⚠️ MISTAKE MEMORY:\n" + "\n".join(lines)},
