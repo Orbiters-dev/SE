@@ -4248,7 +4248,9 @@ def generate():
         "weekly": weekly_data,
         "hero_products": hero_data,
         "search_ranking": _build_search_ranking_data(),
-        "jp": _build_jp_data(amazon_sales, amazon_ads, meta_ads, dk),
+        "jp": _build_jp_data(amazon_sales, amazon_ads, meta_ads, dk,
+                             content_posts=content_posts, content_metrics=content_metrics,
+                             partial_month_info=partial_month_info),
     }
 
     # ── Write output ──────────────────────────────────────────────────────────
@@ -4372,13 +4374,21 @@ def _build_autocomplete_data() -> dict:
     return {"latest": latest, "trends": trends, "dates": all_dates}
 
 
-def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk) -> dict:
+def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
+                    content_posts=None, content_metrics=None, partial_month_info=None) -> dict:
     """Build JP marketplace data for dashboard JP tab.
 
     Returns full JP financial data: Amazon JP sales, Rakuten, Amazon Ads JP,
-    Meta JP Ads, and combined summary KPIs. Revenue/spend in JPY for JP sources.
+    Meta JP Ads, combined summary KPIs, weekly trends, and content view overlay.
+    Revenue/spend in JPY for JP sources.
     """
     from collections import defaultdict
+    from datetime import datetime, timedelta
+
+    def _week_key(date_str):
+        dt = datetime.strptime(date_str, "%Y-%m-%d").date()
+        iy, iw, _ = dt.isocalendar()
+        return f"{iy}-W{iw:02d}"
 
     JP_SELLER_ID = "A1A01CME113JSP"
     JP_ADS_BRAND = "Grosmimi JP"
@@ -4520,8 +4530,132 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk) -> 
         "total_ad_sales": combined_ad_sales,
     }
 
+    # ── Weekly aggregation ─────────────────────────────────────────────────
+    amz_weekly = defaultdict(lambda: {"revenue": 0.0, "orders": 0})
+    rak_weekly = defaultdict(lambda: {"revenue": 0.0, "orders": 0})
+    conv_weekly = defaultdict(lambda: {"spend": 0.0, "sales": 0.0, "impressions": 0, "clicks": 0})
+    traffic_weekly = defaultdict(lambda: {"spend": 0.0, "sales": 0.0, "impressions": 0, "clicks": 0})
+
+    for r in amazon_sales:
+        if r.get("seller_id") == JP_SELLER_ID:
+            d = r.get("date") or ""
+            if len(d) >= 10:
+                wk = _week_key(d)
+                amz_weekly[wk]["revenue"] += float(r.get("net_sales") or 0)
+                amz_weekly[wk]["orders"] += int(r.get("orders") or 0)
+
+    for r in rak_rows:
+        d = r.get("date") or ""
+        if len(d) >= 10:
+            wk = _week_key(d)
+            rak_weekly[wk]["revenue"] += float(r.get("revenue") or r.get("net_sales") or 0)
+            rak_weekly[wk]["orders"] += int(r.get("orders") or 0)
+
+    for r in amazon_ads:
+        if (r.get("brand") or "") == JP_ADS_BRAND:
+            d = r.get("date") or ""
+            if len(d) >= 10:
+                wk = _week_key(d)
+                conv_weekly[wk]["spend"] += float(r.get("spend") or 0)
+                conv_weekly[wk]["sales"] += float(r.get("sales") or 0)
+                conv_weekly[wk]["impressions"] += int(r.get("impressions") or 0)
+                conv_weekly[wk]["clicks"] += int(r.get("clicks") or 0)
+
+    for r in meta_ads:
+        if _is_jp_meta(r):
+            d = r.get("date") or ""
+            if len(d) >= 10:
+                wk = _week_key(d)
+                traffic_weekly[wk]["spend"] += float(r.get("spend") or 0)
+                traffic_weekly[wk]["sales"] += float(r.get("purchase_value") or 0)
+                traffic_weekly[wk]["impressions"] += int(r.get("impressions") or 0)
+                traffic_weekly[wk]["clicks"] += int(r.get("clicks") or 0)
+
+    # Content Intelligence: JP creator views per week
+    content_weekly = defaultdict(int)
+    if content_posts and content_metrics:
+        jp_post_ids = set()
+        for p in (content_posts or []):
+            if (p.get("region") or "").lower() == "jp":
+                pid = p.get("post_id")
+                if pid:
+                    jp_post_ids.add(pid)
+        for cm in (content_metrics or []):
+            pid = cm.get("post_id")
+            if pid in jp_post_ids:
+                d = cm.get("date") or ""
+                views = int(cm.get("views") or cm.get("views_30d") or 0)
+                if len(d) >= 10 and views > 0:
+                    wk = _week_key(d)
+                    content_weekly[wk] += views
+
+    # Build sorted week arrays (last 12 weeks)
+    all_wk_keys = sorted(set(amz_weekly) | set(rak_weekly) | set(conv_weekly) | set(traffic_weekly) | set(content_weekly))
+    if len(all_wk_keys) > 12:
+        all_wk_keys = all_wk_keys[-12:]
+
+    def _wk_label(wk_str):
+        """Convert '2026-W14' to 'Mar 31' (Monday of that ISO week)."""
+        try:
+            y, w = wk_str.split("-W")
+            dt = datetime.strptime(f"{y} {w} 1", "%G %V %u")
+            return dt.strftime("%b %d")
+        except Exception:
+            return wk_str
+
+    wk_labels = [_wk_label(w) for w in all_wk_keys]
+
+    def _derive(bucket):
+        sp = bucket["spend"]
+        sl = bucket["sales"]
+        imp = bucket["impressions"]
+        cl = bucket["clicks"]
+        return {
+            "cpc": round(sp / cl, 1) if cl > 0 else 0,
+            "ctr": round(cl / imp * 100, 2) if imp > 0 else 0,
+            "roas": round(sl / sp, 2) if sp > 0 else 0,
+        }
+
+    weekly_out = {
+        "weeks": all_wk_keys,
+        "week_labels": wk_labels,
+        "revenue": {
+            "amazon": [round(amz_weekly[w]["revenue"]) for w in all_wk_keys],
+            "rakuten": [round(rak_weekly[w]["revenue"]) for w in all_wk_keys],
+            "total": [round(amz_weekly[w]["revenue"] + rak_weekly[w]["revenue"]) for w in all_wk_keys],
+        },
+        "orders": {
+            "amazon": [amz_weekly[w]["orders"] for w in all_wk_keys],
+            "rakuten": [rak_weekly[w]["orders"] for w in all_wk_keys],
+            "total": [amz_weekly[w]["orders"] + rak_weekly[w]["orders"] for w in all_wk_keys],
+        },
+        "ads": {
+            "conversion": {
+                "spend": [round(conv_weekly[w]["spend"]) for w in all_wk_keys],
+                "sales": [round(conv_weekly[w]["sales"]) for w in all_wk_keys],
+                "impressions": [conv_weekly[w]["impressions"] for w in all_wk_keys],
+                "clicks": [conv_weekly[w]["clicks"] for w in all_wk_keys],
+                "cpc": [_derive(conv_weekly[w])["cpc"] for w in all_wk_keys],
+                "ctr": [_derive(conv_weekly[w])["ctr"] for w in all_wk_keys],
+                "roas": [_derive(conv_weekly[w])["roas"] for w in all_wk_keys],
+            },
+            "traffic": {
+                "spend": [round(traffic_weekly[w]["spend"]) for w in all_wk_keys],
+                "sales": [round(traffic_weekly[w]["sales"]) for w in all_wk_keys],
+                "impressions": [traffic_weekly[w]["impressions"] for w in all_wk_keys],
+                "clicks": [traffic_weekly[w]["clicks"] for w in all_wk_keys],
+                "cpc": [_derive(traffic_weekly[w])["cpc"] for w in all_wk_keys],
+                "ctr": [_derive(traffic_weekly[w])["ctr"] for w in all_wk_keys],
+            },
+            "total_spend": [round(conv_weekly[w]["spend"] + traffic_weekly[w]["spend"]) for w in all_wk_keys],
+            "total_sales": [round(conv_weekly[w]["sales"] + traffic_weekly[w]["sales"]) for w in all_wk_keys],
+        },
+        "content_views": [content_weekly.get(w, 0) for w in all_wk_keys],
+    }
+
     print(f"  [JP] Amazon JP Sales: {len(amz_months)}m, Rakuten: {len(rak_months)}m, "
           f"Amazon Ads JP: {len(ads_months)}m, Meta JP: {sum(len(v) for v in meta_out.values())} platform-months")
+    print(f"  [JP] Weekly: {len(all_wk_keys)} weeks, Content posts: {len(jp_post_ids) if content_posts else 0}")
 
     return {
         "amazon": amz_out,
@@ -4530,6 +4664,8 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk) -> 
         "amazon_ads_by_type": ads_by_type_out,
         "meta_ads": meta_out,
         "summary": summary,
+        "weekly": weekly_out,
+        "partial_month": partial_month_info or {},
     }
 
 
