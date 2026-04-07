@@ -181,12 +181,12 @@ jobs:
         run: |
           # Sync transcripts from gk_content_posts → onz_pipeline_creators.top_post_transcript
           curl -sf -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
-            -X POST "https://orbitools.orbiters.co.kr/api/onzenna/sync-transcripts/" \
+            -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/sync-transcripts/" \
             -H "Content-Type: application/json" \
             -d '{"region":"jp","limit":500}' \
             && echo "JP transcript sync OK" || echo "JP transcript sync failed (non-fatal)"
           curl -sf -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
-            -X POST "https://orbitools.orbiters.co.kr/api/onzenna/sync-transcripts/" \
+            -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/sync-transcripts/" \
             -H "Content-Type: application/json" \
             -d '{"region":"us","limit":500}' \
             && echo "US transcript sync OK" || echo "US transcript sync failed (non-fatal)"
