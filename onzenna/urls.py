@@ -73,6 +73,9 @@ urlpatterns = [
     # Pipeline Execution Log
     path("pipeline/execution/log/", views.pipeline_execution_log, name="pipeline_execution_log"),
 
+    # Discovery Posts API (gk_content_posts → CRM dashboards)
+    path("discovery/posts/", views.discovery_posts, name="discovery_posts"),
+
     # Pipeline Syncly Discovery Import (legacy — reads gk_content_posts)
     path("pipeline/creators/import-discovery/", views.import_syncly_discovery, name="import_syncly_discovery"),
 

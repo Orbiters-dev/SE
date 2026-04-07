@@ -4154,3 +4154,85 @@ def run_ci_pipeline(request):
         return _cors_headers(request, JsonResponse({
             "error": str(e),
         }, status=500))
+
+
+# --- Discovery Posts API (gk_content_posts for JP/US CRM dashboards) ---
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def discovery_posts(request):
+    """GET: List content posts from gk_content_posts for CRM discovery tab.
+
+    Params:
+      region: "jp" or "us" (optional)
+      limit: max posts (default 2000)
+      content_type: "video" or "image" (optional)
+    """
+    region = request.GET.get("region", "")
+    limit = min(int(request.GET.get("limit", 2000)), 5000)
+    content_type = request.GET.get("content_type", "")
+
+    from django.db import connection
+
+    sql = """
+        SELECT cp.username, cp.nickname, cp.followers, cp.platform,
+               cp.url, cp.post_date, cp.brand, cp.caption, cp.hashtags,
+               cp.views_30d, cp.likes_30d, cp.comments_30d,
+               cp.transcript, cp.region, cp.source,
+               cp.brand_fit_score, cp.scene_fit, cp.subject_age,
+               cp.scene_tags, cp.content_quality_score
+        FROM gk_content_posts cp
+        WHERE cp.username IS NOT NULL AND cp.username != ''
+    """
+    params = []
+
+    if region:
+        sql += " AND LOWER(cp.region) = LOWER(%s)"
+        params.append(region)
+
+    # content_type filter: infer from URL pattern (no content_type column)
+    if content_type == "video":
+        sql += " AND (cp.url LIKE '%%/reel/%%' OR cp.url LIKE '%%tiktok%%' OR (cp.transcript IS NOT NULL AND LENGTH(cp.transcript) > 20))"
+    elif content_type == "image":
+        sql += " AND cp.url NOT LIKE '%%/reel/%%' AND cp.url NOT LIKE '%%tiktok%%' AND (cp.transcript IS NULL OR LENGTH(cp.transcript) <= 20)"
+
+    sql += " ORDER BY cp.views_30d DESC NULLS LAST LIMIT %s"
+    params.append(limit)
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            cols = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+
+        results = []
+        for row in rows:
+            r = dict(zip(cols, row))
+            results.append({
+                "handle": r.get("username", ""),
+                "full_name": r.get("nickname", ""),
+                "views": r.get("views_30d") or 0,
+                "likes": r.get("likes_30d") or 0,
+                "comments_count": r.get("comments_30d") or 0,
+                "followers": r.get("followers") or 0,
+                "post_date": str(r.get("post_date", "")) if r.get("post_date") else "",
+                "url": r.get("url", ""),
+                "platform": r.get("platform", ""),
+                "source": r.get("source", ""),
+                "caption": r.get("caption", ""),
+                "hashtags": r.get("hashtags", ""),
+                "transcript": r.get("transcript", ""),
+                "brand": r.get("brand", ""),
+                "brand_fit_score": r.get("brand_fit_score"),
+                "scene_fit": r.get("scene_fit", ""),
+                "subject_age": r.get("subject_age", ""),
+                "scene_tags": r.get("scene_tags", ""),
+                "delivery_verbal_score": r.get("content_quality_score"),
+                "content_type": "video" if (r.get("url") and ("/reel/" in r["url"] or "tiktok" in r["url"])) or (r.get("transcript") and len(r["transcript"]) > 20) else "image",
+                "outreach_email": "",
+            })
+
+        return _cors_headers(request, JsonResponse({"results": results}))
+
+    except Exception as e:
+        return _cors_headers(request, JsonResponse({"error": str(e)}, status=500))
