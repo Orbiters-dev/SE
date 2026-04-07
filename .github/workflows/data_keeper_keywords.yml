@@ -1,0 +1,92 @@
+name: Data Keeper - Keywords & Search Terms
+
+on:
+  schedule:
+    - cron: '30 8 * * *'   # UTC 08:30 = PST 00:30 = KST 17:30 (after main daily)
+    - cron: '30 20 * * *'  # UTC 20:30 = PST 12:30 = KST 05:30 (after main midday)
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Channel (amazon_ads_search_terms, amazon_ads_keywords, amazon_ads_search_terms_jp, amazon_ads_keywords_jp, google_ads_search_terms, amazon_brand_analytics, all_slow)'
+        required: false
+        default: 'all_slow'
+      days:
+        description: 'Lookback days'
+        required: false
+        default: '35'
+
+jobs:
+  collect-keywords:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests python-dotenv google-ads ijson
+
+      - name: Write .env
+        run: |
+          cat > .env <<'ENVEOF'
+          AMZ_ADS_CLIENT_ID=${{ secrets.AMZ_ADS_CLIENT_ID }}
+          AMZ_ADS_CLIENT_SECRET=${{ secrets.AMZ_ADS_CLIENT_SECRET }}
+          AMZ_ADS_REFRESH_TOKEN=${{ secrets.AMZ_ADS_REFRESH_TOKEN }}
+          AMZ_SP_CLIENT_ID=${{ secrets.AMZ_SP_CLIENT_ID }}
+          AMZ_SP_CLIENT_SECRET=${{ secrets.AMZ_SP_CLIENT_SECRET }}
+          AMZ_SP_REFRESH_TOKEN=${{ secrets.AMZ_SP_REFRESH_TOKEN }}
+          AMZ_SP_REFRESH_TOKEN_GROSMIMI=${{ secrets.AMZ_SP_REFRESH_TOKEN_GROSMIMI }}
+          AMZ_SP_REFRESH_TOKEN_FLEETERS=${{ secrets.AMZ_SP_REFRESH_TOKEN_FLEETERS }}
+          AMZ_SP_REFRESH_TOKEN_ORBITOOL=${{ secrets.AMZ_SP_REFRESH_TOKEN_ORBITOOL }}
+          AMZ_SP_GROSMIMI_CLIENT_ID=${{ secrets.AMZ_SP_GROSMIMI_CLIENT_ID }}
+          AMZ_SP_GROSMIMI_CLIENT_SECRET=${{ secrets.AMZ_SP_GROSMIMI_CLIENT_SECRET }}
+          AMZ_SP_ORBITOOL_CLIENT_ID=${{ secrets.AMZ_SP_ORBITOOL_CLIENT_ID }}
+          AMZ_SP_ORBITOOL_CLIENT_SECRET=${{ secrets.AMZ_SP_ORBITOOL_CLIENT_SECRET }}
+          AMZ_SP_MARKETPLACE_ID=ATVPDKIKX0DER
+          GOOGLE_ADS_DEVELOPER_TOKEN=${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID=${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET=${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN=${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_LOGIN_CUSTOMER_ID=${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
+          GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
+
+      - name: Write credential files
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
+
+      - name: Collect Amazon Ads Search Terms
+        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all_slow' || github.event.inputs.channel == 'amazon_ads_search_terms'
+        run: |
+          DAYS="${{ github.event.inputs.days || '35' }}"
+          python -u tools/data_keeper.py --channel amazon_ads_search_terms --days $DAYS
+
+      - name: Collect Amazon Ads Keywords
+        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all_slow' || github.event.inputs.channel == 'amazon_ads_keywords'
+        run: |
+          DAYS="${{ github.event.inputs.days || '35' }}"
+          python -u tools/data_keeper.py --channel amazon_ads_keywords --days $DAYS
+
+      - name: Collect Google Ads Search Terms
+        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all_slow' || github.event.inputs.channel == 'google_ads_search_terms'
+        run: |
+          DAYS="${{ github.event.inputs.days || '35' }}"
+          python -u tools/data_keeper.py --channel google_ads_search_terms --days $DAYS
+
+      - name: Collect Amazon Brand Analytics
+        if: github.event.inputs.channel == '' || github.event.inputs.channel == 'all_slow' || github.event.inputs.channel == 'amazon_brand_analytics'
+        run: |
+          DAYS="${{ github.event.inputs.days || '35' }}"
+          python -u tools/data_keeper.py --channel amazon_brand_analytics --days $DAYS

@@ -191,21 +191,8 @@ jobs:
             -d '{"region":"us","limit":500}' \
             && echo "US transcript sync OK" || echo "US transcript sync failed (non-fatal)"
 
-      - name: Collect Amazon Ads Keywords & Search Terms
-        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads_search_terms' || github.event.inputs.channel == 'amazon_ads_keywords')
-        run: |
-          python -u tools/data_keeper.py --channel amazon_ads_search_terms --days 35 || echo "Search terms collection failed (non-fatal)"
-          python -u tools/data_keeper.py --channel amazon_ads_keywords --days 35 || echo "Keywords collection failed (non-fatal)"
-
-      - name: Collect Google Ads Search Terms
-        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'google_ads_search_terms')
-        run: |
-          python -u tools/data_keeper.py --channel google_ads_search_terms --days 35 || echo "Google Ads search terms collection failed (non-fatal)"
-
-      - name: Collect Amazon Brand Analytics
-        if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_brand_analytics')
-        run: |
-          python -u tools/data_keeper.py --channel amazon_brand_analytics --days 35 || echo "Brand Analytics collection failed (non-fatal)"
+      # NOTE: Keywords, Search Terms, Brand Analytics moved to data_keeper_keywords.yml
+      # (separate workflow to avoid 6h timeout — runs 2x daily at UTC 08:30 / 20:30)
 
       - name: Run Amazon PPC Analysis
         if: steps.mode.outputs.notify_only == 'false' && (github.event.inputs.channel == '' || github.event.inputs.channel == 'all' || github.event.inputs.channel == 'amazon_ads')
