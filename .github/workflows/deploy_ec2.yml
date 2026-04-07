@@ -50,6 +50,11 @@ jobs:
             # Also copy the table creation helper (has pipeline tables)
             scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no \
               tools/create_missing_tables.py ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/
+            # Copy docs/ for fin_data.js and other dashboard data files
+            echo "=== Syncing docs/ ==="
+            ${SSH_CMD} "mkdir -p ${EC2_PATH}/docs/financial-dashboard"
+            scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no -r \
+              docs/financial-dashboard/ ${EC2_USER}@${EC2_HOST}:${EC2_PATH}/docs/
           fi
 
       - name: Add app to settings & URLs (if needed)

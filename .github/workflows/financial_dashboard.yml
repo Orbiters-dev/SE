@@ -48,3 +48,15 @@ jobs:
           git diff --cached --quiet || git commit -m "auto: update financial dashboard data [skip ci]"
           git pull --rebase || true
           git push || echo "[WARN] Push failed"
+
+      - name: Sync fin_data.js to EC2
+        continue-on-error: true
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no \
+            docs/financial-dashboard/fin_data.js \
+            ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/export_calculator/docs/financial-dashboard/fin_data.js
+          echo "fin_data.js synced to EC2"
