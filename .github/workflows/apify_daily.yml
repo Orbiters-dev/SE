@@ -173,6 +173,79 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: Weekly Deep Crawl — fill CRM transcript gaps (JP IG + TT)
+        id: weekly_deep_crawl
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+          ORBITOOLS_USER: ${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
+        run: |
+          DOW=$(date -u +%u)
+          if [ "$DOW" = "7" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "=== Extracting JP CRM handles missing transcripts ==="
+            python3 -c "
+import requests, warnings, os
+warnings.filterwarnings('ignore')
+AUTH = (os.environ['ORBITOOLS_USER'], os.environ['ORBITOOLS_PASS'])
+BASE = 'https://orbitools.orbiters.co.kr/api/onzenna'
+r = requests.get(f'{BASE}/pipeline/creators/', params={'region':'jp','limit':500}, auth=AUTH, verify=False, timeout=30)
+crm = r.json().get('results', [])
+ig = [c['ig_handle'] for c in crm if c.get('ig_handle') and (not c.get('top_post_transcript') or len(c.get('top_post_transcript',''))<10) and 'tiktok' not in (c.get('platform') or '').lower()]
+tt = [c.get('tiktok_handle') or c.get('ig_handle','') for c in crm if (c.get('tiktok_handle') or c.get('ig_handle')) and (not c.get('top_post_transcript') or len(c.get('top_post_transcript',''))<10) and 'tiktok' in (c.get('platform') or '').lower()]
+with open('.tmp/jp_ig_gap.txt','w') as f: f.write('\n'.join(ig))
+with open('.tmp/jp_tt_gap.txt','w') as f: f.write('\n'.join(tt))
+print(f'IG gaps: {len(ig)}, TT gaps: {len(tt)}')
+"
+            mkdir -p .tmp/deep_crawler/output
+            # IG deep crawl
+            if [ -s .tmp/jp_ig_gap.txt ]; then
+              python -u tools/deep_crawler.py \
+                --handles-file .tmp/jp_ig_gap.txt \
+                --max-posts 3 --pg-sync --platform instagram \
+                --output .tmp/deep_crawler/output/weekly_jp_ig.xlsx \
+                || echo "[Deep Crawl IG] failed (non-fatal)"
+            fi
+            # TT deep crawl
+            if [ -s .tmp/jp_tt_gap.txt ]; then
+              python -u tools/deep_crawler.py \
+                --handles-file .tmp/jp_tt_gap.txt \
+                --max-posts 3 --pg-sync --platform tiktok \
+                --output .tmp/deep_crawler/output/weekly_jp_tt.xlsx \
+                || echo "[Deep Crawl TT] failed (non-fatal)"
+            fi
+          else
+            echo "[SKIP] Weekly deep crawl runs KST Mondays only (UTC DOW=$DOW)"
+          fi
+        continue-on-error: true
+
+      - name: Weekly transcript sync after deep crawl (JP + US)
+        id: weekly_transcript_sync
+        run: |
+          DOW=$(date -u +%u)
+          if [ "$DOW" = "7" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "=== Import new discoveries ==="
+            curl -sf -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
+              -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/import-discovery/" \
+              -H "Content-Type: application/json" \
+              -d '{"region":"jp","limit":200,"days":7,"source":"apify_discovery"}' \
+              && echo "[JP import OK]" || echo "[JP import failed]"
+            echo "=== Sync transcripts JP ==="
+            curl -sf -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
+              -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/sync-transcripts/" \
+              -H "Content-Type: application/json" \
+              -d '{"region":"jp","limit":500}' \
+              && echo "[JP transcript sync OK]" || echo "[JP transcript sync failed]"
+            echo "=== Sync transcripts US ==="
+            curl -sf -u "${{ secrets.ORBITOOLS_USER }}:${{ secrets.ORBITOOLS_PASS }}" \
+              -X POST "https://orbitools.orbiters.co.kr/api/onzenna/pipeline/creators/sync-transcripts/" \
+              -H "Content-Type: application/json" \
+              -d '{"region":"us","limit":500}' \
+              && echo "[US transcript sync OK]" || echo "[US transcript sync failed]"
+          else
+            echo "[SKIP] Weekly transcript sync runs KST Mondays only"
+          fi
+        continue-on-error: true
+
       - name: US Weekly Baby Content Report (Scrape + Excel + Email)
         id: us_weekly_report
         env:
