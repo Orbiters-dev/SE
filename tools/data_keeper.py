@@ -606,6 +606,9 @@ def collect_amazon_ads(date_from: str, date_to: str) -> list[dict]:
                 print(f"  {pname} ({brand}) {ad_type}: 0 rows (may not have {ad_type} campaigns)")
         total_profile = sum(1 for r in all_rows if r['profile_id'] == pid)
         print(f"  {pname} ({brand}) total: {total_profile} rows")
+        # Cooldown between profiles to avoid 429 rate limits
+        if p != profiles[-1]:
+            time.sleep(15)
 
     return all_rows
 
@@ -701,17 +704,17 @@ def _fetch_amz_ads_report_generic(headers, profile_id, start, end,
         },
     }
     try:
-        # Retry with exponential backoff for 425 rate limits
+        # Retry with exponential backoff for 425/429 rate limits
         r = None
         for attempt in range(4):
             r = requests.post(
-                "https://advertising-api.amazon.com/reporting/reports",
+                f"{base_url}/reporting/reports",
                 headers=headers, json=body, timeout=30,
             )
-            if r.status_code != 425:
+            if r.status_code not in (425, 429):
                 break
-            wait = 30 * (attempt + 1)
-            print(f"    [425] Rate limited, waiting {wait}s (attempt {attempt+1}/4)...")
+            wait = 30 * (attempt + 1) if r.status_code == 425 else 60 * (attempt + 1)
+            print(f"    [{r.status_code}] Rate limited, waiting {wait}s (attempt {attempt+1}/4)...")
             time.sleep(wait)
         r.raise_for_status()
         report_id = r.json().get("reportId")
