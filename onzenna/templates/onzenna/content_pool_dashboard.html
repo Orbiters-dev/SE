@@ -34,6 +34,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .nav-bar a{padding:8px 16px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center}
 .nav-bar a:hover{background:var(--abg);color:var(--a)}
 .nav-bar .active{background:var(--a);color:#fff;cursor:default}
+#regionToggle>div{color:var(--dim)}#regionToggle>div:hover{background:var(--abg);color:var(--a)}#regionToggle>div.on{background:var(--a);color:#fff}
 
 .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
 .tbl-header{display:flex;align-items:center;gap:10px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
@@ -85,6 +86,14 @@ td.transcript-snip{white-space:normal}
 <div class="hero">
   <h1><span>Content Pool</span> Explorer</h1>
   <div class="sub">Browse all tracked creator posts &middot; onz_creator_content &middot; <span id="refresh-ts">&mdash;</span></div>
+</div>
+
+<div style="display:flex;justify-content:center;margin-bottom:16px">
+  <div id="regionToggle" style="display:inline-flex;border:2px solid var(--border);border-radius:8px;overflow:hidden;font-size:12px;font-weight:700">
+    <div class="on" onclick="setRegion('all')" style="padding:7px 18px;cursor:pointer;transition:.15s">All</div>
+    <div onclick="setRegion('us')" style="padding:7px 18px;cursor:pointer;transition:.15s">&#x1F1FA;&#x1F1F8; US</div>
+    <div onclick="setRegion('jp')" style="padding:7px 18px;cursor:pointer;transition:.15s">&#x1F1EF;&#x1F1F5; JP</div>
+  </div>
 </div>
 
 <!-- Summary -->
@@ -329,6 +338,14 @@ document.getElementById('tbl-search').addEventListener('input',function(){
 ['tbl-platform','tbl-type','tbl-region','tbl-transcript','tbl-caption','tbl-views','tbl-likes','tbl-comments','tbl-postdate','tbl-sort'].forEach(function(id){
   document.getElementById(id).addEventListener('change',function(){loadTable(1)});
 });
+
+// Region toggle
+function setRegion(r){
+  document.querySelectorAll('#regionToggle>div').forEach(function(b){b.classList.remove('on')});
+  event.target.classList.add('on');
+  document.getElementById('tbl-region').value=(r==='all'?'':r);
+  loadTable(1);
+}
 </script>
 </body>
 </html>

@@ -262,7 +262,7 @@ def enrich_post_metrics(content_map, chunk_size=50):
 def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False,
                  min_er=0, min_followers=0, max_followers=0,
                  platform_filter="", language_filter="", theme_filter="",
-                 since_filter="", pg_sync=False):
+                 since_filter="", pg_sync=False, max_content=5):
     print("=" * 60)
     print("US Content Full Export Builder (Social Enricher)")
     print(f"  Thresholds: views >= {min_views:,} OR likes >= {min_likes:,}")
@@ -423,8 +423,13 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False,
         if since_filter and content_date and content_date < since_filter:
             continue
 
-        output_matched += 1
         post_url = o.get("Post URL", "").strip()
+
+        # Dedup: skip if same post_url already exists for this creator
+        if any(c["post_url"] == post_url for c in content_map[out_username_lower]):
+            continue
+
+        output_matched += 1
         content_map[out_username_lower].append({
             "post_url": post_url,
             "platform": detect_platform_from_url(post_url),
@@ -443,6 +448,31 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False,
     print(f"  Output rows matched:      {output_matched:,}")
     print(f"  Output rows (blacklisted): {output_skipped_bl:,}")
     print(f"  Output rows (no creator):  {output_skipped_noeligible:,}")
+
+    # ── Trim: keep top N per creator, prioritize data completeness ──
+    pre_trim = sum(len(v) for v in content_map.values())
+    for uname_lower in content_map:
+        posts = content_map[uname_lower]
+        if len(posts) <= max_content:
+            continue
+        # Score each post: transcript > caption > summary > theme
+        def completeness(p):
+            score = 0
+            if p.get("transcript", "").strip():
+                score += 4
+            if p.get("caption", "").strip():
+                score += 2
+            if p.get("summary", "").strip():
+                score += 1
+            if p.get("theme", "").strip():
+                score += 1
+            return score
+        posts.sort(key=lambda p: completeness(p), reverse=True)
+        content_map[uname_lower] = posts[:max_content]
+    post_trim = sum(len(v) for v in content_map.values())
+    output_matched = post_trim
+    print(f"  Dedup trim (max {max_content}/creator): {pre_trim:,} -> {post_trim:,} ({pre_trim - post_trim:,} removed)")
+
     creators_with_content = sum(1 for u in eligible_creators if u in content_map)
     creators_no_content = len(eligible_creators) - creators_with_content
     print(f"  Creators with content:     {creators_with_content:,}")
@@ -713,7 +743,8 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False,
                     "username": cr["username"],
                     "nickname": cr["username"],
                     "followers": int(safe_num(cr["followers"])),
-                    "caption": caption[:500] if caption else "",
+                    "caption": caption or "",
+                    "transcript": ct.get("transcript", ""),
                     "hashtags": hashtags,
                     "tagged_account": "",
                     "post_date": post_date[:10] if post_date else today_str,
@@ -723,6 +754,8 @@ def build_export(min_views=2000, min_likes=30, dry_run=False, enrich=False,
                     "bio_text": cr.get("bio_text", ""),
                     "views_30d": int(cr["views_30d"]),
                     "likes_30d": int(cr["likes_30d"]),
+                    "text": ct.get("summary", ""),
+                    "engagement_rate": pm.get("engagement_rate", 0) or 0,
                 })
 
                 views = pm.get("views", 0)
@@ -772,6 +805,8 @@ if __name__ == "__main__":
         help="Filter content by theme (comma-separated, e.g. baby,family)")
     parser.add_argument("--since", type=str, default="",
         help="Filter content posted since date (YYYY-MM-DD)")
+    parser.add_argument("--max-content", type=int, default=5,
+        help="Max content posts per creator (default: 5, prioritizes completeness)")
     # Actions
     parser.add_argument("--dry-run", action="store_true",
         help="Show counts + samples without writing Excel")
@@ -794,4 +829,5 @@ if __name__ == "__main__":
         theme_filter=args.theme,
         since_filter=args.since,
         pg_sync=args.pg_sync,
+        max_content=args.max_content,
     )

@@ -103,6 +103,7 @@ tr.data-row:hover{background:var(--abg)}
 .nav-bar a{padding:8px 16px;color:var(--dim);text-decoration:none;cursor:pointer;transition:.15s;display:flex;align-items:center}
 .nav-bar a:hover{background:var(--abg);color:var(--a)}
 .nav-bar .active{background:var(--a);color:#fff;cursor:default}
+#regionToggle>div{color:var(--dim)}#regionToggle>div:hover{background:var(--abg);color:var(--a)}#regionToggle>div.on{background:var(--a);color:#fff}
 </style>
 </head>
 <body>
@@ -133,6 +134,14 @@ tr.data-row:hover{background:var(--abg)}
 <div class="hero">
   <h1><span>Creator Pool</span> Explorer</h1>
   <div class="sub">Real-time composition view &middot; PG onz_pipeline_creators &middot; <span id="refresh-ts">&mdash;</span></div>
+</div>
+
+<div style="display:flex;justify-content:center;margin-bottom:16px">
+  <div id="regionToggle" style="display:inline-flex;border:2px solid var(--border);border-radius:8px;overflow:hidden;font-size:12px;font-weight:700">
+    <div class="on" onclick="setRegion('all')" style="padding:7px 18px;cursor:pointer;transition:.15s">All</div>
+    <div onclick="setRegion('us')" style="padding:7px 18px;cursor:pointer;transition:.15s">&#x1F1FA;&#x1F1F8; US</div>
+    <div onclick="setRegion('jp')" style="padding:7px 18px;cursor:pointer;transition:.15s">&#x1F1EF;&#x1F1F5; JP</div>
+  </div>
 </div>
 
 <!-- Summary Cards -->
@@ -1003,6 +1012,15 @@ document.getElementById('tbl-sort').addEventListener('change',function(){
 
 // Build initial headers
 buildHeaders();
+
+// Region toggle
+function setRegion(r){
+  document.querySelectorAll('#regionToggle>div').forEach(function(b){b.classList.remove('on')});
+  event.target.classList.add('on');
+  document.getElementById('tbl-region').value=(r==='all'?'':r);
+  loadStats();
+  loadTable(1);
+}
 
 // Auto-refresh stats every 60s
 setInterval(function(){loadStats()},60000);
