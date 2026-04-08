@@ -38,9 +38,19 @@ DELIVERY & PERSUASION:
 
 Return ONLY valid JSON, no markdown."""
 
-USER_PROMPT = """These are keyframes (start/middle/end) from an Instagram/TikTok video by a parenting influencer.
+USER_PROMPT_LT = """These are keyframes from an Instagram/TikTok video by a parenting influencer.
 Brand context: Grosmimi makes straw cups, training cups, and baby tableware for 6m-3y.
 Evaluate brand fit and content characteristics."""
+
+USER_PROMPT_HT = """These are 30 keyframes (1 per second) from an Instagram/TikTok video by a parenting influencer.
+Frame 0-2 are the HOOK zone (first 3 seconds). Remaining frames show the full content.
+Brand context: Grosmimi makes straw cups, training cups, and baby tableware for 6m-3y.
+
+Evaluate brand fit and content quality. For HT analysis, also assess:
+- product_visibility_score: 0-10 (how clearly/frequently is the product shown throughout the video)
+- production_quality: "high" | "medium" | "low" (lighting, framing, editing quality)
+- thumbnail_appeal: 0-10 (would the first frame make someone click?)
+- text_overlay_content: extract any visible text overlays from the frames"""
 
 
 def encode_image(path: Path) -> str:
@@ -48,15 +58,22 @@ def encode_image(path: Path) -> str:
         return base64.b64encode(f.read()).decode()
 
 
-def analyze_frames(frame_paths: list[Path]) -> dict:
-    """GPT-4o Vision으로 키프레임 분석. 결과 dict 반환."""
+def analyze_frames(frame_paths: list[Path], tier: str = "LT") -> dict:
+    """GPT-4o Vision으로 키프레임 분석. 결과 dict 반환.
+
+    Args:
+        frame_paths: 키프레임 경로 리스트 (LT: ~10장, HT: ~30장)
+        tier: "LT" or "HT" — HT는 확장 프롬프트 + 추가 필드
+    """
     if not OPENAI_API_KEY:
         return _default_result("No OPENAI_API_KEY")
     if not frame_paths:
         return _default_result("No frames")
 
+    user_prompt = USER_PROMPT_HT if tier.upper() == "HT" else USER_PROMPT_LT
+
     # 이미지 content 블록 구성
-    content = [{"type": "text", "text": USER_PROMPT}]
+    content = [{"type": "text", "text": user_prompt}]
     for p in frame_paths:
         if p.exists():
             content.append({
@@ -67,13 +84,15 @@ def analyze_frames(frame_paths: list[Path]) -> dict:
                 },
             })
 
+    max_tokens = 800 if tier.upper() == "HT" else 500
+
     payload = json.dumps({
         "model": "gpt-4o",
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": content},
         ],
-        "max_tokens": 500,
+        "max_tokens": max_tokens,
         "response_format": {"type": "json_object"},
     }).encode()
 
@@ -86,7 +105,7 @@ def analyze_frames(frame_paths: list[Path]) -> dict:
             resp = json.loads(r.read())
         text = resp["choices"][0]["message"]["content"]
         result = json.loads(text)
-        return {
+        parsed = {
             "scene_fit": result.get("scene_fit", "LOW"),
             "has_subtitles": bool(result.get("has_subtitles", False)),
             "brand_fit_score": int(result.get("brand_fit_score", 0)),
@@ -102,6 +121,13 @@ def analyze_frames(frame_paths: list[Path]) -> dict:
             "cta_present": bool(result.get("cta_present", False)),
             "reasoning": result.get("reasoning", ""),
         }
+        # HT 추가 필드
+        if tier.upper() == "HT":
+            parsed["product_visibility_score"] = int(result.get("product_visibility_score", 0))
+            parsed["production_quality"] = result.get("production_quality", "medium")
+            parsed["thumbnail_appeal"] = int(result.get("thumbnail_appeal", 0))
+            parsed["text_overlay_content"] = result.get("text_overlay_content", "")
+        return parsed
     except urllib.error.HTTPError as e:
         err = e.read().decode("utf-8", errors="replace")[:200]
         print(f"  [VISION] API error {e.code}: {err}")

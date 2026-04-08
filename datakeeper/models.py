@@ -388,6 +388,16 @@ class ContentPosts(models.Model):
     creator_fit_score = models.IntegerField(default=0)  # 0-100
     scoring_version = models.CharField(max_length=10, blank=True, default="")
     scored_at = models.DateTimeField(null=True, blank=True)
+    # Media cache fields (LT/HT pipeline)
+    media_dir = models.CharField(max_length=500, blank=True, default="")  # "username/post_id" relative path
+    media_tier = models.CharField(max_length=5, blank=True, default="")  # "LT" or "HT"
+    media_stored_at = models.DateTimeField(null=True, blank=True)
+    frame_count = models.IntegerField(default=0)
+    # Creator evaluation pipeline
+    composite_v2_score = models.IntegerField(default=0)  # 0-100
+    evaluation_tier = models.CharField(max_length=5, blank=True, default="")  # "LT" or "HT"
+    lt_passed = models.BooleanField(null=True, blank=True)
+    tier_scores_json = models.JSONField(null=True, blank=True)  # {tier1_pass, tier2, tier3a, tier3b, tier4}
 
     class Meta:
         db_table = "gk_content_posts"
@@ -395,6 +405,45 @@ class ContentPosts(models.Model):
 
     def __str__(self):
         return f"{self.post_date} {self.platform} @{self.username}"
+
+
+class CreatorEvaluations(models.Model):
+    """Creator-level evaluation aggregation (from post-level scores)."""
+    username = models.CharField(max_length=200, unique=True)
+    platform = models.CharField(max_length=20, default="instagram")
+    region = models.CharField(max_length=10, default="us")
+    # Aggregated scores
+    posts_analyzed = models.IntegerField(default=0)
+    avg_content_quality = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    avg_creator_fit = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    avg_composite_v2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    max_composite_v2 = models.IntegerField(default=0)
+    # Tier status
+    evaluation_tier = models.CharField(max_length=5, blank=True, default="")
+    lt_passed = models.BooleanField(null=True, blank=True)
+    lt_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    ht_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    # Screening metrics
+    followers = models.IntegerField(default=0)
+    engagement_rate = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    category_fit_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    posting_frequency = models.DecimalField(max_digits=4, decimal_places=1, default=0)
+    # Tier framework scores
+    tier1_pass = models.BooleanField(null=True, blank=True)
+    tier2_score = models.IntegerField(default=0)
+    tier3a_score = models.IntegerField(default=0)
+    tier3b_score = models.IntegerField(default=0)
+    tier4_score = models.IntegerField(default=0)
+    # CRM pipeline
+    crm_pushed = models.BooleanField(default=False)
+    crm_pushed_at = models.DateTimeField(null=True, blank=True)
+    evaluated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "gk_creator_evaluations"
+
+    def __str__(self):
+        return f"@{self.username} [{self.evaluation_tier}] v2={self.avg_composite_v2}"
 
 
 class ContentMetricsDaily(models.Model):

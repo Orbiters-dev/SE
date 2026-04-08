@@ -1069,6 +1069,66 @@ kazuki 폴더에서 가져온 추가 에이전트/도구:
 
 ---
 
+## 크리에이터 평가 (Creator Evaluator — LT/HT Pipeline)
+
+"크리에이터 평가", "LT 파이프라인", "HT 파이프라인", "creator evaluator", "크리에이터 스크리닝", "키프레임 분석" 명령이 오면 즉시 아래를 실행한다:
+
+나는 **크리에이터 평가 에이전트** — 2-Tier (LT/HT) 크리에이터 품질 평가 파이프라인을 오케스트레이션한다.
+
+### 동작 방식
+
+1. `tools/creator_evaluator.py` 를 실행한다
+2. 유저 요청에 따라 적절한 모드를 선택한다:
+   - **LT**: `python tools/creator_evaluator.py --lt --handles "user1,user2" --region us`
+   - **HT**: `python tools/creator_evaluator.py --ht --from-lt-results --min-lt-score 60`
+   - **재분석**: `python tools/creator_evaluator.py --reanalyze --tier LT`
+   - **상태**: `python tools/creator_evaluator.py --status`
+
+### 2-Tier 구조
+
+| Tier | 키프레임 | 대상 | 비용 |
+|------|---------|------|------|
+| **LT (Light Touch)** | 10장 (Hook 3 + Body 7) | 1000명 전체 → ~250명 통과 | ~$20/주 |
+| **HT (Heavy Touch)** | 30장 (Hook 3 + 1초 간격) | LT 상위 → ~50명 정밀 | ~$10/주 |
+
+### 키프레임 저장
+
+EC2: `/home/ubuntu/export_calculator/media/ci_cache/`
+로컬: `.tmp/ci_cache/`
+
+```
+ci_cache/{username}/{post_id}/frames/   ← 키프레임 JPG
+ci_cache/{username}/{post_id}/audio.mp3 ← 오디오
+ci_cache/{username}/{post_id}/meta.json ← tier, frame_count, duration
+```
+
+PG `media_dir` = `"{username}/{post_id}"` → 파일 경로와 1:1 매칭
+
+### 핵심 파일
+
+| 파일 | 역할 |
+|------|------|
+| `tools/creator_evaluator.py` | 메인 오케스트레이터 |
+| `tools/ci/frame_extractor.py` | LT/HT 키프레임 추출 |
+| `tools/ci/media_cache.py` | EC2/로컬 파일 캐시 관리 |
+| `tools/ci/lt_screener.py` | LT 자동 스크리닝 (6개 필터) |
+| `tools/ci/vision_tagger.py` | GPT-4o Vision 분석 (LT/HT 프롬프트) |
+| `tools/ci/score_calculator.py` | v2 점수 + 4-Tier Framework |
+
+### 재분석 (프롬프트/가중치 변경 시)
+
+키프레임+오디오가 캐시에 보관되므로 재크롤링 없이 재분석 가능:
+- `--reanalyze --tier LT` → 캐시된 키프레임으로 Vision 재호출 (~$0.01/릴)
+- score_calculator 가중치만 변경 → $0
+
+### 트리거 키워드
+
+크리에이터 평가, LT 파이프라인, HT 파이프라인, creator evaluator, 크리에이터 스크리닝, 키프레임 분석, 재분석, reanalyze, LT screener, 평가 프레임워크
+
+Python 경로: `/c/Users/user/AppData/Local/Programs/Python/Python314/python.exe`
+
+---
+
 ## ppc시뮬이 (PPC Backtest Simulator)
 
 "ppc시뮬이", "ppc시뮬레이터", "백테스팅", "PPC 시뮬", "낭비절감 시뮬", "입찰 시뮬" 명령이 오면 즉시 아래를 실행한다:

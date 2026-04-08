@@ -60,6 +60,7 @@ except Exception:
 TODAY = datetime.now().strftime("%Y-%m-%d")
 OUTPUT_DIR = PROJECT_ROOT / ".tmp" / "deep_crawler" / "output"
 CACHE_FILE = PROJECT_ROOT / ".tmp" / "deep_crawler" / "profile_cache.json"
+RAW_JSON_DIR = PROJECT_ROOT / ".tmp" / "deep_crawler" / "raw"
 SYNCLY_CACHE = PROJECT_ROOT / ".tmp" / "data_crawler" / "cache" / "cache_1dIAhP8wCEdFulSAai3K-RoZTvLBIaWxAK7hzInBsF0o_Creators_updated.json"
 
 ILLEGAL_CHARS = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
@@ -113,6 +114,24 @@ def is_cache_fresh(entry: dict) -> bool:
     """Check if a cache entry is within TTL."""
     crawled_at = entry.get("crawled_at", 0)
     return (time.time() - crawled_at) < CACHE_TTL
+
+
+def save_raw_json(username: str, platform: str, raw_item: dict):
+    """Save full Apify response JSON for re-analysis without re-crawling."""
+    RAW_JSON_DIR.mkdir(parents=True, exist_ok=True)
+    fpath = RAW_JSON_DIR / f"{username.lower()}_{platform}.json"
+    fpath.write_text(json.dumps(raw_item, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def load_raw_json(username: str, platform: str) -> dict | None:
+    """Load cached raw Apify response."""
+    fpath = RAW_JSON_DIR / f"{username.lower()}_{platform}.json"
+    if fpath.exists():
+        try:
+            return json.loads(fpath.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+    return None
 
 
 # ── Input Loaders ────────────────────────────────────────────────────
@@ -532,6 +551,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Print counts + sample, no file")
     parser.add_argument("--output", type=str, default=None, help="Custom output filename")
     parser.add_argument("--pg-sync", action="store_true", help="Sync to PostgreSQL")
+    parser.add_argument("--raw-json", action="store_true", help="Save full Apify response JSON for re-analysis")
 
     args = parser.parse_args()
 
@@ -598,6 +618,10 @@ def main():
                 all_profiles.append(profile)
                 all_posts.extend(posts)
 
+                # Save raw Apify response if requested
+                if getattr(args, "raw_json", False):
+                    save_raw_json(profile["username"], "instagram", item)
+
                 # Update cache
                 cache_key = f"ig:{profile['username']}"
                 cache[cache_key] = {
@@ -643,6 +667,10 @@ def main():
                 if profile:
                     all_profiles.append(profile)
                     all_posts.extend(user_posts)
+
+                    # Save raw Apify response if requested
+                    if getattr(args, "raw_json", False):
+                        save_raw_json(h, "tiktok", item)
 
                     cache_key = f"tt:{h}"
                     cache[cache_key] = {

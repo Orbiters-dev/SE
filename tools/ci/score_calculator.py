@@ -521,3 +521,219 @@ def calculate_scores_v2(ci_results: dict, followers: int = 0,
         "composite_v2_score": composite_v2,
         "scoring_version": "v2.0",
     }
+
+
+# ---------------------------------------------------------------------------
+# Creator Quality Evaluation Framework (Tier 1-4)
+# Maps to the spreadsheet-based evaluation framework
+# ---------------------------------------------------------------------------
+
+def calculate_tier_framework(
+    ci_results: dict,
+    screening: dict = None,
+    enrichment: dict = None,
+    v2_scores: dict = None,
+) -> dict:
+    """
+    크리에이터 품질 평가 프레임워크 4-Tier 종합 판정.
+
+    Args:
+        ci_results: vision_tagger + whisper output
+        screening: lt_screener.screen() 결과 {"metrics": {...}}
+        enrichment: enricher.py 출력
+        v2_scores: calculate_scores_v2() 결과 (있으면 재활용)
+
+    Returns:
+        {
+            "tier1_pass": bool,
+            "tier1_details": {...},
+            "tier2_score": int (0-100),
+            "tier3a_score": int (0-100),
+            "tier3b_score": int (0-100),
+            "tier4_score": int (0-100),
+            "framework_composite": int (0-100),
+        }
+    """
+    screening = screening or {}
+    enrichment = enrichment or {}
+    metrics = screening.get("metrics", {})
+
+    # === TIER 1: Pass/Fail (필수조건) ===
+    # 아기 등장 여부
+    baby_present = ci_results.get("subject_age", "none") in ("infant", "toddler")
+    # 카테고리 적합도 60%+
+    category_ok = metrics.get("category_score", 0) >= 0.60
+    # 제품 경험 (오가닉 콘텐츠)
+    product_exp = bool(ci_results.get("product_mention", False) or ci_results.get("demo_present", False))
+
+    tier1_pass = baby_present and category_ok
+    # product_exp는 soft fail (감점만)
+
+    tier1_details = {
+        "baby_present": baby_present,
+        "category_fit": category_ok,
+        "product_experience": product_exp,
+    }
+
+    # === TIER 2: 콘텐츠 기준 (0-100) ===
+    t2 = 0
+    # 영상 길이 20-30초 이상 (20점)
+    dur = enrichment.get("duration_seconds", 0)
+    if 20 <= dur <= 60:
+        t2 += 20
+    elif 15 <= dur < 20 or 60 < dur <= 90:
+        t2 += 15
+    elif dur > 0:
+        t2 += 5
+
+    # Hook 유형 — 브랜드 미등장의 매력적인 Hook (20점)
+    hook_score = ci_results.get("hook_score", 0)
+    t2 += min(hook_score * 2, 20)
+
+    # 자막 필수 (20점)
+    if ci_results.get("has_subtitles", False):
+        t2 += 20
+
+    # 음악/오디오 (20점) — Whisper transcript 존재 = 음성 있음
+    has_audio = bool(ci_results.get("transcript") or ci_results.get("persuasion_type"))
+    if has_audio:
+        t2 += 20
+
+    # 제품 등장 (20점)
+    if ci_results.get("demo_present", False):
+        t2 += 20
+
+    tier2_score = _clamp(t2)
+
+    # === TIER 3A: 엔게이지먼트 품질 (0-100) ===
+    t3a = 0
+    # ER 기준 (50점)
+    er = metrics.get("er", 0)
+    followers = metrics.get("followers", enrichment.get("followers", 0))
+    if followers < 100_000:
+        # micro: 3-8%
+        if er >= 0.08:
+            t3a += 50
+        elif er >= 0.05:
+            t3a += 40
+        elif er >= 0.03:
+            t3a += 30
+        elif er >= 0.01:
+            t3a += 15
+    else:
+        # mid: 1-3%
+        if er >= 0.03:
+            t3a += 50
+        elif er >= 0.02:
+            t3a += 40
+        elif er >= 0.01:
+            t3a += 30
+
+    # 댓글 품질 50%+ 유의미 (50점)
+    meaningful = enrichment.get("meaningful_comments", 0)
+    total_comments = enrichment.get("total_comments", 0)
+    if total_comments > 0:
+        meaningful_ratio = meaningful / total_comments
+        t3a += _clamp(int(meaningful_ratio * 50), 0, 50)
+    else:
+        t3a += 25  # 데이터 없으면 중립
+
+    tier3a_score = _clamp(t3a)
+
+    # === TIER 3B: 오디언스 구성 (0-100) ===
+    t3b = 0
+    # 팔로워 위치 (25점) — 현재 자동화 불가, 중립값
+    t3b += 15
+
+    # 연령대 (25점) — 현재 자동화 불가, 중립값
+    t3b += 15
+
+    # 봇/비활성 15% 미만 (25점)
+    if v2_scores:
+        bot_info = v2_scores.get("bot_detection", {})
+        bot_risk = bot_info.get("bot_risk", "medium")
+        if bot_risk == "low":
+            t3b += 25
+        elif bot_risk == "medium":
+            t3b += 15
+        # high = 0
+
+    # 성장 패턴 (25점) — 급증 없는 오가닉 성장
+    growth = enrichment.get("follower_growth_30d")
+    if growth is not None:
+        if 0 < growth <= 0.10:  # 10% 이하 자연 성장
+            t3b += 25
+        elif 0.10 < growth <= 0.20:
+            t3b += 15
+        elif growth > 0.50:  # 급증 = 의심
+            t3b += 0
+        else:
+            t3b += 10
+    else:
+        t3b += 12  # 데이터 없으면 중립
+
+    tier3b_score = _clamp(t3b)
+
+    # === TIER 4: 성과지표 (0-100) ===
+    t4 = 0
+    # 포스팅 빈도 주 3회+ (20점)
+    posts_30d = metrics.get("posts_30d", enrichment.get("posts_last_30d", 0))
+    if posts_30d >= 12:
+        t4 += 20
+    elif posts_30d >= 8:
+        t4 += 15
+    elif posts_30d >= 4:
+        t4 += 10
+
+    # UGC 품질 — 밝고 깔끔 (20점)
+    auth = ci_results.get("authenticity_score", 0)
+    t4 += min(auth * 2, 20)
+
+    # 브랜드 협업 이력 1-3회 (20점)
+    sponsored = enrichment.get("sponsored_count", 0)
+    if 1 <= sponsored <= 3:
+        t4 += 20
+    elif 4 <= sponsored <= 6:
+        t4 += 15
+    elif sponsored == 0:
+        t4 += 5  # 미검증
+    # 10+ = 피로, 0점
+
+    # 멀티플랫폼 IG + TikTok (20점)
+    platforms = enrichment.get("platforms", [])
+    if len(platforms) >= 2:
+        t4 += 20
+    elif len(platforms) == 1:
+        t4 += 10
+
+    # 콘텐츠 일관성 (20점)
+    if v2_scores:
+        cons = v2_scores.get("content_consistency", {})
+        cons_score = cons.get("consistency_score", 5)
+        t4 += min(cons_score * 2, 20)
+    else:
+        t4 += 10  # 중립
+
+    tier4_score = _clamp(t4)
+
+    # === Composite ===
+    # T1은 pass/fail, T2-T4는 가중 합산
+    if tier1_pass:
+        framework_composite = _clamp(
+            tier2_score * 0.30 +
+            tier3a_score * 0.25 +
+            tier3b_score * 0.20 +
+            tier4_score * 0.25
+        )
+    else:
+        framework_composite = 0  # T1 탈락이면 0
+
+    return {
+        "tier1_pass": tier1_pass,
+        "tier1_details": tier1_details,
+        "tier2_score": tier2_score,
+        "tier3a_score": tier3a_score,
+        "tier3b_score": tier3b_score,
+        "tier4_score": tier4_score,
+        "framework_composite": framework_composite,
+    }

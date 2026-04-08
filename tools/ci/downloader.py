@@ -99,35 +99,51 @@ def _download_tiktok_video(post_url: str, tmp_dir: Path) -> Path | None:
         return None
 
 
-def extract_audio_and_frames(cdn_url: str, tmp_dir: Path, post_url: str = "", platform: str = "") -> tuple[Path | None, list[Path]]:
+def download_video(cdn_url: str, output_path: Path, post_url: str = "", platform: str = "") -> Path | None:
     """
-    CDN URL에서 영상 다운로드 → mp3 오디오 + 키프레임 3장 추출.
-    Returns: (audio_path, [frame_path_1, frame_path_2, frame_path_3])
-    """
-    import urllib.request
+    CDN URL에서 영상 다운로드 (독립 함수).
 
-    # 1. 영상 다운로드
-    video_path = tmp_dir / "video.mp4"
+    Returns:
+        다운로드된 영상 경로 또는 None
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # TikTok: use yt-dlp direct download (CDN URLs require auth headers)
     if "tiktok" in platform.lower() and post_url:
-        dl_path = _download_tiktok_video(post_url, tmp_dir)
-        if not dl_path:
-            print("  [DL] TikTok yt-dlp download failed")
-            return None, []
-        video_path = dl_path
+        dl_path = _download_tiktok_video(post_url, output_path.parent)
+        if dl_path and dl_path != output_path:
+            import shutil
+            shutil.move(str(dl_path), str(output_path))
+            dl_path = output_path
+        return dl_path
     else:
         try:
             req = urllib.request.Request(cdn_url)
             req.add_header("User-Agent", "Mozilla/5.0")
-            with urllib.request.urlopen(req, timeout=120) as r, open(video_path, "wb") as f:
+            with urllib.request.urlopen(req, timeout=120) as r, open(output_path, "wb") as f:
                 f.write(r.read())
         except Exception as e:
             print(f"  [DL] Download failed: {e}")
-            return None, []
+            return None
 
-    if not video_path.exists() or video_path.stat().st_size < 1000:
+    if not output_path.exists() or output_path.stat().st_size < 1000:
         print("  [DL] Empty file")
+        return None
+
+    return output_path
+
+
+def extract_audio_and_frames(cdn_url: str, tmp_dir: Path, post_url: str = "", platform: str = "") -> tuple[Path | None, list[Path]]:
+    """
+    CDN URL에서 영상 다운로드 → mp3 오디오 + 키프레임 3장 추출.
+    Returns: (audio_path, [frame_path_1, frame_path_2, frame_path_3])
+
+    NOTE: 하위 호환용. 새 코드는 download_video + frame_extractor를 직접 사용.
+    """
+    # 1. 영상 다운로드
+    video_path = tmp_dir / "video.mp4"
+    result = download_video(cdn_url, video_path, post_url, platform)
+    if not result:
         return None, []
 
     # 2. moviepy로 오디오 + 프레임 추출
