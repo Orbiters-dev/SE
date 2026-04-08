@@ -1494,10 +1494,12 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins,
         else:
             f = open(tmp_path, "r", encoding="utf-8", errors="replace")
 
-        # Skip to "dataByDepartmentAndSearchTerm" array
+        # Skip to "dataByDepartmentAndSearchTerm" array, then accumulate
+        # lines between { and } to form each item.  BA items are FLAT
+        # (no nested objects), so we just need to track one level of braces.
+        # Pretty-print format:  "}, {"  on one line separates items.
         in_array = False
-        brace_depth = 0
-        item_lines = []
+        item_buf = []  # lines for current item being assembled
 
         for line in f:
             stripped = line.strip()
@@ -1505,39 +1507,53 @@ def _parse_ba_report_streaming(tmp_path, is_gzip, start, end, seller, our_asins,
             if not in_array:
                 if '"dataByDepartmentAndSearchTerm"' in stripped:
                     in_array = True
+                    # Extract everything after the first { on this line
+                    idx = stripped.find('{')
+                    if idx >= 0:
+                        item_buf = [stripped[idx:]]
+                else:
+                    continue
                 continue
 
-            # Track braces to isolate individual items
-            for ch in stripped:
-                if ch == '{':
-                    if brace_depth == 0:
-                        item_lines = []
-                    brace_depth += 1
-                elif ch == '}':
-                    brace_depth -= 1
+            # Check if this line closes an item (contains "}")
+            if '}' in stripped:
+                # Append up to the closing brace
+                close_idx = stripped.index('}')
+                item_buf.append(stripped[:close_idx + 1])
 
-            item_lines.append(stripped)
-
-            if brace_depth == 0 and item_lines:
-                # We have a complete item
-                total_items += 1
-                raw = " ".join(item_lines)
-                # Strip trailing comma
+                # Try to parse accumulated item
+                raw = " ".join(item_buf).strip()
                 if raw.endswith(","):
                     raw = raw[:-1]
-                try:
-                    item = json.loads(raw)
-                    matched, reason = _ba_item_matches(item, our_asins)
-                    if matched:
-                        matched_items += 1
-                        rows.extend(_ba_item_to_rows(item, start, end, our_asins, asin_brand_map, reason))
-                except json.JSONDecodeError:
-                    pass
-                item_lines = []
+                if raw:
+                    total_items += 1
+                    try:
+                        item = json.loads(raw)
+                        matched, reason = _ba_item_matches(item, our_asins)
+                        if matched:
+                            matched_items += 1
+                            rows.extend(_ba_item_to_rows(item, start, end, our_asins, asin_brand_map, reason))
+                    except json.JSONDecodeError:
+                        pass
 
-                # Progress every 500k items
-                if total_items % 500000 == 0:
-                    print(f"    ... {total_items:,} scanned, {matched_items:,} matched")
+                    if total_items % 500000 == 0:
+                        print(f"    ... {total_items:,} scanned, {matched_items:,} matched")
+
+                # Check if a new item starts on the same line (", {" pattern)
+                rest = stripped[close_idx + 1:]
+                open_idx = rest.find('{')
+                if open_idx >= 0:
+                    item_buf = [rest[open_idx:]]
+                else:
+                    item_buf = []
+            else:
+                # Line is inside an item, just accumulate
+                if item_buf or '{' in stripped:
+                    if not item_buf and '{' in stripped:
+                        idx = stripped.find('{')
+                        item_buf = [stripped[idx:]]
+                    else:
+                        item_buf.append(stripped)
 
         f.close()
         print(f"    [scanner] Parsed {total_items:,} search terms, {matched_items:,} matched -> {len(rows)} rows")

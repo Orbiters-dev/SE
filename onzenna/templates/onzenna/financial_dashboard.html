@@ -2748,6 +2748,19 @@ function renderHeroTab(F){
         _tRow('Clicks','var(--dim)',true,mtClD,_nc);
         var _mtCPCD=[];for(var j=0;j<_tblN;j++){var _cl2=mtClD[j]||0;_mtCPCD.push(_cl2>0?(mtSpD[j]||0)/_cl2:0);}
         _tRow('CPC','var(--dim)',true,_mtCPCD,function(v){return v>0?'$'+v.toFixed(2):'—';});
+        // Attribution summary rows: Sales, ROAS, BRB ROAS
+        if(_atSales>0){
+          // Attr Sales row (daily from campaigns, summed)
+          var _atSlD=[];for(var j=0;j<_tblN;j++){var _as=0;(_attrData.campaigns||[]).forEach(function(ac){_as+=(ac.daily_attr_sales||{})[dates[j]]||0;});_atSlD.push(Math.round(_as));}
+          _tRow('Sales (Attr)','#10b981',true,_atSlD,_$c);
+          // ROAS row (Attr Sales / Meta Spend)
+          var _atRoasD=[];for(var j=0;j<_tblN;j++){var _ms=mtSpD[j]||0;_atRoasD.push(_ms>0?(_atSlD[j]/_ms):0);}
+          _tRow('ROAS','var(--g)',true,_atRoasD,function(v){return v>0?v.toFixed(1)+'x':'—';});
+          // BRB ROAS row (Attr Sales / (Meta Spend - BRB proration))
+          var _brbRateTotal=_atSpend>0?_atBrb/_atSpend:0;
+          var _atBrbRoasD=[];for(var j=0;j<_tblN;j++){var _ms2=mtSpD[j]||0;var _netMs=Math.max(0,_ms2*(1-_brbRateTotal));_atBrbRoasD.push(_netMs>0?(_atSlD[j]/_netMs):0);}
+          _tRow('ROAS+BRB','#8b5cf6',true,_atBrbRoasD,function(v){return v>0?v.toFixed(1)+'x':'—';});
+        }
         // Section: Organic + Total
         _secHeader('Total','var(--dim)');
         var _orgSales=[];for(var j=0;j<_tblN;j++){_orgSales.push(Math.max(0,(ds[j]||0)-(amzSlD[j]||0)));}
