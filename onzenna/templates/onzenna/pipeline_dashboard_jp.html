@@ -166,6 +166,11 @@ tr:hover td{background:#fff5f5}
         <div class="fn" data-stage="inbound" onclick="goToStage('inbound')"><div class="fi" id="f-inbound" style="color:var(--c)">0</div><div class="ft">Inbound</div></div><span class="fa">&#x25B6;</span>
         <div class="fn" data-stage="needs_review" onclick="goToStage('needs_review')"><div class="fi" id="f-needs-review">0</div><div class="ft">Review</div></div>
       </div>
+      <div class="funnel-row" style="margin-top:6px" id="funnel-trash-row">
+        <div class="funnel-label" style="color:var(--r)">Trash</div>
+        <div class="fn" data-stage="declined" onclick="goToStage('declined')" style="border:1px dashed #fca5a5;background:#fff5f5"><div class="fi" id="f-declined" style="color:var(--r)">0</div><div class="ft" style="color:var(--r)">Declined</div></div>
+        <div class="fn" data-stage="archived" onclick="goToStage('archived')" style="border:1px dashed #fca5a5;background:#fff5f5"><div class="fi" id="f-archived" style="color:var(--r)">0</div><div class="ft" style="color:var(--r)">Archived</div></div>
+      </div>
     </div>
     <!-- Hidden count holders for stages not shown in funnel but tracked in data -->
     <span id="f-form-submitted" style="display:none">0</span>
@@ -272,6 +277,8 @@ tr:hover td{background:#fff5f5}
         <option value="posted">Posted</option>
         <option value="inbound">Inbound</option>
         <option value="needs_review">Needs Review</option>
+        <option value="declined">Declined</option>
+        <option value="archived">Archived</option>
       </select>
       <select id="creator-platform-filter" onchange="filterCreators()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px">
         <option value="">All Platforms</option>
@@ -510,7 +517,7 @@ tr:hover td{background:#fff5f5}
       <div style="display:grid;gap:10px;margin-top:12px">
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Daily DM Limit</label>
-          <input type="number" id="cfg-daily-limit" value="30" min="5" max="200" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
+          <input type="number" id="cfg-daily-limit" value="50" min="5" max="200" style="width:80px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:11px;font-weight:600;color:var(--dim);min-width:140px">Data Source</label>
@@ -862,7 +869,7 @@ function n8nPost(body) {
 var _creators = [];
 var _page = 0, _perPage = 25;
 var _dmSentToday = 0;
-var _dailyLimit = 30;
+var _dailyLimit = 50;
 var _threadHandle = '';
 var _dmCache = {}; // Cache DM logs per handle
 var _executing = false;
@@ -913,7 +920,7 @@ function clearFailureLog() {
 
 function init() {
   document.getElementById('pill-date').textContent = new Date().toISOString().slice(0, 10);
-  _dailyLimit = parseInt(document.getElementById('cfg-daily-limit').value) || 30;
+  _dailyLimit = parseInt(document.getElementById('cfg-daily-limit').value) || 50;
   _dmSentToday = getDmCount();
   loadCreators();
   renderFailureLog();
@@ -1038,7 +1045,7 @@ function getCreatorSource(c) {
 }
 
 function updateStats() {
-  var counts = { not_started: 0, draft_ready: 0, sent: 0, replied: 0, accepted: 0, form_submitted: 0, contract_sent: 0, contract_signed: 0, guidelines_sent: 0, sample_sent: 0, sample_shipped: 0, sample_delivered: 0, posted: 0, inbound: 0, needs_review: 0 };
+  var counts = { not_started: 0, draft_ready: 0, sent: 0, replied: 0, accepted: 0, form_submitted: 0, contract_sent: 0, contract_signed: 0, guidelines_sent: 0, sample_sent: 0, sample_shipped: 0, sample_delivered: 0, posted: 0, inbound: 0, needs_review: 0, declined: 0, archived: 0 };
   _creators.forEach(function(c) { counts[c.status] = (counts[c.status] || 0) + 1; });
   document.getElementById('pill-total').textContent = _creators.length + ' creators';
   document.getElementById('s-total').textContent = _creators.length;
@@ -1061,6 +1068,11 @@ function updateStats() {
   document.getElementById('f-sample-shipped').textContent = counts.sample_shipped;
   document.getElementById('f-sample-delivered').textContent = counts.sample_delivered;
   document.getElementById('f-posted').textContent = counts.posted;
+  document.getElementById('f-declined').textContent = counts.declined;
+  document.getElementById('f-archived').textContent = counts.archived;
+  // Hide trash row if both zero
+  var trashRow = document.getElementById('funnel-trash-row');
+  if (trashRow) trashRow.style.display = (counts.declined || counts.archived) ? 'flex' : 'none';
   // DM budget
   var pct = Math.min(100, (_dmSentToday / _dailyLimit) * 100);
   document.getElementById('dm-budget-bar').style.width = pct + '%';
@@ -1069,8 +1081,8 @@ function updateStats() {
 }
 
 function statusBadge(s) {
-  var map = { not_started: '', draft_ready: 'am', sent: 'c', replied: 'a', accepted: 'g', form_submitted: 'am', contract_sent: 'c', contract_signed: 'g', guidelines_sent: 'p', sample_sent: 'p', sample_shipped: 'c', sample_delivered: 'g', posted: 'g', inbound: 'c', needs_review: 'am', declined: 'r' };
-  var label = { not_started: 'Not Started', draft_ready: 'Draft Ready', sent: 'DM Sent', replied: 'Replied', accepted: 'Accepted', form_submitted: 'Form Submitted', contract_sent: 'Contract Sent', contract_signed: 'Contract Signed', guidelines_sent: 'Guidelines Sent', sample_sent: 'Sample Sent', sample_shipped: 'Sample Shipped', sample_delivered: 'Sample Delivered', posted: 'Posted', inbound: 'Inbound', needs_review: 'Needs Review', declined: 'Declined' };
+  var map = { not_started: '', draft_ready: 'am', sent: 'c', replied: 'a', accepted: 'g', form_submitted: 'am', contract_sent: 'c', contract_signed: 'g', guidelines_sent: 'p', sample_sent: 'p', sample_shipped: 'c', sample_delivered: 'g', posted: 'g', inbound: 'c', needs_review: 'am', declined: 'r', archived: 'r' };
+  var label = { not_started: 'Not Started', draft_ready: 'Draft Ready', sent: 'DM Sent', replied: 'Replied', accepted: 'Accepted', form_submitted: 'Form Submitted', contract_sent: 'Contract Sent', contract_signed: 'Contract Signed', guidelines_sent: 'Guidelines Sent', sample_sent: 'Sample Sent', sample_shipped: 'Sample Shipped', sample_delivered: 'Sample Delivered', posted: 'Posted', inbound: 'Inbound', needs_review: 'Needs Review', declined: 'Declined', archived: 'Archived' };
   return '<span class="b ' + (map[s] || '') + '">' + (label[s] || s) + '</span>';
 }
 
@@ -1127,7 +1139,9 @@ function renderCreators() {
 
   var html = '';
   filtered.forEach(function(c) {
-    var dmLink = 'https://ig.me/m/' + c.username;
+    var plat = (c.platform || '').toLowerCase();
+    var isTT = plat === 'tiktok';
+    var dmLink = isTT ? 'https://www.tiktok.com/@' + c.username : 'https://ig.me/m/' + c.username;
     var isDraft = c.status === 'draft_ready' && c.dm_draft;
 
     html += '<div class="dm-card" style="border-left:3px solid ' + getStatusColor(c.status) + '">';
@@ -1137,8 +1151,7 @@ function renderCreators() {
     if (isDraft) html += '<input type="checkbox" class="creator-cb" data-username="' + c.username + '" checked onchange="updateCreatorSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
     html += '<span class="dm-handle" style="cursor:pointer" onclick="openDmThread(\'' + c.username + '\')">@' + c.username + '</span>';
     // Platform badge
-    var plat = (c.platform || '').toLowerCase();
-    if (plat === 'tiktok') html += '<span style="font-size:9px;background:#000;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">TT</span>';
+    if (isTT) html += '<span style="font-size:9px;background:#000;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">TT</span>';
     else html += '<span style="font-size:9px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">IG</span>';
     html += '<span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
     // Owner badge
@@ -1167,6 +1180,10 @@ function renderCreators() {
     if (c.status === 'sample_shipped') html += '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();updateStatus(\'' + c.username + '\',\'sample_delivered\').then(function(){loadCreators()})">&#x2705; Delivered</button>';
     if (c.status === 'sample_delivered') html += '<button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="event.stopPropagation();sendGuidelines(\'' + c.username + '\')">&#x1F4C4; Send Guidelines</button>';
     if (c.status === 'inbound' || c.status === 'needs_review') html += '<button class="btn btn-sm btn-secondary" onclick="openDmThread(\'' + c.username + '\')">&#x1F50D; Review</button>';
+    // Archive (trash) button — skip if already archived/declined
+    if (c.status !== 'archived' && c.status !== 'declined') {
+      html += ' <button onclick="event.stopPropagation();archiveCreator(\'' + c.username + '\')" style="background:none;border:1px solid var(--r);border-radius:3px;cursor:pointer;font-size:8px;padding:1px 4px;color:var(--r)" title="Archive">&#x1F5D1;</button>';
+    }
     html += '</div>';
     html += '</div>';
 
@@ -1521,22 +1538,28 @@ function renderDraftsList() {
 
   var html = '';
   drafts.forEach(function(c, idx) {
-    var dmLink = 'https://ig.me/m/' + c.username;
+    var plat = (c.platform || '').toLowerCase();
+    var isTT = plat === 'tiktok';
+    var dmLink = isTT ? 'https://www.tiktok.com/@' + c.username : 'https://ig.me/m/' + c.username;
     html += '<div class="dm-card" id="draft-card-' + c.username + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center">';
     html += '<div style="display:flex;align-items:center;gap:8px">';
     html += '<input type="checkbox" class="draft-cb draft-select" data-username="' + c.username + '" checked onchange="updateSelectedCount()" style="width:16px;height:16px;accent-color:var(--a)">';
-    html += '<span class="dm-handle">@' + c.username + '</span> <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
+    html += '<span class="dm-handle">@' + c.username + '</span>';
+    if (isTT) html += ' <span style="font-size:9px;background:#000;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700">TT</span>';
+    html += ' <span style="font-size:10px;color:var(--dim)">' + (c.name || '') + ' \xB7 ' + (c.followers ? c.followers.toLocaleString() : '-') + '</span>';
     html += '</div>';
     html += '<div style="display:flex;gap:4px">';
     html += '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();openDmThread(\'' + c.username + '\')" title="View history">&#x1F4AC; History</button>';
-    html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary">&#x2197; Open IG</a>';
+    if (isTT) html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm" style="background:#000;color:#fff">&#x2197; TT</a>';
+    else html += '<a href="' + dmLink + '" target="_blank" class="btn btn-sm btn-primary">&#x2197; IG</a>';
     html += '</div>';
     html += '</div>';
     html += '<textarea class="dm-edit" id="dm-body-' + c.username + '" rows="6" oninput="saveDraftEdit(\'' + c.username + '\',this.value)">' + escapeHtml(c.dm_draft) + '</textarea>';
     html += '<div class="dm-actions">';
     html += '<button class="copy-btn" onclick="copyDraft(\'' + c.username + '\',this)">&#x1F4CB; Copy</button>';
     html += '<button class="btn btn-sm btn-success" onclick="markSent(\'' + c.username + '\')">&#x2705; Mark Sent</button>';
+    html += '<button class="btn btn-sm" style="background:none;border:1px solid var(--r);color:var(--r);font-size:9px" onclick="event.stopPropagation();archiveCreator(\'' + c.username + '\')" title="Discard draft">&#x1F5D1; Discard</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -1595,8 +1618,10 @@ function executeDrafts() {
       navigator.clipboard.writeText(c.dm_draft).catch(function() {});
     }
 
-    // Open IG DM link
-    window.open('https://ig.me/m/' + handle, '_blank');
+    // Open platform-appropriate link
+    var plat = c ? (c.platform || '').toLowerCase() : '';
+    var openUrl = plat === 'tiktok' ? 'https://www.tiktok.com/@' + handle : 'https://ig.me/m/' + handle;
+    window.open(openUrl, '_blank');
 
     // Mark as sent via n8n
     if (c && c.dm_draft) {
@@ -1640,7 +1665,10 @@ function openDmThread(handle) {
   var c = _creators.find(function(x) { return x.username === handle; });
   document.getElementById('thread-handle').textContent = '@' + handle;
   document.getElementById('thread-badge').innerHTML = c ? statusBadge(c.status) : '';
-  document.getElementById('thread-ig-link').href = 'https://ig.me/m/' + handle;
+  var threadPlat = c ? (c.platform || '').toLowerCase() : '';
+  var threadLink = threadPlat === 'tiktok' ? 'https://www.tiktok.com/@' + handle : 'https://ig.me/m/' + handle;
+  document.getElementById('thread-ig-link').href = threadLink;
+  document.getElementById('thread-ig-link').textContent = threadPlat === 'tiktok' ? 'Open TikTok' : 'Open IG DM';
 
   // Show "Mark Accepted" for replied / inbound / needs_review
   var acceptBtn = document.getElementById('thread-accept-btn');
@@ -1845,7 +1873,7 @@ function escapeHtml(str) {
 }
 
 function getStatusColor(s) {
-  var m = {not_started:'#94a3b8',draft_ready:'#f59e0b',sent:'#0ea5e9',replied:'#8b5cf6',accepted:'#10b981',form_submitted:'#f59e0b',contract_sent:'#0ea5e9',contract_signed:'#10b981',guidelines_sent:'#ec4899',sample_sent:'#ec4899',sample_shipped:'#0ea5e9',sample_delivered:'#10b981',posted:'#10b981',inbound:'#0ea5e9',needs_review:'#f59e0b',declined:'#ef4444'};
+  var m = {not_started:'#94a3b8',draft_ready:'#f59e0b',sent:'#0ea5e9',replied:'#8b5cf6',accepted:'#10b981',form_submitted:'#f59e0b',contract_sent:'#0ea5e9',contract_signed:'#10b981',guidelines_sent:'#ec4899',sample_sent:'#ec4899',sample_shipped:'#0ea5e9',sample_delivered:'#10b981',posted:'#10b981',inbound:'#0ea5e9',needs_review:'#f59e0b',declined:'#ef4444',archived:'#ef4444'};
   return m[s] || '#e2e8f0';
 }
 
@@ -1884,8 +1912,9 @@ function executeCreatorsDrafts() {
       navigator.clipboard.writeText(c.dm_draft).catch(function(){});
       n8nPost({ action: 'dm_log', sub_action: 'add', username: handle, dir: 'out', text: c.dm_draft, sent_by: _currentUser || 'dashboard' });
     }
-    // Open IG DM
-    window.open('https://ig.me/m/' + handle, '_blank');
+    // Open platform-appropriate link
+    var cp = c ? (c.platform || '').toLowerCase() : '';
+    window.open(cp === 'tiktok' ? 'https://www.tiktok.com/@' + handle : 'https://ig.me/m/' + handle, '_blank');
     updateStatus(handle, 'sent').then(function() { incDmCount(); }).catch(function(){});
     idx++;
     setTimeout(processNext, 1200);
@@ -1903,6 +1932,29 @@ function goToStage(status) {
   if (tab) tab.click();
   var sel = document.getElementById('creator-status-filter');
   if (sel) { sel.value = status; filterCreators(); }
+}
+
+function archiveCreator(handle) {
+  var c = _creators.find(function(x) { return x.username === handle; });
+  if (!c) return;
+  if (!confirm('@' + handle + ' をアーカイブしますか？\n(Archive this creator? They will be excluded from future outreach.)')) return;
+  updateStatus(handle, 'archived').then(function() {
+    showToast('Archived: @' + handle, 'ok');
+    updateStats(); renderCreators(); renderDraftsList();
+  }).catch(function() {
+    showToast('Failed to archive', 'err');
+  });
+}
+
+function declineCreator(handle) {
+  var c = _creators.find(function(x) { return x.username === handle; });
+  if (!c) return;
+  updateStatus(handle, 'declined').then(function() {
+    showToast('Declined: @' + handle, 'ok');
+    updateStats(); renderCreators(); renderDraftsList();
+  }).catch(function() {
+    showToast('Failed to decline', 'err');
+  });
 }
 
 function showToast(msg, type) {
