@@ -42,15 +42,19 @@ USER_PROMPT_LT = """These are keyframes from an Instagram/TikTok video by a pare
 Brand context: Grosmimi makes straw cups, training cups, and baby tableware for 6m-3y.
 Evaluate brand fit and content characteristics."""
 
-USER_PROMPT_HT = """These are 30 keyframes (1 per second) from an Instagram/TikTok video by a parenting influencer.
-Frame 0-2 are the HOOK zone (first 3 seconds). Remaining frames show the full content.
+USER_PROMPT_HT = """These are keyframes from an Instagram/TikTok video by a parenting influencer.
+The first few frames are the HOOK zone (first 3 seconds). Remaining frames show the full content.
 Brand context: Grosmimi makes straw cups, training cups, and baby tableware for 6m-3y.
 
-Evaluate brand fit and content quality. For HT analysis, also assess:
+Evaluate brand fit and content quality. For HT/DY analysis, also assess:
 - product_visibility_score: 0-10 (how clearly/frequently is the product shown throughout the video)
 - production_quality: "high" | "medium" | "low" (lighting, framing, editing quality)
 - thumbnail_appeal: 0-10 (would the first frame make someone click?)
-- text_overlay_content: extract any visible text overlays from the frames"""
+- text_overlay_content: extract any visible text overlays from the frames
+- product_center_pct: integer 0-100 (what percentage of ALL frames show the product prominently in the center of the frame?)
+- product_first_appearance_pct: integer 0-100 (at what point in the video does the product FIRST appear? Express as percentage of video length. 0=very start, 100=very end, -1=never shown)
+- child_appearance_pct: integer 0-100 (what percentage of ALL frames show a baby/toddler/child?)
+- main_question: string (the central thesis, question, or hook premise of this content — one sentence, e.g. "We tried 12 sippy cups and this is the only one she uses")"""
 
 
 def encode_image(path: Path) -> str:
@@ -70,7 +74,7 @@ def analyze_frames(frame_paths: list[Path], tier: str = "LT") -> dict:
     if not frame_paths:
         return _default_result("No frames")
 
-    user_prompt = USER_PROMPT_HT if tier.upper() == "HT" else USER_PROMPT_LT
+    user_prompt = USER_PROMPT_HT if tier.upper() in ("HT", "DY") else USER_PROMPT_LT
 
     # 이미지 content 블록 구성
     content = [{"type": "text", "text": user_prompt}]
@@ -84,7 +88,7 @@ def analyze_frames(frame_paths: list[Path], tier: str = "LT") -> dict:
                 },
             })
 
-    max_tokens = 800 if tier.upper() == "HT" else 500
+    max_tokens = 900 if tier.upper() in ("HT", "DY") else 500
 
     payload = json.dumps({
         "model": "gpt-4o",
@@ -121,12 +125,16 @@ def analyze_frames(frame_paths: list[Path], tier: str = "LT") -> dict:
             "cta_present": bool(result.get("cta_present", False)),
             "reasoning": result.get("reasoning", ""),
         }
-        # HT 추가 필드
-        if tier.upper() == "HT":
+        # HT/DY 추가 필드
+        if tier.upper() in ("HT", "DY"):
             parsed["product_visibility_score"] = int(result.get("product_visibility_score", 0))
             parsed["production_quality"] = result.get("production_quality", "medium")
             parsed["thumbnail_appeal"] = int(result.get("thumbnail_appeal", 0))
             parsed["text_overlay_content"] = result.get("text_overlay_content", "")
+            parsed["product_center_pct"] = int(result.get("product_center_pct", 0))
+            parsed["product_first_appearance_pct"] = int(result.get("product_first_appearance_pct", -1))
+            parsed["child_appearance_pct"] = int(result.get("child_appearance_pct", 0))
+            parsed["main_question"] = result.get("main_question", "")
         return parsed
     except urllib.error.HTTPError as e:
         err = e.read().decode("utf-8", errors="replace")[:200]

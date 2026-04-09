@@ -188,7 +188,23 @@ function showDashboard(){
   loadStats();
   loadTable(1);
 }
-(function(){var uid=checkAuth();if(uid){_currentUser=uid;showDashboard()}})();
+// ========== EMBED MODE ==========
+var _urlParams = new URLSearchParams(window.location.search);
+if(_urlParams.get('embed')==='1'){
+  document.addEventListener('DOMContentLoaded',function(){
+    document.getElementById('login-gate').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    // hide hero + region toggle in embed
+    var h=document.querySelector('.hero'); if(h)h.style.display='none';
+    var rt=document.getElementById('regionToggle'); if(rt)rt.parentElement.style.display='none';
+    // auto-set region from URL param
+    var rgn=_urlParams.get('region');
+    if(rgn){document.getElementById('tbl-region').value=rgn;}
+    loadStats();loadTable(1);
+  });
+} else {
+  (function(){var uid=checkAuth();if(uid){_currentUser=uid;showDashboard()}})();
+}
 
 function fmt(n){if(n==null)return '—';if(n>=1000000)return (n/1000000).toFixed(1)+'M';if(n>=1000)return (n/1000).toFixed(1)+'K';return n.toLocaleString()}
 function esc(s){if(!s)return '';var d=document.createElement('div');d.textContent=s;return d.innerHTML}

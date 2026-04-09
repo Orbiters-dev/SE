@@ -1913,7 +1913,9 @@ function buildFunnel(statusCounts,targetId,activeStatus){
   html+='<div style="grid-row:1;grid-column:3;display:flex;align-items:center;gap:2px;padding:5px 6px;background:linear-gradient(90deg,rgba(99,102,241,.05),transparent);border-radius:8px;margin-bottom:1px">';
   html+='<span style="font-size:10px;font-weight:800;color:var(--a);min-width:22px" title="Low Touch">&#x26A1;LT</span>';
   html+='<span class="fa" style="font-size:7px;color:var(--a)">&#x25B6;</span>';
-  html+=_row(LT_STAGES,ltCounts,HIL_LT);
+  // LT row = total minus HT (includes untyped creators)
+  var ltMerged={};LT_STAGES.forEach(function(s){ltMerged[s]=(statusCounts[s]||0)-(htCounts[s]||0)});
+  html+=_row(LT_STAGES,ltMerged,HIL_LT);
   html+='</div>';
   // HT row (bottom)
   html+='<div style="grid-row:2;grid-column:3;display:flex;align-items:center;gap:2px;padding:5px 6px;background:linear-gradient(90deg,rgba(168,85,247,.05),transparent);border-radius:8px;margin-top:1px">';

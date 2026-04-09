@@ -3726,11 +3726,16 @@ def generate():
                 continue
             prev_v = snaps[sd[0]]
             post_first_views[pid] = prev_v
+            high_water = prev_v  # track max to avoid phantom spikes from platform corrections
             for d in sd[1:]:
-                delta = max(0, snaps[d] - prev_v)
+                cur_v = snaps[d]
+                delta = max(0, cur_v - high_water)
                 if delta > 0:
                     post_daily_delta[pid][d] = delta
-                prev_v = snaps[d]
+                    high_water = cur_v
+                elif cur_v > high_water:
+                    high_water = cur_v
+                prev_v = cur_v
 
         cat_creator_daily = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         cat_creator_meta = {}

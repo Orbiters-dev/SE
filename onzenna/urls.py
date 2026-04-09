@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import views_dashboard
+from . import views_discovery
 
 app_name = "onzenna"
 
@@ -109,6 +110,10 @@ urlpatterns = [
 
     # Pipeline Conversations (draft storage for n8n)
     path("pipeline/conversations/", views.pipeline_conversations, name="pipeline_conversations"),
+
+    # Content Discovery Search API
+    path("discovery/search/", views_discovery.discovery_search, name="discovery_search"),
+    path("discovery/results/<str:job_id>/", views_discovery.discovery_results, name="discovery_results"),
 
     # Monitoring
     path("tables/", views.list_tables, name="list_tables"),

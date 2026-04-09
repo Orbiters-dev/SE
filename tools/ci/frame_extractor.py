@@ -1,5 +1,5 @@
 """
-CI Frame Extractor — LT/HT 키프레임 추출기
+CI Frame Extractor — LT/HT/DY 키프레임 추출기
 
 LT (10장): Hook 3장 (0.0s, 1.5s, 3.0s) + Body 7장 (15%/25%/35%/50%/65%/80%/95%)
 HT (30장 고정):
@@ -7,10 +7,16 @@ HT (30장 고정):
   - Body 23장:
     - ≤30초 영상: 3초부터 1초 간격
     - >30초 영상: 3초부터 균등 배분
+DY (Dynamic — 댓글 수 기반):
+  - <100 댓글: HT와 동일 (30장)
+  - 100-299 댓글: 20장 (Hook 7@0.5s + Body 13 균등)
+  - 300+ 댓글: 40장 (Hook 11@0.3s + Body 29 균등)
 
 Usage:
     from tools.ci.frame_extractor import extract_frames
     frames = extract_frames(Path("video.mp4"), Path("output/"), tier="LT")
+    # Dynamic tier
+    frames = extract_frames(Path("video.mp4"), Path("output/"), tier="DY", comments=350)
 """
 import math
 from pathlib import Path
@@ -37,6 +43,7 @@ def extract_frames(
     video_path: Path,
     output_dir: Path,
     tier: str = "LT",
+    comments: int = 0,
 ) -> list[Path]:
     """
     영상에서 키프레임 추출.
@@ -44,7 +51,8 @@ def extract_frames(
     Args:
         video_path: 입력 영상 경로
         output_dir: 프레임 저장 디렉토리 (없으면 생성)
-        tier: "LT" (10장) or "HT" (30장)
+        tier: "LT" (10장) or "HT" (30장) or "DY" (동적)
+        comments: 댓글 수 (DY tier에서 프레임 수 결정용)
 
     Returns:
         저장된 프레임 경로 리스트 (타임스탬프 순)
@@ -59,7 +67,7 @@ def extract_frames(
     duration = clip.duration
 
     try:
-        timestamps = _calc_timestamps(duration, tier)
+        timestamps = _calc_timestamps(duration, tier, comments=comments)
         frames = []
         for idx, (ts, label) in enumerate(timestamps):
             # 영상 범위 내로 clamp
@@ -99,9 +107,14 @@ def extract_audio(video_path: Path, output_path: Path) -> Path | None:
         clip.close()
 
 
-def _calc_timestamps(duration: float, tier: str) -> list[tuple[float, str]]:
+def _calc_timestamps(duration: float, tier: str, comments: int = 0) -> list[tuple[float, str]]:
     """
     프레임 추출 타임스탬프 계산.
+
+    Args:
+        duration: 영상 길이 (초)
+        tier: "LT", "HT", or "DY"
+        comments: 댓글 수 (DY tier용)
 
     Returns:
         [(timestamp_sec, label_str), ...] 타임스탬프 순 정렬
@@ -113,11 +126,33 @@ def _calc_timestamps(duration: float, tier: str) -> list[tuple[float, str]]:
             for pct in SHORT_VIDEO_PCTS
         ]
 
+    # DY tier: 댓글 수로 프레임 수/Hook 간격 결정
+    tier_up = tier.upper()
+    if tier_up == "DY":
+        if comments >= 300:
+            hook_interval = 0.3
+            hook_timestamps = [round(i * hook_interval, 1) for i in range(int(3.0 / hook_interval) + 1)]
+            body_count = 29
+        elif comments >= 100:
+            hook_interval = 0.5
+            hook_timestamps = HOOK_TIMESTAMPS_HT  # 0~3s, 0.5s = 7장
+            body_count = 13
+        else:
+            # <100 comments: HT와 동일
+            hook_timestamps = HOOK_TIMESTAMPS_HT
+            body_count = HT_BODY_COUNT  # 23
+    elif tier_up == "HT":
+        hook_timestamps = HOOK_TIMESTAMPS_HT
+        body_count = HT_BODY_COUNT
+    else:
+        hook_timestamps = None  # LT uses different logic
+        body_count = 0
+
     timestamps = []
 
-    if tier.upper() == "HT":
-        # HT Hook: 0~3초, 0.5초 간격 (7장)
-        for ts in HOOK_TIMESTAMPS_HT:
+    if tier_up in ("HT", "DY"):
+        # Hook zone
+        for ts in hook_timestamps:
             if ts <= duration:
                 timestamps.append((ts, f"{ts:.1f}s"))
     else:
@@ -133,23 +168,11 @@ def _calc_timestamps(duration: float, tier: str) -> list[tuple[float, str]]:
     if body_duration <= 0:
         return timestamps
 
-    if tier.upper() == "HT":
-        if duration <= 30.0:
-            # ≤30초: 1초 간격으로 최대 HT_BODY_COUNT장
-            t = body_start + 1.0
-            count = 0
-            while t < duration - 0.3 and count < HT_BODY_COUNT:
-                timestamps.append((t, f"{t:.1f}s"))
-                t += 1.0
-                count += 1
-            # 마지막 프레임: 영상 끝 직전 (아직 여유 있으면)
-            if count < HT_BODY_COUNT and duration - timestamps[-1][0] > 0.3:
-                timestamps.append((duration - 0.2, f"{duration-0.2:.1f}s"))
-        else:
-            # >30초: 23장 균등 배분
-            for i in range(HT_BODY_COUNT):
-                t = body_start + body_duration * (i + 1) / (HT_BODY_COUNT + 1)
-                timestamps.append((t, f"{t:.1f}s"))
+    if tier_up in ("HT", "DY"):
+        # 균등 배분
+        for i in range(body_count):
+            t = body_start + body_duration * (i + 1) / (body_count + 1)
+            timestamps.append((t, f"{t:.1f}s"))
     else:
         # LT: body 구간의 % 지점
         for pct in LT_BODY_PCTS:
@@ -158,17 +181,19 @@ def _calc_timestamps(duration: float, tier: str) -> list[tuple[float, str]]:
 
     # 타임스탬프 순 정렬 + 중복 제거
     timestamps.sort(key=lambda x: x[0])
+    # DY 300+ uses 0.3s interval → need tighter dedup threshold
+    dedup_threshold = 0.2 if (tier_up == "DY" and comments >= 300) else 0.3
     deduped = []
     for ts, label in timestamps:
-        if not deduped or abs(ts - deduped[-1][0]) > 0.3:
+        if not deduped or abs(ts - deduped[-1][0]) > dedup_threshold:
             deduped.append((ts, label))
 
     return deduped
 
 
-def get_frame_count(duration: float, tier: str) -> int:
+def get_frame_count(duration: float, tier: str, comments: int = 0) -> int:
     """프레임 수 사전 계산 (다운로드 전 예상치)."""
-    return len(_calc_timestamps(duration, tier))
+    return len(_calc_timestamps(duration, tier, comments=comments))
 
 
 if __name__ == "__main__":

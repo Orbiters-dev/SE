@@ -154,7 +154,7 @@ var US_TABS = [
 ];
 var JP_TABS = [
   {id:'jp-amazon',   label:'Amazon JP + 라쿠텐',   sec:'sec-jp-amazon',   ifr:null,              src:null,                                            color:'#ef4444'},
-  {id:'jp-ppc',      label:'Amazon PPC',           sec:'sec-jp-ppc',      ifr:'ifr-jp-ppc',      src:'https://orbiters-dev.github.io/WJ-Test1/jp-ppc-dashboard/index.html?embed=1',        color:'#f97316'},
+  {id:'jp-ppc',      label:'Amazon PPC',           sec:'sec-jp-ppc',      ifr:'ifr-jp-ppc',      src:'/api/onzenna/ppc/dashboard/?embed=1',        color:'#f97316'},
   {id:'jp-content',  label:'Content Intelligence', sec:'sec-jp-content',  ifr:'ifr-jp-content',  src:'/api/onzenna/content/dashboard/?embed=1&region=jp',       color:'#ec4899'},
   {id:'jp-pipeline', label:'Pipeline CRM',         sec:'sec-jp-pipeline', ifr:'ifr-jp-pipeline', src:'/api/onzenna/pipeline/dashboard/jp/?embed=1',   color:'#8b5cf6'},
   {id:'jp-creator-pool', label:'Creator Pool',    sec:'sec-jp-creator-pool', ifr:'ifr-jp-creator-pool', src:'/api/onzenna/datapool/dashboard/?embed=1&region=jp', color:'#0ea5e9'},
@@ -1148,10 +1148,12 @@ function renderJpAmazon() {
     html += '</tr></thead><tbody>';
     html += '<tr><td style="font-size:9px;color:var(--dim)">Views</td>';
     cv.forEach(function(v,i){ html += '<td style="text-align:right;font-family:var(--mono);font-size:9px'+(i===wLen2-1?';background:#f5f3ff':'')+'">'+((v>0)?v.toLocaleString():'&mdash;')+'</td>'; });
-    html += '</tr><tr><td style="font-size:9px;color:var(--dim)">WoW Delta</td>';
-    cvDelta.forEach(function(d,i){
-      var color = d>0?'var(--g)':d<0?'var(--r)':'var(--dim)'; var sign = d>0?'+':'';
-      html += '<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+color+(i===wLen2-1?';background:#f5f3ff':'')+'">'+(d!==0?sign+d.toLocaleString():'&mdash;')+'</td>';
+    html += '</tr><tr><td style="font-size:9px;color:var(--dim)">WoW %</td>';
+    cv.forEach(function(v,i){
+      if(i===0||!cv[i-1]){html+='<td style="text-align:right;font-size:9px;color:var(--dim)'+(i===wLen2-1?';background:#f5f3ff':'')+'">&mdash;</td>';return;}
+      var pct=Math.round((v-cv[i-1])/cv[i-1]*100);
+      var color=pct>0?'var(--g)':pct<0?'var(--r)':'var(--dim)';var sign=pct>0?'+':'';
+      html+='<td style="text-align:right;font-family:var(--mono);font-size:9px;color:'+color+(i===wLen2-1?';background:#f5f3ff':'')+'">'+sign+pct+'%</td>';
     });
     html += '</tr><tr style="font-weight:700"><td style="font-size:9px">Cumulative</td>';
     cvCum.forEach(function(c,i){ html += '<td style="text-align:right;font-family:var(--mono);font-size:9px'+(i===wLen2-1?';background:#f5f3ff':'')+'">'+((c>0)?c.toLocaleString():'&mdash;')+'</td>'; });
@@ -1177,12 +1179,13 @@ function renderJpAmazon() {
           html += '<td style="text-align:right;font-family:var(--mono);font-size:8px'+(i===wLen2-1?';background:#f5f3ff':'')+'">'+((v>0)?v.toLocaleString():'&mdash;')+'</td>';
         });
         html += '</tr>';
-        // Delta row
+        // Delta row (% change)
         html += '<tr>';
         arr.forEach(function(v,i){
-          var d = i>0?(v-(arr[i-1]||0)):0;
-          var dc = d>0?'var(--g)':d<0?'var(--r)':'var(--dim)'; var ds = d>0?'+':'';
-          html += '<td style="text-align:right;font-family:var(--mono);font-size:7px;color:'+dc+(i===wLen2-1?';background:#f5f3ff':'')+'">'+(d!==0?ds+d.toLocaleString():'')+'</td>';
+          if(i===0||!arr[i-1]){html+='<td style="text-align:right;font-size:7px;color:var(--dim)'+(i===wLen2-1?';background:#f5f3ff':'')+'"></td>';return;}
+          var pct=Math.round((v-arr[i-1])/arr[i-1]*100);
+          var dc=pct>0?'var(--g)':pct<0?'var(--r)':'var(--dim)';var ds=pct>0?'+':'';
+          html+='<td style="text-align:right;font-family:var(--mono);font-size:7px;color:'+dc+(i===wLen2-1?';background:#f5f3ff':'')+'">'+ds+pct+'%</td>';
         });
         html += '</tr>';
         // Cumulative row
@@ -1199,7 +1202,7 @@ function renderJpAmazon() {
 
     var cvW2=900, cvH2=100, cvPad=60, cvGap=Math.floor((cvW2-cvPad-20)/Math.max(wLen2,1));
     var cvMax=Math.max.apply(null,cvCum)||1;
-    html += '<svg width="'+cvW2+'" height="'+(cvH2+20)+'" style="font-family:var(--sans);max-width:100%;margin-top:8px">';
+    html += '<div style="overflow-x:auto"><svg viewBox="0 0 '+cvW2+' '+(cvH2+20)+'" width="'+cvW2+'" height="'+(cvH2+20)+'" style="font-family:var(--sans);max-width:100%;margin-top:8px">';
     var cvPts2=[];
     for(var i=0;i<wLen2;i++){ var cx3=cvPad+i*cvGap+cvGap/2, cy3=cvH2-(cvCum[i]||0)/cvMax*cvH2; cvPts2.push(cx3+','+cy3); }
     html += '<polygon points="'+(cvPad+cvGap/2)+','+cvH2+' '+cvPts2.join(' ')+' '+(cvPad+(wLen2-1)*cvGap+cvGap/2)+','+cvH2+'" fill="#10b98122"/>';
@@ -1209,7 +1212,7 @@ function renderJpAmazon() {
       if(cvCum[i]>0) html += '<circle cx="'+cx3+'" cy="'+cy3+'" r="3" fill="#10b981"><title>Cumulative: '+cvCum[i].toLocaleString()+'</title></circle>';
       html += '<text x="'+cx3+'" y="'+(cvH2+12)+'" text-anchor="middle" font-size="7" fill="#64748b">'+wL2[i]+'</text>';
     }
-    html += '</svg>';
+    html += '</svg></div>';
     html += '</div></div>';
   }
 
