@@ -1438,10 +1438,10 @@ def run_daily(region="all", dry_run=False, send_mail=True):
         print(f"[JP] Total: {len(jp_norm)} posts, {len(jp_creators)} creators")
 
         # Fetch metrics for tracked JP posts via direct URL scraping
-        # Same as US: scrape active posts for views/likes/comments (D+60 tracking)
+        # JP: always scrape up to D+120 (smaller dataset than US, ~170 posts)
+        # US uses D+30 daily / D+90 Monday-only, but JP needs full coverage
         sh, creds = get_sheets()
-        is_monday = datetime.now().weekday() == 0
-        jp_scrape_max_d = 90 if is_monday else 30
+        jp_scrape_max_d = 120
         if not dry_run:
             active_jp_urls = get_active_ig_urls(sh, "JP D+60 Tracker", max_d_plus=jp_scrape_max_d)
             if active_jp_urls:
