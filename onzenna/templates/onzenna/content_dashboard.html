@@ -693,6 +693,7 @@ function _pipelineData(){
   var results=[];
   _orders.forEach(function(o){
     if(!o.shipping_date) return;
+    if(_brand!=='all' && (o.brand||'').split(', ').indexOf(_brand)===-1) return;
     var handle=(o.account_handle||'').toLowerCase().replace('@','');
     var matchedPosts=postsByUser[handle];
     if(!matchedPosts && handle){
@@ -937,6 +938,7 @@ function renderAggregatePerformance(){
   function addSales(arr){
     arr.forEach(function(r){
       if(!r.date || r.date<'2025-01') return;
+      if(_brand!=='all' && (r.brand||'').split(', ').indexOf(_brand)===-1) return;
       var key;
       if(_aggGranularity==='monthly'){
         key=r.date.slice(0,7);
