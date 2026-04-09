@@ -157,12 +157,11 @@ var JP_TABS = [
   {id:'jp-ppc',      label:'Amazon PPC',           sec:'sec-jp-ppc',      ifr:'ifr-jp-ppc',      src:'https://orbiters-dev.github.io/WJ-Test1/jp-ppc-dashboard/index.html?embed=1',        color:'#f97316'},
   {id:'jp-content',  label:'Content Intelligence', sec:'sec-jp-content',  ifr:'ifr-jp-content',  src:'/api/onzenna/content/dashboard/?embed=1&region=jp',       color:'#ec4899'},
   {id:'jp-pipeline', label:'Pipeline CRM',         sec:'sec-jp-pipeline', ifr:'ifr-jp-pipeline', src:'/api/onzenna/pipeline/dashboard/jp/?embed=1',   color:'#8b5cf6'},
-  {id:'jp-fin',      label:'Financial KPIs',       sec:'sec-jp-fin',      ifr:null,              src:null,                                            color:'#10b981'},
   {id:'jp-creator-pool', label:'Creator Pool',    sec:'sec-jp-creator-pool', ifr:'ifr-jp-creator-pool', src:'/api/onzenna/datapool/dashboard/?embed=1&region=jp', color:'#0ea5e9'},
   {id:'jp-content-pool', label:'Content Pool',    sec:'sec-jp-content-pool', ifr:'ifr-jp-content-pool', src:'/api/onzenna/datapool/content/?embed=1&region=jp',   color:'#a855f7'}
 ];
 var _allSecs = ['sec-amazon-ppc','sec-content-intel','sec-pipeline-crm','sec-fin-kpis','sec-creator-pool','sec-content-pool',
-                'sec-jp-amazon','sec-jp-ppc','sec-jp-content','sec-jp-pipeline','sec-jp-fin','sec-jp-creator-pool','sec-jp-content-pool'];
+                'sec-jp-amazon','sec-jp-ppc','sec-jp-content','sec-jp-pipeline','sec-jp-creator-pool','sec-jp-content-pool'];
 var _curRegion = 'us';
 var _curSection = {};
 
@@ -1157,6 +1156,47 @@ function renderJpAmazon() {
     html += '</tr><tr style="font-weight:700"><td style="font-size:9px">Cumulative</td>';
     cvCum.forEach(function(c,i){ html += '<td style="text-align:right;font-family:var(--mono);font-size:9px'+(i===wLen2-1?';background:#f5f3ff':'')+'">'+((c>0)?c.toLocaleString():'&mdash;')+'</td>'; });
     html += '</tr></tbody></table></div>';
+
+    // Per-creator breakdown table
+    if (W.content_by_creator && Object.keys(W.content_by_creator).length > 0) {
+      var creators = Object.keys(W.content_by_creator);
+      var CREATOR_COLORS = ['#8b5cf6','#eab308','#0ea5e9','#f97316','#ec4899','#10b981','#ef4444','#6366f1','#94a3b8','#64748b'];
+      html += '<div style="margin-top:12px;font-weight:700;font-size:11px;color:#10b981">&#x1F464; Per-Creator Breakdown</div>';
+      html += '<div style="overflow-x:auto;margin-top:4px"><table><thead><tr><th style="font-size:8px">Creator</th><th style="text-align:right;font-size:8px">Total</th>';
+      wL2.forEach(function(l,i){ html += '<th style="text-align:right;font-size:8px'+(i===wLen2-1?';background:#f5f3ff':'')+'">'+l+'</th>'; });
+      html += '</tr></thead><tbody>';
+      creators.forEach(function(name, ci) {
+        var arr = W.content_by_creator[name];
+        var total = arr.reduce(function(a,b){return a+b;},0);
+        if (total === 0) return;
+        var color = CREATOR_COLORS[ci % CREATOR_COLORS.length];
+        // Views row
+        html += '<tr><td rowspan="3" style="font-size:9px;font-weight:700;color:'+color+';border-right:2px solid '+color+';vertical-align:top;white-space:nowrap">'+name+'</td>';
+        html += '<td rowspan="3" style="text-align:right;font-family:var(--mono);font-size:9px;font-weight:700;vertical-align:top">'+total.toLocaleString()+'</td>';
+        arr.forEach(function(v,i){
+          html += '<td style="text-align:right;font-family:var(--mono);font-size:8px'+(i===wLen2-1?';background:#f5f3ff':'')+'">'+((v>0)?v.toLocaleString():'&mdash;')+'</td>';
+        });
+        html += '</tr>';
+        // Delta row
+        html += '<tr>';
+        arr.forEach(function(v,i){
+          var d = i>0?(v-(arr[i-1]||0)):0;
+          var dc = d>0?'var(--g)':d<0?'var(--r)':'var(--dim)'; var ds = d>0?'+':'';
+          html += '<td style="text-align:right;font-family:var(--mono);font-size:7px;color:'+dc+(i===wLen2-1?';background:#f5f3ff':'')+'">'+(d!==0?ds+d.toLocaleString():'')+'</td>';
+        });
+        html += '</tr>';
+        // Cumulative row
+        html += '<tr style="border-bottom:1px solid #e2e8f0">';
+        var ccum=0;
+        arr.forEach(function(v,i){
+          ccum+=v;
+          html += '<td style="text-align:right;font-family:var(--mono);font-size:7px;color:#64748b'+(i===wLen2-1?';background:#f5f3ff':'')+'">'+(ccum>0?ccum.toLocaleString():'')+'</td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
     var cvW2=900, cvH2=100, cvPad=60, cvGap=Math.floor((cvW2-cvPad-20)/Math.max(wLen2,1));
     var cvMax=Math.max.apply(null,cvCum)||1;
     html += '<svg width="'+cvW2+'" height="'+(cvH2+20)+'" style="font-family:var(--sans);max-width:100%;margin-top:8px">';

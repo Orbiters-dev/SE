@@ -396,6 +396,53 @@ def get_active_ig_urls(sh, tracker_tab, max_d_plus=30):
     return ig_urls
 
 
+def _get_jp_zero_view_urls():
+    """Query PG for JP posts with 0 views and return [(post_id, url)] for Apify scraping.
+
+    Fetches ALL JP content_posts from PG, filters locally for views_30d=0/NULL.
+    Returns up to 100 URLs per run to avoid excessive Apify costs.
+    """
+    try:
+        import requests as _req
+        load_env()
+        user = os.getenv("ORBITOOLS_USER", "admin")
+        pw = os.getenv("ORBITOOLS_PASS", "")
+        # Fetch all JP posts (typically ~200)
+        resp = _req.get(
+            "https://orbitools.orbiters.co.kr/api/datakeeper/query/",
+            params={"table": "content_posts", "limit": 500,
+                    "where": "region='jp'"},
+            auth=(user, pw),
+            timeout=30,
+            verify=False,
+        )
+        data = resp.json()
+        rows = data.get("rows", [])
+        # If 'where' param not supported, filter locally
+        if not rows:
+            resp2 = _req.get(
+                "https://orbitools.orbiters.co.kr/api/datakeeper/query/",
+                params={"table": "content_posts", "limit": 1000},
+                auth=(user, pw),
+                timeout=30,
+                verify=False,
+            )
+            rows = resp2.json().get("rows", [])
+        result = []
+        for r in rows:
+            if (r.get("region", "").lower() == "jp"
+                    and not r.get("views_30d")
+                    and r.get("post_id")
+                    and r.get("platform", "instagram") == "instagram"):
+                url = r.get("url") or f"https://www.instagram.com/p/{r['post_id']}/"
+                result.append((r["post_id"], url))
+        print(f"[JP-BACKFILL] Found {len(result)} zero-view JP posts in PG (from {len(rows)} total)")
+        return result
+    except Exception as e:
+        print(f"[JP-BACKFILL] PG query failed: {e}")
+        return []
+
+
 def fetch_ig_profiles(client, usernames):
     """Fetch follower counts for username list."""
     if not usernames:
@@ -540,7 +587,7 @@ BRAND_PRODUCT_RULES = [
 # NOTE: "Onzenna" is the umbrella storefront, NOT a brand.
 # Posts mentioning only @onzenna without a specific brand → use product keyword fallback.
 _BRAND_REGEX = [
-    ("Grosmimi",   _re.compile(r"grosmimi|growmimi|gros\s*mimi", _re.IGNORECASE)),
+    ("Grosmimi",   _re.compile(r"grosmimi|growmimi|gros\s*mimi|グロミミ|ぐろみみ", _re.IGNORECASE)),
     ("CHA&MOM",    _re.compile(r"cha\s*&\s*mom|cha_mom|chaandmom|chamom|phyto.?seline", _re.IGNORECASE)),
     ("Naeiae",     _re.compile(r"naeiae|naeia|rice\s*puff|rice\s*snack|rice\s*cracker", _re.IGNORECASE)),
     ("Goongbe",    _re.compile(r"goongbe", _re.IGNORECASE)),
@@ -550,7 +597,7 @@ _BRAND_REGEX = [
 
 # Product-keyword fallback: when only @onzenna/zezebaebae is mentioned
 _PRODUCT_BRAND_REGEX = [
-    ("Grosmimi",   _re.compile(r"straw\s*cup|tumbler|sippy|bottle|ppsu|stainless\s*steel\s*(cup|bottle|tumbler)", _re.IGNORECASE)),
+    ("Grosmimi",   _re.compile(r"straw\s*cup|tumbler|sippy|bottle|ppsu|stainless\s*steel\s*(cup|bottle|tumbler)|ストローマグ|ストローカップ|タンブラー|哺乳瓶|マグ|ストロー\s*マグ", _re.IGNORECASE)),
     ("CHA&MOM",    _re.compile(r"lotion|cream|body\s*wash|moisturiz|skincare|hair\s*wash", _re.IGNORECASE)),
     ("Naeiae",     _re.compile(r"rice|snack|cracker|puff", _re.IGNORECASE)),
     ("Commemoi",   _re.compile(r"bookstand|stool|furniture|desk", _re.IGNORECASE)),
@@ -1353,19 +1400,93 @@ def run_daily(region="all", dry_run=False, send_mail=True):
     if region in ("all", "jp"):
         print("\n===== JP Pipeline =====")
 
+        # IG tagged — Graph API (free) or Apify fallback
         if dry_run:
             jp_path = max(OUTPUT_DIR.glob("*_jp_tagged*.json"), key=os.path.getmtime, default=None)
             jp_raw = json.load(open(jp_path, encoding="utf-8")) if jp_path else []
             print(f"[DRY] Loaded {len(jp_raw)} from {jp_path}")
+        elif use_graph:
+            jp_accounts = {k: v for k, v in IG_GRAPH_ACCOUNTS.items()
+                           if k == "grosmimi_japan" and v}
+            jp_raw = fetch_ig_tagged_graph(jp_accounts, graph_token) if jp_accounts else []
+            if not jp_accounts:
+                print("[JP] No Graph API ID for grosmimi_japan — using Apify")
+                jp_raw = fetch_ig_tagged(client, JP_TAGGED_URLS, limit=500)
+            save_json(jp_raw, "jp_tagged_raw")
         else:
             jp_raw = fetch_ig_tagged(client, JP_TAGGED_URLS, limit=500)
             save_json(jp_raw, "jp_tagged_raw")
 
+        # IG profiles for follower data — new JP creators only
         jp_norm = normalize_ig(jp_raw)
+        jp_usernames = set(d["username"] for d in jp_norm)
+        jp_fmap_path = max(OUTPUT_DIR.glob("*_jp_follower_map.json"), key=os.path.getmtime, default=None)
+        jp_fmap = json.load(open(jp_fmap_path, encoding="utf-8")) if jp_fmap_path else {}
+        if not dry_run and jp_usernames:
+            new_jp_usernames = jp_usernames - set(jp_fmap.keys())
+            if new_jp_usernames:
+                print(f"[JP PROFILE] {len(new_jp_usernames)} new creators (skip {len(jp_usernames)-len(new_jp_usernames)} known)")
+                new_jp_fmap = fetch_ig_profiles(client, new_jp_usernames)
+                jp_fmap.update(new_jp_fmap)
+                save_json(jp_fmap, "jp_follower_map")
+            else:
+                print(f"[JP PROFILE] All {len(jp_usernames)} creators known - skipping Apify")
+
+        # Re-normalize with follower data
+        jp_norm = normalize_ig(jp_raw, jp_fmap)
         jp_creators = set(d["username"] for d in jp_norm)
         print(f"[JP] Total: {len(jp_norm)} posts, {len(jp_creators)} creators")
 
+        # Fetch metrics for tracked JP posts via direct URL scraping
+        # Same as US: scrape active posts for views/likes/comments (D+60 tracking)
         sh, creds = get_sheets()
+        is_monday = datetime.now().weekday() == 0
+        jp_scrape_max_d = 90 if is_monday else 30
+        if not dry_run:
+            active_jp_urls = get_active_ig_urls(sh, "JP D+60 Tracker", max_d_plus=jp_scrape_max_d)
+            if active_jp_urls:
+                jp_url_raw = fetch_ig_by_urls(client, active_jp_urls)
+                jp_url_norm = normalize_ig(jp_url_raw, jp_fmap)
+                # Merge: update views for posts already in jp_norm
+                existing_jp_pids = {d["post_id"]: d for d in jp_norm}
+                jp_url_added = 0
+                for d in jp_url_norm:
+                    if d["post_id"] in existing_jp_pids:
+                        existing_jp_pids[d["post_id"]]["views"] = d["views"]
+                        existing_jp_pids[d["post_id"]]["likes"] = d["likes"]
+                        existing_jp_pids[d["post_id"]]["comments"] = d["comments"]
+                    else:
+                        jp_norm.append(d)
+                        jp_url_added += 1
+                print(f"[JP] IG URL scrape: {len(jp_url_norm)} scraped, "
+                      f"{len(jp_url_norm) - jp_url_added} updated, +{jp_url_added} new")
+            else:
+                print(f"[JP] No active IG posts in D+0~D+{jp_scrape_max_d} range")
+
+        # Also scrape JP posts from PG that have 0 views (backfill gap)
+        if not dry_run:
+            jp_zero_urls = _get_jp_zero_view_urls()
+            if jp_zero_urls:
+                # Filter out posts already scraped above
+                already_scraped = {d["post_id"] for d in jp_norm}
+                jp_zero_urls = [u for pid, u in jp_zero_urls if pid not in already_scraped]
+                if jp_zero_urls:
+                    print(f"[JP-BACKFILL] Scraping {len(jp_zero_urls)} zero-view posts from PG...")
+                    bf_raw = fetch_ig_by_urls(client, jp_zero_urls[:100])  # limit 100 per run
+                    bf_norm = normalize_ig(bf_raw, jp_fmap)
+                    existing_jp_pids = {d["post_id"]: d for d in jp_norm}
+                    bf_added = 0
+                    for d in bf_norm:
+                        if d["post_id"] in existing_jp_pids:
+                            existing_jp_pids[d["post_id"]]["views"] = d["views"]
+                            existing_jp_pids[d["post_id"]]["likes"] = d["likes"]
+                            existing_jp_pids[d["post_id"]]["comments"] = d["comments"]
+                        else:
+                            jp_norm.append(d)
+                            bf_added += 1
+                    print(f"[JP-BACKFILL] {len(bf_norm)} scraped, +{bf_added} new")
+
+        # Update sheets
         new_pm = update_posts_master(sh, jp_norm, "JP Posts Master")
         time.sleep(1)
         pm_ws_jp = sh.worksheet("JP Posts Master")
@@ -1403,6 +1524,10 @@ def run_daily(region="all", dry_run=False, send_mail=True):
             for p in us_data:
                 p["region"] = "us"
                 p["source"] = "apify"
+                # Map views/likes/comments → views_30d/likes_30d/comments_30d for PG model
+                p["views_30d"] = p.get("views", 0) or 0
+                p["likes_30d"] = p.get("likes", 0) or 0
+                p["comments_30d"] = p.get("comments", 0) or 0
                 all_posts.append(p)
                 all_metrics.append({
                     "post_id": p["post_id"],
@@ -1416,6 +1541,10 @@ def run_daily(region="all", dry_run=False, send_mail=True):
             for p in jp_norm:
                 p["region"] = "jp"
                 p["source"] = "apify"
+                # Map views/likes/comments → views_30d/likes_30d/comments_30d for PG model
+                p["views_30d"] = p.get("views", 0) or 0
+                p["likes_30d"] = p.get("likes", 0) or 0
+                p["comments_30d"] = p.get("comments", 0) or 0
                 all_posts.append(p)
                 all_metrics.append({
                     "post_id": p["post_id"],

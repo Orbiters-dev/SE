@@ -67,7 +67,7 @@ ILLEGAL_CHARS = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
 
 # Apify actors
 IG_PROFILE_SCRAPER = "apify/instagram-profile-scraper"
-TT_SCRAPER = "clockworks/free-tiktok-scraper"
+TT_SCRAPER = "GdWCkxBtKWOsKjdch"  # TikTok profile + posts (upgraded from clockworks)
 
 BATCH_SIZE = 20
 COOLDOWN_SECS = 5
@@ -232,9 +232,9 @@ def scrape_tiktok_profiles(handles: list[str], client) -> list[dict]:
         print(f"  [TT] Chunk {chunk_num}/{total_chunks}: {len(batch)} handles...")
 
         try:
-            queries = [f"@{h}" for h in batch]
             run_input = {
-                "searchQueries": queries,
+                "profiles": batch,
+                "resultsPerPage": 30,
             }
             run = client.actor(TT_SCRAPER).call(run_input=run_input)
             items = list(client.dataset(run["defaultDatasetId"]).iterate_items())

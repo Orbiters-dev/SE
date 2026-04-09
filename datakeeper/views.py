@@ -287,6 +287,10 @@ def query_rows(request):
     if source and "source" in field_names:
         qs = qs.filter(source=source)
 
+    region = request.GET.get("region")
+    if region and "region" in field_names:
+        qs = qs.filter(region=region)
+
     username = request.GET.get("username")
     if username and "username" in field_names:
         qs = qs.filter(username__iexact=username)
@@ -295,7 +299,7 @@ def query_rows(request):
     if "date" in field_names:
         qs = qs.order_by("-date")
 
-    limit = min(int(request.GET.get("limit", 5000)), 10000)
+    limit = min(int(request.GET.get("limit", 5000)), 100000)
     qs = qs[:limit]
 
     # Serialize

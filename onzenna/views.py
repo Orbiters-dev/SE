@@ -1154,10 +1154,53 @@ def pipeline_creators_list(request):
         limit = 50
     total = qs.count()
     offset = (page - 1) * limit
-    creators = qs[offset:offset + limit]
+    creators = list(qs[offset:offset + limit])
+
+    # ── Enrich with latest post data from gk_content_posts ──
+    handles = set()
+    for c in creators:
+        if c.ig_handle:
+            handles.add(c.ig_handle.lower())
+        if c.tiktok_handle:
+            handles.add(c.tiktok_handle.lower())
+
+    latest_posts = {}  # handle -> {views, likes, post_date, followers}
+    if handles:
+        from django.db import connection
+        placeholders = ",".join(["%s"] * len(handles))
+        sql = f"""
+            SELECT DISTINCT ON (LOWER(username))
+                LOWER(username), views_30d, likes_30d, post_date, followers
+            FROM gk_content_posts
+            WHERE LOWER(username) IN ({placeholders})
+              AND username IS NOT NULL AND username != ''
+            ORDER BY LOWER(username), post_date DESC NULLS LAST
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(sql, list(handles))
+            for row in cursor.fetchall():
+                latest_posts[row[0]] = {
+                    "latest_views": row[1],
+                    "latest_likes": row[2],
+                    "latest_post_date": row[3].isoformat() if row[3] else None,
+                    "cp_followers": row[4],
+                }
+
+    results = []
+    for c in creators:
+        data = _serialize_creator(c)
+        # Merge latest post data
+        lp = latest_posts.get((c.ig_handle or "").lower()) or latest_posts.get((c.tiktok_handle or "").lower()) or {}
+        data["latest_views"] = lp.get("latest_views")
+        data["latest_likes"] = lp.get("latest_likes")
+        data["latest_post_date"] = lp.get("latest_post_date")
+        # Fallback followers from content_posts if creator has 0/null
+        if not data.get("followers") and lp.get("cp_followers"):
+            data["followers"] = lp["cp_followers"]
+        results.append(data)
 
     return _cors_headers(request, JsonResponse({
-        "results": [_serialize_creator(c) for c in creators],
+        "results": results,
         "total": total,
         "page": page,
         "limit": limit,
@@ -1179,6 +1222,12 @@ def pipeline_creator_detail(request, creator_id):
     if request.method == 'PUT':
         body = _json_body(request)
         old_status = creator.pipeline_status
+
+        # Brand assignment lock: Not Started → brand change blocked
+        if "brand" in body and body["brand"] and creator.pipeline_status == "Not Started":
+            return _cors_headers(request, JsonResponse(
+                {"error": "Cannot assign brand while status is 'Not Started'. Set status to 'Draft Ready' or higher first."},
+                status=400))
 
         for field in ("ig_handle", "tiktok_handle", "full_name", "platform",
                       "pipeline_status", "brand", "outreach_type", "source", "notes",
@@ -1988,7 +2037,7 @@ def import_syncly_discovery(request):
                 followers=followers,
                 avg_views=int((followers or 0) * (0.15 if "tiktok" in plat else 0.08)),
                 initial_discovery_date=post_date or date_cls.today(),
-                notes=f"Syncly discovery. Post: {url or 'N/A'}",
+                notes=url or "",
             )
             created += 1
             imported.append({
@@ -4236,3 +4285,254 @@ def discovery_posts(request):
 
     except Exception as e:
         return _cors_headers(request, JsonResponse({"error": str(e)}, status=500))
+
+
+# ── Creator Duplicate Detection + Merge ──────────────────────────────────────
+
+@csrf_exempt
+def creator_find_duplicates(request):
+    """GET: Find duplicate creator groups by email, phone, name, or handle overlap."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+
+    region = request.GET.get("region")
+    qs = PipelineCreator.objects.all()
+    if region:
+        qs = qs.filter(region__iexact=region)
+
+    creators = list(qs.values("id", "ig_handle", "tiktok_handle", "full_name",
+                              "email", "phone", "region", "pipeline_status",
+                              "brand", "followers", "platform"))
+
+    import re
+    email_map = {}
+    phone_map = {}
+    name_map = {}
+    handle_map = {}
+
+    for c in creators:
+        cid = str(c["id"])
+        email = (c["email"] or "").strip().lower()
+        if email and "@discovered." not in email:
+            email_map.setdefault(email, []).append(cid)
+        phone = re.sub(r"[^\d]", "", c["phone"] or "")
+        if len(phone) >= 7:
+            phone_map.setdefault(phone, []).append(cid)
+        name = (c["full_name"] or "").strip().lower()
+        rgn = (c["region"] or "us").lower()
+        if name and len(name) > 2:
+            name_map.setdefault((name, rgn), []).append(cid)
+        ig = (c["ig_handle"] or "").strip().lower()
+        tt = (c["tiktok_handle"] or "").strip().lower()
+        if ig:
+            handle_map.setdefault(ig, []).append(cid)
+        if tt:
+            handle_map.setdefault(tt, []).append(cid)
+
+    # Union-find for grouping
+    parent = {}
+
+    def find(x):
+        while parent.get(x, x) != x:
+            parent[x] = parent.get(parent[x], parent[x])
+            x = parent[x]
+        return x
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[ra] = rb
+
+    reasons = {}
+
+    def add_pair(id1, id2, reason):
+        union(id1, id2)
+        key = tuple(sorted([id1, id2]))
+        reasons.setdefault(key, set()).add(reason)
+
+    for ids in email_map.values():
+        if len(ids) > 1:
+            for i in range(len(ids)):
+                for j in range(i + 1, len(ids)):
+                    add_pair(ids[i], ids[j], "email")
+    for ids in phone_map.values():
+        if len(ids) > 1:
+            for i in range(len(ids)):
+                for j in range(i + 1, len(ids)):
+                    add_pair(ids[i], ids[j], "phone")
+    for ids in name_map.values():
+        if len(ids) > 1:
+            for i in range(len(ids)):
+                for j in range(i + 1, len(ids)):
+                    add_pair(ids[i], ids[j], "name")
+    for ids in handle_map.values():
+        if len(ids) > 1:
+            for i in range(len(ids)):
+                for j in range(i + 1, len(ids)):
+                    add_pair(ids[i], ids[j], "handle")
+
+    # Bio cross-link: IG bio mentions TikTok handle (or vice versa)
+    try:
+        from django.db import connection
+        with connection.cursor() as cur:
+            cur.execute("""
+                SELECT DISTINCT ON (LOWER(username))
+                    LOWER(username), bio_text
+                FROM gk_content_posts
+                WHERE bio_text IS NOT NULL AND LENGTH(bio_text) > 5
+                ORDER BY LOWER(username), post_date DESC NULLS LAST
+            """)
+            bio_map = {r[0]: r[1] for r in cur.fetchall()}
+
+        tt_re = re.compile(r'(?:tik\s*tok|tt)\s*[:\-@/]\s*@?([a-zA-Z0-9_.]{2,30})', re.IGNORECASE)
+        tt_url_re = re.compile(r'tiktok\.com/@([a-zA-Z0-9_.]{2,30})', re.IGNORECASE)
+        ig_re = re.compile(r'(?:instagram|ig|insta)\s*[:\-@/]\s*@?([a-zA-Z0-9_.]{2,30})', re.IGNORECASE)
+        domain_re = re.compile(r'\.(com|co|org|net|io|uk)$')
+
+        # Build reverse maps: ig_handle->cid, tt_handle->cid
+        ig_cid = {}
+        tt_cid = {}
+        for c in creators:
+            cid = str(c["id"])
+            ig = (c["ig_handle"] or "").strip().lower()
+            tt = (c["tiktok_handle"] or "").strip().lower()
+            if ig:
+                ig_cid[ig] = cid
+            if tt:
+                tt_cid[tt] = cid
+
+        for handle, bio in bio_map.items():
+            source_cid = ig_cid.get(handle) or tt_cid.get(handle)
+            if not source_cid:
+                continue
+            # If source is IG creator, look for TT handle in bio
+            if handle in ig_cid:
+                for pat in [tt_re, tt_url_re]:
+                    m = pat.search(bio)
+                    if m:
+                        found = m.group(1).strip('.').lower()
+                        if found in tt_cid and not domain_re.search(found):
+                            target_cid = tt_cid[found]
+                            if source_cid != target_cid:
+                                add_pair(source_cid, target_cid, "bio_crosslink")
+                        break
+            # If source is TT creator, look for IG handle in bio
+            if handle in tt_cid:
+                m = ig_re.search(bio)
+                if m:
+                    found = m.group(1).strip('.').lower()
+                    if found in ig_cid and not domain_re.search(found):
+                        target_cid = ig_cid[found]
+                        if source_cid != target_cid:
+                            add_pair(source_cid, target_cid, "bio_crosslink")
+    except Exception as e:
+        pass  # bio crosslink is best-effort
+
+    groups = {}
+    c_by_id = {str(c["id"]): c for c in creators}
+    for cid in c_by_id:
+        root = find(cid)
+        groups.setdefault(root, []).append(cid)
+
+    result = []
+    for gid, (root, members) in enumerate(
+            [(r, m) for r, m in groups.items() if len(m) > 1]):
+        group_reasons = set()
+        for i in range(len(members)):
+            for j in range(i + 1, len(members)):
+                key = tuple(sorted([members[i], members[j]]))
+                group_reasons.update(reasons.get(key, set()))
+        result.append({
+            "group_id": gid,
+            "match_reasons": sorted(group_reasons),
+            "confidence": len(group_reasons),
+            "creators": [c_by_id[m] for m in members],
+        })
+    result.sort(key=lambda g: -g["confidence"])
+
+    return _cors_headers(request, JsonResponse({
+        "duplicate_groups": result,
+        "total_groups": len(result),
+    }))
+
+
+@csrf_exempt
+def creator_merge(request):
+    """POST: Merge secondary creators into a primary creator."""
+    if request.method == 'OPTIONS':
+        return _cors_headers(request, HttpResponse(status=204))
+    if request.method != 'POST':
+        return _cors_headers(request, JsonResponse({"error": "POST only"}, status=405))
+
+    body = _json_body(request)
+    primary_id = body.get("primary_id")
+    secondary_ids = body.get("secondary_ids", [])
+
+    if not primary_id or not secondary_ids:
+        return _cors_headers(request, JsonResponse(
+            {"error": "primary_id and secondary_ids required"}, status=400))
+
+    try:
+        primary = PipelineCreator.objects.get(id=primary_id)
+    except PipelineCreator.DoesNotExist:
+        return _cors_headers(request, JsonResponse(
+            {"error": f"Primary {primary_id} not found"}, status=404))
+
+    merged_handles = []
+    for sid in secondary_ids:
+        try:
+            sec = PipelineCreator.objects.get(id=sid)
+        except PipelineCreator.DoesNotExist:
+            continue
+
+        merged_handles.append(sec.ig_handle or sec.tiktok_handle or sec.email)
+
+        # Fill empty fields on primary from secondary
+        for f in ["ig_handle", "tiktok_handle", "full_name", "phone",
+                   "business_category", "child_1_birthday", "child_2_birthday"]:
+            if not getattr(primary, f) and getattr(sec, f):
+                setattr(primary, f, getattr(sec, f))
+
+        # Prefer non-discovered email
+        if "@discovered." in (primary.email or ""):
+            if sec.email and "@discovered." not in sec.email:
+                primary.email = sec.email
+
+        # Numeric: take max
+        for f in ["followers", "avg_views"]:
+            if (getattr(sec, f) or 0) > (getattr(primary, f) or 0):
+                setattr(primary, f, getattr(sec, f))
+
+        # Merge source tags
+        if sec.sources:
+            existing = set(primary.sources or [])
+            for s in sec.sources:
+                existing.add(s)
+            primary.sources = list(existing)
+
+        # Sum contact counts
+        primary.contact_count = (primary.contact_count or 0) + (sec.contact_count or 0)
+        primary.gmail_total_sent = (primary.gmail_total_sent or 0) + (sec.gmail_total_sent or 0)
+        primary.gmail_total_received = (primary.gmail_total_received or 0) + (sec.gmail_total_received or 0)
+
+        # Boolean flags: OR
+        for f in ["is_shopify_pr", "is_apify_tagged", "is_manychat_contact", "is_business_account"]:
+            if getattr(sec, f):
+                setattr(primary, f, True)
+
+        # Platform: Multi if different
+        if sec.platform and primary.platform and sec.platform != primary.platform:
+            primary.platform = "Multi"
+
+        sec.delete()
+
+    merge_note = f"Merged from: {', '.join(merged_handles)}"
+    primary.notes = f"{primary.notes}\n{merge_note}" if primary.notes else merge_note
+    primary.save()
+
+    return _cors_headers(request, JsonResponse({
+        "merged": True,
+        "primary": _serialize_creator(primary),
+        "merged_count": len(merged_handles),
+        "merged_handles": merged_handles,
+    }))

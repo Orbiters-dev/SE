@@ -234,6 +234,7 @@ tr.data-row:hover{background:var(--abg)}
       <option value="lastcontact_desc">Last Contacted (Recent)</option>
     </select>
     <button class="btn" onclick="resetFilters()" style="background:var(--abg);color:var(--a);font-size:11px;padding:6px 12px;border:1px solid var(--a)">Reset All</button>
+    <button class="btn" onclick="findDuplicates()" style="background:#fef3c7;color:#92400e;font-size:11px;padding:6px 12px;border:1px solid #f59e0b">Find Duplicates</button>
     <div class="count" id="tbl-count">Loading...</div>
   </div>
   <div class="scroll-wrap" id="tbl-scroll">
@@ -295,11 +296,22 @@ function showDashboard(){
   loadTable();
 }
 
+// ========== EMBED MODE ==========
+if(new URLSearchParams(window.location.search).get('embed')==='1'){
+  document.addEventListener('DOMContentLoaded',function(){
+    var n=document.querySelector('.nav-bar'); if(n)n.style.display='none';
+    var h=document.querySelector('.hero'); if(h)h.style.display='none';
+    document.getElementById('login-gate').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    loadStats();loadTable();
+  });
+} else {
 // ========== INIT ==========
 (function(){
   var uid=checkAuth();
   if(uid){_currentUser=uid;showDashboard()}
 })();
+}
 
 // ========== HELPERS ==========
 function fmt(n){if(n==null)return '&mdash;';if(n>=1000000)return (n/1000000).toFixed(1)+'M';if(n>=1000)return (n/1000).toFixed(1)+'K';return n.toLocaleString()}
@@ -446,14 +458,11 @@ var COLUMNS=[
   {key:'brand',label:'Brand',sortable:true,filterable:true},
   {key:'outreach_type',label:'Type',sortable:true,filterable:true},
   {key:'source',label:'Source',sortable:true,filterable:true},
-  {key:'views_30d',label:'Views 30d',sortable:true,filterable:false},
-  {key:'likes_30d',label:'Likes 30d',sortable:true,filterable:false},
+  {key:'latest_views',label:'Latest Views',sortable:true,filterable:false},
+  {key:'latest_likes',label:'Latest Likes',sortable:true,filterable:false},
+  {key:'latest_post_date',label:'Posted',sortable:true,filterable:false},
   {key:'followers',label:'Followers',sortable:true,filterable:false},
-  {key:'avg_views',label:'Avg Views',sortable:true,filterable:false},
-  {key:'top_post_views',label:'Top Post Views',sortable:true,filterable:false},
-  {key:'top_post_date',label:'Top Post Date',sortable:true,filterable:false},
-  {key:'top_post_url',label:'Top Post URL',sortable:false,filterable:false,style:'min-width:200px'},
-  {key:'top_post_transcript',label:'Transcript',sortable:false,filterable:false,style:'min-width:300px'},
+  {key:'top_post_transcript',label:'Transcript',sortable:false,filterable:false,style:'min-width:200px'},
   {key:'top_post_caption',label:'Caption',sortable:false,filterable:false,style:'min-width:200px'},
   {key:'initial_discovery_date',label:'Discovered',sortable:true,filterable:false},
   {key:'collaboration_status',label:'Collab Status',sortable:true,filterable:true},
@@ -911,10 +920,9 @@ function renderRows(rows){
 
     var emailRaw=c.email||'';
     var emailHtml=emailRaw?esc(emailRaw):'';
-    if(emailRaw.includes('@discovered.'))emailHtml='<span class="email-disc">'+esc(emailRaw)+'</span>';
+    if(emailRaw.includes('@discovered.'))emailHtml='<span style="color:var(--muted);font-size:10px">discovered</span>';
 
-    var topUrlHtml='';
-    if(c.top_post_url){topUrlHtml='<a href="'+esc(c.top_post_url)+'" target="_blank" style="color:var(--a)">link</a>'}
+    // top_post_url column removed — latest_views/likes/post_date from content_posts instead
 
     var srcHtml='';
     if(c.sources&&Array.isArray(c.sources)){
@@ -940,17 +948,14 @@ function renderRows(rows){
       '<td>'+(c.platform||'')+'</td>'+
       '<td>'+regionBadge+'</td>'+
       '<td>'+statusBadge+'</td>'+
-      '<td>'+esc(c.brand||'')+'</td>'+
+      '<td>'+(c.pipeline_status==='Not Started'?'<span style="color:var(--muted);font-size:10px" title="Set status to Draft Ready+ to assign brand">&#x1F512;</span>':esc(c.brand||''))+'</td>'+
       '<td>'+(c.outreach_type||'')+'</td>'+
       '<td>'+(c.source||'')+'</td>'+
-      '<td style="font-family:var(--mono);font-weight:600">'+fmt(c.views_30d)+'</td>'+
-      '<td>'+mono(c.likes_30d)+'</td>'+
+      '<td style="font-family:var(--mono);font-weight:600">'+fmt(c.latest_views)+'</td>'+
+      '<td>'+mono(c.latest_likes)+'</td>'+
+      '<td>'+d10(c.latest_post_date)+'</td>'+
       '<td>'+mono(c.followers)+'</td>'+
-      '<td>'+mono(c.avg_views)+'</td>'+
-      '<td>'+mono(c.top_post_views)+'</td>'+
-      '<td>'+d10(c.top_post_date)+'</td>'+
-      '<td>'+topUrlHtml+'</td>'+
-      '<td class="transcript-snip">'+esc(c.top_post_transcript||'')+'</td>'+
+      '<td class="transcript-snip">'+(function(){var t=c.top_post_transcript||'';if(!t)return '&mdash;';var s=esc(t);if(s.length<=60)return s;return '<span>'+esc(t.slice(0,60))+'&hellip;</span> <button onclick="this.parentElement.querySelector(\'.tr-full\').style.display=this.parentElement.querySelector(\'.tr-full\').style.display===\'block\'?\'none\':\'block\';this.textContent=this.textContent===\'Show\'?\'Hide\':\'Show\'" style="background:var(--abg);color:var(--a);border:1px solid var(--a);border-radius:4px;padding:1px 6px;font-size:9px;font-weight:600;cursor:pointer;margin-left:4px">Show</button><div class="tr-full" style="display:none;margin-top:6px;padding:8px;background:var(--bg);border-radius:6px;font-size:11px;line-height:1.6">'+s+'</div>';})()+'</td>'+
       '<td class="transcript-snip">'+esc(c.top_post_caption||'')+'</td>'+
       '<td>'+d10(c.initial_discovery_date)+'</td>'+
       '<td>'+esc(c.collaboration_status||'')+'</td>'+
@@ -970,7 +975,7 @@ function renderRows(rows){
       '<td style="font-family:var(--mono)">'+(c.apify_post_count||0)+'</td>'+
       '<td>'+d10(c.apify_last_post_date)+'</td>'+
       '<td>'+apifyBrHtml+'</td>'+
-      '<td class="transcript-snip" title="'+esc(c.notes||'')+'">'+snip(c.notes,50)+'</td>'+
+      '<td class="transcript-snip">'+(function(){var n=c.notes||'';if(!n)return '&mdash;';n=n.replace(/^Syncly discovery\.\s*Post:\s*/i,'');if(/^https?:\/\//.test(n)){var u=n.split(/\s/)[0];return '<a href="'+esc(u)+'" target="_blank" style="color:var(--a);font-size:10px" title="'+esc(n)+'">link</a>';}return snip(n,50);})()+'</td>'+
       '<td>'+d10(c.created_at)+'</td>'+
       '<td>'+d10(c.updated_at)+'</td>';
 
@@ -1024,6 +1029,87 @@ function setRegion(r){
 
 // Auto-refresh stats every 60s
 setInterval(function(){loadStats()},60000);
+
+// ========== DUPLICATE DETECTION + MERGE ==========
+async function findDuplicates(){
+  var btn=event.target;btn.textContent='Scanning...';btn.disabled=true;
+  try{
+    var rgn=document.getElementById('tbl-region').value;
+    var url=API_BASE+'/pipeline/creators/find-duplicates/'+(rgn?'?region='+rgn:'');
+    var r=await fetch(url);var d=await r.json();
+    if(!d.duplicate_groups||d.duplicate_groups.length===0){
+      showToast('No duplicates found');btn.textContent='Find Duplicates';btn.disabled=false;return;
+    }
+    showDupModal(d.duplicate_groups);
+  }catch(e){showToast('Error: '+e.message)}
+  btn.textContent='Find Duplicates';btn.disabled=false;
+}
+
+function showDupModal(groups){
+  var old=document.getElementById('dup-modal');if(old)old.remove();
+  var overlay=document.createElement('div');overlay.id='dup-modal';
+  overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  var box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:16px;max-width:900px;width:95%;max-height:85vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2)';
+  var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    +'<h2 style="font-size:18px;font-weight:800">Duplicate Groups ('+groups.length+')</h2>'
+    +'<button onclick="document.getElementById(\'dup-modal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--dim)">&times;</button></div>';
+  groups.forEach(function(g,gi){
+    var reasons=g.match_reasons.map(function(r){
+      var colors={email:'#dbeafe',phone:'#d1fae5',name:'#fef3c7',handle:'#fce7f3',bio_crosslink:'#e0e7ff'};
+      return '<span style="background:'+(colors[r]||'#f1f5f9')+';padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600">'+r+'</span>';
+    }).join(' ');
+    html+='<div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+      +'<span style="font-weight:700;font-size:13px">Group '+(gi+1)+'</span> '+reasons
+      +'<span style="margin-left:auto;font-size:10px;color:var(--muted)">Confidence: '+g.confidence+'</span></div>'
+      +'<table style="width:100%;font-size:11px;border-collapse:collapse">'
+      +'<tr style="background:#f8fafc"><th style="padding:4px 8px;text-align:left">Primary</th><th>IG</th><th>TikTok</th><th>Email</th><th>Name</th><th>Followers</th><th>Status</th></tr>';
+    g.creators.forEach(function(c,ci){
+      var cid=typeof c.id==='object'?JSON.stringify(c.id):c.id;
+      html+='<tr style="border-top:1px solid #e2e8f0">'
+        +'<td style="padding:4px 8px"><input type="radio" name="dup-primary-'+gi+'" value="'+cid+'" data-group="'+gi+'"'+(ci===0?' checked':'')+'></td>'
+        +'<td>'+esc(c.ig_handle||'')+'</td>'
+        +'<td>'+esc(c.tiktok_handle||'')+'</td>'
+        +'<td style="font-size:10px">'+esc(c.email||'')+'</td>'
+        +'<td>'+esc(c.full_name||'')+'</td>'
+        +'<td style="font-family:var(--mono)">'+fmt(c.followers)+'</td>'
+        +'<td>'+esc(c.pipeline_status||'')+'</td></tr>';
+    });
+    html+='</table>'
+      +'<button onclick="mergeGroup('+gi+',this)" style="margin-top:8px;background:var(--a);color:#fff;border:none;padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">Merge Group '+(gi+1)+'</button>'
+      +'</div>';
+  });
+  box.innerHTML=html;
+  overlay.appendChild(box);
+  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove()});
+  document.body.appendChild(overlay);
+  window._dupGroups=groups;
+}
+
+async function mergeGroup(gi,btn){
+  var g=window._dupGroups[gi];if(!g)return;
+  var sel=document.querySelector('input[name="dup-primary-'+gi+'"]:checked');
+  if(!sel){showToast('Select a primary creator');return;}
+  var primaryId=sel.value;
+  var secondaryIds=g.creators.map(function(c){return typeof c.id==='object'?JSON.stringify(c.id):String(c.id)}).filter(function(id){return id!==primaryId});
+  if(!secondaryIds.length){showToast('Need at least 2 creators to merge');return;}
+  btn.textContent='Merging...';btn.disabled=true;
+  try{
+    var r=await fetch(API_BASE+'/pipeline/creators/merge/',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({primary_id:primaryId,secondary_ids:secondaryIds})
+    });
+    var d=await r.json();
+    if(d.merged){
+      showToast('Merged '+d.merged_count+' creators into primary');
+      btn.textContent='Merged!';btn.style.background='var(--g)';
+      setTimeout(function(){loadTable(1)},1000);
+    }else{
+      showToast('Merge failed: '+(d.error||'unknown'));btn.textContent='Merge';btn.disabled=false;
+    }
+  }catch(e){showToast('Error: '+e.message);btn.textContent='Merge';btn.disabled=false;}
+}
 </script>
 </body>
 </html>

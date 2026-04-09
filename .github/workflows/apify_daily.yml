@@ -184,18 +184,18 @@ jobs:
           if [ "$DOW" = "7" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "=== Extracting JP CRM handles missing transcripts ==="
             python3 -c "
-import requests, warnings, os
-warnings.filterwarnings('ignore')
-AUTH = (os.environ['ORBITOOLS_USER'], os.environ['ORBITOOLS_PASS'])
-BASE = 'https://orbitools.orbiters.co.kr/api/onzenna'
-r = requests.get(f'{BASE}/pipeline/creators/', params={'region':'jp','limit':500}, auth=AUTH, verify=False, timeout=30)
-crm = r.json().get('results', [])
-ig = [c['ig_handle'] for c in crm if c.get('ig_handle') and (not c.get('top_post_transcript') or len(c.get('top_post_transcript',''))<10) and 'tiktok' not in (c.get('platform') or '').lower()]
-tt = [c.get('tiktok_handle') or c.get('ig_handle','') for c in crm if (c.get('tiktok_handle') or c.get('ig_handle')) and (not c.get('top_post_transcript') or len(c.get('top_post_transcript',''))<10) and 'tiktok' in (c.get('platform') or '').lower()]
-with open('.tmp/jp_ig_gap.txt','w') as f: f.write('\n'.join(ig))
-with open('.tmp/jp_tt_gap.txt','w') as f: f.write('\n'.join(tt))
-print(f'IG gaps: {len(ig)}, TT gaps: {len(tt)}')
-"
+            import requests, warnings, os
+            warnings.filterwarnings('ignore')
+            AUTH = (os.environ['ORBITOOLS_USER'], os.environ['ORBITOOLS_PASS'])
+            BASE = 'https://orbitools.orbiters.co.kr/api/onzenna'
+            r = requests.get(f'{BASE}/pipeline/creators/', params={'region':'jp','limit':500}, auth=AUTH, verify=False, timeout=30)
+            crm = r.json().get('results', [])
+            ig = [c['ig_handle'] for c in crm if c.get('ig_handle') and (not c.get('top_post_transcript') or len(c.get('top_post_transcript',''))<10) and 'tiktok' not in (c.get('platform') or '').lower()]
+            tt = [c.get('tiktok_handle') or c.get('ig_handle','') for c in crm if (c.get('tiktok_handle') or c.get('ig_handle')) and (not c.get('top_post_transcript') or len(c.get('top_post_transcript',''))<10) and 'tiktok' in (c.get('platform') or '').lower()]
+            with open('.tmp/jp_ig_gap.txt','w') as f: f.write('\n'.join(ig))
+            with open('.tmp/jp_tt_gap.txt','w') as f: f.write('\n'.join(tt))
+            print(f'IG gaps: {len(ig)}, TT gaps: {len(tt)}')
+            "
             mkdir -p .tmp/deep_crawler/output
             # IG deep crawl
             if [ -s .tmp/jp_ig_gap.txt ]; then

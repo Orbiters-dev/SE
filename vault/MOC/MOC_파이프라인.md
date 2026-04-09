@@ -1,7 +1,7 @@
 ---
 type: moc
 domain: pipeline
-agents: [pipeliner, syncly-crawler, n8n-manager]
+agents: [pipeliner, syncly-crawler, n8n-manager, creator-evaluator, deep-crawler, social-evaluator]
 status: active
 created: 2026-04-06
 updated: 2026-04-06
@@ -14,6 +14,9 @@ tags: [pipeline, creator-collab, n8n, syncly]
 - **pipeliner** — E2E 이중테스트 (Maker-Checker)
 - **syncly-crawler** — 콘텐츠 메트릭 수집 (US + JP)
 - **n8n-manager** — n8n 워크플로우 관리
+- **creator-evaluator** — LT/HT 2-Tier 크리에이터 품질 평가
+- **deep-crawler** — Apify IG/TikTok 프로필 + 포스트 크롤러
+- **social-evaluator** — CI sub-score 백테스트 + 가중치 최적화
 
 ## n8n Workflow IDs
 | WF | ID | 용도 |
@@ -51,6 +54,11 @@ Poll (Not Started) → Batch Extract
 | Grosmimi | Jeehoo | Jane Jeon | /influencer-gifting |
 | CHA&MOM | Laeeka | Laeeka | /influencer-gifting-chamom |
 | Naeiae | Soyeon | Selina | /influencer-gifting-naeiae |
+
+## Projects
+- [[project_creator_evaluator]] — LT/HT 2-Tier 크리에이터 품질 평가 (2026-04-08~)
+- [[project_social_deep_crawler]] — Apify IG/TikTok 소셜 딥크롤러 + enricher
+- [[project_social_evaluator]] — CI 서브스코어 백테스트 + 가중치 최적화
 
 ## Architecture
 - [[pipeline_data_architecture]]

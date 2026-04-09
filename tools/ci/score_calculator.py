@@ -424,9 +424,76 @@ def calc_multi_platform(platforms: list) -> dict:
     return {"platform_score": score, "platform_count": count, "platforms": unique}
 
 
+def calc_audio_tone(audio_analysis: dict) -> dict:
+    """
+    Audio tone sub-score from Gemini audio analysis.
+
+    Optimized for baby/toddler product content:
+      - Warm energy (5-8) is ideal for baby niche
+      - Moderate pace (4-7) is most engaging
+      - Hook timing within first 3 seconds = bonus
+      - Baby audio cues (laughing/cooing) = strong bonus
+
+    Args:
+        audio_analysis: dict from audio_analyzer.analyze_audio()
+
+    Returns:
+        {"audio_tone_score": 0-10, "audio_tone_tier": str}
+    """
+    if not audio_analysis or audio_analysis.get("_source") == "default":
+        return {"audio_tone_score": 0, "audio_tone_tier": "no_audio"}
+
+    score = 0.0
+
+    # Voice energy: warm range (5-8) is ideal for baby niche
+    energy = audio_analysis.get("voice_energy_score", 0)
+    if 5 <= energy <= 8:
+        score += 3.0  # sweet spot
+    elif 3 <= energy < 5 or 8 < energy <= 9:
+        score += 2.0
+    elif energy > 0:
+        score += 1.0
+
+    # Speech pace: moderate (4-7) most engaging
+    pace = audio_analysis.get("speech_pace_score", 0)
+    if 4 <= pace <= 7:
+        score += 2.5
+    elif 2 <= pace < 4 or 7 < pace <= 8:
+        score += 1.5
+    elif pace > 0:
+        score += 0.5
+
+    # Audio hook timing: within 3 seconds = strong bonus
+    hook_timing = audio_analysis.get("audio_hook_timing", 0.0)
+    if 0 < hook_timing <= 3.0:
+        score += 2.0  # early hook
+    elif 3.0 < hook_timing <= 5.0:
+        score += 1.0
+
+    # Baby audio cues: strong signal for baby niche
+    if audio_analysis.get("baby_audio_cues", False):
+        score += 2.5
+
+    score = max(0, min(10, round(score)))
+
+    if score >= 8:
+        tier = "excellent"
+    elif score >= 6:
+        tier = "good"
+    elif score >= 4:
+        tier = "average"
+    elif score > 0:
+        tier = "weak"
+    else:
+        tier = "no_audio"
+
+    return {"audio_tone_score": score, "audio_tone_tier": tier}
+
+
 def calculate_scores_v2(ci_results: dict, followers: int = 0,
                         views: int = 0, likes: int = 0, comments: int = 0,
-                        enrichment: dict = None) -> dict:
+                        enrichment: dict = None,
+                        audio_analysis: dict = None) -> dict:
     """
     v2 Main entry point: raw CI signals + enrichment data → full framework scores.
 
@@ -443,9 +510,10 @@ def calculate_scores_v2(ci_results: dict, followers: int = 0,
             - follower_growth_30d: float
             - quality_scores_history: list[int]
             - platforms: list[str]
+        audio_analysis: dict from audio_analyzer.analyze_audio() (optional)
 
     Returns:
-        Full scoring dict with v1 scores + all v2 sub-scores + composite
+        Full scoring dict with v1 scores + all v2 sub-scores + audio + composite
     """
     enrichment = enrichment or {}
 
@@ -481,6 +549,9 @@ def calculate_scores_v2(ci_results: dict, followers: int = 0,
     )
     multi_plat = calc_multi_platform(enrichment.get("platforms", []))
 
+    # --- Audio Tone (Gemini) ---
+    audio_tone = calc_audio_tone(audio_analysis or {})
+
     # --- Composite v2 score ---
     # Weighted blend: Content (40%) + Creator Fit (30%) + Audience (15%) + Performance (15%)
     tier_scores = {
@@ -497,11 +568,15 @@ def calculate_scores_v2(ci_results: dict, followers: int = 0,
         ),
     }
 
+    # Audio bonus: additive, capped at +5 (backward compatible — 0 if no audio)
+    audio_bonus = min(audio_tone["audio_tone_score"] * 0.5, 5)
+
     composite_v2 = _clamp(
         tier_scores["content"] * 0.40 +
         tier_scores["fit"] * 0.30 +
         tier_scores["audience"] * 0.15 +
-        tier_scores["performance"] * 0.15
+        tier_scores["performance"] * 0.15 +
+        audio_bonus
     )
 
     return {
@@ -515,11 +590,13 @@ def calculate_scores_v2(ci_results: dict, followers: int = 0,
         "collab_history": collab,
         "content_consistency": consistency,
         "multi_platform": multi_plat,
+        "audio_tone": audio_tone,
         # v2 tier scores (0-100 each)
         "tier_scores": tier_scores,
+        "audio_bonus": round(audio_bonus, 1),
         # v2 composite
         "composite_v2_score": composite_v2,
-        "scoring_version": "v2.0",
+        "scoring_version": "v2.1",
     }
 
 

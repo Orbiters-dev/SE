@@ -92,6 +92,7 @@ class MediaCache:
         frame_paths: list[Path],
         tier: str = "LT",
         duration_sec: float = 0.0,
+        platform: str = "instagram",
     ) -> Path:
         """
         프레임 파일을 캐시 디렉토리로 복사.
@@ -112,7 +113,7 @@ class MediaCache:
                 shutil.copy2(src, dst)
 
         # 메타데이터 저장
-        self._save_meta(username, post_id, tier, len(frame_paths), duration_sec)
+        self._save_meta(username, post_id, tier, len(frame_paths), duration_sec, platform)
 
         return frames_dir
 
@@ -126,12 +127,14 @@ class MediaCache:
         return dst
 
     def _save_meta(
-        self, username: str, post_id: str, tier: str, frame_count: int, duration_sec: float
+        self, username: str, post_id: str, tier: str, frame_count: int, duration_sec: float,
+        platform: str = "instagram",
     ):
         meta = {
             "tier": tier.upper(),
             "frame_count": frame_count,
             "duration_sec": round(duration_sec, 2),
+            "platform": platform,
             "extracted_at": datetime.now(timezone.utc).isoformat(),
         }
         meta_path = self.get_meta_path(username, post_id)

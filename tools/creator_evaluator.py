@@ -85,6 +85,10 @@ def _get_downloader():
     from ci.downloader import download_video, get_cdn_url
     return download_video, get_cdn_url
 
+def _get_audio_analyzer():
+    from ci.audio_analyzer import analyze_audio
+    return analyze_audio
+
 
 # ── Core Pipeline Functions ──
 
@@ -208,6 +212,13 @@ def run_lt_pipeline(
         has_whisper = False
         print("  [WARN] Whisper not available, skipping audio analysis")
 
+    try:
+        audio_analyze_fn = _get_audio_analyzer()
+        has_gemini_audio = True
+    except ImportError:
+        has_gemini_audio = False
+        print("  [WARN] Audio analyzer not available, skipping Gemini audio analysis")
+
     calc_v2, calc_framework = _get_score_calculator()
 
     all_results = []
@@ -307,10 +318,24 @@ def run_lt_pipeline(
                 except Exception as e:
                     print(f"    [WHISPER] Error: {e}")
 
+            # Gemini audio tone analysis
+            audio_analysis = None
+            if has_gemini_audio and audio_path and audio_path.exists():
+                try:
+                    meta = media_cache.load_meta(username, post_id)
+                    dur = meta.get("duration_sec", 0) if meta else 0
+                    print(f"    [AUDIO] Gemini tone analysis...")
+                    audio_analysis = audio_analyze_fn(audio_path, dur)
+                except Exception as e:
+                    print(f"    [AUDIO] Error: {e}")
+
             # Merge CI results
             ci_results = {**vision_result, **whisper_result}
+            if audio_analysis:
+                ci_results["audio_analysis"] = audio_analysis
 
             # Score (v2)
+            meta_data = media_cache.load_meta(username, post_id)
             v2_scores = calc_v2(
                 ci_results,
                 followers=profile.get("followers", 0),
@@ -318,9 +343,10 @@ def run_lt_pipeline(
                 likes=vp.get("likes", 0),
                 comments=vp.get("comments", 0),
                 enrichment={
-                    "duration_seconds": media_cache.load_meta(username, post_id).get("duration_sec", 0) if media_cache.load_meta(username, post_id) else 0,
+                    "duration_seconds": meta_data.get("duration_sec", 0) if meta_data else 0,
                     "posts_last_30d": screening.get("metrics", {}).get("posts_30d", 0),
                 },
+                audio_analysis=audio_analysis,
             )
 
             # Tier framework
@@ -328,7 +354,7 @@ def run_lt_pipeline(
                 ci_results,
                 screening=screening,
                 enrichment={
-                    "duration_seconds": media_cache.load_meta(username, post_id).get("duration_sec", 0) if media_cache.load_meta(username, post_id) else 0,
+                    "duration_seconds": meta_data.get("duration_sec", 0) if meta_data else 0,
                     "followers": profile.get("followers", 0),
                 },
                 v2_scores=v2_scores,

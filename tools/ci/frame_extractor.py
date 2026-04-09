@@ -2,7 +2,11 @@
 CI Frame Extractor — LT/HT 키프레임 추출기
 
 LT (10장): Hook 3장 (0.0s, 1.5s, 3.0s) + Body 7장 (15%/25%/35%/50%/65%/80%/95%)
-HT (30장): Hook 3장 (0.0s, 1.5s, 3.0s) + Body ~27장 (3초부터 1초 간격)
+HT (30장 고정):
+  - Hook 7장 (0~3초, 0.5초 간격)
+  - Body 23장:
+    - ≤30초 영상: 3초부터 1초 간격
+    - >30초 영상: 3초부터 균등 배분
 
 Usage:
     from tools.ci.frame_extractor import extract_frames
@@ -12,8 +16,15 @@ import math
 from pathlib import Path
 
 
-# Hook zone: 첫 3초 고정 3장
-HOOK_TIMESTAMPS = [0.0, 1.5, 3.0]
+# Hook zone for LT: 첫 3초 고정 3장
+HOOK_TIMESTAMPS_LT = [0.0, 1.5, 3.0]
+
+# Hook zone for HT: 첫 3초 0.5초 간격 7장
+HOOK_TIMESTAMPS_HT = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+
+HT_TOTAL_FRAMES = 30
+HT_HOOK_COUNT = len(HOOK_TIMESTAMPS_HT)  # 7
+HT_BODY_COUNT = HT_TOTAL_FRAMES - HT_HOOK_COUNT  # 23
 
 # Body zone percentages for LT (3초 이후 구간의 %)
 LT_BODY_PCTS = [0.15, 0.25, 0.35, 0.50, 0.65, 0.80, 0.95]
@@ -104,10 +115,16 @@ def _calc_timestamps(duration: float, tier: str) -> list[tuple[float, str]]:
 
     timestamps = []
 
-    # Hook zone: 고정 3장 (0.0s, 1.5s, 3.0s)
-    for ts in HOOK_TIMESTAMPS:
-        if ts <= duration:
-            timestamps.append((ts, f"{ts:.1f}s"))
+    if tier.upper() == "HT":
+        # HT Hook: 0~3초, 0.5초 간격 (7장)
+        for ts in HOOK_TIMESTAMPS_HT:
+            if ts <= duration:
+                timestamps.append((ts, f"{ts:.1f}s"))
+    else:
+        # LT Hook: 0.0s, 1.5s, 3.0s (3장)
+        for ts in HOOK_TIMESTAMPS_LT:
+            if ts <= duration:
+                timestamps.append((ts, f"{ts:.1f}s"))
 
     # Body zone: 3초 이후 구간
     body_start = 3.0
@@ -117,14 +134,22 @@ def _calc_timestamps(duration: float, tier: str) -> list[tuple[float, str]]:
         return timestamps
 
     if tier.upper() == "HT":
-        # HT: 3초부터 1초 간격
-        t = body_start + 1.0  # 4초부터 시작 (3.0s는 Hook에 포함)
-        while t < duration - 0.5:  # 끝 0.5초 전까지
-            timestamps.append((t, f"{t:.1f}s"))
-            t += 1.0
-        # 마지막 프레임: 영상 끝 직전
-        if duration - timestamps[-1][0] > 0.5:
-            timestamps.append((duration - 0.3, f"{duration-0.3:.1f}s"))
+        if duration <= 30.0:
+            # ≤30초: 1초 간격으로 최대 HT_BODY_COUNT장
+            t = body_start + 1.0
+            count = 0
+            while t < duration - 0.3 and count < HT_BODY_COUNT:
+                timestamps.append((t, f"{t:.1f}s"))
+                t += 1.0
+                count += 1
+            # 마지막 프레임: 영상 끝 직전 (아직 여유 있으면)
+            if count < HT_BODY_COUNT and duration - timestamps[-1][0] > 0.3:
+                timestamps.append((duration - 0.2, f"{duration-0.2:.1f}s"))
+        else:
+            # >30초: 23장 균등 배분
+            for i in range(HT_BODY_COUNT):
+                t = body_start + body_duration * (i + 1) / (HT_BODY_COUNT + 1)
+                timestamps.append((t, f"{t:.1f}s"))
     else:
         # LT: body 구간의 % 지점
         for pct in LT_BODY_PCTS:

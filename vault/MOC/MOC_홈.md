@@ -46,6 +46,9 @@ tags: [home, moc, top-level]
 - [[project_pathlight_n8n_migration]]
 - [[project_ppc_sku_golmani]]
 - [[project_search_ranking]]
+- [[project_creator_evaluator]]
+- [[project_social_deep_crawler]]
+- [[project_social_evaluator]]
 
 ### Architecture
 - [[attribution_url_classification]]

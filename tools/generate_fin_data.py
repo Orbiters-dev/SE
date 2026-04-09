@@ -592,7 +592,7 @@ def generate():
         ad_weekly[label][wk]["clicks"] += int(r.get("clicks") or 0)
     if meta_jp_monthly:
         jp_total = sum(v["spend"] for plat in meta_jp_monthly.values() for v in plat.values())
-        print(f"  Meta JP excluded from US: ¥{jp_total:,.0f} across {sum(len(v) for v in meta_jp_monthly.values())} platform-months")
+        print(f"  Meta JP excluded from US: Y{jp_total:,.0f} across {sum(len(v) for v in meta_jp_monthly.values())} platform-months")
 
     for r in google_ads:
         d = r.get("date", "")
@@ -4475,14 +4475,13 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
         "acos": [round(ads_monthly[m]["spend"] / ads_monthly[m]["sales"] * 100, 1) if ads_monthly[m]["sales"] > 0 else 0 for m in ads_months],
         "currency": "JPY",
     }
-    # By ad type breakdown
+    # By ad type breakdown (will be re-aligned to all_months later)
     ads_by_type_out = {}
     for atype, mdata in ads_by_type.items():
-        at_months = sorted(mdata.keys())
         ads_by_type_out[atype] = {
-            "months": at_months,
-            "spend": [round(mdata[m]["spend"]) for m in at_months],
-            "sales": [round(mdata[m]["sales"]) for m in at_months],
+            "months": [],  # will be set to all_months after alignment
+            "spend": [],
+            "sales": [],
         }
 
     # ── Meta JP Ads (JPY) ─────────────────────────────────────────────────────
@@ -4511,8 +4510,49 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
             "clicks": [mdata[m]["clicks"] for m in mt_months],
         }
 
-    # ── Combined summary ──────────────────────────────────────────────────────
-    all_months = sorted(set(amz_months) | set(rak_months) | set(ads_months))
+    # ── Combined summary (unified month list) ──────────────────────────────
+    meta_month_set = set()
+    for label in meta_jp_monthly:
+        meta_month_set |= set(meta_jp_monthly[label].keys())
+    all_months = sorted(set(amz_months) | set(rak_months) | set(ads_months) | meta_month_set)
+
+    # Re-align individual datasets to all_months (0 for missing months)
+    amz_out["months"] = all_months
+    amz_out["revenue"] = [round(amz_monthly[m]["revenue"]) for m in all_months]
+    amz_out["gross"] = [round(amz_monthly[m]["gross"]) for m in all_months]
+    amz_out["orders"] = [amz_monthly[m]["orders"] for m in all_months]
+    amz_out["units"] = [amz_monthly[m]["units"] for m in all_months]
+
+    rak_out["months"] = all_months
+    rak_out["revenue"] = [round(rak_monthly[m]["revenue"]) for m in all_months]
+    rak_out["orders"] = [rak_monthly[m]["orders"] for m in all_months]
+    rak_out["units"] = [rak_monthly[m]["units"] for m in all_months]
+
+    ads_out["months"] = all_months
+    ads_out["spend"] = [round(ads_monthly[m]["spend"]) for m in all_months]
+    ads_out["sales"] = [round(ads_monthly[m]["sales"]) for m in all_months]
+    ads_out["impressions"] = [ads_monthly[m]["impressions"] for m in all_months]
+    ads_out["clicks"] = [ads_monthly[m]["clicks"] for m in all_months]
+    ads_out["roas"] = [round(ads_monthly[m]["sales"] / ads_monthly[m]["spend"], 2) if ads_monthly[m]["spend"] > 0 else 0 for m in all_months]
+    ads_out["acos"] = [round(ads_monthly[m]["spend"] / ads_monthly[m]["sales"] * 100, 1) if ads_monthly[m]["sales"] > 0 else 0 for m in all_months]
+
+    for label, mdata in meta_jp_monthly.items():
+        meta_out[label] = {
+            "months": all_months,
+            "spend": [round(mdata[m]["spend"]) for m in all_months],
+            "sales": [round(mdata[m]["sales"]) for m in all_months],
+            "impressions": [mdata[m]["impressions"] for m in all_months],
+            "clicks": [mdata[m]["clicks"] for m in all_months],
+        }
+
+    # Re-align ads_by_type to all_months
+    for atype, mdata in ads_by_type.items():
+        ads_by_type_out[atype] = {
+            "months": all_months,
+            "spend": [round(mdata[m]["spend"]) for m in all_months],
+            "sales": [round(mdata[m]["sales"]) for m in all_months],
+        }
+
     combined_revenue = []
     combined_ad_spend = []
     combined_ad_sales = []
@@ -4576,23 +4616,43 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
                 traffic_weekly[wk]["impressions"] += int(r.get("impressions") or 0)
                 traffic_weekly[wk]["clicks"] += int(r.get("clicks") or 0)
 
-    # Content Intelligence: JP creator views per week
+    # Content Intelligence: JP creator views per week (total + per-creator)
+    # Use views_30d from content_posts directly (content_metrics_daily doesn't cover JP posts)
+    # Paginate to ensure all JP posts are captured (10k default limit misses them)
     content_weekly = defaultdict(int)
-    if content_posts and content_metrics:
-        jp_post_ids = set()
-        for p in (content_posts or []):
-            if (p.get("region") or "").lower() == "jp":
-                pid = p.get("post_id")
-                if pid:
-                    jp_post_ids.add(pid)
-        for cm in (content_metrics or []):
-            pid = cm.get("post_id")
-            if pid in jp_post_ids:
-                d = cm.get("date") or ""
-                views = int(cm.get("views") or cm.get("views_30d") or 0)
-                if len(d) >= 10 and views > 0:
-                    wk = _week_key(d)
-                    content_weekly[wk] += views
+    content_weekly_by_creator = defaultdict(lambda: defaultdict(int))  # {username: {week: views}}
+    jp_post_ids = set()
+    _jp_seen = set()
+    import requests as _req
+    _dk_base = "https://orbitools.orbiters.co.kr/api/datakeeper"
+    _dk_auth = (os.environ.get("ORBITOOLS_USER", "admin"), os.environ.get("ORBITOOLS_PASS", "orbit1234"))
+    for _offset in range(0, 50000, 10000):
+        try:
+            _r = _req.get(
+                f"{_dk_base}/query/",
+                params={"table": "content_posts", "days": 365, "limit": 10000, "offset": _offset},
+                auth=_dk_auth, timeout=30, verify=False,
+            )
+            _page = _r.json().get("rows", []) if _r.status_code == 200 else []
+        except Exception:
+            _page = []
+        if not _page:
+            break
+        for p in _page:
+            if (p.get("region") or "").lower() != "jp":
+                continue
+            pid = p.get("post_id")
+            if not pid or pid in _jp_seen:
+                continue
+            _jp_seen.add(pid)
+            jp_post_ids.add(pid)
+            uname = p.get("username") or "unknown"
+            views = int(p.get("views_30d") or 0)
+            posted = p.get("post_date") or p.get("posted_at") or p.get("date") or ""
+            if len(str(posted)) >= 10 and views > 0:
+                wk = _week_key(str(posted)[:10])
+                content_weekly[wk] += views
+                content_weekly_by_creator[uname][wk] += views
 
     # Build sorted week arrays (last 12 weeks)
     all_wk_keys = sorted(set(amz_weekly) | set(rak_weekly) | set(conv_weekly) | set(traffic_weekly) | set(content_weekly))
@@ -4656,6 +4716,11 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
             "total_sales": [round(conv_weekly[w]["sales"] + traffic_weekly[w]["sales"]) for w in all_wk_keys],
         },
         "content_views": [content_weekly.get(w, 0) for w in all_wk_keys],
+        "content_by_creator": {
+            creator: [content_weekly_by_creator[creator].get(w, 0) for w in all_wk_keys]
+            for creator in sorted(content_weekly_by_creator.keys(),
+                                  key=lambda c: sum(content_weekly_by_creator[c].values()), reverse=True)
+        },
     }
 
     print(f"  [JP] Amazon JP Sales: {len(amz_months)}m, Rakuten: {len(rak_months)}m, "
