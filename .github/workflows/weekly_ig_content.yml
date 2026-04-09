@@ -33,8 +33,9 @@ jobs:
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
           echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
 
-      # ── Email 1: Competitor Analysis ──────────────────────────────────
+      # ── Email 1: Competitor Analysis (non-critical — don't block content plan) ──
       - name: Run competitor IG analysis (scrape + Excel + email)
+        continue-on-error: true
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           GMAIL_OAUTH_CREDENTIALS_PATH: credentials/gmail_oauth_credentials.json
