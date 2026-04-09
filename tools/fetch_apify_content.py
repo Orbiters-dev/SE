@@ -1956,6 +1956,7 @@ def sync_sheet_to_pg(region="all"):
                 "hashtags": hashtags, "tagged_account": tagged,
                 "post_date": post_date, "brand": brand,
                 "region": reg, "source": "apify",
+                "views_30d": views, "likes_30d": likes, "comments_30d": comments,
             })
 
             if views > 0 or likes > 0 or comments > 0:
