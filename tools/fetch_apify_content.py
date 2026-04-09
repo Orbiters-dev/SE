@@ -399,7 +399,7 @@ def get_active_ig_urls(sh, tracker_tab, max_d_plus=30):
 def _get_jp_zero_view_urls():
     """Query PG for JP posts with 0 views and return [(post_id, url)] for Apify scraping.
 
-    Fetches ALL JP content_posts from PG, filters locally for views_30d=0/NULL.
+    Uses region=jp filter on datakeeper API to fetch ALL JP posts efficiently.
     Returns up to 100 URLs per run to avoid excessive Apify costs.
     """
     try:
@@ -407,36 +407,22 @@ def _get_jp_zero_view_urls():
         load_env()
         user = os.getenv("ORBITOOLS_USER", "admin")
         pw = os.getenv("ORBITOOLS_PASS", "")
-        # Fetch all JP posts (typically ~200)
         resp = _req.get(
             "https://orbitools.orbiters.co.kr/api/datakeeper/query/",
-            params={"table": "content_posts", "limit": 500,
-                    "where": "region='jp'"},
+            params={"table": "content_posts", "region": "jp", "limit": 500},
             auth=(user, pw),
             timeout=30,
             verify=False,
         )
-        data = resp.json()
-        rows = data.get("rows", [])
-        # If 'where' param not supported, filter locally
-        if not rows:
-            resp2 = _req.get(
-                "https://orbitools.orbiters.co.kr/api/datakeeper/query/",
-                params={"table": "content_posts", "limit": 1000},
-                auth=(user, pw),
-                timeout=30,
-                verify=False,
-            )
-            rows = resp2.json().get("rows", [])
+        rows = resp.json().get("rows", [])
         result = []
         for r in rows:
-            if (r.get("region", "").lower() == "jp"
-                    and not r.get("views_30d")
+            if (not r.get("views_30d")
                     and r.get("post_id")
-                    and r.get("platform", "instagram") == "instagram"):
+                    and (r.get("platform", "") or "instagram") == "instagram"):
                 url = r.get("url") or f"https://www.instagram.com/p/{r['post_id']}/"
                 result.append((r["post_id"], url))
-        print(f"[JP-BACKFILL] Found {len(result)} zero-view JP posts in PG (from {len(rows)} total)")
+        print(f"[JP-BACKFILL] Found {len(result)} zero-view JP posts in PG (from {len(rows)} JP rows)")
         return result
     except Exception as e:
         print(f"[JP-BACKFILL] PG query failed: {e}")
