@@ -457,6 +457,7 @@ tr:hover td{background:#fff5f5}
           </div>
           <div style="display:flex;gap:8px;align-items:center">
             <span id="exec-budget-info" style="font-size:10px;color:var(--dim)"></span>
+            <button class="btn" style="background:#ef4444;color:#fff;font-size:10px" onclick="discardSelectedDrafts()">&#x1F5D1; Discard Selected</button>
             <button class="btn btn-success" id="btn-execute" onclick="executeDrafts()">&#x1F680; Execute</button>
           </div>
         </div>
@@ -948,29 +949,42 @@ function init() {
 function loadCreators() {
   setPillStatus('loading');
 
-  // Load from both n8n (active pipeline) and EC2 (Not Started discovery creators)
+  // Load from both n8n (active pipeline) and EC2 (all JP creators for metadata backfill)
   Promise.all([
     n8nGet().catch(function() { return []; }),
-    fetch('/api/onzenna/pipeline/creators/?status=Not+Started&region=jp&limit=500').then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
+    fetch('/api/onzenna/pipeline/creators/?region=jp&limit=2000').then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
   ]).then(function(results) {
     var n8nData = results[0];
     var ec2Data = results[1];
 
     _creators = Array.isArray(n8nData) ? n8nData : (n8nData.creators || []);
-    // Normalize n8n fields
+
+    // Build EC2 lookup for metadata backfill (platform, etc.)
+    var ec2Lookup = {};
+    var ec2Creators = ec2Data.results || [];
+    ec2Creators.forEach(function(c) {
+      var handle = c.ig_handle || c.tiktok_handle || '';
+      if (handle) ec2Lookup[handle.toLowerCase()] = c;
+    });
+
+    // Normalize n8n fields + backfill platform from EC2
     _creators.forEach(function(c) {
       c.status = c.status || 'not_started';
       c.dm_count = c.dm_count || 0;
       c.followers = c.followers || 0;
+      // Backfill platform from EC2 if missing
+      if (!c.platform && c.username) {
+        var ec2 = ec2Lookup[c.username.toLowerCase()];
+        if (ec2) c.platform = ec2.platform || '';
+      }
     });
 
-    // Merge EC2 Not Started creators (not already in n8n)
+    // Merge EC2 creators not already in n8n
     var existingHandles = {};
     _creators.forEach(function(c) {
       if (c.username) existingHandles[c.username.toLowerCase()] = true;
     });
 
-    var ec2Creators = ec2Data.results || [];
     ec2Creators.forEach(function(c) {
       var handle = c.ig_handle || c.tiktok_handle || '';
       if (!handle || existingHandles[handle.toLowerCase()]) return;
@@ -978,7 +992,7 @@ function loadCreators() {
       _creators.push({
         username: handle,
         name: c.full_name || handle,
-        status: 'not_started',
+        status: (c.pipeline_status || 'Not Started').toLowerCase().replace(/ /g, '_'),
         dm_count: 0,
         followers: c.followers || 0,
         platform: c.platform || '',
@@ -1635,6 +1649,32 @@ function executeDrafts() {
     setTimeout(processNext, 1200); // 1.2s delay between opens
   }
   processNext();
+}
+
+function discardSelectedDrafts() {
+  var checked = document.querySelectorAll('.draft-select:checked');
+  var handles = [];
+  checked.forEach(function(cb) { handles.push(cb.dataset.username); });
+  if (!handles.length) { showToast('No drafts selected', 'err'); return; }
+  if (!confirm(handles.length + '件のドラフトをアーカイブしますか？\n(Archive ' + handles.length + ' drafts? They will be moved to trash.)')) return;
+
+  var done = 0, failed = 0;
+  var total = handles.length;
+  handles.forEach(function(handle) {
+    updateStatus(handle, 'archived').then(function() {
+      done++;
+      if (done + failed >= total) {
+        showToast(done + ' archived' + (failed ? ', ' + failed + ' failed' : ''), failed ? 'err' : 'ok');
+        updateStats(); renderCreators(); renderDraftsList();
+      }
+    }).catch(function() {
+      failed++;
+      if (done + failed >= total) {
+        showToast(done + ' archived, ' + failed + ' failed', 'err');
+        updateStats(); renderCreators(); renderDraftsList();
+      }
+    });
+  });
 }
 
 function saveDraftEdit(handle, newText) {
@@ -2448,12 +2488,23 @@ function importFromDiscovery() {
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    statusEl.textContent = data.created + ' imported, ' + data.skipped + ' skipped (of ' + data.total_discovery_handles + ' handles)';
+    if (data.error) {
+      statusEl.textContent = 'Error: ' + data.error;
+      btn.disabled = false;
+      showToast('Import error: ' + data.error, 'err');
+      return;
+    }
+    var total = data.total_discovery_handles || (data.created + data.skipped);
+    statusEl.textContent = data.created + ' imported, ' + data.skipped + ' skipped (of ' + total + ' discovery handles)';
     btn.disabled = false;
     if (data.created > 0) {
       showToast(data.created + ' creators added to pipeline!', 'ok');
       loadCreators();
       loadInfluencerSheet();
+    } else if (total === 0) {
+      showToast('No JP discovery data found (gk_content_posts empty for region=jp)', 'err');
+    } else {
+      showToast('All ' + data.skipped + ' handles already in pipeline', 'ok');
     }
   })
   .catch(function(err) {
@@ -2472,8 +2523,10 @@ function loadInfluencerSheet() {
   fetch(DISCOVERY_API)
     .then(function(r) { return r.json(); })
     .then(function(data) {
+      var allResults = data.results || [];
+      console.log('[Sheet] Discovery API returned ' + allResults.length + ' total posts for JP');
       var BRAND_KEYWORDS = ['official', 'shop', 'store', 'honpo', '公式'];
-      var rows = (data.results || []).filter(function(p) {
+      var rows = allResults.filter(function(p) {
         // Video only
         if ((p.content_type || '').toLowerCase() !== 'video') return false;
         // Filter brand/official accounts
@@ -2482,7 +2535,9 @@ function loadInfluencerSheet() {
           if (h.indexOf(BRAND_KEYWORDS[i]) !== -1) return false;
         }
         return true;
-      }).map(function(p) {
+      });
+      console.log('[Sheet] After video + brand filter: ' + rows.length + ' posts (filtered ' + (allResults.length - rows.length) + ')');
+      rows = rows.map(function(p) {
         return {
           'Handle': p.handle || '',
           'Full Name': p.full_name || '',
@@ -2725,7 +2780,8 @@ function renderSheet() {
     html += '<td style="text-align:center">' + (contacted ? '<span title="Already contacted" style="color:var(--r);font-size:14px">\uD83D\uDEAB</span>' : '<span style="color:var(--g);font-size:12px">\u2B55</span>') + '</td>';
     // Handle
     var detailId = 'detail-' + escapeHtml(c.username).replace(/[^a-zA-Z0-9]/g, '_');
-    var handleLink = latestPostUrl || ('https://instagram.com/' + encodeURIComponent(c.username));
+    var isTikTokCreator = (c.platform || '').toLowerCase().indexOf('tiktok') !== -1;
+    var handleLink = latestPostUrl || (isTikTokCreator ? 'https://www.tiktok.com/@' + encodeURIComponent(c.username) : 'https://instagram.com/' + encodeURIComponent(c.username));
     html += '<td><a href="' + escapeHtml(handleLink) + '" target="_blank" style="color:var(--a);font-weight:600;font-size:11px">@' + escapeHtml(c.username) + '</a>';
     if (c._posts && c._posts.length > 0) html += ' <span onclick="togglePostDetail(\'' + detailId + '\')" style="cursor:pointer;font-size:9px;color:var(--dim)" title="Toggle posts detail">\u25B2</span>';
     if (c.name) html += '<div style="font-size:9px;color:var(--dim)">' + escapeHtml(c.name) + '</div>';

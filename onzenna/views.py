@@ -1948,6 +1948,7 @@ def import_syncly_discovery(request):
     source_label = body.get("source", "syncly")
     limit = int(body.get("limit", 50))
     days = int(body.get("days", 90))
+    min_followers = int(body.get("min_followers", 0))
 
     from django.db import connection
     from datetime import timedelta
@@ -1978,6 +1979,10 @@ def import_syncly_discovery(request):
     if brand_filter:
         sql += " AND LOWER(cp.brand) = LOWER(%s)"
         params.append(brand_filter)
+
+    if min_followers > 0:
+        sql += " AND COALESCE(cp.followers, 0) >= %s"
+        params.append(min_followers)
 
     sql += " ORDER BY cp.username, cp.followers DESC NULLS LAST LIMIT %s"
     params.append(limit)
@@ -2066,6 +2071,7 @@ def import_syncly_discovery(request):
                 FROM gk_content_posts cp
                 INNER JOIN onz_pipeline_creators pc
                     ON LOWER(cp.username) = LOWER(pc.ig_handle)
+                    OR LOWER(cp.username) = LOWER(pc.tiktok_handle)
                 WHERE cp.transcript IS NOT NULL
                   AND LENGTH(cp.transcript) >= 20
                   AND cp.username IS NOT NULL AND cp.username != ''
@@ -2116,6 +2122,7 @@ def import_syncly_discovery(request):
     return _cors_headers(request, JsonResponse({
         "created": created,
         "skipped": skipped,
+        "total_discovery_handles": created + skipped,
         "imported": imported,
         "transcript_sync": transcript_result,
     }, status=201))
