@@ -1956,21 +1956,25 @@ def import_syncly_discovery(request):
 
     cutoff = date_cls.today() - timedelta(days=days)
 
-    # Query gk_content_posts for unique creators not already in pipeline
+    # Query gk_content_posts for unique creators not already in pipeline (same region)
     sql = """
         SELECT DISTINCT ON (cp.username)
             cp.username, cp.nickname, cp.followers, cp.platform,
             cp.brand, cp.caption, cp.url, cp.post_date
         FROM gk_content_posts cp
         LEFT JOIN onz_pipeline_creators pc
-            ON LOWER(cp.username) = LOWER(pc.ig_handle)
-            OR LOWER(cp.username) = LOWER(pc.tiktok_handle)
+            ON (LOWER(cp.username) = LOWER(pc.ig_handle)
+                OR LOWER(cp.username) = LOWER(pc.tiktok_handle))
+            AND ({region_filter})
         WHERE pc.id IS NULL
           AND cp.post_date >= %s
           AND cp.username IS NOT NULL
           AND cp.username != ''
-    """
-    params = [cutoff]
+    """.format(region_filter="LOWER(pc.region) = LOWER(%s)" if region else "TRUE")
+    params = []
+    if region:
+        params.append(region)  # for JOIN region filter
+    params.append(cutoff)
 
     if region:
         sql += " AND LOWER(cp.region) = LOWER(%s)"
@@ -2014,14 +2018,13 @@ def import_syncly_discovery(request):
             normalized_handle = handle.lower().replace('.', '_').replace('-', '_')
             email = f"{normalized_handle}@discovered.syncly"
 
-            # Check if already exists by handle (case-insensitive) or normalized email
+            # Check if already exists by handle (case-insensitive) in SAME region
             handle_lower = handle.lower()
+            region_q = {"region__iexact": region} if region else {}
             exists = PipelineCreator.objects.filter(
-                ig_handle__iexact=handle_lower
+                ig_handle__iexact=handle_lower, **region_q
             ).exists() or PipelineCreator.objects.filter(
-                tiktok_handle__iexact=handle_lower
-            ).exists() or PipelineCreator.objects.filter(
-                email__iexact=email
+                tiktok_handle__iexact=handle_lower, **region_q
             ).exists()
 
             if exists:
