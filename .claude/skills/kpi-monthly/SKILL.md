@@ -205,3 +205,10 @@ tools/no_polar/                  # Polar JSON files (seeding, COGS, historical)
 .tmp/kpi_debug_*.json            # Debug dumps (when enabled)
 kpis_model_YYYY-MM-DD_vN.xlsx   # Output (project root)
 ```
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

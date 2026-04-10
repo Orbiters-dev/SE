@@ -149,3 +149,10 @@ python tools/send_gmail.py --download-attachment MESSAGE_ID --output-dir "Data S
 - Z: 드라이브 대용량 검색 시 `maxdepth` 제한으로 성능 관리
 - 카카오톡 파일은 `(1)`, `(2)` 중복 번호 패턴 주의
 - APS = AP Shipping 약어 — 검색 시 둘 다 확인
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

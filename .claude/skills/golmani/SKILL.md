@@ -331,3 +331,10 @@ See `references/orbi-business-context.md` for full detail.
 - SKU 추가 → COGS 맵 업데이트 필요
 - 채널 분류 변경 → KPI_할인율 전체 재계산
 - DataKeeper 스키마 변경 → 영향받는 KPI 탭 목록
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

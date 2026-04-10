@@ -347,3 +347,10 @@ python tools/sync_sns_tab_chaenmom.py --dry-run
 - Communicator 이메일의 Syncly row count 섹션 stale
 - 마케터 콘텐츠 메트릭 판단 근거 누락
 - 일간 이메일 리포트 빈 데이터
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

@@ -1,0 +1,20 @@
+name: Einstein Weekly Health Check
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Monday 00:00 UTC = 09:00 KST
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install python-dotenv
+      - name: Run Einstein Weekly
+        env:
+          TEAMS_WEBHOOK_URL_SEEUN: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/run_einstein.py --mode weekly

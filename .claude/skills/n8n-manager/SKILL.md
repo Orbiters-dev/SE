@@ -269,3 +269,10 @@ REST-first 5단계 수정 절차 (MCP update 도구 사용 금지):
 - 변경 타입 분류 (field rename = 가장 위험)
 - Break Risk 매트릭스 (HIGH/MEDIUM/LOW)
 - 태스크 순서: AT 스키마 → 상류 WF → 하류 WF → evaluate → audit
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

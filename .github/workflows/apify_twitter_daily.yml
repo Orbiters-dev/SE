@@ -1,0 +1,78 @@
+name: "Apify Twitter Daily — 競合モニタリング + トレンド収集"
+
+on:
+  schedule:
+    # 毎日 UTC 00:00 (JST 09:00) — 競合モニタリング
+    - cron: "0 0 * * *"
+    # 毎週金曜 UTC 00:00 (JST 09:00) — トレンド収集
+    - cron: "0 0 * * 5"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Mode (monitor/trends/all)"
+        required: false
+        default: "all"
+      dry_run:
+        description: "Dry run (crawl only)"
+        required: false
+        default: false
+        type: boolean
+
+env:
+  APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+  TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+jobs:
+  apify-twitter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install apify-client python-dotenv openpyxl requests
+
+      - name: Run competitor monitor
+        if: >
+          github.event.schedule != '0 0 * * 5' &&
+          (github.event.inputs.mode == 'monitor' || github.event.inputs.mode == 'all' || github.event.inputs.mode == '')
+        run: |
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          if [ "$DRY_RUN" = "true" ]; then
+            python tools/apify_twitter_monitor.py --dry-run --json
+          else
+            python tools/apify_twitter_monitor.py --notify --json
+          fi
+
+      - name: Run trend collection
+        if: >
+          github.event.schedule == '0 0 * * 5' ||
+          github.event.inputs.mode == 'trends' ||
+          github.event.inputs.mode == 'all'
+        run: |
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          if [ "$DRY_RUN" = "true" ]; then
+            python tools/apify_twitter_trends.py --dry-run --json
+          else
+            python tools/apify_twitter_trends.py --notify --json
+          fi
+
+      - name: Upload artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apify-twitter-${{ github.run_number }}
+          path: |
+            .tmp/apify_twitter_monitor_*.json
+            .tmp/apify_twitter_monitor_*.xlsx
+            .tmp/apify_twitter_trends_*.json
+            .tmp/apify_twitter_trends_*.xlsx
+          retention-days: 30

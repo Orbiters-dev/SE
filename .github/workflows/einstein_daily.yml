@@ -1,0 +1,20 @@
+name: Einstein Daily Mini Check
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Daily 09:00 UTC = 18:00 KST
+  workflow_dispatch:
+
+jobs:
+  mini-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install python-dotenv
+      - name: Run Einstein Daily
+        env:
+          TEAMS_WEBHOOK_URL_SEEUN: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/run_einstein.py --mode daily

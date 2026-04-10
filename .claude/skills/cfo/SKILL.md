@@ -208,3 +208,10 @@ python tools/codex_evaluator.py --domain cfo audit --files output.json --json
 - 3회 수정 실패 시 partial output에 포함되는 항목
 - 누락되는 분석 항목 목록
 - downstream 영향 (투자 의사결정 지연 등)
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

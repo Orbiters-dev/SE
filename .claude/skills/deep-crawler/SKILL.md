@@ -94,3 +94,10 @@ python tools/deep_crawler.py --handles "user1,user2" --pg-sync
 - `--from-syncly` reads column index 3 (Username) and optionally filters by column index 21 (views_30d).
 - Requires `APIFY_TOKEN` in environment (loaded via `env_loader`).
 - Dependencies: `apify-client`, `openpyxl`, `requests` (for PG sync).
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

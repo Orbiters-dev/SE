@@ -566,3 +566,10 @@ jobs:
 - [Claude Code 소스코드 분석 (@mal_shaik)](https://x.com/mal_shaik/status/2038918662489510273) — 11-layer architecture, subagent cache, hooks
 - `references/2026-04-02_세션리포트.md` — Phase 2-3 완성 기록
 - `references/워크플로우_재실행가이드.md` — 드라이런/검증 가이드
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

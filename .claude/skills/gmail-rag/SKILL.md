@@ -61,3 +61,10 @@ Query → embed → ChromaDB search → thread expansion → Claude Sonnet draft
 
 ## Trigger Keywords
 이메일 지니, Gmail RAG, 이메일 검색, 이메일 컨텍스트, 이메일 작성, 중복 체크, 이전 이메일, email context, compose email, dedup check
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

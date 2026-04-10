@@ -486,3 +486,10 @@ curl -s -X POST -H "X-N8N-API-KEY: $N8N_API_KEY" \
 | `POSTGRES_HOST` / `USER` / `PASSWORD` / `DB` | PostgreSQL 접속 |
 
 Python 경로: `/c/Users/wjcho/AppData/Local/Programs/Python/Python312/python.exe`
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

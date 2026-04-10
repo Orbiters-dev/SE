@@ -1,0 +1,28 @@
+name: 監督
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 毎日 09:00 JST — 今日の予定ツイートをTeamsに通知
+  workflow_dispatch:
+
+jobs:
+  kantoku:
+    name: 監督 — 今日のツイート予定をTeams通知
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
+      TEAMS_WEBHOOK_URL:            ${{ secrets.TEAMS_WEBHOOK_URL }}
+      TEAMS_MASTER_WEBHOOK_URL:     ${{ secrets.TEAMS_MASTER_WEBHOOK_URL }}
+      TEAMS_TENANT_ID:              ${{ secrets.TEAMS_TENANT_ID }}
+      TEAMS_GRAPH_CLIENT_ID:        ${{ secrets.TEAMS_GRAPH_CLIENT_ID }}
+      TEAMS_GRAPH_CLIENT_SECRET:    ${{ secrets.TEAMS_GRAPH_CLIENT_SECRET }}
+      TEAMS_TEAM_ID:                ${{ secrets.TEAMS_TEAM_ID }}
+      TEAMS_CHANNEL_ID:             ${{ secrets.TEAMS_CHANNEL_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - run: python tools/twitter_supervisor.py

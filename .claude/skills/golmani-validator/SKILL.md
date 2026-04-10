@@ -157,3 +157,10 @@ python tools/validate_fin_data.py  # P&L output validation (planned)
 2. **M-067**: COGS 비교는 SKU 바코드 1:1 매칭. 카테고리 평균은 오판 유발.
 3. **M-068**: Dashboard 수정 시 `run_kpi_monthly.py`의 `analyze_discounts()`, `analyze_seeding_cost()` 로직 참조 필수.
 4. **M-069**: `--months` 파라미터가 FY 전체를 커버하는지 확인. 기본 9개월이면 Jan-May 누락.
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

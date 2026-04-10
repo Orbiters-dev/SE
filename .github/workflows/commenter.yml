@@ -1,0 +1,35 @@
+name: コメンター
+
+on:
+  # schedule: 一時停止中（アカウント停止のため 2026-03-20）
+  #   - cron: '0 3 * * *'   # 12:00 JST
+  #   - cron: '0 4 * * *'   # 13:00 JST
+  #   - cron: '0 5 * * *'   # 14:00 JST
+  #   - cron: '0 6 * * *'   # 15:00 JST
+  #   - cron: '0 7 * * *'   # 16:00 JST
+  workflow_dispatch:
+
+jobs:
+  engage:
+    name: コメンター — 育児ツイートに共感コメント（1人）
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
+      TWITTER_API_KEY:              ${{ secrets.TWITTER_API_KEY }}
+      TWITTER_API_SECRET:           ${{ secrets.TWITTER_API_SECRET }}
+      TWITTER_BEARER_TOKEN:         ${{ secrets.TWITTER_BEARER_TOKEN }}
+      TWITTER_ACCESS_TOKEN:         ${{ secrets.TWITTER_ACCESS_TOKEN }}
+      TWITTER_ACCESS_TOKEN_SECRET:  ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+      TWITTER_CLIENT_ID:            ${{ secrets.TWITTER_CLIENT_ID }}
+      TWITTER_CLIENT_SECRET:        ${{ secrets.TWITTER_CLIENT_SECRET }}
+      FIRECRAWL_API_KEY:            ${{ secrets.FIRECRAWL_API_KEY }}
+      TEAMS_WEBHOOK_URL:            ${{ secrets.TEAMS_WEBHOOK_URL }}
+      TEAMS_MASTER_WEBHOOK_URL:     ${{ secrets.TEAMS_MASTER_WEBHOOK_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - run: python tools/twitter_engage.py --limit 1

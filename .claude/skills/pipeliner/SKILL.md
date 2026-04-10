@@ -205,3 +205,10 @@ python tools/codex_evaluator.py --domain pipeliner audit --files report.json --j
 - `AGENTS.md` — Codex가 읽는 Evaluator 지침서 (Pipeliner 섹션 포함)
 - `references/n8n-workflows.md` — PROD/WJ TEST workflow IDs
 - `references/troubleshooting.md` — 트러블슈팅 패턴
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

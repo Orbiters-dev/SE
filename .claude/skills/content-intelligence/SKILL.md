@@ -336,3 +336,10 @@ if len(discovery) > 100:
 | 대시보드 N/A 97% | Discovery 데이터 오염 (M-066) | Audit 4 실행. syncly_sheets 데이터 필터링/제거 |
 | Brand 비어있음 | 해시태그 감지 누락 (M-068) | Audit 2 실행. detect_brand_from_text() fallback 확인 |
 | 시트 Brand 있는데 PG 비어있음 | initial_load가 Brand 컬럼 무시 | row[13] 읽기 + hashtag fallback 확인 |
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.

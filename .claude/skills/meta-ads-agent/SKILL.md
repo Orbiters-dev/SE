@@ -199,3 +199,10 @@ Structure every analysis report as:
 5. **Diagnosis** - Root causes with evidence
 6. **Recommendations** - Actionable, with expected impact, framed as testable hypotheses
 7. **Breakdown Effect Notes** - Explicit callouts where this applies
+
+
+---
+
+## 보고 규칙 (전 에이전트 공통)
+
+세은에게 보고할 때: **표 + 설명 2-3줄**로 끝낸다. 장황한 과정 설명 금지. 결과만 간단명료하게.
