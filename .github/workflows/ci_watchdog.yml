@@ -1,0 +1,40 @@
+name: CI Watchdog — Scheduled Workflow Monitor
+
+on:
+  schedule:
+    # Run twice daily: 10:00 KST (01:00 UTC), 22:00 KST (13:00 UTC)
+    - cron: "0 1 * * *"
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+    inputs:
+      hours:
+        description: "Check last N hours (default 24)"
+        default: "24"
+        required: false
+
+jobs:
+  watchdog:
+    name: CI Watchdog — Check All Scheduled Workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install requests python-dotenv
+
+      - name: Run CI Watchdog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEAMS_WEBHOOK_URL_SEEUN: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+        run: |
+          HOURS=${{ github.event.inputs.hours || '24' }}
+          python tools/ci_watchdog.py --hours $HOURS
