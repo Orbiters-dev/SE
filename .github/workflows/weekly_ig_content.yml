@@ -55,6 +55,7 @@ jobs:
             --output .tmp/weekly_content_plan.xlsx
 
       - name: Send content plan email & upload to Teams
+        continue-on-error: true
         env:
           GMAIL_OAUTH_CREDENTIALS_PATH: credentials/gmail_oauth_credentials.json
           GMAIL_TOKEN_PATH: credentials/gmail_token.json
@@ -79,8 +80,8 @@ jobs:
           DATE=$(date +%Y%m%d)
           cp .tmp/weekly_content_plan.xlsx ".tmp/weekly_content_plan_${DATE}.xlsx"
 
-          # Run weekly_ig_planner (email + Teams)
-          python tools/weekly_ig_planner.py
+          # Run weekly_ig_planner with existing Excel (skip re-generation)
+          python tools/weekly_ig_planner.py --excel ".tmp/weekly_content_plan_${DATE}.xlsx"
 
           # Also upload to Teams SharePoint
           python tools/teams_content.py \
