@@ -1961,7 +1961,7 @@ def import_syncly_discovery(request):
         SELECT DISTINCT ON (cp.username)
             cp.username, cp.nickname, cp.followers, cp.platform,
             cp.brand, cp.caption, cp.url, cp.post_date
-        FROM gk_content_posts cp
+        FROM content_posts cp
         LEFT JOIN onz_pipeline_creators pc
             ON (LOWER(cp.username) = LOWER(pc.ig_handle)
                 OR LOWER(cp.username) = LOWER(pc.tiktok_handle))
@@ -2071,7 +2071,7 @@ def import_syncly_discovery(request):
                 SELECT
                     cp.username, cp.transcript, cp.url, cp.views_30d,
                     cp.post_date, pc.id AS creator_id
-                FROM gk_content_posts cp
+                FROM content_posts cp
                 INNER JOIN onz_pipeline_creators pc
                     ON LOWER(cp.username) = LOWER(pc.ig_handle)
                     OR LOWER(cp.username) = LOWER(pc.tiktok_handle)
