@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-04-19 14:36 PST",
+ "generated_pst": "2026-04-19 16:04 PST",
  "through_date": "2026-04-18",
  "months": [
   "2025-01",
@@ -56557,11 +56557,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DCV766MB",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7SPP2P",
+      "asin": "B0DB7V1BW3",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -56569,15 +56565,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DY6SM9Y7",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0F6XNGT85",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7V1BW3",
+      "asin": "B0DCV766MB",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -56585,8 +56573,32 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
+      "asin": "B0DY6SM9Y7",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7SPP2P",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
       "asin": "B0DCV7MTLS",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F6XNGT85",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F4D28MC3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F4D1V39Q",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0F4CRT6LV",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
       "asin": "B0F4D8L1HL",
@@ -56597,31 +56609,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4D1V39Q",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4D28MC3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4CRT6LV",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F9PX51FX",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
       "asin": "B0F9PZPMH8",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PY2LBV",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PVZMR1",
+      "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -56629,55 +56621,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B083XT642K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PVZMR1",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B083986L91",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKJ18D5",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0842DMZ3H",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PY2LBV",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
       "asin": "B082SSPN4X",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N1PLYD",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0BZYSL3BH",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0842D5Z17",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B08398HJRD",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YL2FT96",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKH98WT",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3QZ7K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YKKWFTN",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -56685,7 +56637,35 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0C1N3VDL3",
+      "asin": "B083986L91",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKKWFTN",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842DMZ3H",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKJ18D5",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKH98WT",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YL2FT96",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0BZYSL3BH",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0C1N3QZ7K",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -56693,16 +56673,24 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0F9NPRCTM",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+      "asin": "B0C1N1PLYD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0F8Q8RK18",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+      "asin": "B0842D5Z17",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B0F8QHRGKW",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+      "asin": "B083XT642K",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0C1N3VDL3",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
       "asin": "B0F8QHJN6G",
@@ -56713,7 +56701,19 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
+      "asin": "B0F8Q8RK18",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
       "asin": "B0F8QGZ7TH",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QHRGKW",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F9NPRCTM",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -57502,15 +57502,7 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FKG6RCDC",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
       "asin": "B0FKGFN121",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FHKBTY2S",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -57522,11 +57514,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FHKG2SG5",
+      "asin": "B0FHKBTY2S",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKGCRG45",
+      "asin": "B0FKFN91X9",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -57534,11 +57526,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
+      "asin": "B0FHKG2SG5",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
       "asin": "B0FHKFQPGR",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKFN91X9",
+      "asin": "B0FKG6RCDC",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKGCRG45",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -58240,15 +58240,15 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FR4RQRNR",
-      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
-     },
-     {
       "asin": "B0FR4Q6LXQ",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
       "asin": "B0FR4FGBPP",
+      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
+     },
+     {
+      "asin": "B0FR4RQRNR",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      }
     ]
@@ -67218,7 +67218,7 @@ const FIN_DATA = {
      "username": "deanna.hauk",
      "brand": "Grosmimi",
      "platform": "instagram",
-     "total_views": 511678,
+     "total_views": 511865,
      "base_views": 236117,
      "first_observed": "2026-03-13",
      "upload_date": "2026-02-26",
@@ -67320,7 +67320,7 @@ const FIN_DATA = {
      "username": "deanna_hauk",
      "brand": "Grosmimi",
      "platform": "tiktok",
-     "total_views": 268600,
+     "total_views": 270500,
      "base_views": 85500,
      "first_observed": "2026-03-13",
      "upload_date": "2026-02-26",
@@ -67422,7 +67422,7 @@ const FIN_DATA = {
      "username": "angiiiew",
      "brand": "Grosmimi",
      "platform": "tiktok",
-     "total_views": 134300,
+     "total_views": 134600,
      "base_views": 47600,
      "first_observed": "2026-03-26",
      "upload_date": "2026-03-25",
@@ -67524,7 +67524,7 @@ const FIN_DATA = {
      "username": "chatterwithsam",
      "brand": "Grosmimi",
      "platform": "instagram",
-     "total_views": 52432,
+     "total_views": 53288,
      "base_views": 29342,
      "first_observed": "2026-03-13",
      "upload_date": "2026-01-23",
@@ -67829,8 +67829,8 @@ const FIN_DATA = {
     {
      "username": "kendra.motherhood",
      "brand": "Grosmimi",
-     "platform": "tiktok",
-     "total_views": 39297,
+     "platform": "instagram",
+     "total_views": 39521,
      "base_views": 21948,
      "first_observed": "2026-03-13",
      "upload_date": "2026-02-05",
@@ -67932,7 +67932,7 @@ const FIN_DATA = {
      "username": "eliyakh",
      "brand": "Grosmimi",
      "platform": "tiktok",
-     "total_views": 33754,
+     "total_views": 34030,
      "base_views": 28335,
      "first_observed": "2026-03-13",
      "upload_date": "2026-02-23",
@@ -68136,7 +68136,7 @@ const FIN_DATA = {
      "username": "deanthedisaster",
      "brand": "Grosmimi",
      "platform": "tiktok",
-     "total_views": 14500,
+     "total_views": 15100,
      "base_views": 1016,
      "first_observed": "2026-04-13",
      "upload_date": "2026-04-13",
@@ -68342,7 +68342,7 @@ const FIN_DATA = {
      "username": "michela.rowe",
      "brand": "Grosmimi",
      "platform": "instagram",
-     "total_views": 1383,
+     "total_views": 1386,
      "base_views": 1171,
      "first_observed": "2026-04-03",
      "upload_date": "2026-03-30",
@@ -68650,7 +68650,7 @@ const FIN_DATA = {
      "username": "zellyandb",
      "brand": "Grosmimi",
      "platform": "instagram",
-     "total_views": 2852,
+     "total_views": 2899,
      "base_views": 1515,
      "first_observed": "2026-03-23",
      "upload_date": "2026-03-20",
@@ -68754,7 +68754,7 @@ const FIN_DATA = {
      "username": "bls_physical_therapy",
      "brand": "Grosmimi",
      "platform": "instagram",
-     "total_views": 493,
+     "total_views": 494,
      "base_views": 361,
      "first_observed": "2026-03-16",
      "upload_date": "2026-03-14",
@@ -68849,6 +68849,108 @@ const FIN_DATA = {
       0,
       1,
       3,
+      0
+     ]
+    },
+    {
+     "username": "annalisekoh",
+     "brand": "Grosmimi",
+     "platform": "tiktok",
+     "total_views": 165,
+     "base_views": 163,
+     "first_observed": "2026-04-16",
+     "upload_date": "2026-03-26",
+     "post_url": "https://www.tiktok.com/@annalisekoh/video/7621566435088764180",
+     "daily_views": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
       0
      ]
     }
@@ -69062,7 +69164,7 @@ const FIN_DATA = {
      "username": "olivia.cumplido",
      "brand": "Grosmimi",
      "platform": "tiktok",
-     "total_views": 163,
+     "total_views": 172,
      "base_views": 106,
      "first_observed": "2026-04-13",
      "upload_date": "2026-04-13",
@@ -69370,7 +69472,7 @@ const FIN_DATA = {
      "username": "maylog6",
      "brand": "Naeiae",
      "platform": "tiktok",
-     "total_views": 11600,
+     "total_views": 11700,
      "base_views": 4529,
      "first_observed": "2026-03-27",
      "upload_date": "2026-03-27",
@@ -69472,7 +69574,7 @@ const FIN_DATA = {
      "username": "alexissbrookss",
      "brand": "Naeiae",
      "platform": "tiktok",
-     "total_views": 9338,
+     "total_views": 10600,
      "base_views": 4856,
      "first_observed": "2026-04-16",
      "upload_date": "2026-04-16",
@@ -69676,7 +69778,7 @@ const FIN_DATA = {
      "username": "itsankhiluun",
      "brand": "Naeiae",
      "platform": "tiktok",
-     "total_views": 343,
+     "total_views": 346,
      "base_views": 277,
      "first_observed": "2026-03-31",
      "upload_date": "2026-03-31",
@@ -69779,7 +69881,7 @@ const FIN_DATA = {
     {
      "username": "missladyfritz",
      "brand": "CHA&MOM",
-     "platform": "instagram",
+     "platform": "tiktok",
      "total_views": 984,
      "base_views": 735,
      "first_observed": "2026-03-13",
@@ -69984,7 +70086,7 @@ const FIN_DATA = {
      "username": "eclectically_curated",
      "brand": "CHA&MOM",
      "platform": "instagram",
-     "total_views": 572,
+     "total_views": 575,
      "base_views": 111,
      "first_observed": "2026-03-27",
      "upload_date": "2026-03-27",
@@ -74911,18 +75013,18 @@ const FIN_DATA = {
     ]
    },
    "content_views": [
-    90179,
-    28244656,
-    40434075,
-    1401327,
-    236576,
-    1852805,
-    1645265,
-    2729349,
-    3634468,
-    1573315,
-    34502,
-    354003408
+    90199,
+    28253851,
+    40434338,
+    1401391,
+    240247,
+    1854203,
+    1648497,
+    2729360,
+    3638270,
+    1573353,
+    34723,
+    354004615
    ],
    "content_by_creator": {
     "jinbbi.1925": [
@@ -75317,7 +75419,7 @@ const FIN_DATA = {
      0,
      5400000
     ],
-    "katalinalynn_": [
+    "itsangieluna": [
      0,
      0,
      0,
@@ -75331,7 +75433,7 @@ const FIN_DATA = {
      0,
      5300000
     ],
-    "itsangieluna": [
+    "katalinalynn_": [
      0,
      0,
      0,
@@ -75418,7 +75520,7 @@ const FIN_DATA = {
     "mio_ikuji": [
      0,
      0,
-     4777,
+     4792,
      0,
      0,
      0,
@@ -75459,7 +75561,7 @@ const FIN_DATA = {
     ],
     "expertcare.id": [
      0,
-     822650,
+     823923,
      0,
      0,
      0,
@@ -75476,13 +75578,13 @@ const FIN_DATA = {
      0,
      0,
      0,
-     105742,
+     106983,
      0,
      0,
      195670,
      10129,
      120777,
-     9669,
+     9740,
      0
     ],
     "maro.ikuzi": [
@@ -75491,7 +75593,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     3681,
+     3690,
      0,
      0,
      17884,
@@ -75529,7 +75631,7 @@ const FIN_DATA = {
     ],
     "moniqueandreese": [
      0,
-     494667,
+     500815,
      0,
      0,
      0,
@@ -75543,7 +75645,7 @@ const FIN_DATA = {
     ],
     "bacchon_ki_doctor": [
      0,
-     474048,
+     474155,
      0,
      0,
      0,
@@ -75578,8 +75680,8 @@ const FIN_DATA = {
      0,
      0,
      0,
-     386669,
-     3447,
+     387838,
+     3454,
      0,
      0
     ],
@@ -75599,7 +75701,7 @@ const FIN_DATA = {
     ],
     "minniedilipgoyal": [
      0,
-     317957,
+     318120,
      0,
      0,
      0,
@@ -75613,7 +75715,7 @@ const FIN_DATA = {
     ],
     "sarapi__mama": [
      0,
-     4516,
+     4518,
      0,
      0,
      0,
@@ -75683,7 +75785,7 @@ const FIN_DATA = {
     ],
     "somysolanki": [
      0,
-     211093,
+     211128,
      0,
      0,
      0,
@@ -75711,7 +75813,7 @@ const FIN_DATA = {
     ],
     "omama.in": [
      0,
-     142200,
+     142502,
      0,
      0,
      0,
@@ -75725,7 +75827,7 @@ const FIN_DATA = {
     ],
     "dr_tanyagupta_obsgynae": [
      0,
-     138270,
+     138453,
      0,
      0,
      0,
@@ -75740,7 +75842,7 @@ const FIN_DATA = {
     "mon_yuru.ikuji": [
      0,
      0,
-     6258,
+     6502,
      0,
      0,
      0,
@@ -75753,7 +75855,7 @@ const FIN_DATA = {
     ],
     "bestofnavimumbai": [
      0,
-     100194,
+     100345,
      0,
      0,
      0,
@@ -75795,7 +75897,7 @@ const FIN_DATA = {
     ],
     "dhesnakho": [
      0,
-     71232,
+     71288,
      0,
      0,
      0,
@@ -75812,7 +75914,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     65542,
+     67914,
      0,
      0,
      0,
@@ -75826,7 +75928,7 @@ const FIN_DATA = {
      54088,
      0,
      0,
-     9995,
+     9999,
      0,
      0,
      0,
@@ -75850,11 +75952,11 @@ const FIN_DATA = {
      0
     ],
     "emachi_mom": [
-     28251,
+     28255,
      0,
      0,
      0,
-     1822,
+     1826,
      0,
      0,
      0,
@@ -75865,7 +75967,7 @@ const FIN_DATA = {
     ],
     "vill_romina_": [
      0,
-     61435,
+     62067,
      0,
      0,
      0,
@@ -75878,7 +75980,7 @@ const FIN_DATA = {
      0
     ],
     "hertoddlerandtails": [
-     56566,
+     56579,
      0,
      0,
      0,
@@ -75914,7 +76016,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     33056,
+     35658,
      0,
      0,
      0
@@ -75933,6 +76035,20 @@ const FIN_DATA = {
      0,
      0
     ],
+    "shiro_ikuji": [
+     0,
+     14376,
+     0,
+     0,
+     0,
+     0,
+     14430,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
     "jainith_lowvanshi": [
      0,
      28772,
@@ -75941,20 +76057,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
-    "shiro_ikuji": [
-     0,
-     14356,
-     0,
-     0,
-     0,
-     0,
-     11216,
      0,
      0,
      0,
@@ -75980,7 +76082,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     21316,
+     21366,
      0,
      0,
      0,
@@ -75991,7 +76093,7 @@ const FIN_DATA = {
     ],
     "i.teach.tiny.humans": [
      0,
-     19783,
+     19792,
      0,
      0,
      0,
@@ -76014,12 +76116,12 @@ const FIN_DATA = {
      0,
      0,
      0,
-     16926,
+     16934,
      0
     ],
     "ask_the_np_mom": [
      0,
-     15970,
+     15972,
      0,
      0,
      0,
@@ -76033,7 +76135,7 @@ const FIN_DATA = {
     ],
     "cute_rishi_tripathi1432": [
      0,
-     15720,
+     15721,
      0,
      0,
      0,
@@ -76075,7 +76177,7 @@ const FIN_DATA = {
     ],
     "haeinholi": [
      0,
-     12317,
+     12324,
      0,
      0,
      0,
@@ -76094,7 +76196,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     11518,
+     11536,
      0,
      0,
      0,
@@ -76117,7 +76219,7 @@ const FIN_DATA = {
     ],
     "baby_sri_sha": [
      0,
-     10159,
+     10176,
      0,
      0,
      0,
@@ -76132,7 +76234,7 @@ const FIN_DATA = {
     "eri_mama_ikuji": [
      0,
      0,
-     9865,
+     9869,
      0,
      0,
      0,
@@ -76145,7 +76247,7 @@ const FIN_DATA = {
     ],
     "goodnightsleeptight_": [
      0,
-     8884,
+     8887,
      0,
      0,
      0,
@@ -76187,7 +76289,7 @@ const FIN_DATA = {
     ],
     "wrapsnknotsbyarushi": [
      0,
-     8464,
+     8475,
      0,
      0,
      0,
@@ -76201,7 +76303,7 @@ const FIN_DATA = {
     ],
     "nuna_usa": [
      0,
-     8163,
+     8183,
      0,
      0,
      0,
@@ -76269,6 +76371,20 @@ const FIN_DATA = {
      0,
      0
     ],
+    "memeko_babyikuji": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     6507,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
     "minkoro_kosodate": [
      0,
      0,
@@ -76277,7 +76393,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     5713,
+     5721,
      0,
      0,
      0,
@@ -76285,25 +76401,11 @@ const FIN_DATA = {
     ],
     "thegentlesleepspecialist": [
      0,
-     5640,
+     5644,
      0,
      0,
      0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
-    "memeko_babyikuji": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     5118,
      0,
      0,
      0,
@@ -76322,12 +76424,12 @@ const FIN_DATA = {
      0,
      0,
      0,
-     4994,
+     5061,
      0
     ],
     "raina.mehta35": [
      0,
-     4698,
+     4701,
      0,
      0,
      0,
@@ -76376,7 +76478,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     4155,
+     4182,
      0,
      0,
      0
@@ -76405,7 +76507,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     3748,
+     3770,
      0,
      0
     ],
@@ -76441,7 +76543,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     2858,
+     2921,
      0,
      0,
      0,
@@ -76453,7 +76555,7 @@ const FIN_DATA = {
     ],
     "milhaan_n_mommy": [
      0,
-     2848,
+     2849,
      0,
      0,
      0,
@@ -76466,7 +76568,7 @@ const FIN_DATA = {
      0
     ],
     "mrdadof4": [
-     2782,
+     2783,
      0,
      0,
      0,
@@ -76481,7 +76583,7 @@ const FIN_DATA = {
     ],
     "datzzsanchit": [
      0,
-     2760,
+     2761,
      0,
      0,
      0,
@@ -76504,7 +76606,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     2655,
+     2694,
      0
     ],
     "hamare_baccho_ki_doc": [
@@ -76537,7 +76639,7 @@ const FIN_DATA = {
     ],
     "kala.rumah": [
      0,
-     2530,
+     2542,
      0,
      0,
      0,
@@ -76575,7 +76677,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1993
+     2063
     ],
     "usako__ikuji": [
      0,
@@ -76587,7 +76689,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1942,
+     1946,
      0,
      0
     ],
@@ -76621,7 +76723,7 @@ const FIN_DATA = {
     ],
     "chicchi_ikuji": [
      0,
-     1807,
+     1824,
      0,
      0,
      0,
@@ -76649,7 +76751,7 @@ const FIN_DATA = {
     ],
     "granadapreschool.id": [
      0,
-     1637,
+     1644,
      0,
      0,
      0,
@@ -76670,7 +76772,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1453,
+     1457,
      0,
      0,
      0
@@ -76697,7 +76799,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1164,
+     1167,
      0,
      0,
      0,
@@ -76817,7 +76919,7 @@ const FIN_DATA = {
     ],
     "kiidskingdom": [
      0,
-     754,
+     756,
      0,
      0,
      0,
@@ -76833,7 +76935,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     739,
+     740,
      0,
      0,
      0,
@@ -76871,6 +76973,20 @@ const FIN_DATA = {
      0,
      0
     ],
+    "nazu.mama.slowlife": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     596
+    ],
     "nae.triplets": [
      0,
      591,
@@ -76901,21 +77017,7 @@ const FIN_DATA = {
     ],
     "milkguide": [
      0,
-     569,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
-    "rp.speechie": [
-     0,
-     524,
+     574,
      0,
      0,
      0,
@@ -76939,7 +77041,21 @@ const FIN_DATA = {
      0,
      0,
      0,
-     515
+     555
+    ],
+    "rp.speechie": [
+     0,
+     524,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
     ],
     "musuko.222": [
      0,
@@ -76951,7 +77067,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     508,
+     509,
      0,
      0
     ],
@@ -76983,6 +77099,20 @@ const FIN_DATA = {
      0,
      0
     ],
+    "thim_premama": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     424
+    ],
     "yu_2024.09": [
      0,
      0,
@@ -76993,12 +77123,12 @@ const FIN_DATA = {
      0,
      0,
      0,
-     393,
+     397,
      0,
      0
     ],
     "planobirthplace": [
-     388,
+     389,
      0,
      0,
      0,
@@ -77055,7 +77185,7 @@ const FIN_DATA = {
     ],
     "wish_ber": [
      0,
-     305,
+     306,
      0,
      0,
      0,
@@ -77081,20 +77211,6 @@ const FIN_DATA = {
      0,
      0
     ],
-    "paintngo_tunbridgewells": [
-     0,
-     263,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
     "juco_lone": [
      0,
      0,
@@ -77106,7 +77222,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     258,
+     294,
      0
     ],
     "sayu_mama.96": [
@@ -77121,11 +77237,11 @@ const FIN_DATA = {
      0,
      0,
      0,
-     258
+     271
     ],
-    "dasodysseytales": [
+    "paintngo_tunbridgewells": [
      0,
-     245,
+     263,
      0,
      0,
      0,
@@ -77149,11 +77265,11 @@ const FIN_DATA = {
      0,
      0,
      0,
-     234
+     251
     ],
-    "gfcni_newborn": [
+    "dasodysseytales": [
      0,
-     224,
+     245,
      0,
      0,
      0,
@@ -77177,7 +77293,35 @@ const FIN_DATA = {
      0,
      0,
      0,
-     212
+     230
+    ],
+    "ishiko_mamalife": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     225
+    ],
+    "gfcni_newborn": [
+     0,
+     224,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
     ],
     "miracle_siblings": [
      0,
@@ -77192,20 +77336,6 @@ const FIN_DATA = {
      0,
      0,
      0
-    ],
-    "ishiko_mamalife": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     196
     ],
     "wanderlusttravel_bydawn": [
      0,
@@ -77236,7 +77366,7 @@ const FIN_DATA = {
      0
     ],
     "taraphotographycom": [
-     129,
+     130,
      0,
      0,
      0,
@@ -77291,7 +77421,7 @@ const FIN_DATA = {
      0,
      0
     ],
-    "beginnersdigitalmontessori": [
+    "bethany.library": [
      0,
      50,
      0,
@@ -77305,7 +77435,7 @@ const FIN_DATA = {
      0,
      0
     ],
-    "bethany.library": [
+    "beginnersdigitalmontessori": [
      0,
      50,
      0,
