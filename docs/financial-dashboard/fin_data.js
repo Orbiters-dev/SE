@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-04-20 14:43 PST",
+ "generated_pst": "2026-04-20 16:08 PST",
  "through_date": "2026-04-19",
  "months": [
   "2025-01",
@@ -56719,7 +56719,15 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0DY6SKQ2N",
+      "asin": "B0DCV766MB",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0DB7V1BW3",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F9PZGGF2",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -56735,39 +56743,23 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0DY6SM9Y7",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DB7V1BW3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
-      "asin": "B0DCV766MB",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
-     },
-     {
       "asin": "B0F6XNGT85",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0F9PZGGF2",
+      "asin": "B0DY6SM9Y7",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0F4D28MC3",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
-     },
-     {
-      "asin": "B0F4D3YZ8H",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+      "asin": "B0DY6SKQ2N",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
       "asin": "B0F4D1V39Q",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F4CRT6LV",
+      "asin": "B0F4D28MC3",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -56775,19 +56767,19 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F9PZD6QM",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+      "asin": "B0F4D3YZ8H",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0F9PY2LBV",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+      "asin": "B0F4CRT6LV",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
       "asin": "B0F9PZPMH8",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PX51FX",
+      "asin": "B0F9PZD6QM",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -56795,39 +56787,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0C1N3VDL3",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PX51FX",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B07YKKWFTN",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+      "asin": "B0F9PY2LBV",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0842D5Z17",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B083WJBR9B",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N3QZ7K",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0842DMZ3H",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0C1N1PLYD",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B0BZYSL3BH",
-      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
-     },
-     {
-      "asin": "B07YL2FT96",
+      "asin": "B07YKH98WT",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -56835,11 +56803,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YKH98WT",
+      "asin": "B0C1N3QZ7K",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B083986L91",
+      "asin": "B0C1N1PLYD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842D5Z17",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -56847,7 +56819,23 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B08398HJRD",
+      "asin": "B0C1N3VDL3",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YL2FT96",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B0842DMZ3H",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083986L91",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B07YKKWFTN",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -56855,11 +56843,23 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
+      "asin": "B0BZYSL3BH",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B083WJBR9B",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
+     },
+     {
       "asin": "B083XT642K",
       "name": "GROSMIMI Taza mágica a prueba de derrames con pajita con asa para bebés y niños "
      },
      {
-      "asin": "B0F8QHRGKW",
+      "asin": "B0F9NPRCTM",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -56867,15 +56867,15 @@ const FIN_DATA = {
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
-      "asin": "B0F9NPRCTM",
+      "asin": "B0F8QH8T8X",
+      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
+     },
+     {
+      "asin": "B0F8QHRGKW",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
       "asin": "B0F8QHJN6G",
-      "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
-     },
-     {
-      "asin": "B0F8QH8T8X",
       "name": "GROSMIMI x KNOTTED Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, Stage 2 Straw"
      },
      {
@@ -57686,15 +57686,23 @@ const FIN_DATA = {
     ],
     "asins": [
      {
-      "asin": "B0FKFN91X9",
+      "asin": "B0FKG6RCDC",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKGCRG45",
+      "asin": "B0FKFW6PND",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
       "asin": "B0FHKC2DVV",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKGFN121",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0FKFN91X9",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -57706,23 +57714,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKG6RCDC",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0FKGFN121",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
       "asin": "B0FKG59ZMN",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FKFW6PND",
+      "asin": "B0FHKBTY2S",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0FHKBTY2S",
+      "asin": "B0FKGCRG45",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      }
     ]
@@ -58444,15 +58444,15 @@ const FIN_DATA = {
     ],
     "asins": [
      {
+      "asin": "B0FR4FGBPP",
+      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
+     },
+     {
       "asin": "B0FR4Q6LXQ",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
       "asin": "B0FR4RQRNR",
-      "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
-     },
-     {
-      "asin": "B0FR4FGBPP",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      }
     ]
@@ -76142,7 +76142,7 @@ const FIN_DATA = {
       "reviews": 1044
      },
      "baby teething wafer": {
-      "position": 50,
+      "position": 8,
       "asin": "B0BMJCWYB6",
       "title": "Earth's Best Organic Baby Food, Dissolvable Teething Snack for Babies 6 Months and Older, Strawberry Banana Crunchy Sticks, .56 oz Pack (Pack of 5)",
       "price": 11.4,
@@ -76150,15 +76150,15 @@ const FIN_DATA = {
       "reviews": 1044
      },
      "baby rice cracker": {
-      "position": -1,
-      "asin": "",
-      "title": "",
-      "price": 0.0,
-      "rating": 0.0,
-      "reviews": 0
+      "position": 36,
+      "asin": "B0BMJCWYB6",
+      "title": "Earth's Best Organic Baby Food, Dissolvable Teething Snack for Babies 6 Months and Older, Strawberry Banana Crunchy Sticks, .56 oz Pack (Pack of 5)",
+      "price": 11.4,
+      "rating": 4.6,
+      "reviews": 1044
      },
      "toddler snack": {
-      "position": 38,
+      "position": 3,
       "asin": "B0BMJCWYB6",
       "title": "Earth's Best Organic Baby Food, Dissolvable Teething Snack for Babies 6 Months and Older, Strawberry Banana Crunchy Sticks, .56 oz Pack (Pack of 5)",
       "price": 11.4,
@@ -76182,7 +76182,7 @@ const FIN_DATA = {
       "reviews": 0
      },
      "baby snack": {
-      "position": 5,
+      "position": 15,
       "asin": "B0BMJCWYB6",
       "title": "Earth's Best Organic Baby Food, Dissolvable Teething Snack for Babies 6 Months and Older, Strawberry Banana Crunchy Sticks, .56 oz Pack (Pack of 5)",
       "price": 11.4,
@@ -76202,17 +76202,17 @@ const FIN_DATA = {
       "2026-04-05": 8
      },
      "baby teething wafer": {
-      "2026-04-20": 50,
+      "2026-04-20": 8,
       "2026-04-17": 4,
       "2026-04-05": 14
      },
      "baby rice cracker": {
-      "2026-04-20": -1,
+      "2026-04-20": 36,
       "2026-04-17": 15,
       "2026-04-05": 12
      },
      "toddler snack": {
-      "2026-04-20": 38,
+      "2026-04-20": 3,
       "2026-04-17": 12,
       "2026-04-05": 26
      },
@@ -76227,7 +76227,7 @@ const FIN_DATA = {
       "2026-04-05": 43
      },
      "baby snack": {
-      "2026-04-20": 5,
+      "2026-04-20": 15,
       "2026-04-17": 7,
       "2026-04-05": 16
      }
@@ -79369,7 +79369,7 @@ const FIN_DATA = {
      0,
      27
     ],
-    "pippeta_tz": [
+    "goodstart_springfield_lakes": [
      0,
      0,
      0,
@@ -79383,7 +79383,7 @@ const FIN_DATA = {
      0,
      20
     ],
-    "goodstart_springfield_lakes": [
+    "pippeta_tz": [
      0,
      0,
      0,
