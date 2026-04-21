@@ -1,0 +1,47 @@
+name: Auto Posted Tracker (JP CRM)
+
+on:
+  schedule:
+    # Every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no CRM updates)"
+        required: false
+        default: "false"
+
+concurrency:
+  group: auto-posted-tracker
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      INSTAGRAM_BUSINESS_USER_ID: ${{ secrets.INSTAGRAM_BUSINESS_USER_ID }}
+      N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
+      N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
+      APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+      PYTHONIOENCODING: utf-8
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install python-dotenv
+
+      - name: Run auto posted tracker
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python tools/auto_posted_tracker.py --dry-run
+          else
+            python tools/auto_posted_tracker.py
+          fi
