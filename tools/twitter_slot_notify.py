@@ -7,11 +7,13 @@ import sys
 import argparse
 from pathlib import Path
 import requests
-from datetime import datetime
-from zoneinfo import ZoneInfo
-from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+# .env load is optional: GitHub Actions injects secrets as env vars directly
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent.parent / ".env")
+except ImportError:
+    pass
 
 WEBHOOK = os.getenv("TEAMS_WEBHOOK_URL_SEEUN")
 
