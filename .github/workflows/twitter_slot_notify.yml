@@ -1,0 +1,50 @@
+name: Twitter Slot Notify
+
+on:
+  schedule:
+    # JST → UTC (UTC = JST - 9)
+    - cron: '0 1 * * *'   # JST 10:00
+    - cron: '0 2 * * *'   # JST 11:00
+    - cron: '0 4 * * *'   # JST 13:00
+    - cron: '0 8 * * *'   # JST 17:00
+    - cron: '0 10 * * *'  # JST 19:00
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 'Slot to notify (10/11/13/17/19)'
+        type: choice
+        required: true
+        options: ['10', '11', '13', '17', '19']
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    env:
+      TEAMS_WEBHOOK_URL_SEEUN: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+
+      - name: Resolve slot from cron hour or input
+        id: slot
+        run: |
+          if [ -n "${{ inputs.slot }}" ]; then
+            echo "slot=${{ inputs.slot }}" >> "$GITHUB_OUTPUT"
+          else
+            HOUR=$(date -u +%H)
+            case "$HOUR" in
+              01) echo "slot=10" >> "$GITHUB_OUTPUT" ;;
+              02) echo "slot=11" >> "$GITHUB_OUTPUT" ;;
+              04) echo "slot=13" >> "$GITHUB_OUTPUT" ;;
+              08) echo "slot=17" >> "$GITHUB_OUTPUT" ;;
+              10) echo "slot=19" >> "$GITHUB_OUTPUT" ;;
+              *) echo "slot=" >> "$GITHUB_OUTPUT" ;;
+            esac
+          fi
+
+      - name: Send slot notification
+        if: steps.slot.outputs.slot != ''
+        run: PYTHONIOENCODING=utf-8 python tools/twitter_slot_notify.py --slot ${{ steps.slot.outputs.slot }}
