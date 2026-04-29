@@ -2,12 +2,12 @@ name: Twitter Slot Notify
 
 on:
   schedule:
-    # JST → UTC (UTC = JST - 9)
-    - cron: '0 1 * * *'   # JST 10:00
-    - cron: '0 2 * * *'   # JST 11:00
-    - cron: '0 4 * * *'   # JST 13:00
-    - cron: '0 8 * * *'   # JST 17:00
-    - cron: '0 10 * * *'  # JST 19:00
+    # JST → UTC (UTC = JST - 9). 정각 5분 전 발동: GitHub Actions 정각 부하 지연 회피.
+    - cron: '55 0 * * *'  # JST 09:55 → 10:00 슬롯
+    - cron: '55 1 * * *'  # JST 10:55 → 11:00 슬롯
+    - cron: '55 3 * * *'  # JST 12:55 → 13:00 슬롯
+    - cron: '55 7 * * *'  # JST 16:55 → 17:00 슬롯
+    - cron: '55 9 * * *'  # JST 18:55 → 19:00 슬롯
   workflow_dispatch:
     inputs:
       slot:
@@ -35,12 +35,13 @@ jobs:
             echo "slot=${{ inputs.slot }}" >> "$GITHUB_OUTPUT"
           else
             HOUR=$(date -u +%H)
+            # 정각 5분 전 발동이므로 UTC 시 = (슬롯 시 - 9 - 1) (JST 10:00 슬롯 = UTC 00:55)
             case "$HOUR" in
-              01) echo "slot=10" >> "$GITHUB_OUTPUT" ;;
-              02) echo "slot=11" >> "$GITHUB_OUTPUT" ;;
-              04) echo "slot=13" >> "$GITHUB_OUTPUT" ;;
-              08) echo "slot=17" >> "$GITHUB_OUTPUT" ;;
-              10) echo "slot=19" >> "$GITHUB_OUTPUT" ;;
+              00) echo "slot=10" >> "$GITHUB_OUTPUT" ;;
+              01) echo "slot=11" >> "$GITHUB_OUTPUT" ;;
+              03) echo "slot=13" >> "$GITHUB_OUTPUT" ;;
+              07) echo "slot=17" >> "$GITHUB_OUTPUT" ;;
+              09) echo "slot=19" >> "$GITHUB_OUTPUT" ;;
               *) echo "slot=" >> "$GITHUB_OUTPUT" ;;
             esac
           fi

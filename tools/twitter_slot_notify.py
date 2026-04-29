@@ -28,10 +28,8 @@ def main():
         print("[ERR] TEAMS_WEBHOOK_URL_SEEUN not set")
         sys.exit(1)
 
-    jst_now = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%H:%M")
-
     msg = (
-        f"🐻 세은님, {jst_now} 트위터 업로드할 시간이에요!\n"
+        f"🐻 세은님, {args.slot}:00 트위터 업로드할 시간이에요!\n"
         f"📄 [週間プラン]({EXCEL_LINK})"
     )
 
