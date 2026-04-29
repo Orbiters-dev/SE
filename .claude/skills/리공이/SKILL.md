@@ -2,11 +2,11 @@
 name: 리공이
 description: >
   인플루언서 DM 자동화 + DocuSeal 계약서 + JP Pipeline 워크플로우 수리 에이전트.
-  n8n 워크플로우 2개 담당: [SE] Operations Hub (m4ZGQpXLKaPARXRN) + Grosmimi JP Influencer Pipeline (o7AIsTafivOdR0JC).
+  n8n 워크플로우 2개 담당: [SE] Operations Hub (m4ZGQpXLKaPARXRN) + Grosmimi JP Influencer Pipeline (ynMO08sqdUEDk4Rc).
   ManyChat DM 수신 → Claude 초안 → Teams 승인 → DM 발송.
   계약서 DOCX 생성 → DocuSeal 서명 요청 → 완료 추적.
   Trigger: 리공이, DM 자동화, 계약서 발송, DocuSeal, ManyChat,
-  인플루언서 DM 파이프라인, 계약서 생성, 서명 요청, 파이프라인 수리, pipeline fix, o7AI 워크플로우
+  인플루언서 DM 파이프라인, 계약서 생성, 서명 요청, 파이프라인 수리, pipeline fix, ynMO 워크플로우
 ---
 
 # 리공이 — 인플루언서 DM 자동화 + 계약서 파이프라인
@@ -70,7 +70,7 @@ ManyChat DM 수신
 
 ## DocuSeal 계약서 파이프라인
 
-### 방식 1: n8n 워크플로우 (o7AIsTafivOdR0JC) — 추천
+### 방식 1: n8n 워크플로우 (ynMO08sqdUEDk4Rc) — 추천
 
 JP Pipeline API의 `create_contract` action으로 계약서 생성 + DocuSeal 발송을 한 번에 처리.
 
@@ -219,16 +219,32 @@ STEP 11: 사전 제출 검토 피드백
 | `.claude/skills/influencer-manager/SKILL.md` | 인플루언서 매니저 전체 스킬 (DM 템플릿, 피드백 규칙) |
 | `workflows/grosmimi_japan_influencer_dm.md` | DM 전체 템플릿 (STEP 1~11) |
 | `workflows/n8n-contract-pipeline-docuseal.json` | DocuSeal n8n 워크플로우 정의 |
+| **`workflows/manychat_follow_gate_coupon.md`** | **IG 댓글 → 팔로우 게이트 → 쿠폰 DM 자동 발송 SOP** ⭐ |
 | `memory/feedback_use_docuseal_not_docusign.md` | DocuSeal 전환 피드백 |
 | `memory/feedback_docuseal_confirm_before_send.md` | dry-run 필수 규칙 |
 | `memory/feedback_auto_step65_dm.md` | 계약서 발송 후 자동 DM |
 
 ---
 
+## IG 쿠폰 이벤트 호출 프로토콜
+
+세은이 "쿠폰 이벤트 할 거야" / "팔로우 게이트 세팅" / "댓글 쿠폰 자동 발송" 류로 부르면:
+
+1. **무조건 `workflows/manychat_follow_gate_coupon.md` 먼저 Read** (기저 세팅은 이미 완료 상태로 문서화되어 있음)
+2. 그 중 **6절 "매 캠페인 운영 체크리스트"** 순서대로 진행
+3. 세은에게 받아야 할 값 **2개만**: 라쿠텐 쿠폰 코드 + 라쿠텐 랜딩 URL
+4. 값 수령 → n8n `IG Coupon Dispatcher` External Request JSON 업데이트 → ManyChat Trigger에 해당 포스트 등록
+5. 비활성화 상태에서 세은 서브 계정 테스트 → OK 후 Publish
+
+**재사용 철학:** 이 workflow는 `マグ` 외에도 `おしりふき`, `タンブラー`, `セール` 등 다른 키워드로 반복 사용. 매번 workflow 새로 만들지 말고 이 템플릿 재활용.
+
+---
+
 ## 트리거 키워드
 
 리공이, DM 자동화, ManyChat, 계약서 발송, DocuSeal, 서명 요청, 계약서 생성,
-인플루언서 계약, contract pipeline, 서명 추적, n8n DM, DM 파이프라인
+인플루언서 계약, contract pipeline, 서명 추적, n8n DM, DM 파이프라인,
+**쿠폰 이벤트, 팔로우 게이트, IG 댓글 쿠폰, 댓글 DM 자동화, coupon event, follow gate**
 
 ---
 
@@ -236,7 +252,7 @@ STEP 11: 사전 제출 검토 피드백
 
 ## n8n 워크플로우: Grosmimi JP Influencer Pipeline
 
-**워크플로우 ID**: `o7AIsTafivOdR0JC`
+**워크플로우 ID**: `ynMO08sqdUEDk4Rc`
 **이름**: Grosmimi JP: Influencer Pipeline
 **Active**: true
 **노드 수**: 39개
@@ -324,7 +340,7 @@ TEST: https://n8n.orbiters.co.kr/webhook-test/jp-pipeline-api
 ```bash
 # 조회
 N8N_KEY=$(grep N8N_API_KEY .env | cut -d= -f2 | tr -d '"' | tr -d "'" | tr -d '\r')
-curl -sk -H "X-N8N-API-KEY: $N8N_KEY" "https://n8n.orbiters.co.kr/api/v1/workflows/o7AIsTafivOdR0JC"
+curl -sk -H "X-N8N-API-KEY: $N8N_KEY" "https://n8n.orbiters.co.kr/api/v1/workflows/ynMO08sqdUEDk4Rc"
 
 # 테스트 호출
 curl -sk -X POST "https://n8n.orbiters.co.kr/webhook-test/jp-pipeline-api" \
@@ -347,7 +363,7 @@ curl -sk -X POST "https://n8n.orbiters.co.kr/webhook-test/jp-pipeline-api" \
 
 리공이, DM 자동화, ManyChat, 계약서 발송, DocuSeal, 서명 요청, 계약서 생성,
 인플루언서 계약, contract pipeline, 서명 추적, n8n DM, DM 파이프라인,
-파이프라인 수리, pipeline fix, o7AI 워크플로우, JP Pipeline
+파이프라인 수리, pipeline fix, ynMO 워크플로우, JP Pipeline
 
 ---
 

@@ -1,0 +1,629 @@
+{
+  "name": "GROSMIMI JP Instagram DM Auto Reply (Claude + Teams Approval)",
+  "_comment": "세은 담당 — GROSMIMI JAPAN 인플루언서 DM 자동응답 워크플로우",
+  "_config_checklist": [
+    "1. MANYCHAT_TOKEN_JP → 세은 ManyChat 계정 토큰으로 교체",
+    "2. TEAMS_WEBHOOK_JP → 세은 Teams 채널 웹훅 URL로 교체",
+    "3. n8n 웹훅 path (jp-ig-dm-*) → n8n에서 활성화 확인",
+    "4. Anthropic API key → 소연 것과 공유 가능 (동일 계정이면 그대로)"
+  ],
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jp-ig-dm-v1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "ManyChat Webhook (JP)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "jp-ig-dm-trigger-001"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"received\" }",
+        "options": {}
+      },
+      "id": "respond-immediately",
+      "name": "Respond to ManyChat",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        460,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── Prepare Claude Request (JP) ──\nconst staticData = $getWorkflowStaticData('global');\nconst body = $input.first().json.body;\n\nconst subscriberId = body.subscriber_id || '';\nconst subscriberName = body.subscriber_name || 'unknown';\nconst rawMessage = body.message || body.new_message || '';\nconst newMessage = /^https?:\\/\\/.{50,}/.test(rawMessage)\n  ? '[User sent an image or video - cannot view content]'\n  : rawMessage;\n\nconst existingHistory = (staticData[subscriberId] || []).slice(-20);\n\n// ── JP System Prompt (GROSMIMI JAPAN) ──\nconst systemPrompt = `あなたはGROSMIMI JAPAN（グロミミ）のインフルエンサー担当スタッフです。\nInstagram DMで日本のインフルエンサーと協力関係を構築・管理する役割を担っています。\n\n---\n\n## ペルソナ＆トーン\n\n- 丁寧な敬語（日本語）。カジュアル表現禁止\n- **禁止表現：**「もちろんです！」「ぴったりかと思います」「投稿楽しみにしています」「デビュー」「絶対〜」\n- 絵文字は最小限（文末に1つ程度）。感嘆符の多用禁止。**1つのDM内で同じ絵文字を複数回使用しない**\n- **必ず冒頭に相手の名前（○○様）を入れる**。名前不明の場合はユーザー（세은）に確認\n- **「○○様」の後、必ず丁寧な挨拶文を入れる**（例：「お世話になっております。」「ご返信いただき、誠にありがとうございます。」「ご丁寧にご回答いただきありがとうございます。」）\n- メッセージは短く読みやすい長さ\n- **推奨表現：**「喜んでご用意させていただきます」「何なりとお申し付けください」「ご確認のほど、よろしくお願いいたします」\n- **署名は常に「GROSMIMI JAPAN」**\n- **AIであることは絶対に明かさない**\n- **競合ブランド（Richell・Pigeon・Combi・Bbox等）の名前を絶対に出さない**\n\n---\n\n## ブランド情報\n\n- **ブランド名：** GROSMIMI JAPAN（グロミミ）\n- **Instagram：** @grosmimi_japan\n- **楽天ショップ：** https://www.rakuten.co.jp/littlefingerusa/\n- **Amazon Japan：** 販売中\n- **ガイドラインリンク：** https://orbiters-my.sharepoint.com/:w:/g/personal/k_yamaguchi_orbiters_co_kr/IQCx4NnjvM54SoYfnpacH_J1Aa3XWgfCSVw-HrHw1LmOHmY?e=lLPxhl\n\n---\n\n## 製品ラインナップ\n\n| 製品名 | 容量 | 価格 | カラー | 対象月齢 |\n|--------|------|------|--------|----------|\n| PPSUストローカップ | 200ml/300ml | ¥3,190/¥3,600 | ホワイト・チャコール・ピンク・スカイブルー | 生後6ヶ月〜 |\n| PPSUワンタッチ式ストローカップ | 300ml | ¥4,200 | ピンクユニコーン・グリーンダイナソー | 生後12ヶ月〜 |\n| ステンレスストローカップ | 200ml/300ml | ¥5,800/¥6,200 | ベアバター・オリーブピスタチオ・チェリーピーチ | 生後12ヶ月〜 |\n\n**月齢別推薦：**\n- 生後6〜11ヶ月 → PPSUストローカップのみ\n- 生後12ヶ月〜 → 3製品すべて選択可能（ただし12ヶ月以上にPPSUストローカップは推薦しない）\n\n**製品リンク（製品推薦時に必ず添付）：**\n- PPSU：https://item.rakuten.co.jp/littlefingerusa/grosmimi_ppsu_strawcup300/\n- ワンタッチ：https://item.rakuten.co.jp/littlefingerusa/grosmimi_ppsu_onetouch_srawcup/\n- ステンレス：https://item.rakuten.co.jp/littlefingerusa/stainless_steel_strawcup_300/\n\n**核心ポイント（自然に1〜2点のみ使用）：**\n- 「成長に合わせて選べるストローステージシステム」（Stage1やわらか→Stage2かため）\n- 「耐熱性・耐久性に優れたPPSU素材」（「PPは危険」等の断定・競合批判禁止）\n- 「分解して洗える衛生的な構造」\n- 「逆流防止バルブで漏れにくい設計」（「絶対漏れない」禁止）\n\n---\n\n## コラボフロー＆DMテンプレート\n\n### Stage 1: 最初の返信（greeting）\nインフルエンサーから返信が来たら：感謝→ブランド紹介→ギフティング提案→月齢確認の流れ。\n\nテンプレート例：\nご返信ありがとうございます☺️\nまた、前向きにご検討いただきとても嬉しいです🍀\n\n内容についてご案内いたします。\n\n・今回は商品提供（ギフティング）でのリール投稿をお願いできればと考えております。\n　もしご希望条件などがございましたら、お気軽にお知らせください。内容を拝見のうえ、検討させていただきます。\n\n・投稿形式はリール投稿を希望しております。\n\n・投稿の目安時期は、商品お受け取り後2週間前後を想定しております。\n　スケジュールのご都合により調整が必要な場合は、柔軟にご相談可能です。\n\nご不明点やご相談などございましたら、お気軽にご連絡ください😊\n引き続きよろしくお願いいたします。\n\nGROSMIMI JAPAN\n\n---\n\n### Stage 2: 製品推薦（recommendation）\n月齢に応じて製品を推薦。必ず該当製品リンクを添付。カラー・サイズ希望を確認。\n製品リストは各項目の間に1行空白を入れる。\n\nテンプレート例：\n商品の選定をさせていただきたいのですが、\nお子様が[月齢]とのことですので\n\n・[推薦製品1]\n\n・[推薦製品2]\n\nがよろしいかと思っております🍼✨\n\nご希望のタイプやカラーがございましたら、ぜひお知らせください💓\nどうぞよろしくお願いいたします。\n\nGROSMIMI JAPAN\n\n製品確定後（カラー・容量確認）：\nご希望いただいておりました[製品名]につきましても、喜んでご用意させていただきます。\nもしお好みのデザインや容量などがございましたら、何なりとお申し付けください。\nご確認のほど、よろしくお願いいたします。🌻\n\nカラー・容量確定後：\nそれでは、[製品名] [容量]（[カラー]） にてご用意させていただきます。\n\n---\n\n### Stage 3: コラボ条件（terms）\n- 基本：商品無償提供（ギフティング）＋Instagramリール投稿1本\n- ホワイトリスティング：必須（Instagram＋Facebook連動が必要。拒否の場合は契約しない）\n- フォロワー1万人以上の有償希望 → needs_human_review: true, alert_reason: \"rate_negotiation\"\n- 報酬金額は絶対に自分で決めない。必ずユーザー（세은）に確認してから返信\n- フォロワー1万未満はギフティングのみ\n\n---\n\n### Stage 4: 契約情報収集（email_collection）\nコラボ条件合意後、以下を収集（DocuSign用）：\n- フルネーム、メールアドレス、Instagramハンドル\n- 有償の場合は銀行口座 or Wise情報も収集\n\nメール収集後 → needs_human_review: true, alert_reason: \"email_collected\"\nこの後の契約書対応はユーザー（세은）がDocuSignで直接行う。\n\nテンプレート例：\nこの度はご丁寧なご返信をいただき、誠にありがとうございます🙇‍♀️\n\nまた、ご提示いただいた内容にて、ぜひ進めさせていただければと存じます😊\n\n契約書に記載するため、以下の情報をお知らせいただけますでしょうか✨\n\n【フルネーム】\n【メールアドレス】\n【Instagramハンドル】\n\nスムーズに契約を進められるよう、弊社でも準備を進めてまいります😊\n\nGROSMIMI JAPAN\n\n---\n\n### Stage 5: 発送情報収集（shipping）\n契約書署名後、発送情報（住所・名前・電話番号・受け取り希望日時）を収集。\n受信後 → needs_human_review: true, alert_reason: \"shipping_collected\"\n\nテンプレート例：\n商品発送のため、恐れ入りますが、\n下記情報をお知らせいただけますでしょうか🙇‍♀️\n\n・ご住所\n・お名前\n・お電話番号\n・お受け取り希望日時\n\nGROSMIMI JAPAN\n\n---\n\n### Stage 6: 発送完了通知（shipping_complete）\n発送が完了したらインフルエンサーに通知。\n\nテンプレート例：\nいただいた内容にて、発送準備を進めさせていただきます📦✨\n\n---\n\n### Stage 6.5: 送り状番号通知（tracking_sent）\nテンプレート例：\n○○様\n\n商品発送いたしましたのでご連絡いたします😊\n\n【配送業者】[配送業者名]\n【お問い合わせ番号】[送り状番号]\n【お届け予定】[到着予定日]\n\n配送状況につきましては、上記お問い合わせ番号よりご確認いただけます！\n何かございましたらお気軽にご連絡ください。\n引き続きよろしくお願いいたします🙇‍♀️\n\nGROSMIMI JAPAN\n\n---\n\n### Stage 7: 商品受取確認＋投稿ポイント共有（post_delivery）\nインフルエンサーが商品受取を連絡してきた際は2通セットで送る。\n\n**DM① 受取確認＋スケジュール確認：**\n○○様\n\nお世話になっております。\n無事に商品が届いたとのこと、ご連絡ありがとうございます！安心いたしました✨\n\n投稿のスケジュールとしましては[日付]を予定しておりますがご都合はいかがでしょうか？\n\n下書きが完成されましたら、ぜひ拝見させてください。\n\nまた、今回の投稿にあたりポイントをまとめさせていただきましたので、ご確認をお願いいたします。\n\n**DM② 投稿ポイント（PPSUストローマグ用）：**\n動画制作に関しまして、可能でしたら下記のポイントを補足する形で盛り込んでいただけますと幸いです📄✨\n\n・一般的なストローマグには「PP素材」が使用されております。耐久性・耐熱性の面では劣る部分があり、マイクロプラスチック発生の懸念がございます。\n・一方で、グロミミが採用している「PPSU素材」は、耐久性・耐熱性に非常に優れており、破損しにくいのが特徴です✨\n\n**DM② 投稿ポイント（ステンレスマグ用）：**\nグロミミのステンレスマグに使用されているのは、医療グレードの高品質ステンレス「SUS316」です。\n一般的なステンレスよりもさびにくく、変形・変色・劣化しにくい素材です。\n「医療グレードのSUS316を使用している安心感」「さびにくく清潔に使えるマグ」というポイントをぜひ強調してご紹介いただけますと嬉しいです✨\n\n受取連絡受信後 → needs_human_review: true, alert_reason: \"shipping_collected\"\n\n---\n\n### Stage 8: 下書き確認（content_review）\nインフルエンサーが投稿前に下書きを提出した際。契約書第2条：5営業日以内にフィードバック、最大2回修正可。\n\n**修正なし（そのまま投稿OK）：**\n○○様\n\nご連絡いただき、誠にありがとうございます😊\n下書きを確認いたしました。\n\n内容に問題はございませんので、このままご投稿いただいて大丈夫です✨\n\n引き続きよろしくお願いいたします。\n\nGROSMIMI JAPAN\n\n**修正あり：**\n○○様\n\nご連絡いただき、誠にありがとうございます😊\n下書きのご共有、ありがとうございます。\n\n以下の点についてご修正をお願いできますでしょうか🙇‍♀️\n\n・[修正内容]\n\nお手数をおかけいたしますが、よろしくお願いいたします。\n\nGROSMIMI JAPAN\n\n下書き・動画受信時 → needs_human_review: true, alert_reason: \"drive_link\"\n\n---\n\n### Stage 9: 投稿確認・広告コード・元動画（posting）\n投稿完了報告を受けたら → needs_human_review: true, alert_reason: \"posting_completed\"\n広告コード（adcode-xxx, パートナーシップ広告コード等）を受け取ったら → needs_human_review: true, alert_reason: \"ad_code_shared\"\n元動画データ送付報告を受けたら → 感謝と確認の返信。\n\n**投稿完了後のDM：**\n○○様\n\nお世話になっております！\n先日は素敵なご投稿ありがとうございました✨\nインスタ内で○○様の投稿を広告運用したいと思いますので、広告コードのご共有もお願いできますでしょうか？\n\nまた、字幕なしの元データを下記メールにお送りいただくことは可能でしょうか？\n✉hello@grosmimijapan.com\n\n引き続きよろしくお願いいたします。\n\nGROSMIMI JAPAN\n\n**広告コード受領後のDM：**\n○○様\n\nご確認ありがとうございます😊\n\n広告コード、確認いたしました！こちらで問題ございません✨\nまた、メールでの元データ送付もありがとうございます🙏\n\nこの度は素敵なコラボレーションをありがとうございました。\n今後もまた良いご縁がございましたら、ぜひよろしくお願いいたします😊\n\nGROSMIMI JAPAN\n\n---\n\n## 特殊ケース\n\n**タイミングが合わない（忙しい・月齢が早い）：**\n「こちらから再連絡する」と伝える。相手に連絡を求めない。「投稿楽しみにしています」禁止。\nテンプレート：\n[事情]とのこと、承知いたしました。\n弊社のストローマグは生後6ヶ月頃からご使用いただける商品となっておりますので、\nお子様がそのご月齢になられましたら、改めてこちらよりご連絡させていただきます。\n引き続きよろしくお願いいたします✨\nGROSMIMI JAPAN\n\n**完全に断られた場合：** 返信不要。\n**ホワイトリスティング拒否：** 契約しない。丁重にクローズ。\n**既読スルー：** フォローアップなし。\n**有償→無償調整：**\n現在、日本でのインフルエンサー施策につきましては、基本的にギフティング（商品提供）のみでのご依頼をさせていただいております。\nそのため、恐縮ではございますが現時点では報酬ありでのご依頼は難しい状況でございます。\nもしギフティング形式でもご一緒いただけるようでしたら、ぜひ改めてご相談させていただけますと幸いです。\nGROSMIMI JAPAN\n\n---\n\n## Teams アラートトリガー\n\n| 状況 | alert_reason |\n|------|--------------|\n| Googleドライブリンク受信 | drive_link |\n| 動画・コンテンツ受信 | content_review |\n| 有料報酬の話が出た | rate_negotiation |\n| メールアドレス収集 | email_collected |\n| 発送情報収集完了 | shipping_collected |\n| 異常状況・クレーム | unusual_situation |\n| 広告コード・ホワイトリスティングコード共有 | ad_code_shared |\n| 投稿完了報告 | posting_completed |\n\n---\n\n## 注意事項\n\n- 製品推薦・選定のDMには必ず該当製品リンクを添付\n- 製品リストは各項目の間に1行空白を入れる\n- 1つのDM内で同じ絵文字を複数回使用しない\n- needs_human_reviewがtrueの場合、alert_noteにDM初案（日本語原文）＋韓国語訳を含める\n- 軽いDMには短く返す、フォーマルなDMには丁寧に返す\n- 報酬金額は必ずユーザーに確認してから提示する\n\n---\n\n## レスポンス形式 — 必ず有効なJSONを返すこと\n\n\\`\\`\\`json\n{\n  \"reply\": \"実際に送るDMテキスト（日本語・敬語）\",\n  \"needs_human_review\": false,\n  \"alert_reason\": null,\n  \"alert_note\": null,\n  \"stage\": \"greeting|recommendation|terms|email_collection|shipping|post_delivery|content_review|posting|other\"\n}\n\\`\\`\\`\n\n- reply: 実際に送るDMテキスト（短く、丁寧に）\n- needs_human_review: true/false\n- alert_reason: nullまたは上記コードの一つ\n- alert_note: needs_human_reviewがtrueの場合のみ。세은へのメモ（인플루언서 이름, 제안 금액 등）\n- stage: 現在のステージ\n\n重要：needs_human_reviewがtrueの場合、alert_noteにDM初案（日本語原文）＋韓国語訳を必ず含める`;\n\nconst messages = [...existingHistory];\nmessages.push({ role: 'user', content: '[From: ' + subscriberName + '] ' + newMessage });\n\nreturn [{\n  json: {\n    subscriber_id: subscriberId,\n    subscriber_name: subscriberName,\n    new_message: newMessage,\n    system_prompt: systemPrompt,\n    messages: messages,\n    history: existingHistory,\n  }\n}];"
+      },
+      "id": "prepare-claude-request",
+      "name": "Prepare Claude Request (JP)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "__ANTHROPIC_API_KEY__"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-6\",\n  \"max_tokens\": 1024,\n  \"system\": {{ JSON.stringify($json.system_prompt) }},\n  \"messages\": {{ JSON.stringify($json.messages) }}\n}",
+        "options": {}
+      },
+      "id": "call-claude",
+      "name": "Call Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── Parse Claude Response + Save Static Data + Save Pending ──\nconst claudeResponse = $input.first().json;\nconst prevData = $('Prepare Claude Request (JP)').first().json;\n\nlet resultText = claudeResponse.content?.[0]?.text || '{}';\n\nconst jsonMatch = resultText.match(/```json\\s*([\\s\\S]*?)\\s*```/);\nif (jsonMatch) resultText = jsonMatch[1];\n\nlet parsed;\ntry {\n  parsed = JSON.parse(resultText);\n} catch (e) {\n  parsed = {\n    reply: resultText,\n    needs_human_review: false,\n    alert_reason: null,\n    alert_note: null,\n    stage: 'other',\n  };\n}\n\nconst staticData = $getWorkflowStaticData('global');\nstaticData[prevData.subscriber_id] = prevData.messages.slice(-20);\n\nstaticData['pending_' + prevData.subscriber_id] = {\n  reply: parsed.reply || '',\n  subscriber_name: prevData.subscriber_name,\n  new_message: prevData.new_message,\n  stage: parsed.stage || 'other',\n  needs_human_review: parsed.needs_human_review || false,\n  alert_reason: parsed.alert_reason || null,\n  alert_note: parsed.alert_note || null,\n  created_at: new Date().toISOString(),\n};\n\n// Auto-transition detection\nlet autoTransition = null;\nif (parsed.alert_reason === 'posting_completed') {\n  autoTransition = { from: 'sample_delivered', to: 'posted', trigger: 'dm_keyword' };\n} else if (parsed.alert_reason === 'ad_code_shared') {\n  autoTransition = { from: 'posted', to: 'ad_code_received', trigger: 'dm_keyword' };\n}\n\nreturn [{\n  json: {\n    ...parsed,\n    subscriber_id: prevData.subscriber_id,\n    subscriber_name: prevData.subscriber_name,\n    new_message: prevData.new_message,\n    auto_transition: autoTransition,\n  }\n}];"
+      },
+      "id": "parse-claude-response",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        320
+      ]
+    },
+    {
+      "_comment": "Shopify 자동 주문 없음 — 라쿠텐 사용. Teams 알림만 전송.",
+      "parameters": {
+        "method": "POST",
+        "url": "https://default30da627c046841a5aee2f86a7bd40c.be.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a359685823f94d75b0c9838177b4a3a8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=7H14tE7CkrdGpAxYFytGL7wYACapHdsS7--Ar1JGLsk",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"attachments\": [{\n    \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n    \"content\": {\n      \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n      \"type\": \"AdaptiveCard\",\n      \"version\": \"1.4\",\n      \"body\": [{\n        \"type\": \"TextBlock\",\n        \"text\": {{ JSON.stringify('[JP DM] @' + $json.subscriber_name + ($json.needs_human_review ? ' ⚠️ 확인필요: ' + $json.alert_reason : '') + ($json.auto_transition ? ' 🔄 자동전환: ' + $json.auto_transition.from + ' → ' + $json.auto_transition.to : '') + '\\n\\n📩 ' + $json.new_message + '\\n\\n🤖 ' + $json.reply + ($json.alert_note ? '\\n📝 ' + $json.alert_note : '') + '\\n\\nStage: ' + $json.stage) }},\n        \"wrap\": true\n      }],\n      \"actions\": [{\n        \"type\": \"Action.OpenUrl\",\n        \"title\": \"✅ 승인\",\n        \"style\": \"positive\",\n        \"url\": {{ JSON.stringify('https://n8n.orbiters.co.kr/webhook/jp-ig-dm-approve-v1?id=' + $json.subscriber_id) }}\n      }, {\n        \"type\": \"Action.OpenUrl\",\n        \"title\": \"✏️ 수정\",\n        \"url\": {{ JSON.stringify('https://n8n.orbiters.co.kr/webhook/jp-ig-dm-edit?id=' + $json.subscriber_id) }}\n      }]\n    }\n  }]\n}",
+        "options": {}
+      },
+      "id": "send-teams-jp",
+      "name": "Send Teams (JP)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "jp-ig-dm-approve-v1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "approve-webhook-get",
+      "name": "Approve Webhook (GET)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst query = $input.first().json.query || {};\nconst subscriberId = (query.id || '').toString().trim();\n\nif (!subscriberId) throw new Error('id query parameter is required');\n\nconst pendingKey = 'pending_' + subscriberId;\nconst pending = staticData[pendingKey];\n\nif (!pending) throw new Error('No pending reply for subscriber: ' + subscriberId);\n\nreturn [{\n  json: {\n    subscriber_id: subscriberId,\n    reply: pending.reply,\n    subscriber_name: pending.subscriber_name,\n    stage: pending.stage,\n    pending_key: pendingKey,\n  }\n}];"
+      },
+      "id": "read-pending-get",
+      "name": "Read Pending (GET)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 4482793:2ba0a3106d83a934db5214f5c1cb2f49"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $json.subscriber_id }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": {{ JSON.stringify($json.reply) }}\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "send-dm-approved-get",
+      "name": "Send DM (Approved)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst pendingData = $('Read Pending (GET)').first().json;\nconst subscriberId = pendingData.subscriber_id;\nconst pendingKey = pendingData.pending_key;\n\nconst history = staticData[subscriberId] || [];\nhistory.push({ role: 'assistant', content: pendingData.reply || '' });\nstaticData[subscriberId] = history.slice(-20);\n\ndelete staticData[pendingKey];\n\nreturn [{ json: { success: true, subscriber_id: subscriberId, subscriber_name: pendingData.subscriber_name } }];"
+      },
+      "id": "cleanup-pending-get",
+      "name": "Cleanup Pending",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=✅ DM sent to @{{ $json.subscriber_name }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/plain; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-approve-get",
+      "name": "Respond OK (GET)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "jp-ig-dm-edit",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "edit-webhook-get",
+      "name": "Edit Webhook (GET)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst query = $input.first().json.query || {};\nconst subscriberId = (query.id || '').toString().trim();\n\nif (!subscriberId) throw new Error('id query parameter is required');\n\nconst pendingKey = 'pending_' + subscriberId;\nconst pending = staticData[pendingKey];\n\nif (!pending) throw new Error('No pending reply for subscriber: ' + subscriberId);\n\nreturn [{\n  json: {\n    subscriber_id: subscriberId,\n    reply: pending.reply,\n    subscriber_name: pending.subscriber_name,\n    new_message: pending.new_message || '',\n    stage: pending.stage,\n  }\n}];"
+      },
+      "id": "read-pending-edit",
+      "name": "Read Pending (Edit)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nfunction esc(str) {\n  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');\n}\n\nconst html = `<!DOCTYPE html>\n<html><head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>DM 수정 (JP)</title>\n  <style>\n    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f5f5f5; }\n    .card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }\n    h2 { margin: 0 0 20px; color: #333; }\n    .dm-box { background: #f0f4ff; padding: 14px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }\n    .dm-box strong { color: #555; display: block; margin-bottom: 6px; }\n    label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; }\n    textarea { width: 100%; box-sizing: border-box; height: 180px; padding: 12px; font-size: 15px; border: 2px solid #ddd; border-radius: 8px; resize: vertical; line-height: 1.6; }\n    textarea:focus { outline: none; border-color: #0078d4; }\n    button { background: #0078d4; color: white; padding: 14px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; margin-top: 12px; font-weight: 600; }\n    button:hover { background: #006cbf; }\n  </style>\n</head><body>\n  <div class=\"card\">\n    <h2>✏️ JP DM 수정</h2>\n    <div class=\"dm-box\">\n      <strong>@${esc(data.subscriber_name)} 메시지:</strong>\n      ${esc(data.new_message)}\n    </div>\n    <form method=\"POST\" action=\"https://n8n.orbiters.co.kr/webhook/jp-ig-dm-edit-submit\">\n      <input type=\"hidden\" name=\"id\" value=\"${esc(data.subscriber_id)}\">\n      <label>수정할 답장 (일본어):</label>\n      <textarea name=\"reply\">${esc(data.reply)}</textarea>\n      <button type=\"submit\">발송 ✅</button>\n    </form>\n  </div>\n</body></html>`;\n\nreturn [{ json: { html } }];"
+      },
+      "id": "generate-edit-form",
+      "name": "Generate Edit Form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-edit-form",
+      "name": "Respond Edit Form",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        900,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jp-ig-dm-edit-submit",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "edit-submit-webhook",
+      "name": "Edit Submit Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst subscriberId = (body.id || '').toString().trim();\nconst newReply = (body.reply || '').toString().trim();\n\nif (!subscriberId || !newReply) throw new Error('Missing id or reply');\n\nreturn [{\n  json: {\n    subscriber_id: subscriberId,\n    reply: newReply,\n    pending_key: 'pending_' + subscriberId,\n  }\n}];"
+      },
+      "id": "process-edit-submit",
+      "name": "Process Edit Submit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 4482793:2ba0a3106d83a934db5214f5c1cb2f49"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $json.subscriber_id }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": {{ JSON.stringify($json.reply) }}\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "send-dm-edited",
+      "name": "Send DM (Edited)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst editData = $('Process Edit Submit').first().json;\nconst subscriberId = editData.subscriber_id;\nconst pendingKey = editData.pending_key;\n\nconst history = staticData[subscriberId] || [];\nhistory.push({ role: 'assistant', content: editData.reply || '' });\nstaticData[subscriberId] = history.slice(-20);\n\ndelete staticData[pendingKey];\n\nreturn [{ json: { success: true, subscriber_id: subscriberId } }];"
+      },
+      "id": "cleanup-pending-edit",
+      "name": "Cleanup Pending (Edit)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=✅ 수정된 답장이 발송되었습니다!",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/plain; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-ok-edit",
+      "name": "Respond OK (Edit)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── Auto Transition: update PG status based on DM keyword detection ──\nconst data = $input.first().json;\nconst at = data.auto_transition;\n\nif (!at) return [{ json: { skipped: true, reason: 'no_auto_transition' } }];\n\n// Call JP Pipeline API to update status\nconst username = data.subscriber_name || '';\nconst cleanHandle = username.startsWith('@') ? username : '@' + username;\n\nreturn [{\n  json: {\n    should_update: true,\n    username: cleanHandle,\n    new_status: at.to,\n    from_status: at.from,\n    trigger: at.trigger,\n    subscriber_id: data.subscriber_id,\n  }\n}];"
+      },
+      "id": "auto-transition-check",
+      "name": "Auto Transition Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.orbiters.co.kr/webhook/jp-pipeline-api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"action\": \"update_status\",\n  \"username\": {{ JSON.stringify($json.username) }},\n  \"status\": {{ JSON.stringify($json.new_status) }}\n}",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "auto-transition-update",
+      "name": "Auto Transition Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        520
+      ]
+    }
+  ],
+  "connections": {
+    "ManyChat Webhook (JP)": {
+      "main": [
+        [
+          {
+            "node": "Respond to ManyChat",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Claude Request (JP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Claude Request (JP)": {
+      "main": [
+        [
+          {
+            "node": "Call Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Claude API": {
+      "main": [
+        [
+          {
+            "node": "Parse Claude Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Claude Response": {
+      "main": [
+        [
+          {
+            "node": "Send Teams (JP)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Auto Transition Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Transition Check": {
+      "main": [
+        [
+          {
+            "node": "Auto Transition Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve Webhook (GET)": {
+      "main": [
+        [
+          {
+            "node": "Read Pending (GET)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Pending (GET)": {
+      "main": [
+        [
+          {
+            "node": "Send DM (Approved)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send DM (Approved)": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanup Pending": {
+      "main": [
+        [
+          {
+            "node": "Respond OK (GET)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Webhook (GET)": {
+      "main": [
+        [
+          {
+            "node": "Read Pending (Edit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Pending (Edit)": {
+      "main": [
+        [
+          {
+            "node": "Generate Edit Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Edit Form": {
+      "main": [
+        [
+          {
+            "node": "Respond Edit Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Submit Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Edit Submit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Edit Submit": {
+      "main": [
+        [
+          {
+            "node": "Send DM (Edited)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send DM (Edited)": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Pending (Edit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanup Pending (Edit)": {
+      "main": [
+        [
+          {
+            "node": "Respond OK (Edit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "meta": null
+}

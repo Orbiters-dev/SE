@@ -26,3 +26,8 @@ venv/
 Thumbs.db
 *.swp
 *.swo
+
+# === Per-user Claude Code settings (NEVER commit) ===
+.claude/settings.local.json
+.claude/.cache/
+.claude/projects/
