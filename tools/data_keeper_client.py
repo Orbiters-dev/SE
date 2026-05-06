@@ -42,6 +42,7 @@ except Exception:
 ORBITOOLS_BASE = "https://orbitools.orbiters.co.kr/api/datakeeper"
 ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "admin")
 ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
+DK_TOKEN = os.getenv("DK_SE_READ_TOKEN") or os.getenv("DK_READ_TOKEN")
 
 VALID_TABLES = [
     "shopify_orders_daily", "shopify_orders_sku_daily",
@@ -159,12 +160,12 @@ class DataKeeper:
             params["channel"] = channel
 
         try:
-            r = requests.get(
-                f"{ORBITOOLS_BASE}/query/",
-                params=params,
-                auth=(ORBITOOLS_USER, ORBITOOLS_PASS),
-                timeout=30,
-            )
+            kwargs = {"params": params, "timeout": 30}
+            if DK_TOKEN:
+                kwargs["headers"] = {"Authorization": f"Bearer {DK_TOKEN}"}
+            else:
+                kwargs["auth"] = (ORBITOOLS_USER, ORBITOOLS_PASS)
+            r = requests.get(f"{ORBITOOLS_BASE}/query/", **kwargs)
             r.raise_for_status()
             return r.json().get("rows", [])
         except Exception:

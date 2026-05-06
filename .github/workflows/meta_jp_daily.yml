@@ -1,0 +1,85 @@
+name: Meta JP Daily Report
+
+on:
+  schedule:
+    # KST 08:55 매일 (정각 부하 회피)
+    - cron: '55 23 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '발송 모드'
+        type: choice
+        options: ['1d', '7d', '14d']
+        default: '1d'
+      skip_audit:
+        description: '감사 우회 (긴급)'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Dry-run (HTML 저장만, 메일 발송 X)'
+        type: boolean
+        default: false
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests \
+            python-dotenv \
+            google-genai \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client \
+            matplotlib
+
+      - name: Write .env
+        run: |
+          cat > .env << 'ENVEOF'
+          META_JP_ACCESS_TOKEN=${{ secrets.META_JP_ACCESS_TOKEN }}
+          META_JP_AD_ACCOUNT_ID=${{ secrets.META_JP_AD_ACCOUNT_ID }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH=credentials/gmail_token.json
+          GMAIL_SENDER=orbiters11@gmail.com
+          ENVEOF
+
+      - name: Write Gmail credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
+
+      - name: Run Meta JP Daily (1d)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          MODE="${{ github.event.inputs.mode || '1d' }}"
+          SKIP="${{ github.event.inputs.skip_audit }}"
+          DRY="${{ github.event.inputs.dry_run }}"
+          ARGS="--mode $MODE"
+          if [ "$SKIP" = "true" ]; then
+            ARGS="$ARGS --skip-audit"
+          fi
+          if [ "$DRY" = "true" ]; then
+            ARGS="$ARGS --no-send"
+          fi
+          python -u tools/meta_jp_daily.py $ARGS
+
+      - name: Upload HTML artifact (dry-run inspection)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meta-jp-report-${{ github.run_id }}
+          path: .tmp/meta_jp_daily/*.html
+          retention-days: 7
