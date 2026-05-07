@@ -1,12 +1,12 @@
 name: コメンター
 
 on:
-  # schedule: 一時停止中（アカウント停止のため 2026-03-20）
-  #   - cron: '0 3 * * *'   # 12:00 JST
-  #   - cron: '0 4 * * *'   # 13:00 JST
-  #   - cron: '0 5 * * *'   # 14:00 JST
-  #   - cron: '0 6 * * *'   # 15:00 JST
-  #   - cron: '0 7 * * *'   # 16:00 JST
+  schedule:
+    - cron: '0 3 * * *'   # 12:00 JST
+    - cron: '0 4 * * *'   # 13:00 JST
+    - cron: '0 5 * * *'   # 14:00 JST
+    - cron: '0 6 * * *'   # 15:00 JST
+    - cron: '0 7 * * *'   # 16:00 JST
   workflow_dispatch:
 
 jobs:
