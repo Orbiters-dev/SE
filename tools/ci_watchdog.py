@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-REPO = os.getenv("GITHUB_REPOSITORY", "Orbiters-dev/WJ-Test1")
+REPO = os.getenv("GITHUB_REPOSITORY", "Orbiters-dev/SE")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 TEAMS_WEBHOOK = os.getenv("TEAMS_WEBHOOK_URL_SEEUN", "")
 SSL_CTX = ssl.create_default_context()
@@ -65,6 +65,8 @@ MONITORED_WORKFLOWS = [
     ("einstein_weekly.yml", "아인슈타인 주간", "매주 월 09:00 KST"),
     ("einstein_daily.yml", "아인슈타인 데일리", "매일 18:00 KST"),
     ("kpi_weekly.yml", "KPI Weekly", "매주 일 08:00 KST"),
+    # === Meta JP ===
+    ("meta_jp_daily.yml", "Meta JP Daily", "매일 08:55 KST"),
     # === Other ===
     ("communicator.yml", "커뮤니케이터", "매일 12h 간격"),
     ("ppc_dashboard_action.yml", "PPC Dashboard", "매일 07:00 KST"),
@@ -183,70 +185,51 @@ def print_report(results: list[dict], hours: int) -> tuple[int, int, int]:
 # ── Teams Alert ──────────────────────────────────────────────────────────────
 
 def send_teams_alert(results: list[dict], hours: int) -> bool:
-    """Send Teams alert if there are failures."""
+    """Send Teams alert if there are failures or no_runs (missing cron fires).
+
+    Teams webhook은 단순 {"text": "..."} 형식만 안정적으로 작동.
+    Adaptive Card는 incoming webhook에서 무시되는 경우 있음.
+    """
     import requests
 
     failures = [r for r in results if r["status"] == "failure"]
-    if not failures:
-        logger.info("No failures — skipping Teams alert")
+    no_runs = [r for r in results if r["status"] == "no_runs"]
+
+    if not failures and not no_runs:
+        logger.info("All workflows OK — skipping Teams alert")
         return True
 
     if not TEAMS_WEBHOOK:
         logger.warning("TEAMS_WEBHOOK_URL_SEEUN not set — cannot send alert")
         return False
 
-    facts = []
-    for f in failures:
-        facts.append({"title": f["name"], "value": f"{f['detail']} | {f['schedule']}"})
+    lines = [f"🚨 CI Watchdog — 지난 {hours}h 점검 결과"]
+    lines.append(f"({datetime.now().strftime('%Y-%m-%d %H:%M KST')})")
+    lines.append("")
 
-    body = [
-        {
-            "type": "TextBlock",
-            "text": f"CI Watchdog: {len(failures)}건 실패 감지",
-            "weight": "Bolder",
-            "size": "Medium",
-            "color": "Attention",
-        },
-        {
-            "type": "FactSet",
-            "facts": facts,
-        },
-        {
-            "type": "TextBlock",
-            "text": f"지난 {hours}시간 기준 | {datetime.now().strftime('%Y-%m-%d %H:%M KST')}",
-            "size": "Small",
-            "color": "Default",
-            "isSubtle": True,
-        },
-    ]
+    if failures:
+        lines.append(f"❌ FAIL ({len(failures)}건):")
+        for f in failures:
+            lines.append(f"  • {f['name']} — {f['detail']} | {f['schedule']}")
+        lines.append("")
 
-    # Add action button to GitHub Actions
-    payload = {
-        "type": "message",
-        "attachments": [{
-            "contentType": "application/vnd.microsoft.card.adaptive",
-            "contentUrl": None,
-            "content": {
-                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                "type": "AdaptiveCard",
-                "version": "1.4",
-                "body": body,
-                "actions": [{
-                    "type": "Action.OpenUrl",
-                    "title": "GitHub Actions 확인",
-                    "url": f"https://github.com/{REPO}/actions",
-                }],
-            },
-        }],
-    }
+    if no_runs:
+        lines.append(f"⏰ 발화 없음 ({len(no_runs)}건):")
+        for r in no_runs:
+            lines.append(f"  • {r['name']} — {r['schedule']}")
+        lines.append("")
+
+    lines.append(f"🔗 https://github.com/{REPO}/actions")
+
+    payload = {"text": "\n".join(lines)}
 
     try:
         resp = requests.post(TEAMS_WEBHOOK, json=payload, timeout=15)
         if resp.status_code in (200, 202):
-            logger.info(f"Teams alert sent: {len(failures)} failures reported")
+            logger.info(f"Teams alert sent: {len(failures)} fail / {len(no_runs)} no_runs")
             return True
         else:
-            logger.error(f"Teams webhook failed: {resp.status_code}")
+            logger.error(f"Teams webhook failed: {resp.status_code} {resp.text[:200]}")
             return False
     except Exception as e:
         logger.error(f"Teams webhook error: {e}")
