@@ -318,6 +318,82 @@ def render_advice_section(tips, header="메타몽 운용 조언"):
 """
 
 
+def build_findings(d):
+    """오늘의 발견 — peer 격차 / 학습 단계 / 트렌드 변화 분석."""
+    findings = []
+    bw = d.get("best_worst", {})
+    all_ads = bw.get("all_ads", [])
+    if not all_ads:
+        return findings
+
+    ads_with_lpv = [a for a in all_ads if a["lpv"] > 0]
+    if ads_with_lpv:
+        avg_cplpv = sum(a["cplpv"] for a in ads_with_lpv) / len(ads_with_lpv)
+        avg_ctr = sum(a["ctr"] for a in ads_with_lpv) / len(ads_with_lpv) if ads_with_lpv else 0
+
+        for a in ads_with_lpv:
+            ratio = a["cplpv"] / avg_cplpv if avg_cplpv > 0 else 1
+            ctr_ratio = a["ctr"] / avg_ctr if avg_ctr > 0 else 1
+            ad_short = a["ad_name"][:35]
+            if a["spend"] >= 30000 and ratio <= 0.7 and ctr_ratio >= 1.1:
+                findings.append(
+                    f"<b>{ad_short}</b> CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · "
+                    f"CPLPV {fmt_won(a['cplpv'])} (peer −{(1-ratio)*100:.0f}%) — "
+                    f"학습 통과(spend {fmt_won(a['spend'])}). <b>증액 검토 가능.</b>"
+                )
+            elif a["spend"] < 30000 and ctr_ratio >= 1.2:
+                findings.append(
+                    f"<b>{ad_short}</b> CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) — "
+                    f"초기 신호 양호하나 spend {fmt_won(a['spend'])}로 학습 미통과. <b>D+7까지 노출 확보 우선.</b>"
+                )
+            elif a["spend"] >= 30000 and ratio >= 1.5:
+                findings.append(
+                    f"<b>{ad_short}</b> CPLPV {fmt_won(a['cplpv'])} (peer +{(ratio-1)*100:.0f}%) — "
+                    f"학습 통과 후에도 효율 미달. <b>OFF 검토.</b>"
+                )
+
+    fatigue_ads = [a for a in all_ads if a["freq"] > 3.0 and a["impressions"] > 1000]
+    if fatigue_ads:
+        f0 = fatigue_ads[0]
+        findings.append(
+            f"피로도 신호: <b>{f0['ad_name'][:35]}</b> Freq {f0['freq']:.2f}, CTR {f0['ctr']:.2f}%. "
+            f"오디언스 만료 또는 신규 소재 투입 검토."
+        )
+
+    if d.get("delta"):
+        delta = d["delta"]
+        if delta.get("ctr_pct", 0) <= -15 and abs(delta.get("spend_pct", 0)) < 20:
+            findings.append(
+                f"전체 CTR 전일 대비 {delta['ctr_pct']:.1f}% 하락 (spend는 ±{abs(delta['spend_pct']):.0f}% 안정). "
+                f"오디언스/소재 피로 가능성 — 캠페인 단위 점검 권장."
+            )
+        elif delta.get("cpc_pct", 0) >= 30:
+            findings.append(
+                f"전체 CPC 전일 대비 +{delta['cpc_pct']:.1f}% 급등 — 학습 재진입 또는 경매 경쟁. "
+                f"24h 변경 동결 후 재관찰."
+            )
+
+    return findings[:3]
+
+
+def render_findings_section(findings):
+    if not findings:
+        return """
+<h2>오늘의 발견</h2>
+<div style="background:#fefce8;border-left:4px solid #eab308;padding:12px 18px;border-radius:4px;">
+  <p class=meta style="margin:6px 0;">특이 신호 없음. peer 격차·피로도·트렌드 변화 모두 정상 범위.</p>
+</div>
+"""
+    items = "".join(f"<li style=\"margin:8px 0;\">{t}</li>" for t in findings)
+    return f"""
+<h2>오늘의 발견</h2>
+<div style="background:#fefce8;border-left:4px solid #eab308;padding:12px 18px;border-radius:4px;">
+  <ul style="margin:6px 0;">{items}</ul>
+  <p class=meta style="margin:8px 0 0;">peer 평균 대비 격차 / 학습 단계 / 트렌드 변화. 매일 1~3개. 누적되면 세은 기준 후보 발굴 재료.</p>
+</div>
+"""
+
+
 def post_link_cell(post_url):
     if post_url and post_url.startswith("https://www.instagram.com/") and "?media_id=" not in post_url:
         return f'<td class=c><a href="{post_url}">view</a></td>'
@@ -815,6 +891,8 @@ def render_1d(d):
 
 {render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
+{render_findings_section(build_findings(d))}
+
 {render_advice_section(build_advice_1d(d))}
 </body></html>"""
 
@@ -879,6 +957,8 @@ def render_7d(d):
 
 {render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
+{render_findings_section(build_findings(d))}
+
 {render_advice_section(build_advice_7d(d))}
 </body></html>"""
 
@@ -939,6 +1019,8 @@ def render_14d(d):
 
 {render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
+{render_findings_section(build_findings(d))}
+
 {render_advice_section(build_advice_14d(d))}
 </body></html>"""
 
@@ -947,9 +1029,9 @@ def render_14d(d):
 # Auditor (rule-based + Gemini)
 # ============================================================
 REQUIRED_SECTIONS = {
-    "1d": ["전체 요약", "캠페인별", "광고 TOP 5", "광고 BEST / WORST", "예산 증액 후보", "메타몽 운용 조언"],
-    "7d": ["주간 요약", "일별 추이", "캠페인 7일 합계", "광고 BEST / WORST", "예산 증액 후보", "메타몽 운용 조언"],
-    "14d": ["학습 단계", "크리에이티브 분류", "광고 BEST / WORST", "예산 증액 후보", "메타몽 운용 조언"],
+    "1d": ["전체 요약", "캠페인별", "광고 TOP 5", "광고 BEST / WORST", "예산 증액 후보", "오늘의 발견", "메타몽 운용 조언"],
+    "7d": ["주간 요약", "일별 추이", "캠페인 7일 합계", "광고 BEST / WORST", "예산 증액 후보", "오늘의 발견", "메타몽 운용 조언"],
+    "14d": ["학습 단계", "크리에이티브 분류", "광고 BEST / WORST", "예산 증액 후보", "오늘의 발견", "메타몽 운용 조언"],
 }
 
 
