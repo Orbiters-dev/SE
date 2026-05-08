@@ -69,7 +69,7 @@ def fetch(level, time_range=None, date_preset=None, with_daily=False):
     fields = [
         "campaign_id", "campaign_name", "adset_id", "adset_name",
         "ad_id", "ad_name", "spend", "impressions", "clicks",
-        "ctr", "cpc", "cpm", "frequency", "reach",
+        "ctr", "cpc", "cpm", "frequency", "reach", "actions",
     ]
     params = {
         "fields": ",".join(fields),
@@ -83,6 +83,45 @@ def fetch(level, time_range=None, date_preset=None, with_daily=False):
     elif date_preset:
         params["date_preset"] = date_preset
     return api_get(f"{ACCT}/insights", params)
+
+
+def extract_lpv(actions):
+    """actions 리스트에서 landing_page_view 카운트 추출."""
+    if not actions:
+        return 0
+    for a in actions:
+        if a.get("action_type") == "landing_page_view":
+            return to_float(a.get("value"))
+    return 0
+
+
+def build_post_url_map(ad_ids):
+    """ad_id 리스트 → IG/FB 게시물 URL 매핑. Graph API batch."""
+    if not ad_ids:
+        return {}
+    url_map = {}
+    ids = list(set(ad_ids))
+    for i in range(0, len(ids), 50):
+        batch = ids[i:i+50]
+        params = {
+            "ids": ",".join(batch),
+            "fields": "id,creative{instagram_permalink_url,effective_instagram_media_id}",
+            "access_token": TOKEN,
+        }
+        try:
+            qs = urllib.parse.urlencode(params)
+            with urllib.request.urlopen(f"{BASE}/?{qs}", timeout=30) as resp:
+                d = json.loads(resp.read().decode("utf-8"))
+            for ad_id, ad in d.items():
+                cr = (ad or {}).get("creative") or {}
+                perma = cr.get("instagram_permalink_url")
+                if perma:
+                    url_map[ad_id] = perma
+                elif cr.get("effective_instagram_media_id"):
+                    url_map[ad_id] = f"https://www.instagram.com/p/?media_id={cr['effective_instagram_media_id']}"
+        except Exception as e:
+            print(f"  [warn] post_url fetch failed: {e}", file=sys.stderr)
+    return url_map
 
 
 def to_float(v, default=0.0):
@@ -114,14 +153,20 @@ def best_worst_from_rows(ad_rows, min_impr=200):
         impr = to_float(row.get("impressions"))
         if impr < min_impr:
             continue
+        lpv = extract_lpv(row.get("actions"))
+        spend = to_float(row.get("spend"))
         ads.append({
+            "ad_id": row.get("ad_id", ""),
             "ad_name": row.get("ad_name", ""),
             "campaign_name": row.get("campaign_name", ""),
-            "spend": to_float(row.get("spend")),
+            "spend": spend,
             "impressions": impr,
+            "clicks": to_float(row.get("clicks")),
             "ctr": to_float(row.get("ctr")),
             "cpc": to_float(row.get("cpc")),
             "freq": to_float(row.get("frequency")),
+            "lpv": lpv,
+            "cplpv": (spend / lpv) if lpv > 0 else 0,
         })
     ctr_pool = [a for a in ads if a["ctr"] > 0]
     cpc_pool = [a for a in ads if a["cpc"] > 0]
@@ -130,7 +175,33 @@ def best_worst_from_rows(ad_rows, min_impr=200):
         "ctr_worst": sorted(ctr_pool, key=lambda x: x["ctr"])[:3],
         "cpc_best": sorted(cpc_pool, key=lambda x: x["cpc"])[:3],
         "cpc_worst": sorted(cpc_pool, key=lambda x: x["cpc"], reverse=True)[:3],
+        "all_ads": ads,
     }
+
+
+def budget_increase_candidates(ads, min_spend=30000):
+    """예산 증액 후보: 계정 평균 대비 효율 좋고 학습단계 통과한 ad."""
+    if not ads:
+        return []
+    qualified = [a for a in ads if a["spend"] >= min_spend and a["lpv"] > 0 and a["ctr"] > 0 and a["freq"] <= 3.0]
+    if not qualified:
+        return []
+    avg_cplpv = sum(a["cplpv"] for a in qualified) / len(qualified)
+    avg_ctr   = sum(a["ctr"] for a in qualified) / len(qualified)
+    candidates = []
+    for a in qualified:
+        cplpv_ratio = a["cplpv"] / avg_cplpv if avg_cplpv > 0 else 1
+        ctr_ratio = a["ctr"] / avg_ctr if avg_ctr > 0 else 1
+        if cplpv_ratio <= 0.85 and ctr_ratio >= 1.1:
+            improvement = (1 - cplpv_ratio) * 100
+            if improvement >= 50: bump = 30
+            elif improvement >= 20: bump = 20
+            elif improvement >= 15: bump = 10
+            else: bump = 10
+            candidates.append({**a,
+                "cplpv_ratio": cplpv_ratio, "ctr_ratio": ctr_ratio,
+                "bump_pct": bump, "avg_cplpv": avg_cplpv, "avg_ctr": avg_ctr})
+    return sorted(candidates, key=lambda x: x["cplpv_ratio"])[:5]
 
 
 def build_advice_1d(d):
@@ -247,34 +318,74 @@ def render_advice_section(tips, header="메타몽 운용 조언"):
 """
 
 
-def render_best_worst_table(bw):
+def post_link_cell(post_url):
+    if post_url:
+        return f'<td class=c><a class="post-link" href="{post_url}" target="_blank" rel="noopener">📸 보기</a></td>'
+    return '<td class=c class=meta>—</td>'
+
+
+def render_best_worst_table(bw, post_url_map=None):
+    post_url_map = post_url_map or {}
     def rows(items):
         if not items:
-            return f"<tr><td colspan=6 class=meta>데이터 부족</td></tr>"
-        return "".join(
-            f"<tr><td class=l>{a['ad_name'][:55]}</td><td>{fmt_pct(a['ctr'])}</td>"
-            f"<td>{fmt_won(a['cpc'])}</td><td>{a.get('freq', 0):.2f}</td>"
-            f"<td>{fmt_won(a['spend'])}</td><td>{fmt_num(a['impressions'])}</td></tr>"
-            for a in items
-        )
-    head = "<tr><th>광고</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>Impr</th></tr>"
+            return f"<tr><td colspan=7 class=meta>데이터 부족</td></tr>"
+        out = []
+        for a in items:
+            url = post_url_map.get(a.get("ad_id", ""), "")
+            out.append(
+                f"<tr><td class=l>{a['ad_name'][:55]}</td><td>{fmt_pct(a['ctr'])}</td>"
+                f"<td>{fmt_won(a['cpc'])}</td><td>{a.get('freq', 0):.2f}</td>"
+                f"<td>{fmt_won(a['spend'])}</td><td>{fmt_num(a['impressions'])}</td>"
+                f"{post_link_cell(url)}</tr>"
+            )
+        return "".join(out)
+    head = "<tr><th>광고</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>Impr</th><th>게시물</th></tr>"
     return f"""
 <h2>광고 BEST / WORST</h2>
 <table>
-  <tr><th colspan=6 style="background:#dcfce7;color:#065f46">▲ CTR BEST 3 (높은 순)</th></tr>
+  <tr><th colspan=7 style="background:#dcfce7;color:#065f46">▲ CTR BEST 3 (높은 순)</th></tr>
   {head}
   {rows(bw['ctr_best'])}
-  <tr><th colspan=6 style="background:#fee2e2;color:#991b1b">▼ CTR WORST 3 (낮은 순)</th></tr>
+  <tr><th colspan=7 style="background:#fee2e2;color:#991b1b">▼ CTR WORST 3 (낮은 순)</th></tr>
   {head}
   {rows(bw['ctr_worst'])}
-  <tr><th colspan=6 style="background:#dcfce7;color:#065f46">▲ CPC BEST 3 (낮은 순 = 효율)</th></tr>
+  <tr><th colspan=7 style="background:#dcfce7;color:#065f46">▲ CPC BEST 3 (낮은 순 = 효율)</th></tr>
   {head}
   {rows(bw['cpc_best'])}
-  <tr><th colspan=6 style="background:#fee2e2;color:#991b1b">▼ CPC WORST 3 (높은 순)</th></tr>
+  <tr><th colspan=7 style="background:#fee2e2;color:#991b1b">▼ CPC WORST 3 (높은 순)</th></tr>
   {head}
   {rows(bw['cpc_worst'])}
 </table>
 <p class=meta>최소 노출수 필터: 1d≥100 / 7d≥200 / 14d≥500</p>
+"""
+
+
+def render_budget_increase_table(candidates, post_url_map=None):
+    post_url_map = post_url_map or {}
+    if not candidates:
+        return """
+<h2>💰 예산 증액 후보</h2>
+<div class=meta>해당 기간 학습단계 통과 + 효율 우수 ad 없음 (조건: spend ≥ ₩30,000, freq ≤ 3.0, CPLPV ≤ 평균×0.85, CTR ≥ 평균×1.1).</div>
+"""
+    rows_html = []
+    for a in candidates:
+        url = post_url_map.get(a.get("ad_id", ""), "")
+        rows_html.append(
+            f"<tr><td class=l>{a['ad_name'][:55]}</td>"
+            f"<td>{fmt_won(a['spend'])}</td>"
+            f"<td>{fmt_won(a['cplpv'])} ({(a['cplpv_ratio']-1)*100:+.0f}%)</td>"
+            f"<td>{fmt_pct(a['ctr'])} ({(a['ctr_ratio']-1)*100:+.0f}%)</td>"
+            f"<td>{a['freq']:.2f}</td>"
+            f"<td><b>+{a['bump_pct']}%</b></td>"
+            f"{post_link_cell(url)}</tr>"
+        )
+    return f"""
+<h2>💰 예산 증액 후보</h2>
+<table>
+  <tr><th>광고</th><th>Spend</th><th>CPLPV (vs 평균)</th><th>CTR (vs 평균)</th><th>Freq</th><th>추천 증액</th><th>게시물</th></tr>
+  {''.join(rows_html)}
+</table>
+<p class=meta>기준: 학습단계 통과(spend≥₩30,000) + Freq≤3.0 + CPLPV ≤ 평균×0.85 + CTR ≥ 평균×1.1. 증액 폭은 1회 ≤30% (Meta 학습 단계 보호).</p>
 """
 
 
@@ -362,11 +473,17 @@ def analyze_1d(target_date):
     if delta["cpc_pct"] > CPC_SPIKE_PCT and prev_cpc > 0:
         alerts.append(f"CPC 급등: 전일 대비 +{delta['cpc_pct']:.1f}%")
 
+    bw = best_worst_from_rows(cur, min_impr=100)
+    ad_ids = [a.get("ad_id") for a in bw.get("all_ads", []) if a.get("ad_id")]
+    post_url_map = build_post_url_map(ad_ids)
+    candidates = budget_increase_candidates(bw.get("all_ads", []), min_spend=30000)
     return {
         "date": yday, "prev_date": dby,
         "total": {**cur_total, "ctr": cur_ctr, "cpc": cur_cpc},
         "campaigns": camp_rows, "top5": top5, "alerts": alerts, "delta": delta,
-        "best_worst": best_worst_from_rows(cur, min_impr=100),
+        "best_worst": bw,
+        "post_url_map": post_url_map,
+        "budget_candidates": candidates,
     }
 
 
@@ -455,11 +572,17 @@ def analyze_7d(end_date):
         "cpc_pct": ((cur_cpc - prev_cpc) / prev_cpc * 100) if prev_cpc else 0,
     }
 
+    bw7 = best_worst_from_rows(ad_rows, min_impr=200)
+    ad_ids7 = [a.get("ad_id") for a in bw7.get("all_ads", []) if a.get("ad_id")]
+    post_url_map7 = build_post_url_map(ad_ids7)
+    candidates7 = budget_increase_candidates(bw7.get("all_ads", []), min_spend=30000)
     return {
         "start": start, "end": end_date,
         "total": {**cur_sum, "ctr": cur_ctr, "cpc": cur_cpc},
         "daily_trend": daily_trend, "campaigns": camp_rows, "top10": top10, "wow": wow,
-        "best_worst": best_worst_from_rows(ad_rows, min_impr=200),
+        "best_worst": bw7,
+        "post_url_map": post_url_map7,
+        "budget_candidates": candidates7,
     }
 
 
@@ -560,11 +683,17 @@ def analyze_14d(end_date):
         elif ic > vc * 1.3:
             actions.append(f"이미지 우세: image CTR {ic:.2f}% vs video {vc:.2f}% — 이미지 슬롯 확대")
 
+    bw14 = best_worst_from_rows(ad_rows, min_impr=500)
+    ad_ids14 = [a.get("ad_id") for a in bw14.get("all_ads", []) if a.get("ad_id")]
+    post_url_map14 = build_post_url_map(ad_ids14)
+    candidates14 = budget_increase_candidates(bw14.get("all_ads", []), min_spend=50000)
     return {
         "start": start, "end": end_date,
         "learning": learning, "creative_class": creative_class,
         "fatigue": fatigue[:10], "actions": actions,
-        "best_worst": best_worst_from_rows(ad_rows, min_impr=500),
+        "best_worst": bw14,
+        "post_url_map": post_url_map14,
+        "budget_candidates": candidates14,
     }
 
 
@@ -605,18 +734,22 @@ def chart_daily_trend(daily_trend):
 # ============================================================
 CSS = """
 <style>
-  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; max-width: 900px; margin: 0 auto; padding: 16px; }
-  h1 { font-size: 22px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
-  h2 { font-size: 17px; margin-top: 24px; color: #1f2937; }
-  table { border-collapse: collapse; width: 100%; margin: 8px 0 16px; font-size: 13px; }
-  th, td { border: 1px solid #e5e7eb; padding: 6px 10px; text-align: right; }
-  th { background: #f3f4f6; text-align: center; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; max-width: 1040px; margin: 0 auto; padding: 24px; line-height: 1.5; }
+  h1 { font-size: 24px; border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 18px; }
+  h2 { font-size: 19px; margin-top: 40px; margin-bottom: 14px; color: #1f2937; padding-top: 8px; border-top: 1px solid #f3f4f6; }
+  h2:first-of-type { border-top: none; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0 36px; font-size: 15px; }
+  th, td { border: 1px solid #e5e7eb; padding: 11px 14px; text-align: right; }
+  th { background: #f3f4f6; text-align: center; font-weight: 600; }
   td.l { text-align: left; }
-  .alert { background: #fef2f2; border-left: 4px solid #dc2626; padding: 10px 14px; margin: 8px 0; border-radius: 4px; }
-  .ok { background: #f0fdf4; border-left: 4px solid #059669; padding: 10px 14px; margin: 8px 0; border-radius: 4px; }
+  td.c { text-align: center; }
+  .post-link { display: inline-block; padding: 4px 10px; background: #eff6ff; color: #2563eb; text-decoration: none; border-radius: 4px; font-size: 13px; }
+  .post-link:hover { background: #dbeafe; }
+  .alert { background: #fef2f2; border-left: 4px solid #dc2626; padding: 12px 16px; margin: 14px 0; border-radius: 4px; }
+  .ok { background: #f0fdf4; border-left: 4px solid #059669; padding: 12px 16px; margin: 14px 0; border-radius: 4px; }
   .delta-up { color: #dc2626; font-weight: 600; }
   .delta-down { color: #059669; font-weight: 600; }
-  .meta { color: #6b7280; font-size: 12px; }
+  .meta { color: #6b7280; font-size: 13px; }
 </style>
 """
 
@@ -680,7 +813,9 @@ def render_1d(d):
 
 <p class=meta>벤치 CTR 1.71% · 임계값: CTR&lt;{CTR_LOW}% / Freq&gt;{FREQ_HIGH} / CPC 전일 +{CPC_SPIKE_PCT}%</p>
 
-{render_best_worst_table(d['best_worst'])}
+{render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
+
+{render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
 {render_advice_section(build_advice_1d(d))}
 </body></html>"""
@@ -742,7 +877,9 @@ def render_7d(d):
   {top10}
 </table>
 
-{render_best_worst_table(d['best_worst'])}
+{render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
+
+{render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
 {render_advice_section(build_advice_7d(d))}
 </body></html>"""
@@ -800,7 +937,9 @@ def render_14d(d):
 
 {actions_html}
 
-{render_best_worst_table(d['best_worst'])}
+{render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
+
+{render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
 {render_advice_section(build_advice_14d(d))}
 </body></html>"""
@@ -810,9 +949,9 @@ def render_14d(d):
 # Auditor (rule-based + Gemini)
 # ============================================================
 REQUIRED_SECTIONS = {
-    "1d": ["전체 요약", "캠페인별", "광고 TOP 5", "광고 BEST / WORST", "메타몽 운용 조언"],
-    "7d": ["주간 요약", "일별 추이", "캠페인 7일 합계", "광고 BEST / WORST", "메타몽 운용 조언"],
-    "14d": ["학습 단계", "크리에이티브 분류", "광고 BEST / WORST", "메타몽 운용 조언"],
+    "1d": ["전체 요약", "캠페인별", "광고 TOP 5", "광고 BEST / WORST", "예산 증액 후보", "메타몽 운용 조언"],
+    "7d": ["주간 요약", "일별 추이", "캠페인 7일 합계", "광고 BEST / WORST", "예산 증액 후보", "메타몽 운용 조언"],
+    "14d": ["학습 단계", "크리에이티브 분류", "광고 BEST / WORST", "예산 증액 후보", "메타몽 운용 조언"],
 }
 
 
