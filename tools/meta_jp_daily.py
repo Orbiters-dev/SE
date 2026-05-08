@@ -205,26 +205,50 @@ def budget_increase_candidates(ads, min_spend=30000):
 
 
 def build_advice_1d(d):
-    """1d 운용 조언 (룰 기반)."""
+    """1d 운용 조언 — 판단·근거·배경 3축."""
     tips = []
     t = d["total"]
     ctr = t["ctr"]
     if ctr >= CTR_BENCH * 1.5:
-        tips.append(f"전체 CTR {ctr:.2f}%로 벤치({CTR_BENCH}%) 대비 우수. <b>현재 운용 유지 + 예산 점진 증액(20% 이내)</b> 검토.")
+        tips.append({
+            "action": "현재 운용 유지 + 예산 점진 증액 (20% 이내)",
+            "evidence": f"전체 CTR {ctr:.2f}% (벤치 {CTR_BENCH}% × 1.5 이상)",
+            "context": "벤치는 전 산업 평균. 1.5배 이상은 소재·타겟 정합성 우수 신호. 단 1회 ≤20% 증액이 Meta 학습 단계 보호 가이드.",
+        })
     elif ctr < CTR_LOW:
-        tips.append(f"전체 CTR {ctr:.2f}%로 임계값 미달. <b>WORST 광고 즉시 일시정지 + BEST 광고 변형 추가</b>.")
+        tips.append({
+            "action": "WORST 광고 즉시 일시정지 + BEST 광고 변형 추가",
+            "evidence": f"전체 CTR {ctr:.2f}% (임계 {CTR_LOW}% 미달)",
+            "context": "CTR 저조 = 소재 매력도 부족. 같은 소재로 예산 늘려도 효율 X. WORST 정지 + BEST 변형으로 신규 학습 진입.",
+        })
     if d["delta"]["cpc_pct"] > 30:
-        tips.append(f"CPC 전일 +{d['delta']['cpc_pct']:.1f}% 급등. 학습 재진입 가능성 — <b>예산·타겟 변경 24h 동결</b>.")
+        tips.append({
+            "action": "예산·타겟 변경 24h 동결",
+            "evidence": f"CPC 전일 +{d['delta']['cpc_pct']:.1f}% 급등",
+            "context": "학습 재진입 진행 중일 때 변경 시 학습 reset → 효율 추가 하락. 24h 안정화 후 재진단 안전.",
+        })
     if d["delta"]["spend_pct"] > 50:
-        tips.append(f"Spend 전일 +{d['delta']['spend_pct']:.1f}% 급증. 캠페인 cap 도달 또는 입찰 변동 — <b>일별 cap 재설정 검토</b>.")
+        tips.append({
+            "action": "일별 cap 재설정 검토",
+            "evidence": f"Spend 전일 +{d['delta']['spend_pct']:.1f}% 급증",
+            "context": "캠페인 cap 도달 또는 입찰 자동 조정. cap 미설정 시 야간 trafic 폭주로 단가 무너질 수 있음.",
+        })
     bw = d.get("best_worst", {})
     if bw.get("ctr_best") and bw.get("ctr_worst"):
         b = bw["ctr_best"][0]["ctr"]
         w = bw["ctr_worst"][0]["ctr"]
         if b > 0 and w > 0 and b > w * 3:
-            tips.append(f"BEST/WORST CTR 격차 3배 이상 ({b:.2f}% vs {w:.2f}%). <b>WORST 3개 즉시 정지 + BEST 소재의 카피·앵글 변형 신규 3개 투입</b>.")
+            tips.append({
+                "action": "WORST 3개 즉시 정지 + BEST 소재 카피·앵글 변형 3개 투입",
+                "evidence": f"BEST/WORST CTR 격차 3배 이상 ({b:.2f}% vs {w:.2f}%)",
+                "context": "ad 단위 격차는 학습 알고리즘이 자동 정리 X (CBO도 ad set까지만 재분배). 직접 정리 + BEST 변형으로 학습 풀 확대.",
+            })
     if not tips:
-        tips.append("전반 정상 범위. 7일 추세 누적 후 재평가 권장.")
+        tips.append({
+            "action": "현재 운용 유지, 7일 추세 누적 후 재평가",
+            "evidence": "모든 지표 임계 통과 (CTR/CPC/Freq/격차 정상)",
+            "context": "데이터 부족 상태에서 변경은 Meta 학습 재진입 유발 → 효율 일시 하락. 변경 X가 안전.",
+        })
     return tips
 
 
@@ -232,18 +256,34 @@ def build_advice_7d(d):
     tips = []
     w = d["wow"]
     if w["spend_pct"] > 30 and w["ctr_pct"] < -10:
-        tips.append(f"<b>주의:</b> Spend +{w['spend_pct']:.0f}% 늘었는데 CTR {w['ctr_pct']:.0f}% 하락. 예산 증액 효과 X — <b>예산 원복 + 소재 교체</b>.")
+        tips.append({
+            "action": "예산 원복 + 소재 교체",
+            "evidence": f"Spend WoW +{w['spend_pct']:.0f}% / CTR WoW {w['ctr_pct']:.0f}%",
+            "context": "예산 늘렸는데 CTR 하락 = 신규 도달층이 기존 소재에 반응 X. 예산만 늘리면 더 넓은 비관심층에 노출 → 효율 추가 악화. 소재 변경이 정답.",
+        })
     elif w["spend_pct"] > 30 and w["ctr_pct"] >= 0:
-        tips.append(f"증액({w['spend_pct']:.0f}%) 후 CTR 유지. <b>해당 캠페인 안정 신호 — 추가 +20% 증액 검토 가능</b>.")
+        tips.append({
+            "action": "추가 +20% 증액 검토 가능",
+            "evidence": f"Spend WoW +{w['spend_pct']:.0f}% / CTR {w['ctr_pct']:+.0f}% (안정)",
+            "context": "증액 후 CTR 유지 = 신규 도달층도 기존 소재 매력 인정. 학습 알고리즘 안정 → 1회 ≤20% 추가 증액 가능 (Meta 학습 보호선).",
+        })
     if w["cpc_pct"] > 20:
-        tips.append(f"WoW CPC +{w['cpc_pct']:.0f}% 상승. 경매 경쟁 또는 소재 피로 — <b>오디언스 만료 후 신규 LAL/Interest 추가</b>.")
+        tips.append({
+            "action": "오디언스 만료 후 신규 LAL/Interest 추가",
+            "evidence": f"CPC WoW +{w['cpc_pct']:.0f}% 상승",
+            "context": "동일 오디언스 반복 노출 → 경매 경쟁 ↑ + 소재 피로 → CPC 상승. 신규 오디언스 풀로 입찰 경쟁 분산.",
+        })
 
     spends = [x["spend"] for x in d["daily_trend"]]
     if spends and sum(spends) > 0:
         avg = sum(spends) / len(spends)
         std_pct = ((max(spends) - min(spends)) / avg * 100) if avg else 0
         if std_pct > 80:
-            tips.append(f"일별 spend 변동폭 ±{std_pct:.0f}%. 안정적 학습 어려움 — <b>CBO 권장 + 일별 cap 균등화</b>.")
+            tips.append({
+                "action": "CBO 권장 + 일별 cap 균등화",
+                "evidence": f"일별 spend 변동폭 ±{std_pct:.0f}%",
+                "context": "변동폭 80%+ = 학습 algorithm이 매일 다른 데이터로 학습 → 학습 단계 못 빠져나감. CBO + cap으로 균등 분배 시 학습 안정.",
+            })
 
     bw = d.get("best_worst", {})
     if bw.get("ctr_worst"):
@@ -252,17 +292,29 @@ def build_advice_7d(d):
         if spend_loss > 0 and worst:
             ctr_lo = min(a["ctr"] for a in worst)
             ctr_hi = max(a["ctr"] for a in worst)
-            tips.append(f"WORST 3 (CTR {ctr_lo:.2f}~{ctr_hi:.2f}%) 7일간 {fmt_won(spend_loss)} 소진. <b>해당 광고 즉시 정지 + BEST 컨셉 변형 3종 신규 투입</b>.")
+            tips.append({
+                "action": "WORST 광고 즉시 정지 + BEST 컨셉 변형 3종 투입",
+                "evidence": f"WORST 3 CTR {ctr_lo:.2f}~{ctr_hi:.2f}% / 7일 누적 spend {fmt_won(spend_loss)}",
+                "context": "7일 누적해도 효율 회복 X = 소재 자체 한계. 잔존 예산도 비효율 누적되니 즉시 정지가 ROI 보호.",
+            })
 
     camps = d.get("campaigns", [])
     if len(camps) >= 2:
         camps_sorted = sorted(camps, key=lambda x: x["ctr"], reverse=True)
         top, bot = camps_sorted[0], camps_sorted[-1]
         if top["ctr"] > 0 and bot["ctr"] > 0 and top["ctr"] > bot["ctr"] * 2:
-            tips.append(f"캠페인 격차 큼: <b>{top['name']}</b> CTR {top['ctr']:.2f}% vs <b>{bot['name']}</b> {bot['ctr']:.2f}%. <b>저성과 캠페인 예산 30% 삭감 → 고성과 이전</b>.")
+            tips.append({
+                "action": f"저성과 캠페인 ({bot['name'][:30]}) 예산 30% 삭감 → 고성과 ({top['name'][:30]})로 이전",
+                "evidence": f"캠페인 CTR 격차 2배+ ({top['ctr']:.2f}% vs {bot['ctr']:.2f}%)",
+                "context": "캠페인 단위 격차는 CBO도 자동 분배 X (캠페인 간은 수동). 예산 이동 시 고성과 캠페인 학습 풀 확대 효과.",
+            })
 
     if not tips:
-        tips.append("주간 트렌드 안정. 다음 14일 진단까지 현재 운용 유지.")
+        tips.append({
+            "action": "현재 운용 유지, 14일 진단까지 변경 X",
+            "evidence": "WoW 변동폭 정상 + 캠페인/광고 격차 임계 미만",
+            "context": "주간 안정 = 학습 단계 통과. 변경은 학습 재진입 유발 → 안정성 손실. 14일 누적 후 종합 진단이 안전.",
+        })
     return tips
 
 
@@ -272,9 +324,17 @@ def build_advice_14d(d):
     stable = [x for x in learning if x["stability"] == "안정"]
     learning_only = [x for x in learning if x["stability"] == "학습중"]
     if learning_only and not stable:
-        tips.append(f"전 캠페인 학습 단계. <b>예산·소재·타겟 변경 7일간 동결</b> 권장 (학습 종료 조건: 주 50건 전환 또는 CPC 변동 ±30% 이내).")
+        tips.append({
+            "action": "예산·소재·타겟 변경 7일간 동결",
+            "evidence": "전 캠페인 학습 단계 (안정 0개)",
+            "context": "Meta 학습 종료 조건: 주 50건 전환 또는 CPC 변동 ±30% 이내. 학습중 변경 시 reset → 효율 일시 추락. 인내가 정답.",
+        })
     elif stable and learning_only:
-        tips.append(f"안정 {len(stable)}개 / 학습중 {len(learning_only)}개. <b>학습중 캠페인 건드리지 말고 안정 캠페인부터 점진 증액</b>.")
+        tips.append({
+            "action": "학습중 캠페인 변경 X / 안정 캠페인부터 점진 증액",
+            "evidence": f"안정 {len(stable)}개 / 학습중 {len(learning_only)}개",
+            "context": "안정 = 학습 통과 → 증액 안전. 학습중 = 데이터 부족 → 변경은 reset 위험. 둘 분리 운영이 알고리즘 친화적.",
+        })
 
     cc = d.get("creative_class", {})
     img = cc.get("image")
@@ -282,44 +342,79 @@ def build_advice_14d(d):
     wl = cc.get("wl")
     if img and vid:
         if vid["ctr"] > img["ctr"] * 1.3:
-            tips.append(f"영상 우세 (CTR {vid['ctr']:.2f}% vs 이미지 {img['ctr']:.2f}%). <b>영상 슬롯 비중 60%+ 확대 + 이미지는 hook 컷 위주로 재구성</b>.")
+            tips.append({
+                "action": "영상 슬롯 비중 60%+ 확대 + 이미지는 hook 컷 위주로 재구성",
+                "evidence": f"영상 CTR {vid['ctr']:.2f}% vs 이미지 {img['ctr']:.2f}% (1.3배+)",
+                "context": "영상은 정보량·감정 환기 ↑ → 클릭 의지 자극. Meta 알고리즘도 영상 노출 가중치 부여. 이미지는 hook (첫 1초) 강화로 보완.",
+            })
         elif img["ctr"] > vid["ctr"] * 1.3:
-            tips.append(f"이미지 우세 (CTR {img['ctr']:.2f}% vs 영상 {vid['ctr']:.2f}%). <b>이미지 변형 5종 추가 + 영상은 컷 길이·썸네일 재테스트</b>.")
+            tips.append({
+                "action": "이미지 변형 5종 추가 + 영상은 컷 길이·썸네일 재테스트",
+                "evidence": f"이미지 CTR {img['ctr']:.2f}% vs 영상 {vid['ctr']:.2f}% (1.3배+)",
+                "context": "이미지가 영상보다 효율 = 모바일 피드에서 빠른 메시지 전달이 통함. 영상은 첫 3초·썸네일이 약점일 가능성 높음.",
+            })
     if wl and (img or vid):
         ref_ctr = max((cc[k]["ctr"] for k in ("image", "video") if cc.get(k)), default=0)
         if ref_ctr > 0 and wl["ctr"] > ref_ctr * 1.2:
-            tips.append(f"WL(인플루언서) CTR {wl['ctr']:.2f}%로 자체 소재 대비 우수. <b>WL 광고 비중 확대 + Use existing post 추가 협업 발굴</b>.")
+            tips.append({
+                "action": "WL 광고 비중 확대 + Use existing post 추가 협업 발굴",
+                "evidence": f"WL CTR {wl['ctr']:.2f}% / 자체 소재 대비 +{(wl['ctr']/ref_ctr-1)*100:.0f}%",
+                "context": "WL = 인플루언서 신뢰도 + 자연스러운 톤 → 광고 인식 ↓ + 클릭 ↑. 단 WL 풀이 좁으면 fatigue 빠르게 옴 (피로도 모니터 필요).",
+            })
 
     fatigue = d.get("fatigue", [])
     if len(fatigue) >= 3:
         spend = sum(f["spend"] for f in fatigue)
-        tips.append(f"피로도 경고 {len(fatigue)}개 (14일 spend {fmt_won(spend)}). <b>즉시 정지 + 신규 소재 동수 투입</b>. 미정지 시 잔존 예산도 비효율 누적.")
+        tips.append({
+            "action": "피로도 광고 즉시 정지 + 신규 소재 동수 투입",
+            "evidence": f"피로도 경고 {len(fatigue)}개 (14일 누적 spend {fmt_won(spend)})",
+            "context": "Freq>3.0 또는 Freq>2.0+CTR<1% = 같은 사람한테 반복 노출되어 클릭 안 함. 잔존 예산은 비효율 누적만 야기. 신규 소재로 학습 풀 갱신 필수.",
+        })
 
     bw = d.get("best_worst", {})
     if bw.get("ctr_best") and bw.get("ctr_worst"):
         b = bw["ctr_best"][0]
         w = bw["ctr_worst"][0]
         if b["ctr"] > 0 and w["ctr"] > 0 and b["ctr"] > w["ctr"] * 4:
-            tips.append(f"광고 격차 4배+: <b>BEST 「{b['ad_name'][:30]}」 컨셉 변형 5종 추가 + WORST 3개 영구 폐기</b>.")
+            tips.append({
+                "action": f"BEST '{b['ad_name'][:30]}' 컨셉 변형 5종 추가 + WORST 3개 영구 폐기",
+                "evidence": f"광고 CTR 격차 4배+ ({b['ctr']:.2f}% vs {w['ctr']:.2f}%)",
+                "context": "14일 누적 4배 격차 = WORST 회복 가능성 X (단순 학습 미통과 X). BEST 컨셉이 명확한 winner → 변형으로 풀 확대가 효율 정답.",
+            })
 
     if not tips:
-        tips.append("14일 진단상 즉시 액션 항목 없음. 신규 소재 정기 투입(주 3개)으로 피로 누적 예방.")
+        tips.append({
+            "action": "현재 운용 유지 + 신규 소재 정기 투입 (주 3개)",
+            "evidence": "14일 진단상 즉시 액션 항목 없음",
+            "context": "안정기 진입 = 효율 양호. 그러나 같은 소재 장기 운영 시 fatigue 누적 → 주 3개 신규 소재 투입으로 풀 회전 필요.",
+        })
     return tips
 
 
 def render_advice_section(tips, header="메타몽 운용 조언"):
-    items = "".join(f"<li>{t}</li>" for t in tips)
+    cards = []
+    for i, t in enumerate(tips, 1):
+        if isinstance(t, str):
+            cards.append(f'<div style="margin:10px 0;padding:10px 14px;background:#fff;border-left:3px solid #2563eb;border-radius:3px;">{t}</div>')
+            continue
+        cards.append(
+            f'<div style="margin:12px 0;padding:12px 16px;background:#fff;border-left:3px solid #2563eb;border-radius:3px;">'
+            f'<p style="margin:0 0 6px;"><b>판단 {i}.</b> {t.get("action","")}</p>'
+            f'<p class=meta style="margin:4px 0;"><b>근거</b> · {t.get("evidence","")}</p>'
+            f'<p class=meta style="margin:4px 0;"><b>배경</b> · {t.get("context","")}</p>'
+            f'</div>'
+        )
     return f"""
 <h2>{header}</h2>
-<div style="background:#eff6ff;border-left:4px solid #2563eb;padding:12px 18px;border-radius:4px;">
-  <ul style="margin:6px 0;">{items}</ul>
-  <p class=meta style="margin:8px 0 0;">룰 기반 자동 생성. 최종 의사결정은 세은 직접.</p>
+<div style="background:#eff6ff;padding:14px 18px;border-radius:4px;">
+  {''.join(cards)}
+  <p class=meta style="margin:10px 0 0;">룰 기반 자동 생성. 최종 의사결정은 세은 직접.</p>
 </div>
 """
 
 
 def build_findings(d):
-    """오늘의 발견 — peer 격차 / 학습 단계 / 트렌드 변화 분석."""
+    """오늘의 발견 — peer 격차 / 학습 단계 / 트렌드 변화 + 판단 배경."""
     findings = []
     bw = d.get("best_worst", {})
     all_ads = bw.get("all_ads", [])
@@ -329,49 +424,54 @@ def build_findings(d):
     ads_with_lpv = [a for a in all_ads if a["lpv"] > 0]
     if ads_with_lpv:
         avg_cplpv = sum(a["cplpv"] for a in ads_with_lpv) / len(ads_with_lpv)
-        avg_ctr = sum(a["ctr"] for a in ads_with_lpv) / len(ads_with_lpv) if ads_with_lpv else 0
+        avg_ctr = sum(a["ctr"] for a in ads_with_lpv) / len(ads_with_lpv)
 
         for a in ads_with_lpv:
             ratio = a["cplpv"] / avg_cplpv if avg_cplpv > 0 else 1
             ctr_ratio = a["ctr"] / avg_ctr if avg_ctr > 0 else 1
             ad_short = a["ad_name"][:35]
             if a["spend"] >= 30000 and ratio <= 0.7 and ctr_ratio >= 1.1:
-                findings.append(
-                    f"<b>{ad_short}</b> CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · "
-                    f"CPLPV {fmt_won(a['cplpv'])} (peer −{(1-ratio)*100:.0f}%) — "
-                    f"학습 통과(spend {fmt_won(a['spend'])}). <b>증액 검토 가능.</b>"
-                )
+                findings.append({
+                    "finding": f"<b>{ad_short}</b> 학습 통과 + 효율 우수 — 증액 검토 가능",
+                    "evidence": f"CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · CPLPV {fmt_won(a['cplpv'])} (peer −{(1-ratio)*100:.0f}%) · spend {fmt_won(a['spend'])}",
+                    "context": "spend ≥¥30K = 학습 통과 + peer 평균 대비 CPLPV 30%+ 우수 = 명확한 winner. 증액 시 같은 효율 유지 확률 높음 (1회 ≤30% 보호선).",
+                })
             elif a["spend"] < 30000 and ctr_ratio >= 1.2:
-                findings.append(
-                    f"<b>{ad_short}</b> CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) — "
-                    f"초기 신호 양호하나 spend {fmt_won(a['spend'])}로 학습 미통과. <b>D+7까지 노출 확보 우선.</b>"
-                )
+                findings.append({
+                    "finding": f"<b>{ad_short}</b> 초기 신호 양호 — D+7까지 노출 확보 우선",
+                    "evidence": f"CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · spend {fmt_won(a['spend'])} (학습 미통과)",
+                    "context": "spend < ¥30K = Meta 학습 단계 미통과. 데이터 부족 상태에서 변경·증액은 학습 reset 위험. 노출 누적 후 D+7 재진단이 안전.",
+                })
             elif a["spend"] >= 30000 and ratio >= 1.5:
-                findings.append(
-                    f"<b>{ad_short}</b> CPLPV {fmt_won(a['cplpv'])} (peer +{(ratio-1)*100:.0f}%) — "
-                    f"학습 통과 후에도 효율 미달. <b>OFF 검토.</b>"
-                )
+                findings.append({
+                    "finding": f"<b>{ad_short}</b> 학습 통과 후에도 효율 미달 — OFF 검토",
+                    "evidence": f"CPLPV {fmt_won(a['cplpv'])} (peer +{(ratio-1)*100:.0f}%) · spend {fmt_won(a['spend'])}",
+                    "context": "학습 통과했는데 peer +50%+ = 소재 자체 한계. 더 운영해도 회복 가능성 X. 잔존 예산을 다른 winner로 이전이 ROI 보호.",
+                })
 
     fatigue_ads = [a for a in all_ads if a["freq"] > 3.0 and a["impressions"] > 1000]
     if fatigue_ads:
         f0 = fatigue_ads[0]
-        findings.append(
-            f"피로도 신호: <b>{f0['ad_name'][:35]}</b> Freq {f0['freq']:.2f}, CTR {f0['ctr']:.2f}%. "
-            f"오디언스 만료 또는 신규 소재 투입 검토."
-        )
+        findings.append({
+            "finding": f"피로도 신호: <b>{f0['ad_name'][:35]}</b> 오디언스 만료 또는 신규 소재 투입 검토",
+            "evidence": f"Freq {f0['freq']:.2f} (임계 3.0+) · CTR {f0['ctr']:.2f}% · imp {fmt_num(f0['impressions'])}",
+            "context": "Freq 3.0+ = 같은 사람에게 3번+ 반복 노출. 클릭 의지 사라짐 (Banner blindness). 신규 오디언스 추가 또는 새 소재로 학습 풀 갱신 필요.",
+        })
 
     if d.get("delta"):
         delta = d["delta"]
         if delta.get("ctr_pct", 0) <= -15 and abs(delta.get("spend_pct", 0)) < 20:
-            findings.append(
-                f"전체 CTR 전일 대비 {delta['ctr_pct']:.1f}% 하락 (spend는 ±{abs(delta['spend_pct']):.0f}% 안정). "
-                f"오디언스/소재 피로 가능성 — 캠페인 단위 점검 권장."
-            )
+            findings.append({
+                "finding": "전체 CTR 급락, spend는 안정 — 오디언스/소재 피로 가능성",
+                "evidence": f"CTR 전일 {delta['ctr_pct']:.1f}% / spend ±{abs(delta['spend_pct']):.0f}%",
+                "context": "spend는 거의 안 변했는데 CTR만 하락 = 입찰·예산 변경 X = 시장(오디언스 피로) 또는 소재(피로) 변화. 캠페인 단위 점검 필요.",
+            })
         elif delta.get("cpc_pct", 0) >= 30:
-            findings.append(
-                f"전체 CPC 전일 대비 +{delta['cpc_pct']:.1f}% 급등 — 학습 재진입 또는 경매 경쟁. "
-                f"24h 변경 동결 후 재관찰."
-            )
+            findings.append({
+                "finding": "전체 CPC 급등 — 학습 재진입 또는 경매 경쟁",
+                "evidence": f"CPC 전일 +{delta['cpc_pct']:.1f}%",
+                "context": "단발적 변동은 경매 경쟁(다른 광고주 입찰 ↑) 일 수 있음. 변경 시 학습 reset 위험 → 24h 동결 후 재관찰이 안전.",
+            })
 
     return findings[:3]
 
@@ -380,16 +480,27 @@ def render_findings_section(findings):
     if not findings:
         return """
 <h2>오늘의 발견</h2>
-<div style="background:#fefce8;border-left:4px solid #eab308;padding:12px 18px;border-radius:4px;">
+<div style="background:#fefce8;padding:14px 18px;border-radius:4px;">
   <p class=meta style="margin:6px 0;">특이 신호 없음. peer 격차·피로도·트렌드 변화 모두 정상 범위.</p>
 </div>
 """
-    items = "".join(f"<li style=\"margin:8px 0;\">{t}</li>" for t in findings)
+    cards = []
+    for i, f in enumerate(findings, 1):
+        if isinstance(f, str):
+            cards.append(f'<div style="margin:10px 0;padding:10px 14px;background:#fff;border-left:3px solid #eab308;border-radius:3px;">{f}</div>')
+            continue
+        cards.append(
+            f'<div style="margin:12px 0;padding:12px 16px;background:#fff;border-left:3px solid #eab308;border-radius:3px;">'
+            f'<p style="margin:0 0 6px;"><b>발견 {i}.</b> {f.get("finding","")}</p>'
+            f'<p class=meta style="margin:4px 0;"><b>근거</b> · {f.get("evidence","")}</p>'
+            f'<p class=meta style="margin:4px 0;"><b>배경</b> · {f.get("context","")}</p>'
+            f'</div>'
+        )
     return f"""
 <h2>오늘의 발견</h2>
-<div style="background:#fefce8;border-left:4px solid #eab308;padding:12px 18px;border-radius:4px;">
-  <ul style="margin:6px 0;">{items}</ul>
-  <p class=meta style="margin:8px 0 0;">peer 평균 대비 격차 / 학습 단계 / 트렌드 변화. 매일 1~3개. 누적되면 세은 기준 후보 발굴 재료.</p>
+<div style="background:#fefce8;padding:14px 18px;border-radius:4px;">
+  {''.join(cards)}
+  <p class=meta style="margin:10px 0 0;">peer 격차 / 학습 단계 / 트렌드 변화. 매일 1~3개. 누적되면 세은 기준 후보 발굴 재료.</p>
 </div>
 """
 
