@@ -319,9 +319,9 @@ def render_advice_section(tips, header="메타몽 운용 조언"):
 
 
 def post_link_cell(post_url):
-    if post_url:
-        return f'<td class=c><a class="post-link" href="{post_url}" target="_blank" rel="noopener">📸 보기</a></td>'
-    return '<td class=c class=meta>—</td>'
+    if post_url and post_url.startswith("https://www.instagram.com/") and "?media_id=" not in post_url:
+        return f'<td class=c><a href="{post_url}">view</a></td>'
+    return '<td class=c>—</td>'
 
 
 def render_best_worst_table(bw, post_url_map=None):
@@ -364,7 +364,7 @@ def render_budget_increase_table(candidates, post_url_map=None):
     post_url_map = post_url_map or {}
     if not candidates:
         return """
-<h2>💰 예산 증액 후보</h2>
+<h2>예산 증액 후보</h2>
 <div class=meta>해당 기간 학습단계 통과 + 효율 우수 ad 없음 (조건: spend ≥ ₩30,000, freq ≤ 3.0, CPLPV ≤ 평균×0.85, CTR ≥ 평균×1.1).</div>
 """
     rows_html = []
@@ -380,7 +380,7 @@ def render_budget_increase_table(candidates, post_url_map=None):
             f"{post_link_cell(url)}</tr>"
         )
     return f"""
-<h2>💰 예산 증액 후보</h2>
+<h2>예산 증액 후보</h2>
 <table>
   <tr><th>광고</th><th>Spend</th><th>CPLPV (vs 평균)</th><th>CTR (vs 평균)</th><th>Freq</th><th>추천 증액</th><th>게시물</th></tr>
   {''.join(rows_html)}
@@ -743,8 +743,6 @@ CSS = """
   th { background: #f3f4f6; text-align: center; font-weight: 600; }
   td.l { text-align: left; }
   td.c { text-align: center; }
-  .post-link { display: inline-block; padding: 4px 10px; background: #eff6ff; color: #2563eb; text-decoration: none; border-radius: 4px; font-size: 13px; }
-  .post-link:hover { background: #dbeafe; }
   .alert { background: #fef2f2; border-left: 4px solid #dc2626; padding: 12px 16px; margin: 14px 0; border-radius: 4px; }
   .ok { background: #f0fdf4; border-left: 4px solid #059669; padding: 12px 16px; margin: 14px 0; border-radius: 4px; }
   .delta-up { color: #dc2626; font-weight: 600; }
