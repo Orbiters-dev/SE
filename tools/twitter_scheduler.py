@@ -887,6 +887,90 @@ def run_engagement_replies(count: int = 5):
     logger.info(f"=== Engagement done: {posted}/{count} replies posted ===")
 
 
+_re = __import__("re")
+PRODUCT_RE_BODY = _re.compile(
+    r"グロミミ|grosmimi|PPSU|ppsu|マグ|ストロー|製品開発|試作|素材|\+CUT|漏れない|マグメーカー"
+)
+KOREAN_RE_BODY = _re.compile(
+    r"韓国|K育児|K幼児食|K-育児|韓国式|반찬|チゲ|トッポッキ|チヂミ|キムチ|미운|육아|ハングル"
+)
+# Hashtag-aware body extraction: strip #tag tokens before regex check
+_HASHTAG_STRIP_RE = _re.compile(r"#\S+")
+
+
+def _body_only(text: str) -> str:
+    return _HASHTAG_STRIP_RE.sub("", text or "").strip()
+PRODUCT_QUOTA = 2  # 35本中2本まで
+KOREAN_QUOTA = 2   # 35本中2本まで, slot 13 only
+KOREAN_ALLOWED_SLOT = "13"
+MAX_REGEN_PASSES = 2
+
+
+def _enforce_weekly_rules(weekly_plans: dict) -> dict:
+    """Post-audit 35 tweets and auto-regenerate violators.
+
+    Rules enforced:
+    - Product mentions in body: max 2 of 35 (regen excess)
+    - K-parenting in body: max 2 of 35, slot 13 only (regen non-13 mentions
+      and excess on slot 13)
+    """
+    from teams_dashboard import generate_slot_content
+
+    for pass_idx in range(MAX_REGEN_PASSES):
+        product_hits = []  # list of (date, slot)
+        korean_violations_non13 = []
+        korean_hits_13 = []
+
+        for date_str in sorted(weekly_plans.keys()):
+            plan = weekly_plans[date_str]
+            for slot_str, sd in plan.get("slots", {}).items():
+                body = _body_only(sd.get("tweet_jp", ""))
+                if PRODUCT_RE_BODY.search(body):
+                    product_hits.append((date_str, slot_str))
+                if KOREAN_RE_BODY.search(body):
+                    if slot_str == KOREAN_ALLOWED_SLOT:
+                        korean_hits_13.append((date_str, slot_str))
+                    else:
+                        korean_violations_non13.append((date_str, slot_str))
+
+        # Decide which slots to regen this pass
+        regen_targets = set()
+        if len(product_hits) > PRODUCT_QUOTA:
+            for d, s in product_hits[PRODUCT_QUOTA:]:
+                regen_targets.add((d, s, "product"))
+        for d, s in korean_violations_non13:
+            regen_targets.add((d, s, "korean_wrong_slot"))
+        if len(korean_hits_13) > KOREAN_QUOTA:
+            for d, s in korean_hits_13[KOREAN_QUOTA:]:
+                regen_targets.add((d, s, "korean_quota"))
+
+        if not regen_targets:
+            logger.info(f"Rule audit pass {pass_idx + 1}: PASS (product={len(product_hits)}/{PRODUCT_QUOTA}, k_non13={len(korean_violations_non13)}, k_13={len(korean_hits_13)}/{KOREAN_QUOTA})")
+            return weekly_plans
+
+        logger.info(f"Rule audit pass {pass_idx + 1}: {len(regen_targets)} violations → regenerating")
+
+        for d, s, reason in regen_targets:
+            plan = weekly_plans[d]
+            slot_int = int(s)
+            extra = []
+            if reason == "product":
+                extra.append("【厳守】本文に「グロミミ」「マグ」「ストロー」「PPSU」「素材」「+CUT」「製品」「試作」「漏れない」を一切出さないこと。普通の育児ママの呟きを書いて。")
+            if reason in ("korean_wrong_slot", "korean_quota"):
+                extra.append("【厳守】本文に韓国・K-育児・韓国語・チヂミ・キムチ・トッポッキ・반찬等の韓国要素を一切出さないこと。普通の日本の育児日常のみ。")
+            extra.append("ハッシュタグも上記語を含むタグは使わないこと。")
+            intel = load_twitter_intel()
+            try:
+                content = generate_slot_content(slot_int, intel_text=intel + "\n\n" + "\n".join(extra))
+                plan["slots"][s] = content
+                logger.info(f"  Regenerated {d} slot{s} ({reason}): {content.get('tweet_jp','')[:50]}...")
+            except Exception as e:
+                logger.warning(f"  Regen failed for {d} slot{s}: {e}")
+
+    logger.warning(f"Rule audit: {MAX_REGEN_PASSES} passes exhausted, shipping current state")
+    return weekly_plans
+
+
 def generate_weekly_plans(start_offset: int = 1):
     """Generate 7 days of tweet plans and upload ONE Excel with 7 sheets.
 
@@ -956,6 +1040,9 @@ def generate_weekly_plans(start_offset: int = 1):
     if not weekly_plans:
         logger.error("No plans generated — weekly upload aborted")
         return
+
+    # Step 2.5: Post-generation rule audit + auto-regenerate violators
+    weekly_plans = _enforce_weekly_rules(weekly_plans)
 
     # Step 3: Create ONE Excel with 7 sheets (one per day, tweets only)
     excel_path = create_weekly_excel(weekly_plans, include_replies=False)
