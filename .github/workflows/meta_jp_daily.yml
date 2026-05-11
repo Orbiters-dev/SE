@@ -2,8 +2,13 @@ name: Meta JP Daily Report
 
 on:
   schedule:
-    # KST 09:05 매일 — UTC 자정 부하 윈도우 회피 (이전 23:55 UTC는 cron 누락 빈번)
-    - cron: '5 0 * * *'
+    # KST 09:00 도달 목표 — GH cron 지연/누락 대비 다중 시도 + dedup 가드
+    # 5/9~5/10 실측: 단일 cron이 +3~4h 지연된 사례 다수. 비정시 분 사용으로 부하 회피.
+    - cron: '47 23 * * *'   # KST 08:47
+    - cron: '2 0 * * *'     # KST 09:02
+    - cron: '17 0 * * *'    # KST 09:17
+    - cron: '32 0 * * *'    # KST 09:32
+    - cron: '52 0 * * *'    # KST 09:52 (마지막 안전망)
   workflow_dispatch:
     inputs:
       mode:
@@ -21,7 +26,44 @@ on:
         default: false
 
 jobs:
+  dedup:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Check today already succeeded (KST)
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            echo "manual/dispatch — proceed"
+            exit 0
+          fi
+          DECISION=$(python3 - << 'EOF'
+          import json, subprocess
+          from datetime import datetime, timezone, timedelta
+          KST = timezone(timedelta(hours=9))
+          today = datetime.now(KST).date()
+          out = subprocess.check_output(['gh','run','list','-w','meta_jp_daily.yml','-L','20','--json','conclusion,createdAt,databaseId'])
+          runs = json.loads(out)
+          for r in runs:
+              if r['conclusion'] != 'success': continue
+              t = datetime.fromisoformat(r['createdAt'].replace('Z','+00:00')).astimezone(KST).date()
+              if t == today and str(r['databaseId']) != "${{ github.run_id }}":
+                  print("false")
+                  break
+          else:
+              print("true")
+          EOF
+          )
+          echo "should_run=$DECISION" >> $GITHUB_OUTPUT
+          echo "Decision: $DECISION (today KST already succeeded? -> false means skip)"
+
   daily:
+    needs: dedup
+    if: needs.dedup.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
