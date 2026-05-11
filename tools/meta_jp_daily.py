@@ -146,6 +146,16 @@ def fmt_num(v, decimals=0):
     return f"{f:,.{decimals}f}"
 
 
+def adset_stage(adset_name):
+    """adset 이름에서 운영 stage 추출 (Testing / Proven / Other)."""
+    n = (adset_name or "").lower()
+    if "proven" in n:
+        return "proven"
+    if "testing" in n or "test" in n:
+        return "testing"
+    return "other"
+
+
 def best_worst_from_rows(ad_rows, min_impr=200):
     """광고 단위 BEST/WORST TOP3 by CTR/CPC."""
     ads = []
@@ -159,6 +169,8 @@ def best_worst_from_rows(ad_rows, min_impr=200):
             "ad_id": row.get("ad_id", ""),
             "ad_name": row.get("ad_name", ""),
             "campaign_name": row.get("campaign_name", ""),
+            "adset_name": row.get("adset_name", ""),
+            "stage": adset_stage(row.get("adset_name", "")),
             "spend": spend,
             "impressions": impr,
             "clicks": to_float(row.get("clicks")),
@@ -263,9 +275,9 @@ def build_advice_7d(d):
         })
     elif w["spend_pct"] > 30 and w["ctr_pct"] >= 0:
         tips.append({
-            "action": "추가 +20% 증액 검토 가능",
+            "action": "추가 +20% 증액 실행",
             "evidence": f"Spend WoW +{w['spend_pct']:.0f}% / CTR {w['ctr_pct']:+.0f}% (안정)",
-            "context": "증액 후 CTR 유지 = 신규 도달층도 기존 소재 매력 인정. 학습 알고리즘 안정 → 1회 ≤20% 추가 증액 가능 (Meta 학습 보호선).",
+            "context": "증액 후 CTR 유지 = 신규 도달층도 기존 소재 매력 인정. 학습 알고리즘 안정 → 1회 ≤20% 범위 내 추가 증액 (Meta 학습 보호선).",
         })
     if w["cpc_pct"] > 20:
         tips.append({
@@ -333,7 +345,7 @@ def build_advice_14d(d):
         tips.append({
             "action": "학습중 캠페인 변경 X / 안정 캠페인부터 점진 증액",
             "evidence": f"안정 {len(stable)}개 / 학습중 {len(learning_only)}개",
-            "context": "안정 = 학습 통과 → 증액 안전. 학습중 = 데이터 부족 → 변경은 reset 위험. 둘 분리 운영이 알고리즘 친화적.",
+            "context": "안정 = 학습 통과 → 증액 안전 윈도우. 학습중 = 데이터 부족 → 변경 시 학습 리셋 발생. 둘 분리 운영이 알고리즘 친화적.",
         })
 
     cc = d.get("creative_class", {})
@@ -351,7 +363,7 @@ def build_advice_14d(d):
             tips.append({
                 "action": "이미지 변형 5종 추가 + 영상은 컷 길이·썸네일 재테스트",
                 "evidence": f"이미지 CTR {img['ctr']:.2f}% vs 영상 {vid['ctr']:.2f}% (1.3배+)",
-                "context": "이미지가 영상보다 효율 = 모바일 피드에서 빠른 메시지 전달이 통함. 영상은 첫 3초·썸네일이 약점일 가능성 높음.",
+                "context": "이미지가 영상보다 효율 = 모바일 피드에서 빠른 메시지 전달이 통함. 영상은 첫 3초·썸네일이 약점.",
             })
     if wl and (img or vid):
         ref_ctr = max((cc[k]["ctr"] for k in ("image", "video") if cc.get(k)), default=0)
@@ -379,7 +391,7 @@ def build_advice_14d(d):
             tips.append({
                 "action": f"BEST '{b['ad_name'][:30]}' 컨셉 변형 5종 추가 + WORST 3개 영구 폐기",
                 "evidence": f"광고 CTR 격차 4배+ ({b['ctr']:.2f}% vs {w['ctr']:.2f}%)",
-                "context": "14일 누적 4배 격차 = WORST 회복 가능성 X (단순 학습 미통과 X). BEST 컨셉이 명확한 winner → 변형으로 풀 확대가 효율 정답.",
+                "context": "14일 누적 4배 격차 = WORST 회복 불가 (단순 학습 미통과 X). BEST 컨셉이 명확한 winner → 변형으로 풀 확대가 효율 정답.",
             })
 
     if not tips:
@@ -430,23 +442,44 @@ def build_findings(d):
             ratio = a["cplpv"] / avg_cplpv if avg_cplpv > 0 else 1
             ctr_ratio = a["ctr"] / avg_ctr if avg_ctr > 0 else 1
             ad_short = a["ad_name"][:35]
+            stage = a.get("stage", "other")
+            stage_label = {"proven": "Proven", "testing": "Testing"}.get(stage, "")
+            stage_tag = f" <span style=\"color:#6b7280;font-size:13px;\">[{stage_label}]</span>" if stage_label else ""
+
+            # Proven: 학습 통과 가정 — 단가 비교만
+            if stage == "proven":
+                if ratio <= 0.7 and ctr_ratio >= 1.1:
+                    findings.append({
+                        "finding": f"<b>{ad_short}</b>{stage_tag} Proven 풀 안에서 단가 우수 — 증액 우선순위",
+                        "evidence": f"CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · CPLPV {fmt_won(a['cplpv'])} (peer −{(1-ratio)*100:.0f}%)",
+                        "context": "Proven = 이미 학습 통과한 안정 풀. 같은 풀 안에서도 peer 평균 대비 우수 = 증액 우선순위. 1회 ≤30% (Meta 학습 보호선).",
+                    })
+                elif ratio >= 1.5:
+                    findings.append({
+                        "finding": f"<b>{ad_short}</b>{stage_tag} Proven 풀 안에서 효율 악화 — 점검 필요",
+                        "evidence": f"CPLPV {fmt_won(a['cplpv'])} (peer +{(ratio-1)*100:.0f}%)",
+                        "context": "Proven 풀 안에서 단가 무너짐 = 소재 피로 / 오디언스 만료. fatigue·freq 점검 + 트렌드(7일) 확인 후 OFF 또는 신규 변형 투입 결정.",
+                    })
+                continue
+
+            # Testing / Other: 학습 통과 여부 함께 판단
             if a["spend"] >= 30000 and ratio <= 0.7 and ctr_ratio >= 1.1:
                 findings.append({
-                    "finding": f"<b>{ad_short}</b> 학습 통과 + 효율 우수 — 증액 검토 가능",
+                    "finding": f"<b>{ad_short}</b>{stage_tag} 학습 통과 + 효율 우수 — Proven 졸업 후보",
                     "evidence": f"CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · CPLPV {fmt_won(a['cplpv'])} (peer −{(1-ratio)*100:.0f}%) · spend {fmt_won(a['spend'])}",
-                    "context": "spend ≥¥30K = 학습 통과 + peer 평균 대비 CPLPV 30%+ 우수 = 명확한 winner. 증액 시 같은 효율 유지 확률 높음 (1회 ≤30% 보호선).",
+                    "context": "Testing에서 spend ≥¥30K + peer CPLPV 30%+ 우수 = 검증 완료 신호. Proven adset으로 이동 실행.",
                 })
             elif a["spend"] < 30000 and ctr_ratio >= 1.2:
                 findings.append({
-                    "finding": f"<b>{ad_short}</b> 초기 신호 양호 — D+7까지 노출 확보 우선",
+                    "finding": f"<b>{ad_short}</b>{stage_tag} 초기 신호 양호 — D+7까지 노출 확보 우선",
                     "evidence": f"CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · spend {fmt_won(a['spend'])} (학습 미통과)",
-                    "context": "spend < ¥30K = Meta 학습 단계 미통과. 데이터 부족 상태에서 변경·증액은 학습 reset 위험. 노출 누적 후 D+7 재진단이 안전.",
+                    "context": "Testing 단계, spend < ¥30K = Meta 학습 단계 미통과. 데이터 부족 상태에서 변경·증액 시 학습 리셋 발생. 노출 누적 후 D+7 재진단 권장.",
                 })
             elif a["spend"] >= 30000 and ratio >= 1.5:
                 findings.append({
-                    "finding": f"<b>{ad_short}</b> 학습 통과 후에도 효율 미달 — OFF 검토",
+                    "finding": f"<b>{ad_short}</b>{stage_tag} 학습 통과 후에도 효율 미달 — OFF 검토",
                     "evidence": f"CPLPV {fmt_won(a['cplpv'])} (peer +{(ratio-1)*100:.0f}%) · spend {fmt_won(a['spend'])}",
-                    "context": "학습 통과했는데 peer +50%+ = 소재 자체 한계. 더 운영해도 회복 가능성 X. 잔존 예산을 다른 winner로 이전이 ROI 보호.",
+                    "context": "Testing에서 spend ¥30K+ 누적했는데 peer +50%+ 단가 = 소재 자체 한계. Proven 졸업 X, OFF + 신규 소재 투입.",
                 })
 
     fatigue_ads = [a for a in all_ads if a["freq"] > 3.0 and a["impressions"] > 1000]
@@ -462,7 +495,7 @@ def build_findings(d):
         delta = d["delta"]
         if delta.get("ctr_pct", 0) <= -15 and abs(delta.get("spend_pct", 0)) < 20:
             findings.append({
-                "finding": "전체 CTR 급락, spend는 안정 — 오디언스/소재 피로 가능성",
+                "finding": "전체 CTR 급락, spend는 안정 — 오디언스/소재 피로 신호",
                 "evidence": f"CTR 전일 {delta['ctr_pct']:.1f}% / spend ±{abs(delta['spend_pct']):.0f}%",
                 "context": "spend는 거의 안 변했는데 CTR만 하락 = 입찰·예산 변경 X = 시장(오디언스 피로) 또는 소재(피로) 변화. 캠페인 단위 점검 필요.",
             })
@@ -470,7 +503,7 @@ def build_findings(d):
             findings.append({
                 "finding": "전체 CPC 급등 — 학습 재진입 또는 경매 경쟁",
                 "evidence": f"CPC 전일 +{delta['cpc_pct']:.1f}%",
-                "context": "단발적 변동은 경매 경쟁(다른 광고주 입찰 ↑) 일 수 있음. 변경 시 학습 reset 위험 → 24h 동결 후 재관찰이 안전.",
+                "context": "단발적 변동은 경매 경쟁(다른 광고주 입찰 ↑)에서 발생. 변경 시 학습 리셋 발생 → 24h 동결 후 재관찰.",
             })
 
     return findings[:3]
@@ -939,10 +972,12 @@ CSS = """
 """
 
 
-def delta_span(pct, lower_is_better=False):
+def delta_span(pct, lower_is_better=False, neutral=False):
     if pct == 0:
         return "<span>±0.0%</span>"
     arrow = "▲" if pct > 0 else "▼"
+    if neutral:
+        return f'<span style="color:#6b7280">{arrow} {abs(pct):.1f}%</span>'
     is_bad = (pct > 0) if lower_is_better else (pct < 0)
     cls = "delta-up" if is_bad else "delta-down"
     return f'<span class="{cls}">{arrow} {abs(pct):.1f}%</span>'
@@ -975,7 +1010,7 @@ def render_1d(d):
 <h2>전체 요약</h2>
 <table>
   <tr><th>Spend</th><th>Impressions</th><th>Clicks</th><th>CTR</th><th>CPC</th></tr>
-  <tr><td>{fmt_won(t['spend'])} {delta_span(d['delta']['spend_pct'])}</td>
+  <tr><td>{fmt_won(t['spend'])} {delta_span(d['delta']['spend_pct'], neutral=True)}</td>
       <td>{fmt_num(t['impressions'])}</td>
       <td>{fmt_num(t['clicks'])}</td>
       <td>{fmt_pct(t['ctr'])} {delta_span(d['delta']['ctr_pct'])}</td>
@@ -1040,7 +1075,7 @@ def render_7d(d):
 <h2>주간 요약 (WoW)</h2>
 <table>
   <tr><th>지표</th><th>이번주</th><th>전주</th><th>변화</th></tr>
-  <tr><td class=l>Spend</td><td>{fmt_won(w['spend'])}</td><td>{fmt_won(w['spend_prev'])}</td><td>{delta_span(w['spend_pct'])}</td></tr>
+  <tr><td class=l>Spend</td><td>{fmt_won(w['spend'])}</td><td>{fmt_won(w['spend_prev'])}</td><td>{delta_span(w['spend_pct'], neutral=True)}</td></tr>
   <tr><td class=l>CTR</td><td>{fmt_pct(w['ctr'])}</td><td>{fmt_pct(w['ctr_prev'])}</td><td>{delta_span(w['ctr_pct'])}</td></tr>
   <tr><td class=l>CPC</td><td>{fmt_won(w['cpc'])}</td><td>{fmt_won(w['cpc_prev'])}</td><td>{delta_span(w['cpc_pct'], lower_is_better=True)}</td></tr>
 </table>
