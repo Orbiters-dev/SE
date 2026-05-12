@@ -1,0 +1,42 @@
+name: GH Cron Backup (n8n trigger)
+
+# GH Actions schedule cron 미트리거 백업
+# 트리거: n8n cron이 매시 X:10 / X:40 등으로 workflow_dispatch 호출
+# 동작: tools/gh_cron_backup.py 실행 → 누락된 워크플로우만 dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry-run (dispatch 없이 결정만)'
+        type: boolean
+        default: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install --quiet requests
+
+      - name: Run backup
+        env:
+          GH_TOKEN: ${{ secrets.GH_CRON_BACKUP_PAT }}
+          GH_REPO: ${{ github.repository }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python -u tools/gh_cron_backup.py --dry-run
+          else
+            python -u tools/gh_cron_backup.py
+          fi
