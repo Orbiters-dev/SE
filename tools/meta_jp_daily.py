@@ -566,85 +566,111 @@ def render_advice_section(tips, header="메타몽 운용 조언"):
 """
 
 
-def build_findings(d):
-    """오늘의 발견 — peer 격차 / 학습 단계 / 트렌드 변화 + 판단 배경."""
+def build_findings(d, ref_date=None):
+    """오늘의 발견 — 4-way 풀 + Off Rule + S 후보 + 신생 동결 (5/15 재설계).
+
+    축:
+      1) Off 권장 (off_rule_check 트리거 hit): 풀 P20 미달 + spend ≥ ₩30K, Freq ≥ 3, D+60 sunset
+      2) S 후보 (Top 10%, Proven 풀만): 풀 P90 이상 → 증액 우선
+      3) 신생 동결 (D+7 미만): 변경·증액 금지 안내
+      4) delta 알림 (전체 CTR/CPC 급변): 기존 유지
+    우선순위: Off > S 후보 > 신생 > delta. 상위 3개만 반환.
+    """
+    if ref_date is None:
+        ref_date = date.today()
     findings = []
     bw = d.get("best_worst", {})
     all_ads = bw.get("all_ads", [])
+    pools = bw.get("pools", {})
     if not all_ads:
         return findings
 
-    ads_with_lpv = [a for a in all_ads if a["lpv"] > 0]
-    if ads_with_lpv:
-        avg_cplpv = sum(a["cplpv"] for a in ads_with_lpv) / len(ads_with_lpv)
-        avg_ctr = sum(a["ctr"] for a in ads_with_lpv) / len(ads_with_lpv)
+    off_cards, s_cards = [], []
 
-        for a in ads_with_lpv:
-            ratio = a["cplpv"] / avg_cplpv if avg_cplpv > 0 else 1
-            ctr_ratio = a["ctr"] / avg_ctr if avg_ctr > 0 else 1
-            ad_short = a["ad_name"][:35]
-            stage = a.get("stage", "other")
-            stage_label = {"proven": "Proven", "testing": "Testing"}.get(stage, "")
-            stage_tag = f" <span style=\"color:#6b7280;font-size:13px;\">[{stage_label}]</span>" if stage_label else ""
-
-            # Proven: 학습 통과 가정 — 단가 비교만
-            if stage == "proven":
-                if ratio <= 0.7 and ctr_ratio >= 1.1:
-                    findings.append({
-                        "finding": f"<b>{ad_short}</b>{stage_tag} Proven 풀 안에서 단가 우수 — 증액 우선순위",
-                        "evidence": f"CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · CPLPV {fmt_won(a['cplpv'])} (peer −{(1-ratio)*100:.0f}%)",
-                        "context": "Proven = 이미 학습 통과한 안정 풀. 같은 풀 안에서도 peer 평균 대비 우수 = 증액 우선순위. 1회 ≤30% (Meta 학습 보호선).",
-                    })
-                elif ratio >= 1.5:
-                    findings.append({
-                        "finding": f"<b>{ad_short}</b>{stage_tag} Proven 풀 안에서 효율 악화 — 점검 필요",
-                        "evidence": f"CPLPV {fmt_won(a['cplpv'])} (peer +{(ratio-1)*100:.0f}%)",
-                        "context": "Proven 풀 안에서 단가 무너짐 = 소재 피로 / 오디언스 만료. fatigue·freq 점검 + 트렌드(7일) 확인 후 OFF 또는 신규 변형 투입 결정.",
-                    })
+    for paid in ("PAID", "GIFT"):
+        for lc in ("testing", "proven"):
+            key = f"{paid}_{lc}"
+            pool = pools.get(key, {})
+            members = pool.get("members", [])
+            if not members:
                 continue
+            ctr_pct = pool.get("ctr_pct")
+            pool_label = f"{paid}×{lc.capitalize()}"
+            paid_strict = (paid == "PAID")  # PAID는 더 strict 해석
 
-            # Testing / Other: 학습 통과 여부 함께 판단
-            if a["spend"] >= 30000 and ratio <= 0.7 and ctr_ratio >= 1.1:
-                findings.append({
-                    "finding": f"<b>{ad_short}</b>{stage_tag} 학습 통과 + 효율 우수 — Proven 졸업 후보",
-                    "evidence": f"CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · CPLPV {fmt_won(a['cplpv'])} (peer −{(1-ratio)*100:.0f}%) · spend {fmt_won(a['spend'])}",
-                    "context": "Testing에서 spend ≥¥30K + peer CPLPV 30%+ 우수 = 검증 완료 신호. Proven adset으로 이동 실행.",
-                })
-            elif a["spend"] < 30000 and ctr_ratio >= 1.2:
-                findings.append({
-                    "finding": f"<b>{ad_short}</b>{stage_tag} 초기 신호 양호 — D+7까지 노출 확보 우선",
-                    "evidence": f"CTR {a['ctr']:.2f}% (peer +{(ctr_ratio-1)*100:.0f}%) · spend {fmt_won(a['spend'])} (학습 미통과)",
-                    "context": "Testing 단계, spend < ¥30K = Meta 학습 단계 미통과. 데이터 부족 상태에서 변경·증액 시 학습 리셋 발생. 노출 누적 후 D+7 재진단 권장.",
-                })
-            elif a["spend"] >= 30000 and ratio >= 1.5:
-                findings.append({
-                    "finding": f"<b>{ad_short}</b>{stage_tag} 학습 통과 후에도 효율 미달 — OFF 검토",
-                    "evidence": f"CPLPV {fmt_won(a['cplpv'])} (peer +{(ratio-1)*100:.0f}%) · spend {fmt_won(a['spend'])}",
-                    "context": "Testing에서 spend ¥30K+ 누적했는데 peer +50%+ 단가 = 소재 자체 한계. Proven 졸업 X, OFF + 신규 소재 투입.",
+            # 1) Off 권장 — off_rule_check 적용
+            for a in members:
+                check = off_rule_check(a, ctr_pct, ref_date)
+                if not check["off_recommend"]:
+                    continue
+                ad_short = a["ad_name"][:40]
+                ctx = (
+                    "PAID 풀 — 회수 압력 큼 → P20 + spend ≥ ₩30K 만으로도 Off 충분."
+                    if paid_strict else
+                    "GIFT 풀 — 비용 회수 압력 약함 → 즉시 Off 보단 신규 변형 우선 검토."
+                )
+                off_cards.append({
+                    "_sort_spend": a.get("spend", 0),
+                    "_ad_id": a.get("ad_id", ""),
+                    "finding": f"<b>{ad_short}</b> <span style=\"color:#6b7280;font-size:13px;\">[{pool_label}]</span> Off 검토 — {check['reason']}",
+                    "evidence": f"CTR {a['ctr']:.2f}% · CPC {fmt_won(a['cpc'])} · Freq {a.get('freq',0):.2f} · spend {fmt_won(a.get('spend',0))} · D+{a.get('days_live','?')}",
+                    "context": ctx,
                 })
 
-    fatigue_ads = [a for a in all_ads if a["freq"] > 3.0 and a["impressions"] > 1000]
-    if fatigue_ads:
-        f0 = fatigue_ads[0]
+            # 2) S 후보 — Proven 풀 P90 이상 (Top 10%) + spend ≥ ₩30K + 풀 n ≥ 6 (percentile 의미 보장)
+            #    Off 트리거 hit 광고는 제외 (sunset/Freq/P20 hit 시 증액 권장 모순 방지)
+            if lc == "proven" and ctr_pct and ctr_pct.get("p90") and ctr_pct.get("n", 0) >= 6:
+                p90 = ctr_pct["p90"]
+                off_ad_ids = {c["_ad_id"] for c in off_cards if c.get("_ad_id")}
+                for a in members:
+                    if a.get("ad_id") in off_ad_ids:
+                        continue
+                    if a["ctr"] >= p90 and a.get("spend", 0) >= 30000:
+                        ad_short = a["ad_name"][:40]
+                        ctx = (
+                            "PAID Proven 풀 Top 10% — 회수 검증된 winner. 증액 1회 ≤30% (Meta 학습 보호선)."
+                            if paid_strict else
+                            "GIFT Proven 풀 Top 10% — 무료 수급 winner. 증액 대신 PAID 풀로 캐스팅 우선 검토."
+                        )
+                        s_cards.append({
+                            "_sort_spend": a.get("spend", 0),
+                            "finding": f"<b>{ad_short}</b> <span style=\"color:#6b7280;font-size:13px;\">[{pool_label} P90+]</span> S 후보 — 증액 우선순위",
+                            "evidence": f"CTR {a['ctr']:.2f}% (풀 P90 {p90:.2f}% 이상) · spend {fmt_won(a['spend'])} · D+{a.get('days_live','?')}",
+                            "context": ctx,
+                        })
+
+    off_cards.sort(key=lambda x: -x["_sort_spend"])
+    s_cards.sort(key=lambda x: -x["_sort_spend"])
+    for c in off_cards + s_cards:
+        c.pop("_sort_spend", None)
+        c.pop("_ad_id", None)
+        findings.append(c)
+
+    # 3) 신생 (D+7 미만) — 변경·증액 동결 안내. spend 있는 광고만.
+    newborn_ads = [a for a in all_ads if a.get("lifecycle") == "newborn" and a.get("spend", 0) > 0]
+    if newborn_ads:
+        names = ", ".join(a["ad_name"][:25] for a in newborn_ads[:3])
+        more = f" 외 {len(newborn_ads)-3}건" if len(newborn_ads) > 3 else ""
         findings.append({
-            "finding": f"피로도 신호: <b>{f0['ad_name'][:35]}</b> 오디언스 만료 또는 신규 소재 투입 검토",
-            "evidence": f"Freq {f0['freq']:.2f} (임계 3.0+) · CTR {f0['ctr']:.2f}% · imp {fmt_num(f0['impressions'])}",
-            "context": "Freq 3.0+ = 같은 사람에게 3번+ 반복 노출. 클릭 의지 사라짐 (Banner blindness). 신규 오디언스 추가 또는 새 소재로 학습 풀 갱신 필요.",
+            "finding": f"신생 풀 {len(newborn_ads)}건 동결 안내 — D+7까지 변경·증액 금지",
+            "evidence": f"{names}{more}",
+            "context": "D+7 미만 = Meta 학습 초기. 노출 누적 전 변경·증액·OFF 시 학습 리셋 → 단가 폭증. 노출 ≥1,000 + D+7 도달 후 재진단.",
         })
 
+    # 4) delta 알림 (전체 CTR/CPC 급변) — 기존 유지
     if d.get("delta"):
         delta = d["delta"]
         if delta.get("ctr_pct", 0) <= -15 and abs(delta.get("spend_pct", 0)) < 20:
             findings.append({
                 "finding": "전체 CTR 급락, spend는 안정 — 오디언스/소재 피로 신호",
                 "evidence": f"CTR 전일 {delta['ctr_pct']:.1f}% / spend ±{abs(delta['spend_pct']):.0f}%",
-                "context": "spend는 거의 안 변했는데 CTR만 하락 = 입찰·예산 변경 X = 시장(오디언스 피로) 또는 소재(피로) 변화. 캠페인 단위 점검 필요.",
+                "context": "spend 안정 + CTR만 하락 = 입찰·예산 변경 X = 오디언스 피로 또는 소재 피로. 캠페인 단위 점검 필요.",
             })
         elif delta.get("cpc_pct", 0) >= 30:
             findings.append({
                 "finding": "전체 CPC 급등 — 학습 재진입 또는 경매 경쟁",
                 "evidence": f"CPC 전일 +{delta['cpc_pct']:.1f}%",
-                "context": "단발적 변동은 경매 경쟁(다른 광고주 입찰 ↑)에서 발생. 변경 시 학습 리셋 발생 → 24h 동결 후 재관찰.",
+                "context": "단발적 변동은 경매 경쟁(다른 광고주 입찰 ↑)에서 발생. 변경 시 학습 리셋 → 24h 동결 후 재관찰.",
             })
 
     return findings[:3]
