@@ -341,7 +341,13 @@ def budget_increase_candidates(ads, min_spend=30000):
     """예산 증액 후보: 계정 평균 대비 효율 좋고 학습단계 통과한 ad."""
     if not ads:
         return []
-    qualified = [a for a in ads if a["spend"] >= min_spend and a["lpv"] > 0 and a["ctr"] > 0 and a["freq"] <= 3.0]
+    # 5/15: 신생(D+7 미만) + sunset(D+60+) 광고는 증액 후보에서 제외 (Off Rule 일관성)
+    def _stage_ok(a):
+        dl = a.get("days_live")
+        if dl is None:
+            return True  # 라벨 없는 이미지 광고는 통과
+        return 7 <= dl < 60
+    qualified = [a for a in ads if a["spend"] >= min_spend and a["lpv"] > 0 and a["ctr"] > 0 and a["freq"] <= 3.0 and _stage_ok(a)]
     if not qualified:
         return []
     avg_cplpv = sum(a["cplpv"] for a in qualified) / len(qualified)
@@ -1071,7 +1077,7 @@ def analyze_7d(end_date):
         "cpc_pct": ((cur_cpc - prev_cpc) / prev_cpc * 100) if prev_cpc else 0,
     }
 
-    bw7 = best_worst_from_rows(ad_rows, min_impr=200, ref_date=end_date)
+    bw7 = best_worst_from_rows(ad_rows, min_impr=500, ref_date=end_date)  # 5/15: 풀 percentile 신뢰 위한 최소 노출 상향
     ad_ids7 = [a.get("ad_id") for a in bw7.get("all_ads", []) if a.get("ad_id")]
     post_url_map7 = build_post_url_map(ad_ids7)
     candidates7 = budget_increase_candidates(bw7.get("all_ads", []), min_spend=30000)
@@ -1278,19 +1284,23 @@ CSS = """
   .ok { background: #f0fdf4; border-left: 4px solid #059669; padding: 12px 16px; margin: 14px 0; border-radius: 4px; }
   .delta-up { color: #dc2626; font-weight: 600; }
   .delta-down { color: #059669; font-weight: 600; }
+  .delta-bad { color: #dc2626; font-weight: 600; }
+  .delta-good { color: #059669; font-weight: 600; }
   .meta { color: #6b7280; font-size: 13px; }
 </style>
 """
 
 
 def delta_span(pct, lower_is_better=False, neutral=False):
-    if pct == 0:
-        return "<span>±0.0%</span>"
+    # |pct| < 1.0 = 반올림 표시(₩80→₩80)와 충돌 가능. 변화 미미 처리.
+    if pct == 0 or abs(pct) < 1.0:
+        return '<span class="meta">±0%</span>'
     arrow = "▲" if pct > 0 else "▼"
     if neutral:
         return f'<span style="color:#6b7280">{arrow} {abs(pct):.1f}%</span>'
     is_bad = (pct > 0) if lower_is_better else (pct < 0)
-    cls = "delta-up" if is_bad else "delta-down"
+    # 의미 명확화: delta-bad/delta-good (방향 ▲▼ ≠ 좋고나쁨)
+    cls = "delta-bad" if is_bad else "delta-good"
     return f'<span class="{cls}">{arrow} {abs(pct):.1f}%</span>'
 
 
