@@ -156,8 +156,115 @@ def adset_stage(adset_name):
     return "other"
 
 
-def best_worst_from_rows(ad_rows, min_impr=200):
-    """광고 단위 BEST/WORST TOP3 by CTR/CPC."""
+def parse_paid_flag(ad_name):
+    """ad_name에서 PAID/GIFT 라벨 추출. 끝 yymmdd 바로 앞에 박힌 형식.
+
+    예: 'AD N | Stainless 300ml | komugiko | PAID | 20260424' → 'PAID'
+        'AD D | PPSU 300ml | ichikuru_fufu | GIFT | 20260320' → 'GIFT'
+        라벨 없으면 'UNKNOWN' (이미지 광고 등).
+    """
+    n = ad_name or ""
+    if "| PAID |" in n:
+        return "PAID"
+    if "| GIFT |" in n:
+        return "GIFT"
+    return "UNKNOWN"
+
+
+def calc_days_live(ad_name, ref_date):
+    """ad_name 끝 8자리 (yymmdd) → launch_date → D+N 계산.
+
+    예: 'AD G | ... | 20260303' + ref 2026-05-15 → 73 (D+73)
+    파싱 실패 시 None 반환.
+    """
+    if not ad_name:
+        return None
+    tail = ad_name.strip().split("|")[-1].strip() if "|" in ad_name else ad_name.strip()[-8:]
+    digits = "".join(c for c in tail if c.isdigit())[-8:]
+    if len(digits) != 8:
+        return None
+    try:
+        launch = datetime.strptime(digits, "%Y%m%d").date()
+    except ValueError:
+        return None
+    return (ref_date - launch).days
+
+
+def lifecycle_stage(days_live):
+    """D+N → lifecycle stage. 신생 / Testing / Proven 분류 (PDF 5장 룰)."""
+    if days_live is None:
+        return "unknown"
+    if days_live < 7:
+        return "newborn"
+    if days_live < 15:
+        return "testing"
+    return "proven"
+
+
+def calc_percentiles(values, ascending_is_better=False):
+    """리스트의 P10/P20/P50/P80/P90 산출. 빈 리스트면 None 반환.
+
+    ascending_is_better=True → CPC (낮을수록 좋음, P10이 best)
+    ascending_is_better=False → CTR (높을수록 좋음, P90이 best)
+    리턴은 항상 정렬 후 percentile 값.
+    """
+    vals = sorted([v for v in values if v is not None and v > 0])
+    n = len(vals)
+    if n == 0:
+        return None
+    def pct(p):
+        idx = max(0, min(n - 1, int(round(p / 100 * (n - 1)))))
+        return vals[idx]
+    return {
+        "p10": pct(10), "p20": pct(20), "p50": pct(50),
+        "p80": pct(80), "p90": pct(90),
+        "n": n,
+    }
+
+
+def off_rule_check(ad, pool_pcts, ref_date, sunset_days=60):
+    """3축 Off Rule 평가 (5/15 재설계).
+
+    축 1: 풀 P20 미달 + spend ≥ ₩30K  (메인 트리거 — Bottom 20%)
+    축 2: D+sunset_days (60일) 도달  (시간 sunset — 자연 노화)
+    축 3: Freq ≥ 3.0  (피로도, spend 무관)
+
+    velocity (Proven D+15+ trailing 7d CTR delta < -15%)는 별도 함수에서 호출.
+
+    리턴: {"off_recommend": bool, "triggers": [str, ...], "reason": str}
+    """
+    triggers = []
+    spend = ad.get("spend", 0)
+    ctr = ad.get("ctr", 0)
+    freq = ad.get("freq", 0)
+    days_live = ad.get("days_live")
+
+    if freq >= 3.0:
+        triggers.append(f"Freq {freq:.2f} ≥ 3.0 (피로도)")
+
+    if pool_pcts and ctr > 0 and spend >= 30000:
+        p20 = pool_pcts.get("p20")
+        if p20 and ctr < p20:
+            triggers.append(f"CTR {ctr:.2f}% < 풀 P20 ({p20:.2f}%) + spend ≥ ₩30K")
+
+    if days_live is not None and days_live >= sunset_days:
+        triggers.append(f"D+{days_live} ≥ D+{sunset_days} (시간 sunset)")
+
+    return {
+        "off_recommend": len(triggers) > 0,
+        "triggers": triggers,
+        "reason": " · ".join(triggers) if triggers else "",
+    }
+
+
+def best_worst_from_rows(ad_rows, min_impr=200, ref_date=None):
+    """광고 단위 BEST/WORST TOP3 by CTR/CPC.
+
+    추가 (5/15): paid_flag + days_live + lifecycle_stage 파싱.
+    PAID/GIFT × Testing/Proven 4-way pool split + percentile 산출도 함께.
+    """
+    if ref_date is None:
+        ref_date = date.today()
     ads = []
     for row in ad_rows:
         impr = to_float(row.get("impressions"))
@@ -165,12 +272,17 @@ def best_worst_from_rows(ad_rows, min_impr=200):
             continue
         lpv = extract_lpv(row.get("actions"))
         spend = to_float(row.get("spend"))
+        ad_name = row.get("ad_name", "")
+        days_live = calc_days_live(ad_name, ref_date)
         ads.append({
             "ad_id": row.get("ad_id", ""),
-            "ad_name": row.get("ad_name", ""),
+            "ad_name": ad_name,
             "campaign_name": row.get("campaign_name", ""),
             "adset_name": row.get("adset_name", ""),
             "stage": adset_stage(row.get("adset_name", "")),
+            "paid_flag": parse_paid_flag(ad_name),
+            "days_live": days_live,
+            "lifecycle": lifecycle_stage(days_live),
             "spend": spend,
             "impressions": impr,
             "clicks": to_float(row.get("clicks")),
@@ -183,8 +295,21 @@ def best_worst_from_rows(ad_rows, min_impr=200):
     ctr_pool = [a for a in ads if a["ctr"] > 0]
     cpc_pool = [a for a in ads if a["cpc"] > 0]
 
+    # 4-way pool split: PAID/GIFT × Testing/Proven (newborn/unknown 제외)
+    pools = {}
+    for paid in ("PAID", "GIFT"):
+        for lc in ("testing", "proven"):
+            key = f"{paid}_{lc}"
+            members = [a for a in ads if a["paid_flag"] == paid and a["lifecycle"] == lc]
+            pools[key] = {
+                "members": members,
+                "ctr_pct": calc_percentiles([a["ctr"] for a in members]),
+                "cpc_pct": calc_percentiles([a["cpc"] for a in members], ascending_is_better=True),
+                "cplpv_pct": calc_percentiles([a["cplpv"] for a in members], ascending_is_better=True),
+            }
+
     # 풀이 작을 때(≤6) BEST·WORST 겹침 방지 — BEST 먼저 뽑고 WORST는 BEST 제외 후 N개.
-    # 풀 크기에 따라 N 동적 조정 (≥6→3, 4~5→2, 2~3→1, ≤1→0).
+    # 풀 크기에 따라 N 동적 조정 (6→3, 5→2, 4→2, 3→1, ≤2→0).
     def _split(pool, key, reverse_best):
         n = min(3, len(pool) // 2)
         if n == 0:
@@ -203,6 +328,7 @@ def best_worst_from_rows(ad_rows, min_impr=200):
         "cpc_best": cpc_best,
         "cpc_worst": cpc_worst,
         "all_ads": ads,
+        "pools": pools,
     }
 
 
