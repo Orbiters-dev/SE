@@ -47,6 +47,11 @@ CTR_LOW = 1.0
 FREQ_HIGH = 3.0
 CPC_SPIKE_PCT = 30.0
 
+# 5/15 KPI = 북극성 (고정). Off Rule 과 분리.
+KPI_WL_CTR = 8.0    # 인플루언서 화이트리스팅 (PAID/GIFT) CTR 목표
+KPI_IMG_CTR = 4.0   # 이미지 광고 (UNKNOWN) CTR 목표
+KPI_CPC = 100       # CPC 목표 (₩)
+
 
 def api_get(path, params=None):
     params = dict(params or {})
@@ -732,6 +737,91 @@ def post_link_cell(post_url):
     return '<td class=c>—</td>'
 
 
+def render_kpi_counter(all_ads):
+    """KPI 북극성 카운터 (5/15) — 달성/미달 카운트만. 평균 X (Off Rule과 분리)."""
+    if not all_ads:
+        return ""
+    wl_ads = [a for a in all_ads if a.get("paid_flag") in ("PAID", "GIFT") and a.get("ctr", 0) > 0]
+    img_ads = [a for a in all_ads if a.get("paid_flag") == "UNKNOWN" and a.get("ctr", 0) > 0]
+    cpc_ads = [a for a in all_ads if a.get("cpc", 0) > 0]
+
+    wl_hit = sum(1 for a in wl_ads if a["ctr"] >= KPI_WL_CTR)
+    img_hit = sum(1 for a in img_ads if a["ctr"] >= KPI_IMG_CTR)
+    cpc_hit = sum(1 for a in cpc_ads if a["cpc"] <= KPI_CPC)
+
+    def row(label, hit, total):
+        miss = total - hit
+        if total == 0:
+            return f"<tr><td class=l>{label}</td><td colspan=3 class=meta>해당 광고 없음</td></tr>"
+        rate = hit / total * 100
+        return (
+            f"<tr><td class=l>{label}</td>"
+            f"<td><b style='color:#16a34a'>{hit}</b></td>"
+            f"<td><b style='color:#dc2626'>{miss}</b></td>"
+            f"<td>{hit}/{total} ({rate:.0f}%)</td></tr>"
+        )
+
+    return f"""
+<h2>KPI 달성 카운터 (북극성)</h2>
+<table>
+  <tr><th>KPI</th><th>달성</th><th>미달</th><th>비율</th></tr>
+  {row(f"WL CTR ≥ {KPI_WL_CTR}% (PAID + GIFT)", wl_hit, len(wl_ads))}
+  {row(f"이미지 CTR ≥ {KPI_IMG_CTR}% (이미지 광고)", img_hit, len(img_ads))}
+  {row(f"CPC ≤ ₩{KPI_CPC}", cpc_hit, len(cpc_ads))}
+</table>
+<p class=meta>KPI = 북극성 목표 (고정). Off Rule (작동 임계) 과 분리. 평균값 비교 X.</p>
+"""
+
+
+def render_off_recommend_box(bw, ref_date=None):
+    """Off 권장 일람표 (5/15) — Off Rule 트리거 hit 광고 전체."""
+    if ref_date is None:
+        ref_date = date.today()
+    pools = bw.get("pools", {})
+    if not pools:
+        return ""
+    candidates = []
+    for paid in ("PAID", "GIFT"):
+        for lc in ("testing", "proven"):
+            pool = pools.get(f"{paid}_{lc}", {})
+            members = pool.get("members", [])
+            ctr_pct = pool.get("ctr_pct")
+            for a in members:
+                check = off_rule_check(a, ctr_pct, ref_date)
+                if check["off_recommend"]:
+                    candidates.append({
+                        "ad_name": a["ad_name"],
+                        "pool": f"{paid}×{lc.capitalize()}",
+                        "ctr": a["ctr"], "cpc": a["cpc"], "freq": a.get("freq", 0),
+                        "spend": a.get("spend", 0), "days_live": a.get("days_live"),
+                        "reason": check["reason"],
+                    })
+    if not candidates:
+        return """
+<h2>Off 권장 (Off Rule 트리거)</h2>
+<div style="background:#ecfdf5;padding:14px 18px;border-radius:4px;">
+  <p class=meta style="margin:6px 0;">Off 권장 광고 없음. 풀 전체 임계 통과.</p>
+</div>
+"""
+    candidates.sort(key=lambda x: -x["spend"])
+    rows = "".join(
+        f"<tr><td class=l>{c['ad_name'][:55]}</td><td>{c['pool']}</td>"
+        f"<td>{fmt_pct(c['ctr'])}</td><td>{fmt_won(c['cpc'])}</td>"
+        f"<td>{c['freq']:.2f}</td><td>{fmt_won(c['spend'])}</td>"
+        f"<td>D+{c['days_live'] if c['days_live'] is not None else '?'}</td>"
+        f"<td class=l style='font-size:13px'>{c['reason']}</td></tr>"
+        for c in candidates
+    )
+    return f"""
+<h2>Off 권장 (Off Rule 트리거 {len(candidates)}건)</h2>
+<table>
+  <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>D+N</th><th>트리거</th></tr>
+  {rows}
+</table>
+<p class=meta>축: 풀 P20 미달+spend≥₩30K / Freq≥3.0 / D+60 sunset. PAID는 즉시 Off, GIFT는 신규 변형 우선.</p>
+"""
+
+
 def render_best_worst_table(bw, post_url_map=None):
     post_url_map = post_url_map or {}
     def rows(items):
@@ -881,12 +971,13 @@ def analyze_1d(target_date):
     if delta["cpc_pct"] > CPC_SPIKE_PCT and prev_cpc > 0:
         alerts.append(f"CPC 급등: 전일 대비 +{delta['cpc_pct']:.1f}%")
 
-    bw = best_worst_from_rows(cur, min_impr=100)
+    bw = best_worst_from_rows(cur, min_impr=100, ref_date=yday)
     ad_ids = [a.get("ad_id") for a in bw.get("all_ads", []) if a.get("ad_id")]
     post_url_map = build_post_url_map(ad_ids)
     candidates = budget_increase_candidates(bw.get("all_ads", []), min_spend=30000)
     return {
         "date": yday, "prev_date": dby,
+        "ref_date": yday,
         "total": {**cur_total, "ctr": cur_ctr, "cpc": cur_cpc},
         "campaigns": camp_rows, "top5": top5, "alerts": alerts, "delta": delta,
         "best_worst": bw,
@@ -1123,7 +1214,7 @@ def analyze_14d(end_date):
         elif ic > vc * 1.3:
             actions.append(f"이미지 우세: image CTR {ic:.2f}% vs video {vc:.2f}% — 이미지 슬롯 확대")
 
-    bw14 = best_worst_from_rows(ad_rows, min_impr=500)
+    bw14 = best_worst_from_rows(ad_rows, min_impr=500, ref_date=end_date)
     ad_ids14 = [a.get("ad_id") for a in bw14.get("all_ads", []) if a.get("ad_id")]
     post_url_map14 = build_post_url_map(ad_ids14)
     candidates14 = budget_increase_candidates(bw14.get("all_ads", []), min_spend=50000)
@@ -1251,13 +1342,17 @@ def render_1d(d):
   {top5}
 </table>
 
-<p class=meta>벤치 CTR 1.71% · 임계값: CTR&lt;{CTR_LOW}% / Freq&gt;{FREQ_HIGH} / CPC 전일 +{CPC_SPIKE_PCT}%</p>
+<p class=meta>알림 임계값: CTR&lt;{CTR_LOW}% / Freq&gt;{FREQ_HIGH} / CPC 전일 +{CPC_SPIKE_PCT}% (5/15: 외부 시장 평균 floor 폐기)</p>
+
+{render_kpi_counter(d['best_worst'].get('all_ads', []))}
+
+{render_off_recommend_box(d['best_worst'], ref_date=d.get('ref_date'))}
 
 {render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
 
 {render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
-{render_findings_section(build_findings(d))}
+{render_findings_section(build_findings(d, ref_date=d.get('ref_date')))}
 
 {render_advice_section(build_advice_1d(d))}
 </body></html>"""
@@ -1319,11 +1414,15 @@ def render_7d(d):
   {top10}
 </table>
 
+{render_kpi_counter(d['best_worst'].get('all_ads', []))}
+
+{render_off_recommend_box(d['best_worst'], ref_date=d.get('end'))}
+
 {render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
 
 {render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
-{render_findings_section(build_findings(d))}
+{render_findings_section(build_findings(d, ref_date=d.get('end')))}
 
 {render_advice_section(build_advice_7d(d))}
 </body></html>"""
@@ -1381,11 +1480,15 @@ def render_14d(d):
 
 {actions_html}
 
+{render_kpi_counter(d['best_worst'].get('all_ads', []))}
+
+{render_off_recommend_box(d['best_worst'], ref_date=d.get('end'))}
+
 {render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
 
 {render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
 
-{render_findings_section(build_findings(d))}
+{render_findings_section(build_findings(d, ref_date=d.get('end')))}
 
 {render_advice_section(build_advice_14d(d))}
 </body></html>"""
