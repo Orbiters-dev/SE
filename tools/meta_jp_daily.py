@@ -639,14 +639,35 @@ def build_findings(d, ref_date=None):
                             "context": ctx,
                         })
 
+    # 3) velocity 하락 (B-6) — 7d 모드에서 채워짐. Off hit 광고는 제외.
+    vel_cards = []
+    off_ad_ids = {c["_ad_id"] for c in off_cards if c.get("_ad_id")}
+    for v in bw.get("velocity_decay", []):
+        if v.get("ad_id") in off_ad_ids:
+            continue
+        ad_short = v["ad_name"][:40]
+        paid = v.get("paid_flag", "")
+        ctx = (
+            "PAID Proven 풀 7d CTR 하락 = 소재 피로 자연 진행. 즉시 Off 보단 신규 변형 투입 우선."
+            if paid == "PAID" else
+            "GIFT Proven 풀 7d CTR 하락 = 자연 진행. 신규 변형 의뢰 or 다음 협업 우선순위 조정."
+        )
+        vel_cards.append({
+            "_sort_spend": v.get("spend", 0),
+            "finding": f"<b>{ad_short}</b> <span style=\"color:#6b7280;font-size:13px;\">[{paid}×Proven velocity]</span> CTR 하락 — 신규 변형 검토",
+            "evidence": f"CTR 이전7d {v['prev_ctr']:.2f}% → 최근7d {v['cur_ctr']:.2f}% ({v['delta_pct']:+.1f}%) · D+{v.get('days_live','?')} · spend {fmt_won(v.get('spend',0))}",
+            "context": ctx,
+        })
+
     off_cards.sort(key=lambda x: -x["_sort_spend"])
     s_cards.sort(key=lambda x: -x["_sort_spend"])
-    for c in off_cards + s_cards:
+    vel_cards.sort(key=lambda x: -x["_sort_spend"])
+    for c in off_cards + s_cards + vel_cards:
         c.pop("_sort_spend", None)
         c.pop("_ad_id", None)
         findings.append(c)
 
-    # 3) 신생 (D+7 미만) — 변경·증액 동결 안내. spend 있는 광고만.
+    # 4) 신생 (D+7 미만) — 변경·증액 동결 안내. spend 있는 광고만.
     newborn_ads = [a for a in all_ads if a.get("lifecycle") == "newborn" and a.get("spend", 0) > 0]
     if newborn_ads:
         names = ", ".join(a["ad_name"][:25] for a in newborn_ads[:3])
@@ -657,7 +678,7 @@ def build_findings(d, ref_date=None):
             "context": "D+7 미만 = Meta 학습 초기. 노출 누적 전 변경·증액·OFF 시 학습 리셋 → 단가 폭증. 노출 ≥1,000 + D+7 도달 후 재진단.",
         })
 
-    # 4) delta 알림 (전체 CTR/CPC 급변) — 기존 유지
+    # 5) delta 알림 (전체 CTR/CPC 급변) — 기존 유지
     if d.get("delta"):
         delta = d["delta"]
         if delta.get("ctr_pct", 0) <= -15 and abs(delta.get("spend_pct", 0)) < 20:
@@ -959,10 +980,42 @@ def analyze_7d(end_date):
         "cpc_pct": ((cur_cpc - prev_cpc) / prev_cpc * 100) if prev_cpc else 0,
     }
 
-    bw7 = best_worst_from_rows(ad_rows, min_impr=200)
+    bw7 = best_worst_from_rows(ad_rows, min_impr=200, ref_date=end_date)
     ad_ids7 = [a.get("ad_id") for a in bw7.get("all_ads", []) if a.get("ad_id")]
     post_url_map7 = build_post_url_map(ad_ids7)
     candidates7 = budget_increase_candidates(bw7.get("all_ads", []), min_spend=30000)
+
+    # B-6: velocity 추적 — Proven D+15+ ad 의 trailing 7d CTR delta < -15%
+    prev_ad_rows = fetch("ad", time_range={"since": prev_start.isoformat(), "until": prev_end.isoformat()})
+    prev_ad_map = {row.get("ad_id"): row for row in prev_ad_rows if row.get("ad_id")}
+    velocity_decay = []
+    for a in bw7.get("all_ads", []):
+        if a.get("lifecycle") != "proven" or (a.get("days_live") or 0) < 15:
+            continue
+        prev_row = prev_ad_map.get(a.get("ad_id"))
+        if not prev_row:
+            continue
+        prev_impr = to_float(prev_row.get("impressions"))
+        if prev_impr < 200:
+            continue
+        prev_ctr_val = to_float(prev_row.get("ctr"))
+        cur_ctr_val = a.get("ctr", 0)
+        if prev_ctr_val <= 0 or cur_ctr_val <= 0:
+            continue
+        delta_pct = (cur_ctr_val - prev_ctr_val) / prev_ctr_val * 100
+        if delta_pct < -15:
+            velocity_decay.append({
+                "ad_id": a.get("ad_id"),
+                "ad_name": a["ad_name"],
+                "paid_flag": a.get("paid_flag"),
+                "days_live": a.get("days_live"),
+                "cur_ctr": cur_ctr_val,
+                "prev_ctr": prev_ctr_val,
+                "delta_pct": delta_pct,
+                "spend": a.get("spend", 0),
+            })
+    bw7["velocity_decay"] = velocity_decay
+
     return {
         "start": start, "end": end_date,
         "total": {**cur_sum, "ctr": cur_ctr, "cpc": cur_cpc},
