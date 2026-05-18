@@ -46,7 +46,7 @@ jobs:
           from datetime import datetime, timezone, timedelta
           KST = timezone(timedelta(hours=9))
           today = datetime.now(KST).date()
-          out = subprocess.check_output(['gh','run','list','-w','meta_jp_daily.yml','-L','20','--json','conclusion,createdAt,databaseId'])
+          out = subprocess.check_output(['gh','run','list','-R','${{ github.repository }}','-w','meta_jp_daily.yml','-L','20','--json','conclusion,createdAt,databaseId'])
           runs = json.loads(out)
           for r in runs:
               if r['conclusion'] != 'success': continue
