@@ -182,11 +182,26 @@ def best_worst_from_rows(ad_rows, min_impr=200):
         })
     ctr_pool = [a for a in ads if a["ctr"] > 0]
     cpc_pool = [a for a in ads if a["cpc"] > 0]
+
+    # 풀이 작을 때(≤6) BEST·WORST 겹침 방지 — BEST 먼저 뽑고 WORST는 BEST 제외 후 N개.
+    # 풀 크기에 따라 N 동적 조정 (≥6→3, 4~5→2, 2~3→1, ≤1→0).
+    def _split(pool, key, reverse_best):
+        n = min(3, len(pool) // 2)
+        if n == 0:
+            return [], []
+        best = sorted(pool, key=lambda x: x[key], reverse=reverse_best)[:n]
+        best_ids = {id(a) for a in best}
+        worst = [a for a in sorted(pool, key=lambda x: x[key], reverse=not reverse_best) if id(a) not in best_ids][:n]
+        return best, worst
+
+    ctr_best, ctr_worst = _split(ctr_pool, "ctr", reverse_best=True)
+    cpc_best, cpc_worst = _split(cpc_pool, "cpc", reverse_best=False)
+
     return {
-        "ctr_best": sorted(ctr_pool, key=lambda x: x["ctr"], reverse=True)[:3],
-        "ctr_worst": sorted(ctr_pool, key=lambda x: x["ctr"])[:3],
-        "cpc_best": sorted(cpc_pool, key=lambda x: x["cpc"])[:3],
-        "cpc_worst": sorted(cpc_pool, key=lambda x: x["cpc"], reverse=True)[:3],
+        "ctr_best": ctr_best,
+        "ctr_worst": ctr_worst,
+        "cpc_best": cpc_best,
+        "cpc_worst": cpc_worst,
         "all_ads": ads,
     }
 
