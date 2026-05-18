@@ -36,7 +36,11 @@ class RakutenRMSClient:
         return path if path.startswith("http") else f"{self.base}{path}"
 
     def search_order_numbers(self, days: int = 30, order_progress: List[int] = None) -> List[str]:
-        """Call searchOrder in 7-day chunks to get all order numbers (API returns max 30 per call)."""
+        """Call searchOrder in 7-day chunks with pagination.
+
+        5/18 fix: 기존 코드는 페이지 1만 fetch → chunk 안 주문 30~100건 초과 시 누락.
+        PaginationRequestModel 추가 + totalPages loop 으로 전부 수집.
+        """
         now = datetime.now(JST)
         all_numbers: List[str] = []
         seen: set = set()
@@ -44,20 +48,32 @@ class RakutenRMSClient:
         for offset in range(0, days, chunk_days):
             chunk_end = now - timedelta(days=offset)
             chunk_start = now - timedelta(days=min(offset + chunk_days, days))
-            body: Dict[str, Any] = {
-                "dateType": 1,
-                "startDatetime": chunk_start.strftime("%Y-%m-%dT%H:%M:%S+0900"),
-                "endDatetime": chunk_end.strftime("%Y-%m-%dT%H:%M:%S+0900"),
-            }
-            if order_progress:
-                body["orderProgressList"] = order_progress
-            resp = self.session.post(self._url("/es/2.0/order/searchOrder"), json=body)
-            resp.raise_for_status()
-            data = resp.json()
-            for num in (data.get("orderNumberList") or []):
-                if num not in seen:
-                    seen.add(num)
-                    all_numbers.append(num)
+            page = 1
+            while True:
+                body: Dict[str, Any] = {
+                    "dateType": 1,
+                    "startDatetime": chunk_start.strftime("%Y-%m-%dT%H:%M:%S+0900"),
+                    "endDatetime": chunk_end.strftime("%Y-%m-%dT%H:%M:%S+0900"),
+                    "PaginationRequestModel": {
+                        "requestRecordsAmount": 1000,
+                        "requestPage": page,
+                    },
+                }
+                if order_progress:
+                    body["orderProgressList"] = order_progress
+                resp = self.session.post(self._url("/es/2.0/order/searchOrder"), json=body)
+                resp.raise_for_status()
+                data = resp.json()
+                for num in (data.get("orderNumberList") or []):
+                    if num not in seen:
+                        seen.add(num)
+                        all_numbers.append(num)
+                # 페이징 응답에서 totalPages 확인
+                pag = data.get("PaginationResponseModel") or data.get("paginationResponse") or {}
+                total_pages = pag.get("totalPages") or pag.get("totalpages") or 1
+                if page >= total_pages:
+                    break
+                page += 1
         return all_numbers
 
     def get_orders(self, order_numbers: List[str]) -> List[Dict[str, Any]]:
