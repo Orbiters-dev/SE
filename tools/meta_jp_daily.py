@@ -228,21 +228,29 @@ def calc_percentiles(values, ascending_is_better=False):
 
 
 def off_rule_check(ad, pool_pcts, ref_date, sunset_days=60):
-    """3축 Off Rule 평가 (5/15 재설계).
+    """3축 Off Rule 평가 + 절대 기준 보강 (5/18).
 
-    축 1: 풀 P20 미달 + spend ≥ ₩30K  (메인 트리거 — Bottom 20%)
-    축 2: D+sunset_days (60일) 도달  (시간 sunset — 자연 노화)
-    축 3: Freq ≥ 3.0  (피로도, spend 무관)
+    축 1: 풀 P20 미달 + spend ≥ ₩30K + (CTR < KPI×0.5 OR CPC > KPI×2)
+        → 강한 Off 권장. 풀 percentile만 hit한 광고는 모니터링(Off 후보).
+    축 2: D+sunset_days (60일) 도달  (자연 노화 — 즉시 Off 권장)
+    축 3: Freq ≥ 3.0  (피로도 — 즉시 Off 권장, spend 무관)
 
-    velocity (Proven D+15+ trailing 7d CTR delta < -15%)는 별도 함수에서 호출.
+    velocity (Proven D+15+ trailing 7d CTR delta < -15%)는 별도 함수에서.
 
-    리턴: {"off_recommend": bool, "triggers": [str, ...], "reason": str}
+    리턴:
+      off_recommend (즉시 Off — 강한 신호) / monitoring (모니터링 — 약한 신호 후보)
+      triggers, reason.
     """
     triggers = []
+    monitoring_only = []
     spend = ad.get("spend", 0)
     ctr = ad.get("ctr", 0)
+    cpc = ad.get("cpc", 0)
     freq = ad.get("freq", 0)
     days_live = ad.get("days_live")
+    paid = ad.get("paid_flag", "UNKNOWN")
+    ctr_kpi = KPI_WL_CTR if paid in ("PAID", "GIFT") else KPI_IMG_CTR
+    cpc_kpi = KPI_CPC
 
     if freq >= 3.0:
         triggers.append(f"Freq {freq:.2f} ≥ 3.0 (피로도)")
@@ -250,14 +258,30 @@ def off_rule_check(ad, pool_pcts, ref_date, sunset_days=60):
     if pool_pcts and ctr > 0 and spend >= 30000:
         p20 = pool_pcts.get("p20")
         if p20 and ctr < p20:
-            triggers.append(f"CTR {ctr:.2f}% < 풀 P20 ({p20:.2f}%) + spend ≥ ₩30K")
+            # 절대 기준 게이트 — CTR < KPI×0.5 OR CPC > KPI×2 이어야 진짜 Off
+            ctr_severe = ctr < ctr_kpi * 0.5
+            cpc_severe = cpc > cpc_kpi * 2 if cpc > 0 else False
+            if ctr_severe or cpc_severe:
+                abs_reason = []
+                if ctr_severe:
+                    abs_reason.append(f"CTR {ctr:.2f}% < {ctr_kpi*0.5:.1f}% (KPI×0.5)")
+                if cpc_severe:
+                    abs_reason.append(f"CPC ₩{cpc:.0f} > ₩{cpc_kpi*2:.0f} (KPI×2)")
+                triggers.append(f"풀 P20 ({p20:.2f}%) 미달 + " + " · ".join(abs_reason))
+            else:
+                # 풀 P20만 hit, 절대 기준은 양호 — 모니터링
+                monitoring_only.append(
+                    f"풀 P20 ({p20:.2f}%) 미달이지만 CTR {ctr:.2f}% / CPC ₩{cpc:.0f} 절대 양호 — 모니터링"
+                )
 
     if days_live is not None and days_live >= sunset_days:
         triggers.append(f"D+{days_live} ≥ D+{sunset_days} (시간 sunset)")
 
     return {
         "off_recommend": len(triggers) > 0,
+        "monitoring": len(triggers) == 0 and len(monitoring_only) > 0,
         "triggers": triggers,
+        "monitoring_reason": " · ".join(monitoring_only),
         "reason": " · ".join(triggers) if triggers else "",
     }
 
@@ -615,11 +639,22 @@ def build_findings(d, ref_date=None):
                 if not check["off_recommend"]:
                     continue
                 ad_short = a["ad_name"][:40]
-                ctx = (
-                    "PAID 풀 — 회수 압력 큼 → P20 + spend ≥ ₩30K 만으로도 Off 충분."
-                    if paid_strict else
-                    "GIFT 풀 — 비용 회수 압력 약함 → 즉시 Off 보단 신규 변형 우선 검토."
-                )
+                # 트리거 종류에 맞는 context — sunset/Freq/풀 P20 각각 다른 메시지
+                reason_text = check["reason"]
+                if "sunset" in reason_text:
+                    ctx = (
+                        "PAID 풀 sunset — 60일 도달, 자연 노화. 정리 + 신규 영상 의뢰 검토."
+                        if paid_strict else
+                        "GIFT 풀 sunset — 신규 변형 의뢰 우선. 정리는 PAID 풀 정비 후."
+                    )
+                elif "Freq" in reason_text:
+                    ctx = "피로도 트리거 — 같은 사람에게 3번 이상 반복 노출. 오디언스 새로 추가 또는 즉시 정리."
+                else:  # 풀 P20 + 절대 기준
+                    ctx = (
+                        "PAID 풀 — 회수 압력 큼 + 절대 기준(CTR/CPC) 미달 = 즉시 Off 충분."
+                        if paid_strict else
+                        "GIFT 풀 — 절대 기준 미달이지만 비용 회수 압력 약함 → 신규 변형 우선 검토."
+                    )
                 off_cards.append({
                     "_sort_spend": a.get("spend", 0),
                     "_ad_id": a.get("ad_id", ""),
@@ -780,13 +815,18 @@ def render_kpi_counter(all_ads):
 
 
 def render_off_recommend_box(bw, ref_date=None):
-    """Off 권장 일람표 (5/15) — Off Rule 트리거 hit 광고 전체."""
+    """Off 권장 + 모니터링 후보 분리 박스 (5/18 — 2중 게이트 적용).
+
+    Off 권장: 강한 신호 (풀 P20 + 절대 기준 hit / Freq≥3 / D+60 sunset)
+    모니터링: 약한 신호 (풀 P20만 hit, 절대 양호) — 즉시 끄지 말고 관찰
+    """
     if ref_date is None:
         ref_date = date.today()
     pools = bw.get("pools", {})
     if not pools:
         return ""
     candidates = []
+    monitoring = []
     for paid in ("PAID", "GIFT"):
         for lc in ("testing", "proven"):
             pool = pools.get(f"{paid}_{lc}", {})
@@ -794,38 +834,66 @@ def render_off_recommend_box(bw, ref_date=None):
             ctr_pct = pool.get("ctr_pct")
             for a in members:
                 check = off_rule_check(a, ctr_pct, ref_date)
+                base = {
+                    "ad_name": a["ad_name"],
+                    "pool": f"{paid}×{lc.capitalize()}",
+                    "ctr": a["ctr"], "cpc": a["cpc"], "freq": a.get("freq", 0),
+                    "spend": a.get("spend", 0), "days_live": a.get("days_live"),
+                }
                 if check["off_recommend"]:
-                    candidates.append({
-                        "ad_name": a["ad_name"],
-                        "pool": f"{paid}×{lc.capitalize()}",
-                        "ctr": a["ctr"], "cpc": a["cpc"], "freq": a.get("freq", 0),
-                        "spend": a.get("spend", 0), "days_live": a.get("days_live"),
-                        "reason": check["reason"],
-                    })
-    if not candidates:
-        return """
-<h2>Off 권장 (Off Rule 트리거)</h2>
-<div style="background:#ecfdf5;padding:14px 18px;border-radius:4px;">
-  <p class=meta style="margin:6px 0;">Off 권장 광고 없음. 풀 전체 임계 통과.</p>
-</div>
-"""
-    candidates.sort(key=lambda x: -x["spend"])
-    rows = "".join(
-        f"<tr><td class=l>{c['ad_name'][:55]}</td><td>{c['pool']}</td>"
-        f"<td>{fmt_pct(c['ctr'])}</td><td>{fmt_won(c['cpc'])}</td>"
-        f"<td>{c['freq']:.2f}</td><td>{fmt_won(c['spend'])}</td>"
-        f"<td>D+{c['days_live'] if c['days_live'] is not None else '?'}</td>"
-        f"<td class=l style='font-size:13px'>{c['reason']}</td></tr>"
-        for c in candidates
-    )
-    return f"""
-<h2>Off 권장 (Off Rule 트리거 {len(candidates)}건)</h2>
+                    candidates.append({**base, "reason": check["reason"]})
+                elif check["monitoring"]:
+                    monitoring.append({**base, "reason": check["monitoring_reason"]})
+
+    out = []
+
+    if candidates:
+        candidates.sort(key=lambda x: -x["spend"])
+        rows = "".join(
+            f"<tr><td class=l>{c['ad_name'][:55]}</td><td>{c['pool']}</td>"
+            f"<td>{fmt_pct(c['ctr'])}</td><td>{fmt_won(c['cpc'])}</td>"
+            f"<td>{c['freq']:.2f}</td><td>{fmt_won(c['spend'])}</td>"
+            f"<td>D+{c['days_live'] if c['days_live'] is not None else '?'}</td>"
+            f"<td class=l style='font-size:13px'>{c['reason']}</td></tr>"
+            for c in candidates
+        )
+        out.append(f"""
+<h2>Off 권장 (강한 신호 {len(candidates)}건)</h2>
 <table>
   <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>D+N</th><th>트리거</th></tr>
   {rows}
 </table>
-<p class=meta>축: 풀 P20 미달+spend≥₩30K / Freq≥3.0 / D+60 sunset. PAID는 즉시 Off, GIFT는 신규 변형 우선.</p>
-"""
+<p class=meta>축 1: 풀 P20 미달 + spend≥₩30K + (CTR&lt;KPI×0.5 또는 CPC&gt;KPI×2)<br/>
+축 2: D+60 sunset / 축 3: Freq≥3.0 (피로도). PAID는 즉시 Off, GIFT는 신규 변형 우선.</p>
+""")
+    else:
+        out.append("""
+<h2>Off 권장</h2>
+<div style="background:#ecfdf5;padding:14px 18px;border-radius:4px;">
+  <p class=meta style="margin:6px 0;">강한 Off 신호 없음. 풀 전체 임계 통과.</p>
+</div>
+""")
+
+    if monitoring:
+        monitoring.sort(key=lambda x: -x["spend"])
+        rows = "".join(
+            f"<tr><td class=l>{c['ad_name'][:55]}</td><td>{c['pool']}</td>"
+            f"<td>{fmt_pct(c['ctr'])}</td><td>{fmt_won(c['cpc'])}</td>"
+            f"<td>{c['freq']:.2f}</td><td>{fmt_won(c['spend'])}</td>"
+            f"<td>D+{c['days_live'] if c['days_live'] is not None else '?'}</td>"
+            f"<td class=l style='font-size:13px'>{c['reason']}</td></tr>"
+            for c in monitoring
+        )
+        out.append(f"""
+<h2 style="color:#92400e">Off 후보 모니터링 (약한 신호 {len(monitoring)}건)</h2>
+<table>
+  <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>D+N</th><th>상태</th></tr>
+  {rows}
+</table>
+<p class=meta>풀 percentile 하위지만 절대 기준(CTR/CPC)은 양호. 즉시 Off X — 1~2주 추세 관찰. 풀 작아서 percentile만으로 판정 부정확하기 때문.</p>
+""")
+
+    return "\n".join(out)
 
 
 def render_best_worst_table(bw, post_url_map=None):
@@ -844,52 +912,41 @@ def render_best_worst_table(bw, post_url_map=None):
             )
         return "".join(out)
     head = "<tr><th>광고</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>Impr</th><th>게시물</th></tr>"
+    n_ctr = len(bw.get('ctr_best', []))
+    n_cpc = len(bw.get('cpc_best', []))
     return f"""
 <h2>광고 BEST / WORST</h2>
 <table>
-  <tr><th colspan=7 style="background:#dcfce7;color:#065f46">▲ CTR BEST 3 (높은 순)</th></tr>
+  <tr><th colspan=7 style="background:#dcfce7;color:#065f46">▲ CTR BEST {n_ctr} (높은 순)</th></tr>
   {head}
   {rows(bw['ctr_best'])}
-  <tr><th colspan=7 style="background:#fee2e2;color:#991b1b">▼ CTR WORST 3 (낮은 순)</th></tr>
+  <tr><th colspan=7 style="background:#fee2e2;color:#991b1b">▼ CTR WORST {n_ctr} (낮은 순)</th></tr>
   {head}
   {rows(bw['ctr_worst'])}
-  <tr><th colspan=7 style="background:#dcfce7;color:#065f46">▲ CPC BEST 3 (낮은 순 = 효율)</th></tr>
+  <tr><th colspan=7 style="background:#dcfce7;color:#065f46">▲ CPC BEST {n_cpc} (낮은 순 = 효율)</th></tr>
   {head}
   {rows(bw['cpc_best'])}
-  <tr><th colspan=7 style="background:#fee2e2;color:#991b1b">▼ CPC WORST 3 (높은 순)</th></tr>
+  <tr><th colspan=7 style="background:#fee2e2;color:#991b1b">▼ CPC WORST {n_cpc} (높은 순)</th></tr>
   {head}
   {rows(bw['cpc_worst'])}
 </table>
-<p class=meta>최소 노출수 필터: 1d≥100 / 7d≥200 / 14d≥500</p>
+<p class=meta>풀 크기 따라 N 동적 조정 (최대 3). 최소 노출수 필터: 1d≥100 / 7d≥500 / 14d≥500</p>
 """
 
 
 def render_budget_increase_table(candidates, post_url_map=None):
-    post_url_map = post_url_map or {}
-    if not candidates:
-        return """
-<h2>예산 증액 후보</h2>
-<div class=meta>해당 기간 학습단계 통과 + 효율 우수 ad 없음 (조건: spend ≥ ₩30,000, freq ≤ 3.0, CPLPV ≤ 평균×0.85, CTR ≥ 평균×1.1).</div>
-"""
-    rows_html = []
-    for a in candidates:
-        url = post_url_map.get(a.get("ad_id", ""), "")
-        rows_html.append(
-            f"<tr><td class=l>{a['ad_name'][:55]}</td>"
-            f"<td>{fmt_won(a['spend'])}</td>"
-            f"<td>{fmt_won(a['cplpv'])} ({(a['cplpv_ratio']-1)*100:+.0f}%)</td>"
-            f"<td>{fmt_pct(a['ctr'])} ({(a['ctr_ratio']-1)*100:+.0f}%)</td>"
-            f"<td>{a['freq']:.2f}</td>"
-            f"<td><b>+{a['bump_pct']}%</b></td>"
-            f"{post_link_cell(url)}</tr>"
-        )
+    """5/18 룰: 매출 매칭 도구 완성 전 예산 증액 권고 X. 보류 박스로 대체."""
+    cnt = len(candidates) if candidates else 0
+    extra = f" (참고: 효율 기준만 통과한 광고 {cnt}건 있음 — 매출 검증 후 재판단)" if cnt else ""
     return f"""
-<h2>예산 증액 후보</h2>
-<table>
-  <tr><th>광고</th><th>Spend</th><th>CPLPV (vs 평균)</th><th>CTR (vs 평균)</th><th>Freq</th><th>추천 증액</th><th>게시물</th></tr>
-  {''.join(rows_html)}
-</table>
-<p class=meta>기준: 학습단계 통과(spend≥₩30,000) + Freq≤3.0 + CPLPV ≤ 평균×0.85 + CTR ≥ 평균×1.1. 증액 폭은 1회 ≤30% (Meta 학습 단계 보호).</p>
+<h2>예산 증액 권고 — 보류</h2>
+<div style="background:#fef3c7;padding:14px 18px;border-radius:4px;border-left:3px solid #f59e0b;">
+  <p style="margin:6px 0;"><b>현재 예산 증액 권고는 중단 상태입니다.</b>{extra}</p>
+  <p class=meta style="margin:6px 0;">이유 1 — ABO 구조라 ad 단위 증액 불가. adset 증액 시 학습 재분배로 winning ad 비중 보장 X.</p>
+  <p class=meta style="margin:6px 0;">이유 2 — Rakuten Pixel Purchase 미작동으로 매출 attribution 불가. 광고비 늘려도 진짜 매출 증가 미검증.</p>
+  <p class=meta style="margin:6px 0;"><b>해제 조건:</b> Meta × Rakuten 매출 매칭 도구 완성 (시계열 상관 분석 → 광고 effect 가시화).</p>
+  <p class=meta style="margin:6px 0;"><b>현재 권장 lever:</b> 예산 X / Creative 변형 의뢰 O (아래 Off 권장 광고를 신규 변형 의뢰 대상으로 활용).</p>
+</div>
 """
 
 
@@ -1508,9 +1565,9 @@ def render_14d(d):
 # Auditor (rule-based + Gemini)
 # ============================================================
 REQUIRED_SECTIONS = {
-    "1d": ["전체 요약", "캠페인별", "광고 TOP 5", "광고 BEST / WORST", "예산 증액 후보", "오늘의 발견", "메타몽 운용 조언"],
-    "7d": ["주간 요약", "일별 추이", "캠페인 7일 합계", "광고 BEST / WORST", "예산 증액 후보", "오늘의 발견", "메타몽 운용 조언"],
-    "14d": ["학습 단계", "크리에이티브 분류", "광고 BEST / WORST", "예산 증액 후보", "오늘의 발견", "메타몽 운용 조언"],
+    "1d": ["전체 요약", "캠페인별", "광고 TOP 5", "광고 BEST / WORST", "예산 증액 권고", "오늘의 발견", "메타몽 운용 조언"],
+    "7d": ["주간 요약", "일별 추이", "캠페인 7일 합계", "광고 BEST / WORST", "예산 증액 권고", "오늘의 발견", "메타몽 운용 조언"],
+    "14d": ["학습 단계", "크리에이티브 분류", "광고 BEST / WORST", "예산 증액 권고", "오늘의 발견", "메타몽 운용 조언"],
 }
 
 
