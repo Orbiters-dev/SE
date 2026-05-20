@@ -362,6 +362,61 @@ def best_worst_from_rows(ad_rows, min_impr=200, ref_date=None):
     }
 
 
+def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None):
+    """Testing → Proven 졸업 후보 (5/20 신규).
+
+    조건 (7일 누적):
+      - adset name 에 'Testing' 포함
+      - D+14+ (lock 해제 + 학습 통과)
+      - 7d spend ≥ ₩30K (통계 의미 + delivery 확보)
+      - 7d CTR ≥ KPI×0.6 (PAID/GIFT 4.8% / 이미지 2.4%) — Off 게이트 통과 + 일정 수준
+      - 7d CPC ≤ KPI×1.5 (= ₩150)
+      - 7d Freq < 3 (피로도 X)
+      - Off 트리거 hit 광고는 제외
+
+    리턴: [{ad_name, days_live, paid_flag, ctr, cpc, freq, spend, adset_name, reason}, ...]
+    """
+    off_ad_ids = off_ad_ids or set()
+    out = []
+    for row in ad_rows_7d:
+        ad_id = row.get("ad_id", "")
+        if ad_id in off_ad_ids:
+            continue
+        asname = row.get("adset_name", "")
+        if adset_stage(asname) != "testing":
+            continue
+        ad_name = row.get("ad_name", "")
+        days = calc_days_live(ad_name, ref_date)
+        if days is None or days < 14:
+            continue
+        paid = parse_paid_flag(ad_name)
+        ctr = to_float(row.get("ctr"))
+        cpc = to_float(row.get("cpc"))
+        freq = to_float(row.get("frequency"))
+        spend = to_float(row.get("spend"))
+        ctr_kpi = KPI_WL_CTR if paid in ("PAID", "GIFT") else KPI_IMG_CTR
+        if spend < 30000:
+            continue
+        if ctr < ctr_kpi * 0.6:
+            continue
+        if cpc > 0 and cpc > KPI_CPC * 1.5:
+            continue
+        if freq >= 3.0:
+            continue
+        out.append({
+            "ad_name": ad_name,
+            "adset_name": asname,
+            "days_live": days,
+            "paid_flag": paid,
+            "ctr": ctr,
+            "cpc": cpc,
+            "freq": freq,
+            "spend": spend,
+            "reason": f"D+{days} · 7d CTR {ctr:.2f}% · CPC ₩{cpc:.0f} · spend ₩{spend:,.0f}",
+        })
+    return sorted(out, key=lambda x: -x["spend"])
+
+
 def budget_increase_candidates(ads, min_spend=30000):
     """예산 증액 후보: 계정 평균 대비 효율 좋고 학습단계 통과한 ad."""
     if not ads:
@@ -811,6 +866,37 @@ def render_kpi_counter(all_ads):
 """
 
 
+def render_graduation_box(grads):
+    """Testing → Proven 졸업 후보 박스 (5/20 신규)."""
+    if not grads:
+        return """
+<h2>Testing → Proven 졸업 후보</h2>
+<div style="background:#f9fafb;padding:10px 14px;border-radius:3px;">
+  <p class=meta style="margin:4px 0;">현재 졸업 기준 통과 광고 없음.</p>
+</div>
+"""
+    rows = "".join(
+        f"<tr><td class=l>{g['ad_name'][:55]}</td>"
+        f"<td>{g['paid_flag']}</td>"
+        f"<td>{fmt_pct(g['ctr'])}</td>"
+        f"<td>{fmt_won(g['cpc'])}</td>"
+        f"<td>{g['freq']:.2f}</td>"
+        f"<td>{fmt_won(g['spend'])}</td>"
+        f"<td>D+{g['days_live']}</td>"
+        f"<td class=l style='font-size:11px'>{g['adset_name'][:35]}</td></tr>"
+        for g in grads
+    )
+    return f"""
+<h2 style="color:#065f46">Testing → Proven 졸업 후보 ({len(grads)}건)</h2>
+<table>
+  <tr><th>광고</th><th>PAID</th><th>7d CTR</th><th>7d CPC</th><th>Freq</th><th>7d Spend</th><th>D+N</th><th>현 adset</th></tr>
+  {rows}
+</table>
+<p class=meta>기준: Testing adset · D+14+ · 7d spend≥₩30K · 7d CTR≥KPI×0.6 · 7d CPC≤₩150 · Freq&lt;3 · Off 트리거 미해당.<br/>
+액션: 해당 광고를 Proven adset으로 옮기거나 별도 Proven adset 신설.</p>
+"""
+
+
 def render_off_recommend_box(bw, ref_date=None):
     """Off 권장 + 모니터링 후보 분리 박스 (5/20 — WL 3~6개월 운용 룰 반영).
 
@@ -1036,6 +1122,18 @@ def analyze_1d(target_date):
     ad_ids = [a.get("ad_id") for a in bw.get("all_ads", []) if a.get("ad_id")]
     post_url_map = build_post_url_map(ad_ids)
     candidates = budget_increase_candidates(bw.get("all_ads", []), min_spend=30000)
+
+    # 5/20: Testing → Proven 졸업 후보 — 7d trailing 데이터로 판정
+    week_start = yday - timedelta(days=6)
+    rows_7d = fetch("ad", time_range={"since": week_start.isoformat(), "until": yday.isoformat()})
+    off_ad_ids = set()
+    for pool in bw.get("pools", {}).values():
+        for a in pool.get("members", []):
+            check = off_rule_check(a, pool.get("ctr_pct"), yday)
+            if check["off_recommend"] and a.get("ad_id"):
+                off_ad_ids.add(a["ad_id"])
+    grads = graduation_candidates(rows_7d, yday, off_ad_ids=off_ad_ids)
+
     return {
         "date": yday, "prev_date": dby,
         "ref_date": yday,
@@ -1044,6 +1142,7 @@ def analyze_1d(target_date):
         "best_worst": bw,
         "post_url_map": post_url_map,
         "budget_candidates": candidates,
+        "graduation_candidates": grads,
     }
 
 
@@ -1414,6 +1513,8 @@ def render_1d(d):
 {render_kpi_counter(d['best_worst'].get('all_ads', []))}
 
 {render_off_recommend_box(d['best_worst'], ref_date=d.get('ref_date'))}
+
+{render_graduation_box(d.get('graduation_candidates', []))}
 
 {render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
 
