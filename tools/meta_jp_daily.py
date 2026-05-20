@@ -227,12 +227,13 @@ def calc_percentiles(values, ascending_is_better=False):
     }
 
 
-def off_rule_check(ad, pool_pcts, ref_date, sunset_days=60):
-    """3축 Off Rule 평가 + 절대 기준 보강 (5/18).
+def off_rule_check(ad, pool_pcts, ref_date, sunset_days=60, delivery_floor=5000):
+    """3축 Off Rule 평가 + 절대 기준 보강 (5/20 — WL 3~6개월 운용 룰 반영).
 
     축 1: 풀 P20 미달 + spend ≥ ₩30K + (CTR < KPI×0.5 OR CPC > KPI×2)
         → 강한 Off 권장. 풀 percentile만 hit한 광고는 모니터링(Off 후보).
-    축 2: D+sunset_days (60일) 도달  (자연 노화 — 즉시 Off 권장)
+    축 2: D+60+ AND spend < ₩5K (delivery 실패 — 60일 도달했는데 거의 안 돌아간 광고)
+        → 시간 단독 sunset 트리거는 폐기 (5/20 합의: WL은 3~6개월 운용. 잘 나오는데 시간만으로 끄지 X).
     축 3: Freq ≥ 3.0  (피로도 — 즉시 Off 권장, spend 무관)
 
     velocity (Proven D+15+ trailing 7d CTR delta < -15%)는 별도 함수에서.
@@ -274,8 +275,8 @@ def off_rule_check(ad, pool_pcts, ref_date, sunset_days=60):
                     f"풀 P20 ({p20:.2f}%) 미달이지만 CTR {ctr:.2f}% / CPC ₩{cpc:.0f} 절대 양호 — 모니터링"
                 )
 
-    if days_live is not None and days_live >= sunset_days:
-        triggers.append(f"D+{days_live} ≥ D+{sunset_days} (시간 sunset)")
+    if days_live is not None and days_live >= sunset_days and spend < delivery_floor:
+        triggers.append(f"D+{days_live} 도달 + spend ₩{spend:,.0f} < ₩{delivery_floor:,} (delivery 실패)")
 
     return {
         "off_recommend": len(triggers) > 0,
@@ -641,12 +642,8 @@ def build_findings(d, ref_date=None):
                 ad_short = a["ad_name"][:40]
                 # 트리거 종류에 맞는 context — sunset/Freq/풀 P20 각각 다른 메시지
                 reason_text = check["reason"]
-                if "sunset" in reason_text:
-                    ctx = (
-                        "PAID 풀 sunset — 60일 도달, 자연 노화. 정리 + 신규 영상 의뢰 검토."
-                        if paid_strict else
-                        "GIFT 풀 sunset — 신규 변형 의뢰 우선. 정리는 PAID 풀 정비 후."
-                    )
+                if "delivery 실패" in reason_text:
+                    ctx = "60일+ 도달했는데 spend 거의 없음 = 알고리즘이 노출 안 줌. 정리 OK (살릴 시그널 X)."
                 elif "Freq" in reason_text:
                     ctx = "피로도 트리거 — 같은 사람에게 3번 이상 반복 노출. 오디언스 새로 추가 또는 즉시 정리."
                 else:  # 풀 P20 + 절대 기준
@@ -815,9 +812,9 @@ def render_kpi_counter(all_ads):
 
 
 def render_off_recommend_box(bw, ref_date=None):
-    """Off 권장 + 모니터링 후보 분리 박스 (5/18 — 2중 게이트 적용).
+    """Off 권장 + 모니터링 후보 분리 박스 (5/20 — WL 3~6개월 운용 룰 반영).
 
-    Off 권장: 강한 신호 (풀 P20 + 절대 기준 hit / Freq≥3 / D+60 sunset)
+    Off 권장: 강한 신호 (풀 P20 + 절대 기준 hit / Freq≥3 / D+60+ + spend<₩5K delivery 실패)
     모니터링: 약한 신호 (풀 P20만 hit, 절대 양호) — 즉시 끄지 말고 관찰
     """
     if ref_date is None:
@@ -864,7 +861,8 @@ def render_off_recommend_box(bw, ref_date=None):
   {rows}
 </table>
 <p class=meta>축 1: 풀 P20 미달 + spend≥₩30K + (CTR&lt;KPI×0.5 또는 CPC&gt;KPI×2)<br/>
-축 2: D+60 sunset / 축 3: Freq≥3.0 (피로도). PAID는 즉시 Off, GIFT는 신규 변형 우선.</p>
+축 2: D+60+ + spend&lt;₩5K (delivery 실패) — 시간 단독 sunset 폐기 (WL 3~6개월 운용)<br/>
+축 3: Freq≥3.0 (피로도). PAID는 즉시 Off, GIFT는 신규 변형 우선.</p>
 """)
     else:
         out.append("""
