@@ -1328,22 +1328,24 @@ def chart_daily_trend(daily_trend):
 # ============================================================
 CSS = """
 <style>
-  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; max-width: 1040px; margin: 0 auto; padding: 24px; line-height: 1.5; }
-  h1 { font-size: 24px; border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 18px; }
-  h2 { font-size: 19px; margin-top: 40px; margin-bottom: 14px; color: #1f2937; padding-top: 8px; border-top: 1px solid #f3f4f6; }
-  h2:first-of-type { border-top: none; }
-  table { border-collapse: collapse; width: 100%; margin: 14px 0 36px; font-size: 15px; }
-  th, td { border: 1px solid #e5e7eb; padding: 11px 14px; text-align: right; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; max-width: 680px; margin: 0 auto; padding: 12px; line-height: 1.4; font-size: 13px; }
+  h1 { font-size: 16px; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin: 0 0 8px; }
+  h2 { font-size: 13px; margin: 16px 0 6px; color: #1f2937; padding-top: 4px; border-top: 1px solid #f3f4f6; }
+  h2:first-of-type { border-top: none; margin-top: 10px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 14px; font-size: 12px; }
+  th, td { border: 1px solid #e5e7eb; padding: 4px 6px; text-align: right; }
   th { background: #f3f4f6; text-align: center; font-weight: 600; }
   td.l { text-align: left; }
   td.c { text-align: center; }
-  .alert { background: #fef2f2; border-left: 4px solid #dc2626; padding: 12px 16px; margin: 14px 0; border-radius: 4px; }
-  .ok { background: #f0fdf4; border-left: 4px solid #059669; padding: 12px 16px; margin: 14px 0; border-radius: 4px; }
+  .alert { background: #fef2f2; border-left: 3px solid #dc2626; padding: 6px 10px; margin: 8px 0; border-radius: 3px; }
+  .ok { background: #f0fdf4; border-left: 3px solid #059669; padding: 6px 10px; margin: 8px 0; border-radius: 3px; }
+  .alert ul, .ok ul { margin: 4px 0 0 18px; padding: 0; }
   .delta-up { color: #dc2626; font-weight: 600; }
   .delta-down { color: #059669; font-weight: 600; }
   .delta-bad { color: #dc2626; font-weight: 600; }
   .delta-good { color: #059669; font-weight: 600; }
-  .meta { color: #6b7280; font-size: 13px; }
+  .meta { color: #6b7280; font-size: 11px; }
+  p { margin: 4px 0; }
 </style>
 """
 
