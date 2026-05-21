@@ -362,21 +362,33 @@ def best_worst_from_rows(ad_rows, min_impr=200, ref_date=None):
     }
 
 
-def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None):
-    """Testing → Proven 졸업 후보 (5/20 신규).
+def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, share_threshold=0.50):
+    """Testing → Proven 졸업 후보 (5/21 — share 기반으로 재설계).
 
     조건 (7일 누적):
       - adset name 에 'Testing' 포함
       - D+14+ (lock 해제 + 학습 통과)
-      - 7d spend ≥ ₩30K (통계 의미 + delivery 확보)
-      - 7d CTR ≥ KPI×0.6 (PAID/GIFT 4.8% / 이미지 2.4%) — Off 게이트 통과 + 일정 수준
+      - **ad set 내 7d spend share ≥ 50%** (= 알고리즘이 풀의 절반 이상 몰아준 winner)
+      - 7d CTR ≥ KPI×0.6 (PAID/GIFT 4.8% / 이미지 2.4%)
       - 7d CPC ≤ KPI×1.5 (= ₩150)
       - 7d Freq < 3 (피로도 X)
       - Off 트리거 hit 광고는 제외
 
-    리턴: [{ad_name, days_live, paid_flag, ctr, cpc, freq, spend, adset_name, reason}, ...]
+    절대값 spend floor 폐기 — ad set 일 예산이 작으면 ₩30K 조차 못 채워서
+    실제 winner도 누락 가능. share %가 본질적으로 winner 판정.
+
+    리턴: [{ad_name, days_live, paid_flag, ctr, cpc, freq, spend, share, adset_name, reason}, ...]
     """
     off_ad_ids = off_ad_ids or set()
+
+    # ad set 별 7d spend 합계 (share 계산용)
+    adset_total = {}
+    for row in ad_rows_7d:
+        asid = row.get("adset_id", "")
+        if adset_stage(row.get("adset_name", "")) != "testing":
+            continue
+        adset_total[asid] = adset_total.get(asid, 0) + to_float(row.get("spend"))
+
     out = []
     for row in ad_rows_7d:
         ad_id = row.get("ad_id", "")
@@ -394,8 +406,11 @@ def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None):
         cpc = to_float(row.get("cpc"))
         freq = to_float(row.get("frequency"))
         spend = to_float(row.get("spend"))
+        asid = row.get("adset_id", "")
+        adset_pool = adset_total.get(asid, 0)
+        share = (spend / adset_pool) if adset_pool > 0 else 0
         ctr_kpi = KPI_WL_CTR if paid in ("PAID", "GIFT") else KPI_IMG_CTR
-        if spend < 30000:
+        if share < share_threshold:
             continue
         if ctr < ctr_kpi * 0.6:
             continue
@@ -412,9 +427,10 @@ def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None):
             "cpc": cpc,
             "freq": freq,
             "spend": spend,
-            "reason": f"D+{days} · 7d CTR {ctr:.2f}% · CPC ₩{cpc:.0f} · spend ₩{spend:,.0f}",
+            "share": share,
+            "reason": f"D+{days} · 7d CTR {ctr:.2f}% · CPC ₩{cpc:.0f} · 풀 share {share*100:.0f}%",
         })
-    return sorted(out, key=lambda x: -x["spend"])
+    return sorted(out, key=lambda x: -x["share"])
 
 
 def budget_increase_candidates(ads, min_spend=30000):
@@ -882,6 +898,7 @@ def render_graduation_box(grads):
         f"<td>{fmt_won(g['cpc'])}</td>"
         f"<td>{g['freq']:.2f}</td>"
         f"<td>{fmt_won(g['spend'])}</td>"
+        f"<td><b>{g['share']*100:.0f}%</b></td>"
         f"<td>D+{g['days_live']}</td>"
         f"<td class=l style='font-size:11px'>{g['adset_name'][:35]}</td></tr>"
         for g in grads
@@ -889,10 +906,10 @@ def render_graduation_box(grads):
     return f"""
 <h2 style="color:#065f46">Testing → Proven 졸업 후보 ({len(grads)}건)</h2>
 <table>
-  <tr><th>광고</th><th>PAID</th><th>7d CTR</th><th>7d CPC</th><th>Freq</th><th>7d Spend</th><th>D+N</th><th>현 adset</th></tr>
+  <tr><th>광고</th><th>PAID</th><th>7d CTR</th><th>7d CPC</th><th>Freq</th><th>7d Spend</th><th>풀 share</th><th>D+N</th><th>현 adset</th></tr>
   {rows}
 </table>
-<p class=meta>기준: Testing adset · D+14+ · 7d spend≥₩30K · 7d CTR≥KPI×0.6 · 7d CPC≤₩150 · Freq&lt;3 · Off 트리거 미해당.<br/>
+<p class=meta>기준: Testing adset · D+14+ · <b>7d 풀 share ≥ 50%</b> (알고리즘이 풀의 절반 이상 몰아준 winner) · 7d CTR ≥ KPI×0.6 · 7d CPC ≤ ₩150 · Freq &lt; 3 · Off 트리거 미해당.<br/>
 액션: 해당 광고를 Proven adset으로 옮기거나 별도 Proven adset 신설.</p>
 """
 
