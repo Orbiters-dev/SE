@@ -23,7 +23,7 @@ REPO = os.getenv('GH_REPO', 'Orbiters-dev/SE')
 WF_DIR = Path(__file__).resolve().parent.parent / '.github' / 'workflows'
 
 OWNER_MAP = {
-    'meta_jp_daily': 'meta-ads', 'meta_jp_weekly': 'meta-ads', 'meta_ads_daily': 'meta-ads',
+    'meta_jp_weekly': 'meta-ads', 'meta_ads_daily': 'meta-ads',
     'chousa': 'twitter-squad', 'kantoku': 'twitter-squad', 'kikaku': 'twitter-squad',
     'soukantoku': 'twitter-squad', 'hashtag': 'twitter-squad', 'commenter': 'twitter-squad',
     'tweet': 'twitter-squad', 'twitter_slot_notify': 'twitter-squad',
@@ -37,8 +37,8 @@ OWNER_MAP = {
     'communicator': 'communicator',
     'kpi_validator': 'golmani', 'kpi_weekly': 'golmani', 'financial_dashboard': 'golmani',
     'einstein_daily': 'einstein', 'einstein_weekly': 'einstein',
-    'ci_watchdog': 'general', 'workflow_analyzer': 'general', 'skill_optimizer': 'general',
-    'skill_optimizer_check': 'general', 'youtube_to_teams': 'general',
+    'ci_watchdog': 'general',
+    'skill_optimizer_check': 'general',
     'gh_cron_backup': 'self',
 }
 
