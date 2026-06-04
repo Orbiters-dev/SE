@@ -1353,6 +1353,51 @@ def categorize_ad_changes(ref_date, before_days=7, after_days=2):
     }
 
 
+def render_definitions_footer(d):
+    """벤치 · 임계 · 풀 percentile 정의 표 (audit '출처 미명시' 류 fix)."""
+    bw_7d = d.get("best_worst_7d") or d.get("best_worst", {})
+    pools = bw_7d.get("pools", {})
+    POOL_LABELS = {
+        "PAID_proven": "PAID×Proven",
+        "PAID_testing": "PAID×Testing",
+        "GIFT_proven": "GIFT×Proven",
+        "GIFT_testing": "GIFT×Testing",
+    }
+    pool_rows = []
+    for key, label in POOL_LABELS.items():
+        pool = pools.get(key, {})
+        pct = pool.get("ctr_pct") or {}
+        n = pct.get("n", 0)
+        if n == 0:
+            pool_rows.append(f"<tr><td class=l>{label}</td><td>{n}</td><td colspan=3 class=meta>n=0 (풀 비어있음)</td></tr>")
+            continue
+        def _f(v):
+            return f"{v:.2f}%" if v is not None else "—"
+        pool_rows.append(
+            f"<tr><td class=l>{label}</td><td>{n}</td>"
+            f"<td>{_f(pct.get('p20'))}</td><td>{_f(pct.get('p50'))}</td><td>{_f(pct.get('p90'))}</td></tr>"
+        )
+    pool_tbl = "".join(pool_rows)
+    return f"""
+<h2>📐 벤치마크 · 임계값 · 풀 percentile 정의 (출처)</h2>
+<table>
+  <tr><th>지표</th><th>값</th><th>출처/의미</th></tr>
+  <tr><td class=l>CTR_BENCH</td><td>{CTR_BENCH}%</td><td class=l>JP 6-24m mom Meta 산업 벤치 (외부)</td></tr>
+  <tr><td class=l>CTR_LOW</td><td>{CTR_LOW}%</td><td class=l>전체 CTR 알림 임계</td></tr>
+  <tr><td class=l>FREQ_HIGH</td><td>{FREQ_HIGH}</td><td class=l>피로도 트리거 임계 (5/22 메모리 룰)</td></tr>
+  <tr><td class=l>CPC_SPIKE_PCT</td><td>{CPC_SPIKE_PCT}%</td><td class=l>전일 대비 급등 알림</td></tr>
+  <tr><td class=l>KPI_WL_CTR</td><td>{KPI_WL_CTR}%</td><td class=l>WL (PAID/GIFT) CTR 목표 (5/15 KPI)</td></tr>
+  <tr><td class=l>KPI_IMG_CTR</td><td>{KPI_IMG_CTR}%</td><td class=l>이미지 광고 CTR 목표 (5/15 KPI)</td></tr>
+</table>
+<h3>풀 CTR percentile (7d 누적 — findings·Off Rule·S 후보 입력)</h3>
+<table>
+  <tr><th>풀</th><th>n</th><th>P20</th><th>P50</th><th>P90</th></tr>
+  {pool_tbl}
+</table>
+<p class=meta>※ findings 섹션의 광고별 spend / CTR / Freq 인용은 모두 7d 누적. Off Recommend 표와 동일 데이터셋. S 후보 (P90+) 광고의 spend는 위 풀 통계로 검증 가능.</p>
+"""
+
+
 def render_supersale_section(trend, compare, period_compare, changes, ref_date):
     """슈퍼세일 증액 모니터링 섹션 (ref_date <= SUPERSALE_END 만)."""
     if ref_date > SUPERSALE_END:
@@ -1984,7 +2029,7 @@ def render_1d(d):
   {top5}
 </table>
 
-<p class=meta>알림 임계값: CTR&lt;{CTR_LOW}% / Freq&gt;{FREQ_HIGH} / CPC 전일 +{CPC_SPIKE_PCT}% (5/15: 외부 시장 평균 floor 폐기)</p>
+<p class=meta>알림 임계값: CTR&lt;{CTR_LOW}% / Freq&gt;{FREQ_HIGH} / CPC 전일 +{CPC_SPIKE_PCT}% (정의 표는 보고서 최하단 참조)</p>
 
 {render_kpi_counter(d['best_worst'].get('all_ads', []))}
 
@@ -2001,6 +2046,8 @@ def render_1d(d):
 {render_findings_section(build_findings(d, ref_date=d.get('ref_date')))}
 
 {render_advice_section(build_advice_1d(d))}
+
+{render_definitions_footer(d)}
 </body></html>"""
 
 
