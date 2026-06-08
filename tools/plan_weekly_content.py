@@ -7,8 +7,8 @@ Sources: bbox IG, Pigeon IG, JP parenting IG hashtags, Twitter, MamaStar, Ameblo
 Output: .tmp/weekly_content_plan_YYYYMMDD.xlsx
 
 Usage:
-    python tools/plan_weekly_content.py                              # 20 ideas (meme:10, brand:10)
-    python tools/plan_weekly_content.py --distribution "meme:5,brand:5"  # custom
+    python tools/plan_weekly_content.py                              # 20 ideas (tips:8, brand:6, k_babyfood:3, knowledge:3)
+    python tools/plan_weekly_content.py --distribution "tips:8,brand:6,k_babyfood:3,knowledge:3"  # explicit
     python tools/plan_weekly_content.py --dry-run                    # scrape trends only, no Excel
 """
 
@@ -62,16 +62,16 @@ DARK_GRAY = "343A40"
 MID_GRAY = "6C757D"
 
 CATEGORY_COLORS = {
-    "meme": "FFE0B2",       # orange light
-    "brand": "BBDEFB",      # blue light
     "tips": "C8E6C9",       # green light
+    "brand": "BBDEFB",      # blue light
     "k_babyfood": "F8BBD0", # pink light
+    "knowledge": "E1BEE7",  # purple light
 }
 CATEGORY_LABELS = {
-    "meme": "밈/바이럴",
+    "tips": "육아 정보",
     "brand": "브랜드 제품",
-    "tips": "육아 상식/팁",
-    "k_babyfood": "K-이유식",
+    "k_babyfood": "K-유아식",
+    "knowledge": "육아 지식",
 }
 
 # ── Trend Sources ────────────────────────────────────────────────────────────
@@ -247,38 +247,107 @@ def _parse_community(md: str, url: str) -> list[dict]:
 
 # ── Claude Planning ──────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """あなたは日本の育児用品ブランド「Grosmimi」のSNSコンテンツストラテジストです。
-トレンドデータを分析し、Instagramコンテンツ企画案を作成してください。
+SYSTEM_PROMPT = """あなたは日本の育児用品ブランド「Grosmimi」のInstagramコンテンツストラテジストです。
+ターゲット: 6〜24ヶ月の子を育てるママ。週20件の情報カルーセル企画案を作成します。
 
-## カテゴリ（4種類から選択）
-1. meme — ミーム/バイラル: 育児あるあるネタ、共感型バイラルコンテンツ
-2. brand — ブランド製品: Grosmimi製品の紹介・説明コンテンツ
-3. tips — 育児Tips: 実用的な育児情報・アドバイス
-4. k_babyfood — K-離乳食: 韓国式離乳食コンテンツ
+## カテゴリ（4種類のみ — 配分厳守）
+1. tips — 育児情報: 月齢別ガイド、季節対策、便利グッズ比較、方法解説
+2. brand — ブランド製品: Grosmimi スペック・使い方・他社比較・お手入れ
+3. k_babyfood — K-離乳食: 韓国式離乳食レシピ、食材の違い、作り方
+4. knowledge — 育児知識: 栄養素、安全基準、素材の違い等の専門知識
 
-## ブランドガイドライン
-- トーン: 温かく共感できる、少しユーモア（日本のママインフルエンサースタイル）
-- 言語: 自然な日本語、絵文字を適切に活用
-- 禁止: 医療的主張、論争になる育児アドバイス、競合批判
-- ミーム/バイラルカテゴリでは製品露出禁止（プロフィールリンクのみ）
+## 絶対禁止カテゴリ（トーン領域分離）
+- ミーム / 共感あるある / ぼやき / 独白 = Twitter領域。Instagram企画案では絶対作らない
+- 「わかる〜」「それな」系の共感投稿は禁止
+- Instagramは「保存したい」「友達にシェアしたい」と思わせる情報メディアトーン
 
-## 自社アカウント参考スタイル
-- grosmimi_japan: ママ友のような温かい日本語トーン、インフルエンサーPRリールが高反応、PPSUストローマグの安全性訴求、教育カルーセル
-- onzenna.official: UGCリポスト中心、1人称視点ミーム（例：「私はPPSUストローカップです」）、リアルな使用シーンの生活密着型コンテンツ
-- 共通の学び: インフルエンサー/UGC風のリアルな使用感コンテンツが10〜100倍の反応を獲得する
+## トーンガイド（「隣の街のお姉さんが教える育児情報」）
+情報伝達性 + 親しみ の中間。堅いビジネス×、過度なカジュアル×。
 
-## 出力要件
-各企画案には以下を含めること:
-- category: meme / brand / tips / k_babyfood
-- topic: トピック（日本語）
-- topic_ko: トピックの韓国語翻訳
-- image_text: クリエイターがデザインに直接使える日本語テキスト（スライド別、改行区切り）
-- image_concept: 各スライドにどんな写真/イラストを入れるかの具体的なイメージ構想（スライド別、改行区切り、例：「〜している赤ちゃんの写真」「〜のイラスト」）
-- emphasis: デザイン時に強調すべき核心メッセージ
-- caption: インスタキャプション（日本語+絵文字+CTA）
-- caption_ko: キャプションの韓国語翻訳（意訳OK、自然な韓国語で）
-- hashtags: カテゴリに合ったハッシュタグ15〜25個
-- trend_ref: インスピレーション元（ソース+キーワード）"""
+OK 表現（情報+親しみ）:
+- 語彙: 日焼け止め / お水 / お出かけ / お顔
+- 語尾(JP): 〜のがおすすめ / 〜が基本 / 〜が目安 / 〜が◎ / 〜が安心
+- 語尾(KO): "~해주세요" "~좋아요" "~정도가 적당해요" "~안심"
+- 表現: こまめに / ちょうどいい / 目安 / 安心 / 딱 좋아요
+
+【絶対NG語彙 — トピック名・タイトル・本文・キャプションすべてで使用禁止】
+NG① 堅い・ビジネス・教科書語:
+- 紫外線対策 → 日焼け止め
+- 水分補給 → お水 / 水分
+- 外出 → お出かけ
+- 顔 (単独) → お顔
+- 黄金ルール → ◯◯のコツ / おすすめ
+- 必須 → 大切 / おすすめ
+- 推奨 → おすすめ
+- 適切に → ちょうどいい
+- 基本原則 → 基本 / 目安
+- 〜すること / 〜の必要がある / 〜を推奨 → 〜のがおすすめ / 〜が目安
+- 韓国語: "~할 것" → "~해주세요" / "권장·필수" → "추천·중요" / "기본 원칙" → "기본·기준"
+
+NG② 過度にカジュアル（友達トーン）:
+- 〜してね / 〜していこう / 〜してあげて / 〜してあげて♡
+- 韓国語: "~해봐~" "~하자!" "~하기♡"
+- 過剰絵文字・テンション系
+
+※ トピック名 (topic / topic_ko) に NG語彙が入っていたら全企画案を作り直すレベルの違反。
+※ NG語彙が3個以上含まれた企画案は失格扱い。代替語彙 (OK表現) を必ず使うこと。
+
+## 必須ルール
+- 漢字比率を下げる。ひらがな + やわらかい外来語を活用
+- オノマトペ（ポンポン・シュッ・トントン等）は カルーセル全体で 0〜1個 のみ
+- 韓国語も「톡톡·칙·박박」のような擬声語の乱用禁止。JPと対応する1個のみ
+- 「黄金ルール」「必須」「推奨」「適切に」など教科書・マーケティング表現は禁止
+- 医療的断定・論争系育児アドバイス・競合批判は禁止
+
+## カルーセル5スライド標準構造（必須）
+| Slide | 役割 | 内容 |
+| S1表紙 | 後킹 | メイン写真 + 텍스트オーバーレイ（subtitle + title）|
+| S2훅 | 問題提起 | 「○○知らずに○○してない？」「これって正解？」式の疑問 |
+| S3情報1 | データ | 月齢別比較表 / 一目でわかる表 / 写真比較 |
+| S4情報2 | 実行 | ステップガイド / チェックリスト / NG vs OK |
+| S5 CTA | アクション | 保存・フォロー・プロフィール誘導。代表CTAキャッチコピー1個 |
+
+「テキストだけ並べたスライド」禁止。各スライドに写真/図解/比較表を含めること。
+
+## サムネイル（S1表紙）必須フォーマット
+- subtitle (소제목): カテゴリタグ。背景色付きの短いラベル。例:「育児のコツ」「ママのそれ知りたかった！」「知っておきたい」「意外と知らない！」
+- title (대제목): 核心キーワード2〜3単語、大きく太字。1単語をピンク/コーラル色強調
+  例:「赤ちゃんの**お昼寝**チャート」「**夜泣き**対策6選」「**マグ投げ期**、どう乗り越えた?」
+
+## CTA キャッチコピー候補5個（必須）
+S5 CTAとキャプション末で使用。3トーンのみ:
+1. 호기심 + 프로필 유도 (액션=プロフィール): 例「"結局どれがいいの…？" の答え、プロフィールに全部📌」
+3. 저장 유도 (액션=저장+팔로우): 例「迷ったら保存🔖 月齢別ガイドはフォローで」
+4. 공감 소속감 (액션=팔로우 or 정보형이면 공유): 例「同じ悩みのママ友いたら、そっとシェアしてあげて🤍」
+
+メインアクション = フォロー OR プロフィールリンク（基本）。
+クーポンコード・DM・サイト外部訪問など 他の単独アクションは禁止（보조だけ可）。
+5個分布: 1톤 2個 / 3톤 1〜2個 / 4톤 1〜2個。
+カテゴリ別 대표1個 선정ルール: brand→1톤 / tips・knowledge→3톤 / Q&A공감→4톤 / 친구공유 정보형→4톤(공유 변형) 可。
+各候補は JP原文 + KO翻訳 併記。
+
+## 競合 출처 활용 (베끼기 금지)
+- 競合 게시물(ピジョン・b.box・Combi 등)은 출발점일 뿐。그대로 옮겨 적기 금지
+- 반드시 보강 리서치 추가: 厚労省 / 小児科学会 / 公的기관 가이드라인 / 학술 논문 / 다른 브랜드 사례 / K-육아 인사이트
+- Grosmimi 자체 가치(PPSU・역지밸브・360° 핸들・K-육아) 녹여 차별화
+- 출처는 1차(경쟁사) + 보강(공식기관/논문/다른브랜드) 둘 다 명시
+
+## 출력 필드
+- category: tips / brand / k_babyfood / knowledge
+- topic: トピック (日本語) / topic_ko: 한국어 번역
+- slides[5]: 各 {title_jp, title_ko, body_jp, body_ko, visual} — body는 3〜5행 ・불릿
+- subtitle_jp / subtitle_ko: S1 표지 소제목 (배경라벨용)
+- title_jp / title_ko: S1 표지 대제목 (강조 키워드 **bold**)
+- image_concept: 전체 비주얼 방향 1〜2문
+- emphasis: 디자인 핵심 메시지 1〜2문
+- caption: 본문 5〜8行 (후크1 + 팩트1〜2 + ✔체크3〜4 + CTA1). 해시태그는 본문 외 별도. ※ 본문 행수 8행 초과 X
+- caption_ko: 본문 5〜8행 한국어 번역 (해시태그 별도)
+- hashtags: 15〜25개. 「#グロミミ #grosmimi #ストローマグ #スマートマグ」 통일 포함
+- cta_candidates[5]: 각 {tone(1/3/4), action(profile/save_follow/follow_or_share), jp, ko}
+- cta_representative: 5개 중 대표 1개 (S5 CTA 대제목용) {tone, jp, ko}
+- source_primary: 경쟁사 게시물 출처 (브랜드명 + 게시물 주제)
+- source_supplementary: 보강 출처 (공식기관/논문/다른브랜드)
+- trend_ref: 인스피레이션 트렌드 키워드"""
 
 
 def _load_competitor_insights() -> str:
@@ -326,7 +395,7 @@ def _call_claude_for_plans(client: anthropic.Anthropic, prompt: str, batch_size:
         try:
             response = client.messages.create(
                 model=MODEL,
-                max_tokens=8192,
+                max_tokens=16384,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": prompt}],
             )
@@ -372,8 +441,8 @@ def generate_plans(client: anthropic.Anthropic, trends: list[dict], count: int,
     # Load competitor insights
     competitor_text = _load_competitor_insights()
 
-    # Split distribution into batches of 5
-    BATCH_SIZE = 5
+    # Split distribution into batches of 3 (carousel 5-slide responses overflow at 5)
+    BATCH_SIZE = 3
     batches = []  # list of (batch_count, batch_dist_instruction)
 
     if distribution:
@@ -382,63 +451,101 @@ def generate_plans(client: anthropic.Anthropic, trends: list[dict], count: int,
             remaining = cat_count
             while remaining > 0:
                 batch_n = min(remaining, BATCH_SIZE)
-                batch_dist = f"以下のカテゴリ配分を厳守してください:\n- {label} ({cat}): {batch_n}個"
-                batches.append((batch_n, batch_dist))
+                batch_dist = (
+                    f"【絶対厳守】このバッチで作成する {batch_n}個の企画案は、すべて category=\"{cat}\" のみ。\n"
+                    f"- 「{label}」({cat}) 専用バッチ。他カテゴリ ({', '.join(k for k in CATEGORY_LABELS if k != cat)}) は絶対に作らない\n"
+                    f"- 全 {batch_n}件の plan の category フィールドは必ず文字列 \"{cat}\""
+                )
+                batches.append((batch_n, (batch_dist, cat)))
                 remaining -= batch_n
     else:
         for start in range(0, count, BATCH_SIZE):
             batch_n = min(BATCH_SIZE, count - start)
-            batch_dist = "4つのカテゴリ（meme, brand, tips, k_babyfood）をバランスよく配分"
-            batches.append((batch_n, batch_dist))
+            batch_dist = "4つのカテゴリ（tips, brand, k_babyfood, knowledge）をバランスよく配分"
+            batches.append((batch_n, (batch_dist, None)))
 
     all_plans = []
-    for batch_idx, (batch_count, dist_instruction) in enumerate(batches):
-        logger.info(f"Generating batch {batch_idx+1}/{len(batches)} ({batch_count} plans)...")
+    for batch_idx, (batch_count, dist_pair) in enumerate(batches):
+        dist_instruction, expected_cat = dist_pair if isinstance(dist_pair, tuple) else (dist_pair, None)
+        logger.info(f"Generating batch {batch_idx+1}/{len(batches)} ({batch_count} plans, cat={expected_cat or 'any'})...")
 
-        prompt = f"""以下のトレンドデータと競合分析を元に、{batch_count}個のInstagramコンテンツ企画案を作成してください。
+        prompt = f"""以下のトレンドと競合分析を元に、{batch_count}個の Grosmimi Instagram カルーセル企画案を作成してください。
 
 ## トレンドデータ
 {trends_text}
 
 {competitor_text}
 
-## 重要: 競合分析の活用
-- 上記の競合ブランドで反応が良いコンテンツタイプを参考にしてください
-- 人気投稿のテーマや表現方法からインスピレーションを得てください
-- ただしGrosmimi独自の差別化ポイントを必ず含めてください
+## 競合 출처 활용 룰 (必)
+- 競合 게시물 그대로 베끼기 금지。반드시 厚労省 / 소아과학회 / 학술 논문 / 다른 브랜드(b.box, Combi, Richell 등) / K-육아 인사이트로 보강
+- 출처는 source_primary (경쟁사) + source_supplementary (보강) 둘 다 채울 것
+- Grosmimi 차별점 (PPSU / 역지밸브 / 360° 핸들 / K-육아) 1개 이상 녹여 차별화
 
-## 注意事項
+## 작성 룰
 - {dist_instruction}
-- image_textはクリエイターがすぐデザインに使える具体的な日本語テキスト（スライド1〜4の内容を改行区切りで）
-- image_conceptは各スライドにどんな写真/イラストを配置するかの具体的な構想（例：「ストローマグを持って笑っている赤ちゃんの写真」「ママが離乳食を準備している手元のイラスト」）。スライド別に改行区切りで記述
-- emphasisはデザイン時の核心ポイント（1〜2文）
-- captionは実際のInstagramに投稿する完全なテキスト（200〜400文字、CTA含む）
-- hashtagsは文字列の配列で15個まで
-- topic_koはtopicの韓国語翻訳（自然な韓国語で）
-- caption_koはcaptionの韓国語翻訳（意訳OK、自然な韓国語で。ハッシュタグは日本語のまま）
-- trend_refはどのトレンドからインスピレーションを得たか（1文）
+- 톤: 「동네 언니가 알려주는 육아 정보」. 「必須/推奨/黄金ルール/適切に」 등 교과서 표현 금지. 「〜してね/〜してあげて/♡」 등 과도 친구톤 금지. 「〜のがおすすめ/〜が目安/〜が◎/〜が安心」 채택
+- 漢字 비율 ↓, 히라가나·やわらかい外来語 ↑
+- オノマトペ는 카루셀 전체에서 0〜1個만
+- ミーム/あるある/ぼやき/공감/わかる系 = 트위터 영역 절대 금지
+- 5枚 카루셀 (S1 표지 / S2 훅 / S3 정보1 / S4 정보2 / S5 CTA) 필수. 각 slide의 body_jp/body_ko는 3〜5행 ・불릿
+- S1 표지에는 subtitle_jp/ko (소제목 라벨) + title_jp/ko (대제목, 핵심 키워드 1개 **bold**) 별도 채우기
+- 캡션은 5〜8行: 후크1행 + 팩트1〜2행 + ✔체크 3〜4개 + CTA1행. 200〜400文字 X (행수 기준). 해시태그는 캡션 끝
+- 해시태그 15〜25개. 「#グロミミ」「#grosmimi」「#ストローマグ」「#スマートマグ」 4개 통일 포함
+- CTA 캐치프레이즈 候補 5個 필수: tone={{1=호기심+프로필, 3=저장+팔로우, 4=공감+팔로우/공유}}, 분포는 1톤 2 / 3톤 1〜2 / 4톤 1〜2. 메인액션은 follow/profile (DM/쿠폰 단독 X). 각 JP+KO 병기
+- cta_representative 1개 선정: brand→1톤 / tips·knowledge→3톤 / 공감형→4톤
 
-## 出力形式（JSONのみ出力、余計なテキスト禁止）
+## 출력 형식 (JSON 만, 余計한 텍스트 X)
 ```json
 {{
   "plans": [
     {{
-      "category": "meme",
+      "category": "tips",
       "topic": "トピック",
       "topic_ko": "주제 한국어 번역",
-      "image_text": "スライド1: テキスト\\nスライド2: テキスト\\nスライド3: テキスト\\nスライド4: テキスト",
-      "image_concept": "スライド1: 〜している赤ちゃんの写真\\nスライド2: 〜のイラスト\\nスライド3: 製品のフラットレイ写真\\nスライド4: ママと赤ちゃんが〜している写真",
-      "emphasis": "核心メッセージ",
-      "caption": "完全なキャプション",
-      "caption_ko": "캡션 한국어 번역",
-      "hashtags": ["#育児", "#ママ"],
-      "trend_ref": "ソース名"
+      "subtitle_jp": "知っておきたい",
+      "subtitle_ko": "알아두면 좋은",
+      "title_jp": "赤ちゃんの**お昼寝**チャート",
+      "title_ko": "아기 **낮잠** 차트",
+      "slides": [
+        {{"title_jp":"S1表紙(サムネ)","title_ko":"S1 표지","body_jp":"・○○○\\n・○○○","body_ko":"・○○○\\n・○○○","visual":"메인 사진 구상"}},
+        {{"title_jp":"S2 훅","title_ko":"S2 훅","body_jp":"・疑問1\\n・疑問2","body_ko":"・의문1\\n・의문2","visual":"비주얼"}},
+        {{"title_jp":"S3 情報1","title_ko":"S3 정보1","body_jp":"・データ1\\n・データ2","body_ko":"・데이터1\\n・데이터2","visual":"비교표/그래프"}},
+        {{"title_jp":"S4 情報2","title_ko":"S4 정보2","body_jp":"・手順1\\n・手順2","body_ko":"・단계1\\n・단계2","visual":"체크리스트"}},
+        {{"title_jp":"S5 CTA (대표 캐치 1個)","title_ko":"S5 CTA","body_jp":"・CTA本文","body_ko":"・CTA 본문","visual":"CTA 시각 요소"}}
+      ],
+      "image_concept": "全体ビジュアル方向 1〜2문",
+      "emphasis": "디자인 핵심 메시지 1〜2문",
+      "caption": "후크\\n팩트1〜2行\\n✔ポイント1\\n✔ポイント2\\n✔ポイント3\\nCTA 1行\\n\\n#グロミミ #grosmimi #ストローマグ #スマートマグ ...",
+      "caption_ko": "후크\\n팩트1〜2행\\n✔포인트1\\n✔포인트2\\n✔포인트3\\nCTA 1행\\n\\n#그로미미 ...",
+      "hashtags": ["#グロミミ","#grosmimi","#ストローマグ","#スマートマグ","..."],
+      "cta_candidates": [
+        {{"tone":1,"action":"profile","jp":"\\"結局どれがいいの…？\\" の答え、プロフィールに全部📌","ko":"\\"결국 뭐가 좋은데?\\" 답, 프로필에 다 모아뒀어요📌"}},
+        {{"tone":1,"action":"profile","jp":"...","ko":"..."}},
+        {{"tone":3,"action":"save_follow","jp":"迷ったら保存🔖 月齢別ガイドはフォローで","ko":"고민되면 저장🔖 월령별 가이드는 팔로우로"}},
+        {{"tone":4,"action":"follow","jp":"同じ悩みのママ友いたら、そっとシェア🤍","ko":"같은 고민의 엄마 친구 있으면, 살짝 공유해줘🤍"}},
+        {{"tone":4,"action":"share","jp":"...","ko":"..."}}
+      ],
+      "cta_representative": {{"tone":3,"jp":"迷ったら保存🔖 月齢別ガイドはフォローで","ko":"고민되면 저장🔖 월령별 가이드는 팔로우로"}},
+      "source_primary": "ピジョン IG「赤ちゃんのおやつはいつから？」",
+      "source_supplementary": "厚労省 授乳・離乳の支援ガイド + b.box 関連投稿",
+      "trend_ref": "트렌드 키워드 + 출처 (1줄)"
     }}
   ]
 }}
 ```"""
 
         batch_plans = _call_claude_for_plans(client, prompt, batch_count)
+
+        # Distribution 강제: 기대 카테고리 외 plan은 카테고리 덮어쓰기 (drift 방지)
+        if expected_cat:
+            for p in batch_plans:
+                if p.get("category") != expected_cat:
+                    logger.warning(
+                        f"Category drift detected: got '{p.get('category')}', forcing '{expected_cat}' "
+                        f"(topic={p.get('topic','')[:40]})"
+                    )
+                    p["category"] = expected_cat
+
         all_plans.extend(batch_plans)
 
         if batch_idx < len(batches) - 1:
@@ -456,18 +563,113 @@ def thin_border():
 
 
 COLUMNS = [
-    ("#",           5,  False),
-    ("카테고리",    14, False),
-    ("주제",        28, False),
-    ("주제(한국어)", 28, False),
-    ("이미지 문구", 45, True),
-    ("이미지 구상", 50, True),
-    ("강조 포인트", 30, True),
-    ("캡션",        55, True),
-    ("캡션(한국어)", 55, True),
-    ("해시태그",    40, True),
-    ("참고 트렌드", 30, True),
+    ("#",                       5,  False),
+    ("카테고리",                14, False),
+    ("주제",                    28, True),
+    ("주제(한국어)",            28, True),
+    ("S1 표지",                 40, True),
+    ("S2 훅",                   40, True),
+    ("S3 정보1",                45, True),
+    ("S4 정보2",                45, True),
+    ("S5 CTA",                  40, True),
+    ("이미지 구상",             40, True),
+    ("강조 포인트",             28, True),
+    ("캡션",                    50, True),
+    ("캡션(한국어)",            50, True),
+    ("해시태그",                35, True),
+    ("CTA 캐치프레이즈 후보5",  50, True),
+    ("출처(1차+보강)",          40, True),
+    ("참고 트렌드",             28, True),
 ]
+
+
+SLIDE_ROLES = ["표지", "훅", "정보1", "정보2", "CTA"]
+
+
+def _format_slide_cell(slide: dict, role: str, extra_header: dict | None = None) -> str:
+    """Render a single slide dict into a multi-line cell value.
+    extra_header: 표지 슬라이드의 경우 subtitle/title 라벨 추가용."""
+    if not slide and not extra_header:
+        return ""
+    slide = slide or {}
+    title_jp = slide.get("title_jp", "").strip()
+    title_ko = slide.get("title_ko", "").strip()
+    body_jp = slide.get("body_jp", "").strip()
+    body_ko = slide.get("body_ko", "").strip()
+    visual = slide.get("visual", "").strip()
+
+    parts = [f"[역할] {role}"]
+
+    if extra_header:
+        sub_jp = (extra_header.get("subtitle_jp") or "").strip()
+        sub_ko = (extra_header.get("subtitle_ko") or "").strip()
+        title_main_jp = (extra_header.get("title_jp") or "").strip()
+        title_main_ko = (extra_header.get("title_ko") or "").strip()
+        if sub_jp or sub_ko:
+            parts.append("[소제목 라벨]")
+            if sub_jp:
+                parts.append(f"JP: {sub_jp}")
+            if sub_ko:
+                parts.append(f"KO: {sub_ko}")
+        if title_main_jp or title_main_ko:
+            parts.append("[대제목 (강조 키워드 **bold**)]")
+            if title_main_jp:
+                parts.append(f"JP: {title_main_jp}")
+            if title_main_ko:
+                parts.append(f"KO: {title_main_ko}")
+
+    if title_jp or title_ko:
+        parts.append("[슬라이드 타이틀]")
+        if title_jp:
+            parts.append(f"JP: {title_jp}")
+        if title_ko:
+            parts.append(f"KO: {title_ko}")
+    if body_jp or body_ko:
+        parts.append("[본문]")
+        if body_jp:
+            parts.append(f"JP:\n{body_jp}")
+        if body_ko:
+            parts.append(f"KO:\n{body_ko}")
+    if visual:
+        parts.append(f"[비주얼]\n{visual}")
+    return "\n".join(parts)
+
+
+def _format_cta_candidates(plan: dict) -> str:
+    """CTA 5 후보 + 대표 1개를 한 셀에 렌더."""
+    cands = plan.get("cta_candidates") or []
+    rep = plan.get("cta_representative") or {}
+    parts = []
+    if rep:
+        parts.append("[대표 CTA]")
+        if rep.get("jp"):
+            parts.append(f"JP: {rep.get('jp','')}")
+        if rep.get("ko"):
+            parts.append(f"KO: {rep.get('ko','')}")
+        parts.append("")
+    parts.append("[후보 5개]")
+    tone_label = {1: "1.호기심+프로필", 3: "3.저장+팔로우", 4: "4.공감+팔로우/공유"}
+    for i, c in enumerate(cands[:5], start=1):
+        tone = c.get("tone")
+        action = c.get("action", "")
+        label = tone_label.get(tone, f"tone={tone}")
+        parts.append(f"{i}. ({label} / action={action})")
+        if c.get("jp"):
+            parts.append(f"   JP: {c.get('jp','')}")
+        if c.get("ko"):
+            parts.append(f"   KO: {c.get('ko','')}")
+    return "\n".join(parts)
+
+
+def _format_sources(plan: dict) -> str:
+    primary = (plan.get("source_primary") or "").strip()
+    suppl = (plan.get("source_supplementary") or "").strip()
+    parts = []
+    if primary:
+        parts.append(f"1차: {primary}")
+    if suppl:
+        parts.append(f"보강: {suppl}")
+    return "\n".join(parts)
 
 
 def build_excel(plans: list[dict], output_path: Path) -> None:
@@ -493,22 +695,35 @@ def build_excel(plans: list[dict], output_path: Path) -> None:
     # ── Data rows ────────────────────────────────────────────────────────
     for ri, plan in enumerate(plans):
         row_idx = ri + 2
-        cat_key = plan.get("category", "meme")
+        cat_key = plan.get("category", "tips")
         cat_label = CATEGORY_LABELS.get(cat_key, cat_key)
         cat_bg = CATEGORY_COLORS.get(cat_key, OFF_WHITE)
         row_bg = OFF_WHITE if ri % 2 == 0 else WHITE
+
+        slides = plan.get("slides") or []
+        slide_cells = []
+        for i in range(5):
+            s = slides[i] if i < len(slides) else {}
+            extra = plan if i == 0 else None  # S1 표지에만 subtitle/title 헤더 추가
+            slide_cells.append(_format_slide_cell(s, SLIDE_ROLES[i], extra_header=extra))
 
         values = [
             ri + 1,
             cat_label,
             plan.get("topic", ""),
             plan.get("topic_ko", ""),
-            plan.get("image_text", ""),
+            slide_cells[0],
+            slide_cells[1],
+            slide_cells[2],
+            slide_cells[3],
+            slide_cells[4],
             plan.get("image_concept", ""),
             plan.get("emphasis", ""),
             plan.get("caption", ""),
             plan.get("caption_ko", ""),
             " ".join(plan.get("hashtags", [])),
+            _format_cta_candidates(plan),
+            _format_sources(plan),
             plan.get("trend_ref", ""),
         ]
 
@@ -528,7 +743,7 @@ def build_excel(plans: list[dict], output_path: Path) -> None:
             )
             cell.border = thin_border()
 
-        ws.row_dimensions[row_idx].height = 120
+        ws.row_dimensions[row_idx].height = 280
 
     # ── Summary row ──────────────────────────────────────────────────────
     summary_row = len(plans) + 3
@@ -561,16 +776,17 @@ def build_excel(plans: list[dict], output_path: Path) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="Generate weekly content plan as Excel")
-    parser.add_argument("--count", type=int, default=10,
-                        help="Number of content ideas (default 10)")
+    parser.add_argument("--count", type=int, default=20,
+                        help="Number of content ideas (default 20)")
     parser.add_argument("--max-pages", type=int, default=3,
                         help="Max pages per source for scraping (default 3)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Scrape trends only, skip Claude + Excel")
     parser.add_argument("--output", type=str, default=None,
                         help="Custom output path for Excel file")
-    parser.add_argument("--distribution", type=str, default=None,
-                        help="Category distribution e.g. 'meme:5,brand:5'")
+    parser.add_argument("--distribution", type=str,
+                        default="tips:8,brand:6,k_babyfood:3,knowledge:3",
+                        help="Category distribution. Default: tips:8,brand:6,k_babyfood:3,knowledge:3")
     args = parser.parse_args()
 
     TMP_DIR.mkdir(parents=True, exist_ok=True)

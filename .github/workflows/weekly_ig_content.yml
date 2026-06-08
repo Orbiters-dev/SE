@@ -44,14 +44,14 @@ jobs:
         run: |
           python tools/weekly_ig_competitor_analysis.py
 
-      # ── Email 2: Content Plan (meme:10 + brand:10, informed by competitor data) ──
-      - name: Generate content plans (meme:10, brand:10)
+      # ── Email 2: Content Plan (tips:8 + brand:6 + k_babyfood:3 + knowledge:3, informed by competitor data) ──
+      - name: Generate content plans (tips:8, brand:6, k_babyfood:3, knowledge:3)
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python tools/plan_weekly_content.py \
-            --distribution "meme:10,brand:10" \
+            --distribution "tips:8,brand:6,k_babyfood:3,knowledge:3" \
             --output .tmp/weekly_content_plan.xlsx
 
       - name: Send content plan email & upload to Teams

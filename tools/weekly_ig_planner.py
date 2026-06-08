@@ -3,7 +3,7 @@ WAT Tool: Weekly Instagram content planner (automated).
 Runs every Friday 14:00 KST via Windows Task Scheduler.
 
 Pipeline:
-  1. Scrape JP trends + generate 10 plans (meme:5, brand:5)
+  1. Scrape JP trends + generate 20 plans (tips:8, brand:6, k_babyfood:3, knowledge:3)
   2. Save Excel to Shared/인스타그램 포스팅 기획안/{월}_W{N}/
   3. Send email with Excel attachment to se.heo@orbiters.co.kr
   4. Send Teams notification (Contents Planning channel)
@@ -70,12 +70,12 @@ def run_planner() -> Path:
     ts = datetime.now().strftime("%Y%m%d")
     output_path = TMP_DIR / f"weekly_content_plan_{ts}.xlsx"
 
-    logger.info("Running plan_weekly_content.py (meme:10, brand:10)...")
+    logger.info("Running plan_weekly_content.py (tips:8, brand:6, k_babyfood:3, knowledge:3)...")
     result = subprocess.run(
         [
             sys.executable,
             str(PROJECT_ROOT / "tools" / "plan_weekly_content.py"),
-            "--distribution", "meme:10,brand:10",
+            "--distribution", "tips:8,brand:6,k_babyfood:3,knowledge:3",
             "--output", str(output_path),
         ],
         capture_output=False,
@@ -165,7 +165,7 @@ def send_email_notification(excel_path: Path, week_label: str) -> bool:
                 <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">생성일</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">{today}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">기획안</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">밈/바이럴 10개 + 브랜드 제품 10개 (경쟁사 분석 반영)</td></tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">육아 정보 8개 + 브랜드 제품 6개 + K-유아식 3개 + 육아 지식 3개 (경쟁사 분석 + 보강 출처 반영)</td></tr>
             </table>
             <p>첨부된 엑셀 파일을 확인 후 사용할 기획안을 선택해 주세요 ✅</p>
             <p style="color: #888; font-size: 12px;">Shared 폴더 백업: 인스타그램 기획안/{week_label}/</p>
@@ -225,7 +225,7 @@ def send_teams_notification(excel_path: Path, week_label: str) -> bool:
             "facts": [
                 {"title": "주차", "value": week_label},
                 {"title": "생성일", "value": today},
-                {"title": "기획안", "value": "밈/바이럴 10개 + 브랜드 제품 10개 (경쟁사 분석 반영)"},
+                {"title": "기획안", "value": "육아 정보 8개 + 브랜드 제품 6개 + K-유아식 3개 + 육아 지식 3개 (경쟁사 분석 + 보강 출처 반영)"},
                 {"title": "파일", "value": folder_path},
             ],
         },

@@ -358,20 +358,23 @@ ManyChat Webhook → Claude API → Teams 알림 → 승인/편집 → DM 발송
     # ──────────────────────────────────────────
     inhwoek_content = """## 🟩 인획이 — IG 콘텐츠 기획
 
-**역할**: 주간 콘텐츠 기획안 30개 (meme:10, brand:10, mom_tip:10)
+**역할**: 주간 콘텐츠 기획안 20개 (tips:8, brand:6, k_babyfood:3, knowledge:3)
 **스케줄**:
 - 매주 수 10:00 경쟁사 분석
 - 매주 금 14:00 기획안 생성
-**도구**: `plan_weekly_content.py`, `scrape_ig_competitor.py`
-**자동화**: GitHub Actions (`kikaku.yml`)
+**도구**: `plan_weekly_content.py`, `weekly_ig_competitor_analysis.py`
+**자동화**: GitHub Actions (`weekly_ig_content.yml`)
 
 ### 저장 위치
 `C:\\Users\\orbit\\Desktop\\s\\요청하신 자료\\인스타그램 기획안\\EXCEL\\`
 
 ### 스타일 가이드
-- Mom Tips: あるある공감 + チェックリスト
-- 시리즈명: ママの「それ知りたかった！」
-- 캐러셀 페이지별 이미지 구상 필수
+- 톤: 「동네 언니가 알려주는 육아 정보」 (정보+친근 중간)
+- 100% 카루셀 5슬라이드 (S1 표지 / S2 훅 / S3 정보1 / S4 정보2 / S5 CTA)
+- 썸네일: subtitle + title (핵심 키워드 강조)
+- CTA 캐치프레이즈 5후보 (1톤 호기심+프로필 / 3톤 저장+팔로우 / 4톤 공감+팔로우)
+- 경쟁사 출처: 1차 + 보강(공식기관/논문/다른브랜드) 둘 다 명시
+- 금지: meme / あるある / ぼやき (트위터 영역)
 - 주제 중복 방지: `.tmp/topic_history.json` 확인"""
 
     all_nodes.append(make_sticky(
