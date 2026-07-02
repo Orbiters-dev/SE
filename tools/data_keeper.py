@@ -1736,12 +1736,16 @@ def collect_meta_ads(date_from: str, date_to: str) -> list[dict]:
                     "BRAND_AWARENESS", "VIDEO_VIEWS"
                 ) else "cvr"
 
-                # Extract purchases from actions
+                # Extract purchases + landing page views from actions
                 purchases = 0
                 purchase_value = 0
+                landing_page_view = 0
                 for a in (row.get("actions") or []):
-                    if a.get("action_type") == "purchase":
+                    at = a.get("action_type")
+                    if at == "purchase":
                         purchases = int(a.get("value", 0))
+                    elif at == "landing_page_view":
+                        landing_page_view = int(a.get("value", 0))
                 for av in (row.get("action_values") or []):
                     if av.get("action_type") == "purchase":
                         purchase_value = float(av.get("value", 0))
@@ -1769,6 +1773,7 @@ def collect_meta_ads(date_from: str, date_to: str) -> list[dict]:
                     "frequency": float(row.get("frequency", 0)),
                     "purchases": purchases,
                     "purchase_value": purchase_value,
+                    "landing_page_view": landing_page_view,
                     "landing_url": landing,
                 })
             url = data.get("paging", {}).get("next")
@@ -3237,6 +3242,43 @@ def collect_amazon_ads_keywords_jp(date_from: str, date_to: str) -> list[dict]:
     return all_rows
 
 
+def _fetch_meta_ad_node(ad_ids, token: str) -> dict:
+    """ad_id 배치 → {ad_id: {effective_status, creative_permalink, creative_media_id}}.
+
+    insights 응답엔 on/off 상태·크리에이티브가 없어 노드 조회로 보강 (2026-07-02).
+    - effective_status: ACTIVE / PAUSED / ADSET_PAUSED / CAMPAIGN_PAUSED / ARCHIVED …
+    - creative_permalink: 파트너십 광고의 IG 게시물 permalink (WL 귀속 매칭용)
+    """
+    out: dict = {}
+    ids = list({i for i in ad_ids if i})
+    root = "https://graph.facebook.com/v18.0"
+    for i in range(0, len(ids), 50):
+        batch = ids[i:i + 50]
+        try:
+            r = requests.get(
+                f"{root}/",
+                params={
+                    "ids": ",".join(batch),
+                    "fields": "id,effective_status,creative{instagram_permalink_url,effective_instagram_media_id}",
+                    "access_token": token,
+                },
+                timeout=30,
+            )
+            r.raise_for_status()
+            d = r.json()
+        except Exception as e:
+            print(f"  [warn] JP ad-node fetch failed (batch {i // 50}): {e}", file=sys.stderr)
+            continue
+        for ad_id, ad in d.items():
+            cr = (ad or {}).get("creative") or {}
+            out[ad_id] = {
+                "effective_status": (ad or {}).get("effective_status", ""),
+                "creative_permalink": cr.get("instagram_permalink_url", ""),
+                "creative_media_id": cr.get("effective_instagram_media_id", ""),
+            }
+    return out
+
+
 def collect_meta_ads_jp(date_from: str, date_to: str) -> list[dict]:
     """Collect Meta JP Ads ad-level daily insights (KRW currency)."""
     if not META_JP_ACCESS_TOKEN or not META_JP_AD_ACCOUNT_ID:
@@ -3284,9 +3326,13 @@ def collect_meta_ads_jp(date_from: str, date_to: str) -> list[dict]:
                 ) else "cvr"
                 purchases = 0
                 purchase_value = 0.0
+                landing_page_view = 0
                 for a in (row.get("actions") or []):
-                    if a.get("action_type") == "purchase":
+                    at = a.get("action_type")
+                    if at == "purchase":
                         purchases = int(a.get("value", 0))
+                    elif at == "landing_page_view":
+                        landing_page_view = int(a.get("value", 0))
                 for av in (row.get("action_values") or []):
                     if av.get("action_type") == "purchase":
                         purchase_value = float(av.get("value", 0))
@@ -3308,6 +3354,7 @@ def collect_meta_ads_jp(date_from: str, date_to: str) -> list[dict]:
                     "frequency": float(row.get("frequency", 0)),
                     "purchases": purchases,
                     "purchase_value": purchase_value,
+                    "landing_page_view": landing_page_view,
                     "landing_url": "",
                     "region": "jp",
                     "currency": "KRW",
@@ -3316,6 +3363,16 @@ def collect_meta_ads_jp(date_from: str, date_to: str) -> list[dict]:
             page_count += 1
         print(f"  JP {cur} ~ {chunk_end}: {page_count} pages")
         cur = chunk_end + timedelta(days=1)
+
+    # on/off 상태·크리에이티브 보강 (insights 엔 없음) — 대시보드 ACTIVE 필터·WL 귀속용 (2026-07-02)
+    ad_node = _fetch_meta_ad_node({r["ad_id"] for r in all_rows}, token)
+    for r in all_rows:
+        m = ad_node.get(r["ad_id"], {})
+        r["effective_status"] = m.get("effective_status", "")
+        r["creative_permalink"] = m.get("creative_permalink", "")
+        r["creative_media_id"] = m.get("creative_media_id", "")
+    print(f"  [Meta Ads JP] ad-node 보강: {len(ad_node)}/{len({r['ad_id'] for r in all_rows})} ads")
+
     print(f"  [Meta Ads JP] Total: {len(all_rows)} rows")
     return all_rows
 
