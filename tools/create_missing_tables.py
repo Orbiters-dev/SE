@@ -237,12 +237,26 @@ INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_pipeline_creators_program ON gk_pipeline_creators(program)",
 ]
 
+# 기존 테이블 컬럼 보강 (idempotent) — migrate 가 --fake 라 신규 컬럼은 여기 raw ALTER 로 반영.
+ALTERS = [
+    # gk_meta_ads_daily: LPV / on-off 상태 / 크리에이티브 (2026-07-02)
+    "ALTER TABLE IF EXISTS gk_meta_ads_daily ADD COLUMN IF NOT EXISTS landing_page_view INTEGER DEFAULT 0",
+    "ALTER TABLE IF EXISTS gk_meta_ads_daily ADD COLUMN IF NOT EXISTS effective_status VARCHAR(40) DEFAULT ''",
+    "ALTER TABLE IF EXISTS gk_meta_ads_daily ADD COLUMN IF NOT EXISTS creative_permalink VARCHAR(1000) DEFAULT ''",
+    "ALTER TABLE IF EXISTS gk_meta_ads_daily ADD COLUMN IF NOT EXISTS creative_media_id VARCHAR(64) DEFAULT ''",
+]
+
 if __name__ == "__main__":
     with connection.cursor() as cursor:
         for sql in TABLES:
             table_name = sql.split("IF NOT EXISTS ")[1].split(" (")[0]
             cursor.execute(sql)
             print(f"OK: {table_name}")
+
+    with connection.cursor() as cursor:
+        for sql in ALTERS:
+            cursor.execute(sql)
+            print(f"ALTER: {sql.split('ADD COLUMN IF NOT EXISTS ')[1].split(' ')[0]}")
 
     with connection.cursor() as cursor:
         for sql in INDEXES:

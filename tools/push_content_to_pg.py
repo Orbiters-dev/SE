@@ -17,6 +17,7 @@ Usage (CLI test):
 import os
 import sys
 import json
+import time
 import argparse
 from datetime import datetime, timezone
 
@@ -28,8 +29,9 @@ sys.path.insert(0, DIR)
 try:
     from env_loader import load_env
     load_env()
-except Exception:
-    pass
+except Exception as _e:
+    # env_loader 없거나 .env 로드 실패 — 리소스 없이도 실행은 되지만 조용히 삼키지 않고 경고.
+    print(f"  [WARN] env_loader load skipped: {_e}", file=sys.stderr)
 
 ORBITOOLS_BASE = "https://orbitools.orbiters.co.kr/api/datakeeper"
 ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "admin")
@@ -49,22 +51,32 @@ def _push_to_pg(table: str, rows: list[dict]) -> dict:
 
     for i in range(0, len(rows), CHUNK_SIZE):
         chunk = rows[i:i + CHUNK_SIZE]
-        try:
-            resp = requests.post(
-                f"{ORBITOOLS_BASE}/save/",
-                json={"table": table, "rows": chunk},
-                auth=(ORBITOOLS_USER, ORBITOOLS_PASS),
-                timeout=60,
-            )
-            resp.raise_for_status()
-            result = resp.json()
-            total_created += result.get("created", 0)
-            total_updated += result.get("updated", 0)
-            if result.get("errors"):
-                all_errors.extend(result["errors"][:5])
-                print(f"  [PG WARN] {table}: {len(result['errors'])} errors in chunk {i // CHUNK_SIZE}")
-        except Exception as e:
-            msg = f"{table} chunk {i // CHUNK_SIZE}: {e}"
+        # 전송 실패 재시도 (2026-07-02): 일시적 네트워크/서버 오류로 chunk 가 통째로
+        # 누락되면 그날 데이터가 빠진다 → 3회 백오프 재시도 후에만 실패 처리.
+        last_err = None
+        for attempt in range(3):
+            try:
+                resp = requests.post(
+                    f"{ORBITOOLS_BASE}/save/",
+                    json={"table": table, "rows": chunk},
+                    auth=(ORBITOOLS_USER, ORBITOOLS_PASS),
+                    timeout=60,
+                )
+                resp.raise_for_status()
+                result = resp.json()
+                total_created += result.get("created", 0)
+                total_updated += result.get("updated", 0)
+                if result.get("errors"):
+                    all_errors.extend(result["errors"][:5])
+                    print(f"  [PG WARN] {table}: {len(result['errors'])} errors in chunk {i // CHUNK_SIZE}")
+                last_err = None
+                break
+            except Exception as e:
+                last_err = e
+                if attempt < 2:
+                    time.sleep(2 ** attempt)  # 1s, 2s 백오프
+        if last_err is not None:
+            msg = f"{table} chunk {i // CHUNK_SIZE} (3회 재시도 실패): {last_err}"
             print(f"  [PG ERROR] {msg}")
             all_errors.append(msg)
 
@@ -73,7 +85,7 @@ def _push_to_pg(table: str, rows: list[dict]) -> dict:
 
 
 def push_posts(posts: list[dict]) -> dict:
-    """Upsert content posts to gk_content_posts.
+    """Upsert content posts to table "content_posts" (DB: gk_content_posts).
 
     Expected fields per row:
         post_id, url, platform, username, nickname, followers,
@@ -82,17 +94,47 @@ def push_posts(posts: list[dict]) -> dict:
     return _push_to_pg("content_posts", posts)
 
 
+def _to_int(v) -> int:
+    try:
+        return int(float(v)) if v not in (None, "") else 0
+    except (TypeError, ValueError):
+        return 0
+
+
 def push_metrics(metrics: list[dict]) -> dict:
-    """Upsert daily engagement metrics to gk_content_metrics_daily.
+    """Upsert daily engagement metrics to table "content_metrics_daily" (DB: gk_content_metrics_daily).
 
     Expected fields per row:
-        post_id, date, comments, likes, views
+        post_id, date, comments, likes, views (, plays)
+
+    무결성 가드 (2026-07-02): 수집 실패/부분 glitch 행을 DK 에 쓰지 않는다.
+    누적 지표라 0 을 쓰면 기존 정상값을 덮어 대시보드 view 가 0 으로 오염됨.
+      - 전항목 0  → 완전 수집 실패 → 제외
+      - views<=0 인데 likes/comments/plays>0 → views 만 빠진 부분 glitch → 제외
     """
-    return _push_to_pg("content_metrics_daily", metrics)
+    clean, dropped = [], 0
+    for m in metrics:
+        v = _to_int(m.get("views"))
+        l = _to_int(m.get("likes"))
+        c = _to_int(m.get("comments"))
+        p = _to_int(m.get("plays"))
+        if v < 0 or l < 0 or c < 0 or p < 0:
+            dropped += 1
+            continue                        # 음수 = counts 불가, 비정상 데이터
+        if v <= 0 and l <= 0 and c <= 0 and p <= 0:
+            dropped += 1
+            continue                        # 전항목 0 = 완전 수집 실패
+        if v <= 0 and (l > 0 or c > 0 or p > 0):
+            dropped += 1
+            continue                        # views 만 빠진 부분 glitch
+        clean.append(m)
+    if dropped:
+        print(f"  [PG GUARD] content_metrics_daily: {dropped} glitch/실패 행 제외 (write 차단)")
+    return _push_to_pg("content_metrics_daily", clean)
 
 
 def push_influencer_orders(orders: list[dict]) -> dict:
-    """Upsert influencer orders to gk_influencer_orders.
+    """Upsert influencer orders to table "influencer_orders" (DB: gk_influencer_orders).
 
     Expected fields per row:
         order_id, order_name, customer_name, customer_email,

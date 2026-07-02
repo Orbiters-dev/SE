@@ -502,7 +502,9 @@ def normalize_ig(items, fmap=None):
             "post_date": ts,
             "comments": item.get("commentsCount", 0) or 0,
             "likes": item.get("likesCount", 0) or 0,
-            "views": item.get("videoViewCount", 0) or 0,
+            # views fallback: 릴스는 videoViewCount 가 비고 videoPlayCount/playCount 만 오는 경우가 있어
+            # 0 으로 떨어지는 glitch 방지 (2026-07-02)
+            "views": item.get("videoViewCount") or item.get("videoPlayCount") or item.get("playCount") or 0,
         })
     return result
 

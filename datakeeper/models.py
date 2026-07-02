@@ -112,7 +112,11 @@ class MetaAdsDaily(models.Model):
     frequency = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     purchases = models.IntegerField(default=0)
     purchase_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    landing_page_view = models.IntegerField(default=0)          # LPV — JP 측정 천장 (2026-07-02)
     landing_url = models.URLField(max_length=1000, blank=True, default="")
+    effective_status = models.CharField(max_length=40, blank=True, default="")       # ACTIVE / PAUSED …
+    creative_permalink = models.URLField(max_length=1000, blank=True, default="")    # IG 게시물 permalink (WL 귀속)
+    creative_media_id = models.CharField(max_length=64, blank=True, default="")      # effective_instagram_media_id
     collected_at = models.DateTimeField(auto_now=True)
 
     class Meta:
