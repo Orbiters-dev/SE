@@ -17,6 +17,7 @@ import base64
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.parse
@@ -25,7 +26,12 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+from data_keeper_client import DataKeeper
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # cp949 방지 (Python 3.7+)
+except AttributeError:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS = ROOT / "tools"
@@ -55,6 +61,19 @@ KPI_WL_CTR = 8.0    # 인플루언서 화이트리스팅 (PAID/GIFT) CTR 목표
 KPI_IMG_CTR = 4.0   # 이미지 광고 (UNKNOWN) CTR 목표
 KPI_CPC = 100       # CPC 목표 (₩)
 
+# WL Testing 운영 게이트 (2026-06-16 확정 — 1:1 분리 운영 절대 지표).
+# memory/reference_meta_wl_testing_gate_criteria.md. meta-app/lib/meta-constants.ts 와 동기화.
+# 졸업(D+3): CPC≤₩95 AND CTR≥8% AND CPLPV≤₩135. 1:1 분리라 share 무의미 → 개별 절대 지표.
+GRAD_CPC_MAX = 95       # 졸업 CPC ≤ ₩95
+GRAD_CTR_MIN = 8.0      # 졸업 CTR ≥ 8%
+GRAD_CPLPV_MAX = 135    # 졸업 CPLPV ≤ ₩135
+GRAD_MIN_DAYS = 3       # 졸업 판정 시점 D+3 (2026-07-06 세은: OFF·졸업 모두 D+3)
+# OFF(D+3): CPC>₩150 OR CTR<5% → CPLPV≥₩190 시 OFF / 정상 시 D+5 유예. 양호해도 CPLPV≥₩190 = 이탈형 OFF.
+OFF_D3_CPC_MAX = 150    # D+3 CPC 나쁨선
+OFF_D3_CTR_MIN = 5.0    # D+3 CTR 나쁨선
+OFF_D3_CPLPV_OFF = 190  # D+3 CPLPV OFF 트리거 (이탈형 돈샘)
+OFF_MIN_DAYS = 3        # OFF 판정 시점 D+3
+
 
 def api_get(path, params=None):
     params = dict(params or {})
@@ -73,24 +92,91 @@ def api_get(path, params=None):
     return out
 
 
-def fetch(level, time_range=None, date_preset=None, with_daily=False):
-    fields = [
-        "campaign_id", "campaign_name", "adset_id", "adset_name",
-        "ad_id", "ad_name", "spend", "impressions", "clicks",
-        "ctr", "cpc", "cpm", "frequency", "reach", "actions",
-    ]
-    params = {
-        "fields": ",".join(fields),
-        "level": level,
-        "limit": 500,
+_DK = DataKeeper()
+DK_META_BRAND = "Grosmimi JP"   # gk_meta_ads_daily.brand 값 (JP 계정)
+_PRESET_DAYS = {"yesterday": 1, "last_7d": 7, "last_14d": 14, "last_30d": 30, "last_90d": 90}
+
+
+def _dk_norm(r):
+    """DK meta_ads_daily row → Graph insights 형식 정규화.
+
+    DK 스키마엔 ctr/cpc/cpm/actions 없음 → spend/impr/clicks 로 계산.
+    LPV(landing_page_view)는 DK 에 컬럼 생기면 사용, 없으면 0 → CPLPV 0.
+    """
+    spend = to_float(r.get("spend"))
+    impr = to_float(r.get("impressions"))
+    clicks = to_float(r.get("clicks"))
+    lpv = to_float(r.get("landing_page_view") or r.get("lpv") or 0)
+    actions = [{"action_type": "landing_page_view", "value": str(lpv)}] if lpv else []
+    return {
+        "campaign_id": r.get("campaign_id", ""), "campaign_name": r.get("campaign_name", ""),
+        "adset_id": r.get("adset_id", ""), "adset_name": r.get("adset_name", ""),
+        "ad_id": r.get("ad_id", ""), "ad_name": r.get("ad_name", ""),
+        "spend": spend, "impressions": impr, "clicks": clicks,
+        "ctr": (clicks / impr * 100) if impr else 0.0,
+        "cpc": (spend / clicks) if clicks else 0.0,
+        "cpm": (spend / impr * 1000) if impr else 0.0,
+        "frequency": to_float(r.get("frequency")),
+        "reach": to_float(r.get("reach")),
+        "actions": actions,
+        "date_start": r.get("date", ""), "date_stop": r.get("date", ""),
     }
-    if with_daily:
-        params["time_increment"] = 1
+
+
+def _dk_aggregate(norm_rows, key_fields):
+    """기간 합산 (with_daily=False). key_fields 단위 spend/impr/clicks/reach/lpv 합산 후 비율 재계산."""
+    groups = defaultdict(list)
+    for r in norm_rows:
+        groups[tuple(r.get(k, "") for k in key_fields)].append(r)
+    out = []
+    for rs in groups.values():
+        spend = sum(x["spend"] for x in rs)
+        impr = sum(x["impressions"] for x in rs)
+        clicks = sum(x["clicks"] for x in rs)
+        reach = sum(x["reach"] for x in rs)
+        lpv = sum(extract_lpv(x["actions"]) for x in rs)
+        actions = [{"action_type": "landing_page_view", "value": str(lpv)}] if lpv else []
+        base = dict(rs[-1])
+        base.update({
+            "spend": spend, "impressions": impr, "clicks": clicks, "reach": reach,
+            "ctr": (clicks / impr * 100) if impr else 0.0,
+            "cpc": (spend / clicks) if clicks else 0.0,
+            "cpm": (spend / impr * 1000) if impr else 0.0,
+            "frequency": (impr / reach) if reach else 0.0,
+            "actions": actions,
+        })
+        out.append(base)
+    return out
+
+
+def fetch(level, time_range=None, date_preset=None, with_daily=False):
+    """DataKeeper meta_ads_daily 단일 소스에서 가져온다 (Graph 직접 호출 폐기).
+
+    CLAUDE.md 룰: 광고 데이터는 MUST DataKeeper. DK 는 ad-level daily 라
+    campaign level 은 roll-up, 기간 합산(with_daily=False)도 코드에서 처리.
+    """
     if time_range:
-        params["time_range"] = json.dumps(time_range)
+        date_from, date_to = time_range["since"], time_range["until"]
     elif date_preset:
-        params["date_preset"] = date_preset
-    return api_get(f"{ACCT}/insights", params)
+        ref = date.today() - timedelta(days=1)
+        n = _PRESET_DAYS.get(date_preset, 7)
+        date_from = (ref - timedelta(days=n - 1)).isoformat()
+        date_to = ref.isoformat()
+    else:
+        date_from = date_to = None
+
+    raw = _DK.get("meta_ads_daily", date_from=date_from, date_to=date_to, brand=DK_META_BRAND)
+    norm = [_dk_norm(r) for r in raw]
+
+    if level == "campaign":
+        agg = _dk_aggregate(norm, ["campaign_id", "date_start"] if with_daily else ["campaign_id"])
+        for r in agg:                       # campaign level 은 ad/adset 식별자 비움 (Graph 와 동일)
+            r["ad_id"] = r["adset_id"] = r["ad_name"] = r["adset_name"] = ""
+        return agg
+
+    if with_daily:                          # level == "ad", 일별
+        return norm
+    return _dk_aggregate(norm, ["ad_id"])   # level == "ad", 기간 합산
 
 
 def extract_lpv(actions):
@@ -154,12 +240,17 @@ def fmt_num(v, decimals=0):
     return f"{f:,.{decimals}f}"
 
 
-def adset_stage(adset_name):
-    """adset 이름에서 운영 stage 추출 (Testing / Proven / Other)."""
+def adset_stage(adset_name, campaign_name=""):
+    """운영 stage 추출 (Testing / Proven / Other).
+
+    신 구조 (2026-06-19~): Testing 여부가 campaign_name (…_Testing_2026) 에 있고
+    adset_name 엔 없음 → campaign_name 도 함께 본다.
+    """
     n = (adset_name or "").lower()
-    if "proven" in n:
+    c = (campaign_name or "").lower()
+    if "proven" in n or "proven" in c:
         return "proven"
-    if "testing" in n or "test" in n:
+    if "test" in n or "test" in c:
         return "testing"
     return "other"
 
@@ -176,17 +267,30 @@ def parse_paid_flag(ad_name):
         return "PAID"
     if "| GIFT |" in n:
         return "GIFT"
+    # 신 명명 (2026-06~): RKT_WL-P_ (Paid) / RKT_WL-G_ (Gift).
+    if "WL-P" in n:
+        return "PAID"
+    if "WL-G" in n:
+        return "GIFT"
     return "UNKNOWN"
 
 
 def calc_days_live(ad_name, ref_date):
-    """ad_name 끝 8자리 (yymmdd) → launch_date → D+N 계산.
+    """ad_name 에서 게시일 → D+N 계산. 파싱 실패 시 None.
 
-    예: 'AD G | ... | 20260303' + ref 2026-05-15 → 73 (D+73)
-    파싱 실패 시 None 반환.
+    신 명명 (2026-06~): 앞쪽 'Y26M06D19' (= 2026-06-19).
+    구 명명: 끝 8자리 'AD G | ... | 20260303'.
     """
     if not ad_name:
         return None
+    m = re.search(r"Y(\d{2})M(\d{2})D(\d{2})", ad_name)
+    if m:
+        yy, mo, dd = m.groups()
+        try:
+            launch = date(2000 + int(yy), int(mo), int(dd))
+        except ValueError:
+            return None
+        return (ref_date - launch).days
     tail = ad_name.strip().split("|")[-1].strip() if "|" in ad_name else ad_name.strip()[-8:]
     digits = "".join(c for c in tail if c.isdigit())[-8:]
     if len(digits) != 8:
@@ -230,63 +334,50 @@ def calc_percentiles(values, ascending_is_better=False):
     }
 
 
-def off_rule_check(ad, pool_pcts, ref_date, min_days_for_delivery_check=90, delivery_floor=5000):
-    """3축 Off Rule 평가 + 절대 기준 보강 (5/26 — WL 3~6개월 운용 룰 반영).
+def off_rule_check(ad, ref_date=None):
+    """WL Testing OFF 게이트 (2026-06-16 확정, D+3 판정).
 
-    축 1: 풀 P20 미달 + spend ≥ ₩30K + (CTR < KPI×0.5 OR CPC > KPI×2)
-        → 강한 Off 권장. 풀 percentile만 hit한 광고는 모니터링(Off 후보).
-    축 2: D+90+ AND spend < ₩5K (delivery 실패 — 3개월 도달했는데 거의 안 돌아간 광고)
-        → 시간 자체는 트리거 X — delivery 실패가 본질. 90일은 신생/Testing 보호 게이트.
-        → WL은 3~6개월 운용 (메모리 룰). 잘 나오면 시간 무관 지속.
-    축 3: Freq ≥ 2.5  (피로도 — 즉시 Off 권장, spend 무관)
+    memory/reference_meta_wl_testing_gate_criteria.md 게이트 1.
+    ① CPC ≤ ₩150 AND CTR ≥ 5%        → 생존
+    ② CPC·CTR 중 하나라도 나쁨        → CPLPV ≥ ₩190 시 OFF / 정상 시 D+5 유예(모니터링)
+    ③ CPC·CTR 양호한데 CPLPV ≥ ₩190   → OFF (이탈형 돈샘)
 
-    velocity (Proven D+15+ trailing 7d CTR delta < -15%)는 별도 함수에서.
+    Testing 1:1 광고 D+3+ 대상 (호출측에서 Testing·D+3 필터). Proven Off 는
+    delivery_failure_candidates 별도. meta-app/lib/meta-constants.ts 와 기준 동기화.
 
-    리턴:
-      off_recommend (즉시 Off — 강한 신호) / monitoring (모니터링 — 약한 신호 후보)
-      triggers, reason.
+    리턴: off_recommend / monitoring(D+5 유예) / reason / monitoring_reason.
     """
-    triggers = []
-    monitoring_only = []
-    spend = ad.get("spend", 0)
     ctr = ad.get("ctr", 0)
     cpc = ad.get("cpc", 0)
-    freq = ad.get("freq", 0)
-    days_live = ad.get("days_live")
-    paid = ad.get("paid_flag", "UNKNOWN")
-    ctr_kpi = KPI_WL_CTR if paid in ("PAID", "GIFT") else KPI_IMG_CTR
-    cpc_kpi = KPI_CPC
+    cplpv = ad.get("cplpv", 0)
 
-    if freq >= 2.5:
-        triggers.append(f"Freq {freq:.2f} ≥ 2.5 (피로도)")
+    cpc_bad = cpc > OFF_D3_CPC_MAX
+    ctr_bad = ctr < OFF_D3_CTR_MIN
+    cplpv_bad = cplpv >= OFF_D3_CPLPV_OFF and cplpv > 0
 
-    if pool_pcts and ctr > 0 and spend >= 30000:
-        p20 = pool_pcts.get("p20")
-        if p20 and ctr < p20:
-            # 절대 기준 게이트 — CTR < KPI×0.5 OR CPC > KPI×2 이어야 진짜 Off
-            ctr_severe = ctr < ctr_kpi * 0.5
-            cpc_severe = cpc > cpc_kpi * 2 if cpc > 0 else False
-            if ctr_severe or cpc_severe:
-                abs_reason = []
-                if ctr_severe:
-                    abs_reason.append(f"CTR {ctr:.2f}% < {ctr_kpi*0.5:.1f}% (KPI×0.5)")
-                if cpc_severe:
-                    abs_reason.append(f"CPC ₩{cpc:.0f} > ₩{cpc_kpi*2:.0f} (KPI×2)")
-                triggers.append(f"풀 P20 ({p20:.2f}%) 미달 + " + " · ".join(abs_reason))
-            else:
-                # 풀 P20만 hit, 절대 기준은 양호 — 모니터링
-                monitoring_only.append(
-                    f"풀 P20 ({p20:.2f}%) 미달이지만 CTR {ctr:.2f}% / CPC ₩{cpc:.0f} 절대 양호 — 모니터링"
-                )
-
-    if days_live is not None and days_live >= min_days_for_delivery_check and spend < delivery_floor:
-        triggers.append(f"D+{days_live} + spend ₩{spend:,.0f} < ₩{delivery_floor:,} (delivery 실패)")
+    triggers = []
+    grace = []
+    if not cpc_bad and not ctr_bad:
+        # ③ CPC/CTR 양호 — CPLPV 이탈형만 체크
+        if cplpv_bad:
+            triggers.append(f"CPC ₩{cpc:.0f}·CTR {ctr:.1f}% 양호하나 CPLPV ₩{cplpv:.0f} ≥ ₩190 (이탈형)")
+    else:
+        # ② CPC/CTR 중 하나 나쁨 → CPLPV 로 OFF/유예 판정
+        bad = []
+        if cpc_bad:
+            bad.append(f"CPC ₩{cpc:.0f} > ₩150")
+        if ctr_bad:
+            bad.append(f"CTR {ctr:.1f}% < 5%")
+        if cplpv_bad:
+            triggers.append(" · ".join(bad) + f" + CPLPV ₩{cplpv:.0f} ≥ ₩190")
+        else:
+            grace.append(" · ".join(bad) + f" but CPLPV ₩{cplpv:.0f} 정상 — D+5 유예")
 
     return {
         "off_recommend": len(triggers) > 0,
-        "monitoring": len(triggers) == 0 and len(monitoring_only) > 0,
+        "monitoring": len(triggers) == 0 and len(grace) > 0,
         "triggers": triggers,
-        "monitoring_reason": " · ".join(monitoring_only),
+        "monitoring_reason": " · ".join(grace),
         "reason": " · ".join(triggers) if triggers else "",
     }
 
@@ -315,7 +406,7 @@ def best_worst_from_rows(ad_rows, min_impr=200, ref_date=None):
             "ad_name": ad_name,
             "campaign_name": row.get("campaign_name", ""),
             "adset_name": row.get("adset_name", ""),
-            "stage": adset_stage(row.get("adset_name", "")),
+            "stage": adset_stage(row.get("adset_name", ""), row.get("campaign_name", "")),
             "paid_flag": parse_paid_flag(ad_name),
             "days_live": days_live,
             "lifecycle": lifecycle_stage(days_live),
@@ -368,131 +459,64 @@ def best_worst_from_rows(ad_rows, min_impr=200, ref_date=None):
     }
 
 
-def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, share_threshold=0.50,
-                          min_clicks=1000, min_lpv=500, ad_rows_w2=None):
-    """Testing → Proven 졸업 후보 (5/21 v3 — 2-window 지속성 + 절대 임계).
+def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, min_impr=200):
+    """Testing → Proven 졸업 후보 (2026-06-16 확정 — WL 1:1 분리 운영 절대 지표).
 
-    Stage 1 (학습 통과 + 데이터 충분성):
-      - adset name 에 'Testing' 포함
-      - D+14+ (시간 기준 학습 통과 — spend 임계 폐기 5/21 v3)
-      - 누적 clicks ≥ min_clicks (default 1,000) — share 표본 신뢰성
-      - 누적 LPV ≥ min_lpv (default 500)
+    memory/reference_meta_wl_testing_gate_criteria.md 게이트 2.
+    조건: Testing adset 소속 · D+7+ · 노출 ≥ min_impr(200) ·
+          CPC ≤ ₩95 AND CTR ≥ 8% AND CPLPV ≤ ₩135 모두 통과 · Off 트리거 미해당.
+    1:1 분리(소재1=adset1)라 풀 share 무의미 → 개별 절대 지표로 판정.
+    meta-app/lib/meta-aggregations.ts graduationCandidates 와 동기화.
+    clicks 0→cpc 0, lpv 0→cplpv 0 이 게이트를 거짓 통과하므로 양수 가드 필수.
 
-    Stage 2 (Testing 풀 내 상위 지속 유지):
-      - W1 (D-1~D-7): ad set 내 spend/clicks/LPV share 모두 ≥ share_threshold (default 50%)
-      - W2 (D-8~D-14): ad_rows_w2 주어지면 동일 share 게이트 — 2-window 지속성 검증
-      - Off 트리거 hit 광고는 제외
-
-    폐기 (v3):
-      - 7d CTR ≥ KPI×0.6 / CPC ≤ KPI×1.5 absolute floor (Proven 비교는 신생에 불공정)
-      - spend 절대 임계 (시간 D+14+로 대체)
-
-    리턴: [{..., spend_share, clicks_share, lpv_share, w2_*, ...}, ...]
+    리턴: [{ad_name, adset_name, days_live, paid_flag, ctr, cpc, cplpv, freq, spend, clicks, lpv, reason}, ...]
     """
     off_ad_ids = off_ad_ids or set()
-
-    def adset_totals(rows):
-        totals = {}
-        for row in rows:
-            asid = row.get("adset_id", "")
-            if adset_stage(row.get("adset_name", "")) != "testing":
-                continue
-            if asid not in totals:
-                totals[asid] = {"spend": 0, "clicks": 0, "lpv": 0}
-            totals[asid]["spend"] += to_float(row.get("spend"))
-            totals[asid]["clicks"] += to_float(row.get("clicks"))
-            totals[asid]["lpv"] += extract_lpv(row.get("actions"))
-        return totals
-
-    def ad_row_metrics(row, adset_total):
-        asid = row.get("adset_id", "")
-        spend = to_float(row.get("spend"))
-        clicks = to_float(row.get("clicks"))
-        lpv = extract_lpv(row.get("actions"))
-        pool = adset_total.get(asid, {"spend": 0, "clicks": 0, "lpv": 0})
-        ss = (spend / pool["spend"]) if pool["spend"] > 0 else 0
-        cs = (clicks / pool["clicks"]) if pool["clicks"] > 0 else 0
-        ls = (lpv / pool["lpv"]) if pool["lpv"] > 0 else 0
-        return spend, clicks, lpv, ss, cs, ls, pool
-
-    w1_totals = adset_totals(ad_rows_7d)
-    w2_totals = adset_totals(ad_rows_w2) if ad_rows_w2 else {}
-    w2_by_ad = {r.get("ad_id",""): r for r in (ad_rows_w2 or [])}
-
     out = []
     for row in ad_rows_7d:
         ad_id = row.get("ad_id", "")
         if ad_id in off_ad_ids:
             continue
         asname = row.get("adset_name", "")
-        if adset_stage(asname) != "testing":
+        if adset_stage(asname, row.get("campaign_name", "")) != "testing":
+            continue
+        impr = to_float(row.get("impressions"))
+        if impr < min_impr:
             continue
         ad_name = row.get("ad_name", "")
         days = calc_days_live(ad_name, ref_date)
-        # Stage 1: D+14+ 학습 통과 (시간 기준)
-        if days is None or days < 14:
+        if days is None or days < GRAD_MIN_DAYS:        # D+7+
             continue
-
-        spend, clicks, lpv, ss, cs, ls, w1_pool = ad_row_metrics(row, w1_totals)
+        spend = to_float(row.get("spend"))
+        clicks = to_float(row.get("clicks"))
+        lpv = extract_lpv(row.get("actions"))
         ctr = to_float(row.get("ctr"))
         cpc = to_float(row.get("cpc"))
         freq = to_float(row.get("frequency"))
-        paid = parse_paid_flag(ad_name)
-
-        # Stage 1: 누적 click/LPV 절대 임계 (share 표본 신뢰성)
-        if clicks < min_clicks:
+        cplpv = (spend / lpv) if lpv > 0 else 0
+        if cpc <= 0 or cplpv <= 0:                       # 데이터 부족 거짓통과 차단
             continue
-        if lpv < min_lpv:
+        if cpc > GRAD_CPC_MAX:                            # CPC ≤ ₩95
             continue
-
-        # Stage 2 — W1 share 게이트
-        if ss < share_threshold:
+        if ctr < GRAD_CTR_MIN:                           # CTR ≥ 8%
             continue
-        if cs < share_threshold:
+        if cplpv > GRAD_CPLPV_MAX:                       # CPLPV ≤ ₩135
             continue
-        if w1_pool["lpv"] > 0 and ls < share_threshold:
-            continue
-
-        # Stage 2 — W2 share 게이트 (ad_rows_w2 주어진 경우 2-window 지속성 검증)
-        w2_ss = w2_cs = w2_ls = None
-        if w2_totals:
-            w2_row = w2_by_ad.get(ad_id)
-            if not w2_row:
-                continue  # W2 데이터 없음 = 광고 신생 = 지속성 검증 불가
-            w2_spend, w2_clicks, w2_lpv, w2_ss, w2_cs, w2_ls, w2_pool = ad_row_metrics(w2_row, w2_totals)
-            if w2_ss < share_threshold:
-                continue
-            if w2_cs < share_threshold:
-                continue
-            if w2_pool["lpv"] > 0 and w2_ls < share_threshold:
-                continue
-
-        reason_parts = [f"D+{days}",
-                        f"W1 share spend {ss*100:.0f}%/clicks {cs*100:.0f}%/LPV {ls*100:.0f}%"]
-        if w2_ss is not None:
-            reason_parts.append(f"W2 share spend {w2_ss*100:.0f}%/clicks {w2_cs*100:.0f}%/LPV {w2_ls*100:.0f}%")
-        reason_parts.append(f"누적 clicks {int(clicks)}/LPV {int(lpv)}")
-
         out.append({
             "ad_name": ad_name,
             "adset_name": asname,
             "days_live": days,
-            "paid_flag": paid,
+            "paid_flag": parse_paid_flag(ad_name),
             "ctr": ctr,
             "cpc": cpc,
+            "cplpv": cplpv,
             "freq": freq,
             "spend": spend,
             "clicks": clicks,
             "lpv": lpv,
-            "spend_share": ss,
-            "clicks_share": cs,
-            "lpv_share": ls,
-            "w2_spend_share": w2_ss,
-            "w2_clicks_share": w2_cs,
-            "w2_lpv_share": w2_ls,
-            "reason": " · ".join(reason_parts),
+            "reason": f"D+{days} · CPC ₩{cpc:.0f}≤95 · CTR {ctr:.1f}%≥8% · CPLPV ₩{cplpv:.0f}≤135",
         })
-    return sorted(out, key=lambda x: -x["spend_share"])
+    return sorted(out, key=lambda x: x["cplpv"])         # CPLPV 좋은 순
 
 
 def delivery_failure_candidates(ad_rows_14d, ad_rows_14d_daily, ref_date,
@@ -790,14 +814,15 @@ def render_advice_section(tips, header="메타몽 운용 조언"):
 
 
 def build_findings(d, ref_date=None):
-    """오늘의 발견 — 4-way 풀 + Off Rule + S 후보 + 신생 동결 (5/15 재설계).
+    """오늘의 발견 — S 후보 + velocity + 신생 동결 + delta (Off 는 D+3 박스로 분리).
 
     축:
-      1) Off 권장 (off_rule_check 트리거 hit): 풀 P20 미달 + spend ≥ ₩30K, Freq ≥ 3, D+60 sunset
-      2) S 후보 (Top 10%, Proven 풀만): 풀 P90 이상 → 증액 우선
+      1) S 후보 (Top 10%, Proven 풀만): 풀 P90 이상 → 증액 우선
+      2) velocity 하락 (7d CTR 급락): 신규 변형 검토
       3) 신생 동결 (D+7 미만): 변경·증액 금지 안내
-      4) delta 알림 (전체 CTR/CPC 급변): 기존 유지
-    우선순위: Off > S 후보 > 신생 > delta. 상위 3개만 반환.
+      4) delta 알림 (전체 CTR/CPC 급변)
+    Off 권장은 render_off_recommend_box(D+3 게이트)가 전담 — 여기선 다루지 않음 (옛 풀 P20 로직 제거 2026-06-30).
+    상위 3개만 반환.
     """
     if ref_date is None:
         ref_date = date.today()
@@ -809,7 +834,7 @@ def build_findings(d, ref_date=None):
     if not all_ads:
         return findings
 
-    off_cards, s_cards = [], []
+    s_cards = []
 
     for paid in ("PAID", "GIFT"):
         for lc in ("testing", "proven"):
@@ -822,40 +847,10 @@ def build_findings(d, ref_date=None):
             pool_label = f"{paid}×{lc.capitalize()}"
             paid_strict = (paid == "PAID")  # PAID는 더 strict 해석
 
-            # 1) Off 권장 — off_rule_check 적용
-            for a in members:
-                check = off_rule_check(a, ctr_pct, ref_date)
-                if not check["off_recommend"]:
-                    continue
-                ad_short = a["ad_name"][:40]
-                # 트리거 종류에 맞는 context — sunset/Freq/풀 P20 각각 다른 메시지
-                reason_text = check["reason"]
-                if "delivery 실패" in reason_text:
-                    ctx = "60일+ 도달했는데 spend 거의 없음 = 알고리즘이 노출 안 줌. 정리 OK (살릴 시그널 X)."
-                elif "Freq" in reason_text:
-                    ctx = "피로도 트리거 — 같은 사람에게 3번 이상 반복 노출. 오디언스 새로 추가 또는 즉시 정리."
-                else:  # 풀 P20 + 절대 기준
-                    ctx = (
-                        "PAID 풀 — 회수 압력 큼 + 절대 기준(CTR/CPC) 미달 = 즉시 Off 충분."
-                        if paid_strict else
-                        "GIFT 풀 — 절대 기준 미달이지만 비용 회수 압력 약함 → 신규 변형 우선 검토."
-                    )
-                off_cards.append({
-                    "_sort_spend": a.get("spend", 0),
-                    "_ad_id": a.get("ad_id", ""),
-                    "finding": f"<b>{ad_short}</b> <span style=\"color:#6b7280;font-size:13px;\">[{pool_label}]</span> Off 검토 — {check['reason']}",
-                    "evidence": f"CTR {a['ctr']:.2f}% · CPC {fmt_won(a['cpc'])} · Freq {a.get('freq',0):.2f} · spend {fmt_won(a.get('spend',0))} · D+{a.get('days_live','?')}",
-                    "context": ctx,
-                })
-
-            # 2) S 후보 — Proven 풀 P90 이상 (Top 10%) + spend ≥ ₩30K + 풀 n ≥ 6 (percentile 의미 보장)
-            #    Off 트리거 hit 광고는 제외 (sunset/Freq/P20 hit 시 증액 권장 모순 방지)
+            # S 후보 — Proven 풀 P90 이상 (Top 10%) + spend ≥ ₩30K + 풀 n ≥ 6 (percentile 의미 보장)
             if lc == "proven" and ctr_pct and ctr_pct.get("p90") and ctr_pct.get("n", 0) >= 6:
                 p90 = ctr_pct["p90"]
-                off_ad_ids = {c["_ad_id"] for c in off_cards if c.get("_ad_id")}
                 for a in members:
-                    if a.get("ad_id") in off_ad_ids:
-                        continue
                     if a["ctr"] >= p90 and a.get("spend", 0) >= 30000:
                         ad_short = a["ad_name"][:40]
                         ctx = (
@@ -870,12 +865,9 @@ def build_findings(d, ref_date=None):
                             "context": ctx,
                         })
 
-    # 3) velocity 하락 (B-6) — 7d 모드에서 채워짐. Off hit 광고는 제외.
+    # velocity 하락 (B-6) — 7d 모드에서 채워짐.
     vel_cards = []
-    off_ad_ids = {c["_ad_id"] for c in off_cards if c.get("_ad_id")}
     for v in bw.get("velocity_decay", []):
-        if v.get("ad_id") in off_ad_ids:
-            continue
         ad_short = v["ad_name"][:40]
         paid = v.get("paid_flag", "")
         ctx = (
@@ -890,12 +882,10 @@ def build_findings(d, ref_date=None):
             "context": ctx,
         })
 
-    off_cards.sort(key=lambda x: -x["_sort_spend"])
     s_cards.sort(key=lambda x: -x["_sort_spend"])
     vel_cards.sort(key=lambda x: -x["_sort_spend"])
-    for c in off_cards + s_cards + vel_cards:
+    for c in s_cards + vel_cards:
         c.pop("_sort_spend", None)
-        c.pop("_ad_id", None)
         findings.append(c)
 
     # 4) 신생 (D+7 미만) — 변경·증액 동결 안내. spend 있고 노출 ≥1,000 미달인 광고만.
@@ -1000,7 +990,7 @@ def render_kpi_counter(all_ads):
 
 
 def render_graduation_box(grads):
-    """Testing → Proven 졸업 후보 박스 (5/20 신규)."""
+    """Testing → Proven 졸업 후보 박스 (2026-06-16 — WL 1:1 분리 운영 절대 지표)."""
     if not grads:
         return """
 <h2>Testing → Proven 졸업 후보</h2>
@@ -1013,10 +1003,8 @@ def render_graduation_box(grads):
         f"<td>{g['paid_flag']}</td>"
         f"<td>{fmt_pct(g['ctr'])}</td>"
         f"<td>{fmt_won(g['cpc'])}</td>"
+        f"<td><b>{fmt_won(g['cplpv'])}</b></td>"
         f"<td>{g['freq']:.2f}</td>"
-        f"<td><b>{g['spend_share']*100:.0f}%</b></td>"
-        f"<td><b>{g['clicks_share']*100:.0f}%</b></td>"
-        f"<td><b>{g['lpv_share']*100:.0f}%</b></td>"
         f"<td>D+{g['days_live']}</td>"
         f"<td class=l style='font-size:11px'>{g['adset_name'][:35]}</td></tr>"
         for g in grads
@@ -1024,11 +1012,11 @@ def render_graduation_box(grads):
     return f"""
 <h2 style="color:#065f46">Testing → Proven 졸업 후보 ({len(grads)}건)</h2>
 <table>
-  <tr><th>광고</th><th>PAID</th><th>7d CTR</th><th>7d CPC</th><th>Freq</th><th>spend share</th><th>clicks share</th><th>LPV share</th><th>D+N</th><th>현 adset</th></tr>
+  <tr><th>광고</th><th>PAID</th><th>CTR</th><th>CPC</th><th>CPLPV</th><th>Freq</th><th>D+N</th><th>현 adset</th></tr>
   {rows}
 </table>
-<p class=meta>기준 (7일 누적): Testing adset · D+14+ · 풀 내 <b>spend / clicks / LPV share 모두 ≥ 50%</b> (3개 함께 봐서 fake winner 거름) · CTR ≥ KPI×0.6 · CPC ≤ ₩150 · Freq &lt; 3 · Off 트리거 미해당.<br/>
-액션: 해당 광고를 Proven adset으로 옮기거나 별도 Proven adset 신설.</p>
+<p class=meta>기준 (2026-06-16 확정 · WL 1:1 분리 운영): Testing adset · D+7+ · <b>CPC ≤ ₩95 AND CTR ≥ 8% AND CPLPV ≤ ₩135</b> 모두 통과 · Off 트리거 미해당.<br/>
+1:1 분리(소재1=adset1)라 풀 share 무의미 → 개별 절대 지표. 액션: Proven 승급 (Testing PAUSE → Proven 새 ad_id).</p>
 """
 
 
@@ -1058,11 +1046,10 @@ ad 단위 예산 X 구조 — 풀 winner 살아있는 한 부진 광고 살아�
 
 
 def render_off_recommend_box(bw, ref_date=None):
-    """Off 권장 + 모니터링 후보 분리 박스 (5/26 — WL 3~6개월 운용 룰 반영).
+    """WL Testing OFF 권장 박스 (2026-06-16 — D+3 게이트).
 
-    Off 권장: 강한 신호 (풀 P20 + 절대 기준 hit / Freq≥2.5 / D+90+ + spend<₩5K delivery 실패)
-    모니터링: 약한 신호 (풀 P20만 hit, 절대 양호) — 즉시 끄지 말고 관찰
-    1d 메일에서는 Off 평가 입력을 trailing 7d 풀로 분리 (성과 합계는 1d 유지).
+    Testing 1:1 광고만 대상 (Proven Off 는 render_delivery_failure_box 별도).
+    off_recommend = 즉시 OFF / monitoring = D+5 유예.
     """
     if ref_date is None:
         ref_date = date.today()
@@ -1071,23 +1058,24 @@ def render_off_recommend_box(bw, ref_date=None):
         return ""
     candidates = []
     monitoring = []
-    for paid in ("PAID", "GIFT"):
-        for lc in ("testing", "proven"):
-            pool = pools.get(f"{paid}_{lc}", {})
-            members = pool.get("members", [])
-            ctr_pct = pool.get("ctr_pct")
-            for a in members:
-                check = off_rule_check(a, ctr_pct, ref_date)
-                base = {
-                    "ad_name": a["ad_name"],
-                    "pool": f"{paid}×{lc.capitalize()}",
-                    "ctr": a["ctr"], "cpc": a["cpc"], "freq": a.get("freq", 0),
-                    "spend": a.get("spend", 0), "days_live": a.get("days_live"),
-                }
-                if check["off_recommend"]:
-                    candidates.append({**base, "reason": check["reason"]})
-                elif check["monitoring"]:
-                    monitoring.append({**base, "reason": check["monitoring_reason"]})
+    for pool_key, pool in pools.items():
+        if "testing" not in pool_key:        # Testing 풀만 D+3 OFF (Proven 은 delivery_failure 별도)
+            continue
+        for a in pool.get("members", []):
+            dl = a.get("days_live")
+            if dl is None or dl < OFF_MIN_DAYS:   # D+3+ 만 판정
+                continue
+            check = off_rule_check(a, ref_date)
+            base = {
+                "ad_name": a["ad_name"],
+                "pool": pool_key.replace("_", "×"),
+                "ctr": a["ctr"], "cpc": a["cpc"], "cplpv": a.get("cplpv", 0),
+                "spend": a.get("spend", 0), "days_live": dl,
+            }
+            if check["off_recommend"]:
+                candidates.append({**base, "reason": check["reason"]})
+            elif check["monitoring"]:
+                monitoring.append({**base, "reason": check["monitoring_reason"]})
 
     out = []
 
@@ -1096,26 +1084,25 @@ def render_off_recommend_box(bw, ref_date=None):
         rows = "".join(
             f"<tr><td class=l>{c['ad_name'][:55]}</td><td>{c['pool']}</td>"
             f"<td>{fmt_pct(c['ctr'])}</td><td>{fmt_won(c['cpc'])}</td>"
-            f"<td>{c['freq']:.2f}</td><td>{fmt_won(c['spend'])}</td>"
-            f"<td>D+{c['days_live'] if c['days_live'] is not None else '?'}</td>"
+            f"<td>{fmt_won(c['cplpv'])}</td><td>{fmt_won(c['spend'])}</td>"
+            f"<td>D+{c['days_live']}</td>"
             f"<td class=l style='font-size:13px'>{c['reason']}</td></tr>"
             for c in candidates
         )
         out.append(f"""
-<h2>Off 권장 (강한 신호 {len(candidates)}건)</h2>
+<h2>WL Testing OFF 권장 (D+3 · {len(candidates)}건)</h2>
 <table>
-  <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>D+N</th><th>트리거</th></tr>
+  <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>CPLPV</th><th>Spend</th><th>D+N</th><th>트리거</th></tr>
   {rows}
 </table>
-<p class=meta>축 1: 풀 P20 미달 + spend≥₩30K + (CTR&lt;KPI×0.5 또는 CPC&gt;KPI×2)<br/>
-축 2: D+90+ + spend&lt;₩5K (delivery 실패) — WL은 3~6개월 운용, 시간 단독 X<br/>
-축 3: Freq≥2.5 (피로도). PAID는 즉시 Off, GIFT는 새 콜라보 발주 우선.</p>
+<p class=meta>2026-06-16 확정 D+3 게이트: CPC ≤ ₩150 AND CTR ≥ 5% → 생존. CPC·CTR 중 하나라도 나쁘면 CPLPV ≥ ₩190 시 OFF (정상이면 D+5 유예). CPC·CTR 양호해도 CPLPV ≥ ₩190 = 이탈형 OFF.<br/>
+Testing 1:1 광고만 (Proven 은 Delivery 실패 박스 별도). PAID 즉시 OFF / GIFT 새 콜라보 우선.</p>
 """)
     else:
         out.append("""
-<h2>Off 권장</h2>
+<h2>WL Testing OFF 권장 (D+3)</h2>
 <div style="background:#ecfdf5;padding:14px 18px;border-radius:4px;">
-  <p class=meta style="margin:6px 0;">강한 Off 신호 없음. 풀 전체 임계 통과.</p>
+  <p class=meta style="margin:6px 0;">D+3 OFF 트리거 광고 없음.</p>
 </div>
 """)
 
@@ -1124,18 +1111,18 @@ def render_off_recommend_box(bw, ref_date=None):
         rows = "".join(
             f"<tr><td class=l>{c['ad_name'][:55]}</td><td>{c['pool']}</td>"
             f"<td>{fmt_pct(c['ctr'])}</td><td>{fmt_won(c['cpc'])}</td>"
-            f"<td>{c['freq']:.2f}</td><td>{fmt_won(c['spend'])}</td>"
-            f"<td>D+{c['days_live'] if c['days_live'] is not None else '?'}</td>"
+            f"<td>{fmt_won(c['cplpv'])}</td><td>{fmt_won(c['spend'])}</td>"
+            f"<td>D+{c['days_live']}</td>"
             f"<td class=l style='font-size:13px'>{c['reason']}</td></tr>"
             for c in monitoring
         )
         out.append(f"""
-<h2 style="color:#92400e">Off 후보 모니터링 (약한 신호 {len(monitoring)}건)</h2>
+<h2 style="color:#92400e">D+5 유예 모니터링 ({len(monitoring)}건)</h2>
 <table>
-  <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>D+N</th><th>상태</th></tr>
+  <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>CPLPV</th><th>Spend</th><th>D+N</th><th>상태</th></tr>
   {rows}
 </table>
-<p class=meta>풀 percentile 하위지만 절대 기준(CTR/CPC)은 양호. 즉시 Off X — 1~2주 추세 관찰. 풀 작아서 percentile만으로 판정 부정확하기 때문.</p>
+<p class=meta>CPC/CTR 경계지만 CPLPV 정상 — 즉시 OFF X, D+5 재판정. 경계선 회복 케이스 보호.</p>
 """)
 
     return "\n".join(out)
@@ -1620,9 +1607,14 @@ def analyze_1d(target_date):
     # 5/26: Off 평가 입력 7d 풀로 분리 (성과 합계는 1d 유지). 임계는 7d 누적 가정이라 1d 데이터로 평가하면 hit X.
     bw_7d = best_worst_from_rows(rows_7d, min_impr=200, ref_date=yday)
     off_ad_ids = set()
-    for pool in bw_7d.get("pools", {}).values():
+    for pool_key, pool in bw_7d.get("pools", {}).items():
+        if "testing" not in pool_key:        # Testing 풀만 D+3 OFF 대상 (Proven 은 delivery_failure 별도)
+            continue
         for a in pool.get("members", []):
-            check = off_rule_check(a, pool.get("ctr_pct"), yday)
+            dl = a.get("days_live")
+            if dl is None or dl < OFF_MIN_DAYS:   # D+3+ 만 판정
+                continue
+            check = off_rule_check(a, yday)
             if check["off_recommend"] and a.get("ad_id"):
                 off_ad_ids.add(a["ad_id"])
     grads = graduation_candidates(rows_7d, yday, off_ad_ids=off_ad_ids)
