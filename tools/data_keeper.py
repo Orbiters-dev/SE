@@ -3700,8 +3700,11 @@ def main():
 
     # "all" excludes slow keyword channels (run separately in GitHub Actions)
     SLOW_CHANNELS = {"amazon_ads_search_terms", "amazon_ads_keywords", "google_ads_search_terms", "amazon_brand_analytics"}
+    # meta / meta_jp 는 WONGI datakeeper-cron 이 단일 수집 (2026-07-06 handoff). "all" 에서 제외해 gk_meta_ads_daily 중복 적재 방지.
+    # (수동 --channel meta / meta_jp 는 여전히 가능. meta_campaigns 는 별도 테이블이라 유지.)
+    WONGI_OWNED_CHANNELS = {"meta", "meta_jp"}
     if args.channel == "all":
-        channels = [c for c in CHANNEL_COLLECTORS.keys() if c not in SLOW_CHANNELS]
+        channels = [c for c in CHANNEL_COLLECTORS.keys() if c not in SLOW_CHANNELS and c not in WONGI_OWNED_CHANNELS]
     else:
         channels = [args.channel]
 
