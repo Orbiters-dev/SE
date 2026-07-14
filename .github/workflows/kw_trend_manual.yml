@@ -1,0 +1,52 @@
+name: KW Trend Manual (Keyword Planner JP/US)
+
+on:
+  workflow_dispatch:
+    inputs:
+      markets:
+        description: 'Markets (comma separated: JP,US)'
+        required: false
+        default: 'JP,US'
+      max_ideas:
+        description: 'Max keyword ideas per market'
+        required: false
+        default: '1500'
+
+jobs:
+  kw-trend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install --quiet google-ads python-dotenv
+
+      - name: Write .env
+        run: |
+          cat > .env <<'ENVEOF'
+          GOOGLE_ADS_DEVELOPER_TOKEN=${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID=${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET=${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN=${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_LOGIN_CUSTOMER_ID=${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
+          ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
+
+      - name: Run keyword trend discovery
+        run: |
+          python -u tools/kw_trend_jp.py --markets "${{ github.event.inputs.markets || 'JP,US' }}" --max-ideas "${{ github.event.inputs.max_ideas || '1500' }}"
+
+      - name: Upload results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kw_insight
+          path: .tmp/kw_insight/*.json
+          retention-days: 7
