@@ -1,0 +1,76 @@
+name: Ads OAuth Helper
+
+# AMZ_ADS refresh token 재발급 헬퍼 (수동 전용).
+# mode=auth-url : Secrets의 CLIENT_ID로 LWA 인증 URL을 생성해 artifact로 출력
+# mode=exchange : 세은이 받아온 authorization code를 refresh token으로 교환해 artifact로 출력
+# 로그에는 시크릿이 마스킹되므로 결과는 artifact 파일로만 전달한다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "auth-url | exchange"
+        required: true
+        default: "auth-url"
+      code:
+        description: "authorization code (exchange 모드에서만)"
+        required: false
+        default: ""
+
+jobs:
+  helper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Build auth URL
+        if: ${{ github.event.inputs.mode == 'auth-url' }}
+        env:
+          CID: ${{ secrets.AMZ_ADS_CLIENT_ID }}
+        run: |
+          python3 - <<'EOF'
+          import os, urllib.parse
+          params = {
+              "client_id": os.environ["CID"],
+              "scope": "advertising::campaign_management",
+              "response_type": "code",
+              "redirect_uri": "https://zezebaebae.com",
+          }
+          url = "https://www.amazon.com/ap/oa?" + urllib.parse.urlencode(params)
+          with open("result.txt", "w") as f:
+              f.write(url + "\n")
+          print("auth url written to artifact")
+          EOF
+
+      - name: Exchange code for refresh token
+        if: ${{ github.event.inputs.mode == 'exchange' }}
+        env:
+          CID: ${{ secrets.AMZ_ADS_CLIENT_ID }}
+          CSEC: ${{ secrets.AMZ_ADS_CLIENT_SECRET }}
+          AUTH_CODE: ${{ github.event.inputs.code }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, urllib.parse, urllib.request
+          data = urllib.parse.urlencode({
+              "grant_type": "authorization_code",
+              "code": os.environ["AUTH_CODE"],
+              "client_id": os.environ["CID"],
+              "client_secret": os.environ["CSEC"],
+              "redirect_uri": "https://zezebaebae.com",
+          }).encode()
+          req = urllib.request.Request("https://api.amazon.com/auth/o2/token", data=data)
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  body = json.load(r)
+          except urllib.error.HTTPError as e:
+              body = {"error_status": e.code, "body": e.read().decode()[:500]}
+          with open("result.txt", "w") as f:
+              json.dump(body, f)
+          print("exchange result written to artifact (status keys: %s)" % list(body.keys()))
+          EOF
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: oauth-result
+          path: result.txt
+          retention-days: 1
