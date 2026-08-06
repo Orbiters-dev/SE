@@ -1,0 +1,56 @@
+name: Sales Traffic US/JP (manual)
+
+# Amazon US/JP 세션·전환 데이터 수동 수집 — GET_SALES_AND_TRAFFIC_REPORT
+# US SP-API 시크릿은 Actions에만 있고, 로컬 JP 앱은 Brand Analytics 역할이
+# 없어 이 리포트만 403 → 둘 다 여기서 실행, 결과는 artifact.
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "수집 일수"
+        required: false
+        default: "30"
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install requests python-dotenv
+
+      - name: Fetch sales & traffic (NA)
+        continue-on-error: true
+        env:
+          AMZ_SP_GROSMIMI_CLIENT_ID: ${{ secrets.AMZ_SP_GROSMIMI_CLIENT_ID }}
+          AMZ_SP_GROSMIMI_CLIENT_SECRET: ${{ secrets.AMZ_SP_GROSMIMI_CLIENT_SECRET }}
+          AMZ_SP_REFRESH_TOKEN_GROSMIMI: ${{ secrets.AMZ_SP_REFRESH_TOKEN_GROSMIMI }}
+        run: |
+          python tools/fetch_sales_traffic.py --region NA \
+            --days "${{ github.event.inputs.days }}" \
+            --out out/traffic_us.json
+
+      - name: Fetch sales & traffic (FE)
+        continue-on-error: true
+        env:
+          AMZ_SP_GROSMIMI_JP_CLIENT_ID: ${{ secrets.AMZ_SP_GROSMIMI_JP_CLIENT_ID }}
+          AMZ_SP_GROSMIMI_JP_CLIENT_SECRET: ${{ secrets.AMZ_SP_GROSMIMI_JP_CLIENT_SECRET }}
+          AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP: ${{ secrets.AMZ_SP_REFRESH_TOKEN_GROSMIMI_JP }}
+        run: |
+          python tools/fetch_sales_traffic.py --region FE \
+            --days "${{ github.event.inputs.days }}" \
+            --out out/traffic_jp.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sales-traffic
+          path: out/
+          retention-days: 7
