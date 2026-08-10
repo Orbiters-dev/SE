@@ -97,7 +97,7 @@ SLOTS = [10, 13, 17, 19, 21]
 AM_SLOTS = [10, 13]
 PM_SLOTS = [17, 19, 21]
 APPROVAL_WAIT_MINUTES = 10
-CLAUDE_MODEL = "claude-sonnet-4-20250514"
+CLAUDE_MODEL = "claude-sonnet-4-6"
 
 # ── Import agent prompts ────────────────────────────────────────────────
 from twitter_agent import NAKANOHITO_SYSTEM_PROMPT, SLOT_CONFIG, SEASON_MAP

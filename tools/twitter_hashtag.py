@@ -37,7 +37,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 PROJECT_ROOT = Path(__file__).parent.parent
 TMP_DIR = PROJECT_ROOT / ".tmp"
 JST = timezone(timedelta(hours=9))
-MODEL = "claude-sonnet-4-20250514"
+MODEL = "claude-sonnet-4-6"
 
 # ── 調査カテゴリ ──────────────────────────────────────────────────────────────
 # @grosmimi_jp = 韓国発ベビーマグブランドの日本公式アカウント

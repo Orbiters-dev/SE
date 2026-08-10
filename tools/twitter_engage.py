@@ -58,7 +58,7 @@ JST = timezone(timedelta(hours=9))
 ENGAGE_LOG_PATH = TMP_DIR / "twitter_engage_log.json"
 FIRECRAWL_DIR = PROJECT_ROOT / ".firecrawl"
 DAILY_REPLY_LIMIT = 10  # max replies per day
-MODEL = "claude-sonnet-4-20250514"
+MODEL = "claude-sonnet-4-6"
 MIN_FOLLOWERS = 100  # minimum follower count
 
 TWITTER_EPOCH_MS = 1288834974657  # Nov 4, 2010 UTC

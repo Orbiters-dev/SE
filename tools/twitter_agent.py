@@ -70,7 +70,7 @@ VALID_SLOTS = [10, 13, 17, 19, 21]
 AGENT_LOG_PATH = TMP_DIR / "twitter_agent_log.json"
 
 # Claude model for content generation
-MODEL = "claude-sonnet-4-20250514"
+MODEL = "claude-sonnet-4-6"
 
 # ── 中の人 Persona System Prompt ─────────────────────────────────────────
 
