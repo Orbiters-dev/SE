@@ -49,10 +49,31 @@ jobs:
           latest = dates[-1] if dates else "NONE"
           print(f"latest data date: {latest} / expected >= {expect}")
 
+          problems = []
           if latest < expect:
               behind = (jst_today - datetime.date.fromisoformat(latest)).days if latest != "NONE" else -1
-              alert(f"[감시자] JP 대시보드 데이터가 {latest}에 멈춰 있음 ({behind}일 뒤처짐, 기대 {expect}). "
-                    f"로컬 PC 꺼짐/절전 또는 JPDash_Daily 체인 실패. PC 켜면 자동 만회 실행됨.")
+              problems.append(f"대시보드 데이터가 {latest}에 멈춰 있음 ({behind}일 뒤처짐, 기대 {expect}). "
+                              f"로컬 PC 꺼짐/절전 또는 JPDash_Daily 체인 실패. PC 켜면 자동 만회 실행됨.")
+
+          # 아마존 JP 세션 축 (로그인 수집 — SP-API 롤 승인 전까지 반자동): 수집 시점 3일 초과면 갱신 요청
+          try:
+              ppc = urllib.request.Request(base + "/ppc", headers={"Cookie": cookie})
+              ppc_html = urllib.request.urlopen(ppc, timeout=60).read().decode("utf-8", errors="ignore")
+              m = re.search(r"세션 수집 (\d{4}-\d{2}-\d{2})", ppc_html)
+              if m:
+                  col_date = datetime.date.fromisoformat(m.group(1))
+                  age = (jst_today - col_date).days
+                  print(f"amz session collected: {m.group(1)} ({age}d ago)")
+                  if age > 3:
+                      problems.append(f"아마존 JP 세션·전환 수집이 {m.group(1)} 이후 멈춤 ({age}일 경과). "
+                                      f"PC에서 「아마존 세션 갱신」 실행 필요 (로그인 1회).")
+              else:
+                  print("amz session label not found on /ppc — skip")
+          except Exception as e:
+              print(f"amz session check skipped: {type(e).__name__}")
+
+          if problems:
+              alert("[감시자] " + " / ".join(problems))
               sys.exit(1)
           print("OK: fresh")
           EOF
