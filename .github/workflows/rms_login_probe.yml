@@ -10,6 +10,9 @@ on:
         description: "ec2 | runner | both"
         default: "both"
         required: false
+  schedule:
+    # 반복 안정성 실측 (2026-08-20 시작, 3~5일 후 결과 보고하고 제거) — 08:20 JST
+    - cron: "20 23 * * *"
 
 jobs:
   ec2:
@@ -74,7 +77,8 @@ jobs:
           path: ec2_out/
 
   runner:
-    if: ${{ inputs.target == 'runner' || inputs.target == 'both' }}
+    # schedule 트리거에선 inputs 가 비므로 event_name 으로 통과시킴 (스케줄 = 러너만)
+    if: ${{ github.event_name == 'schedule' || inputs.target == 'runner' || inputs.target == 'both' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
