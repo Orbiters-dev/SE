@@ -93,6 +93,11 @@ jobs:
           RAKUTEN_SSO_ID: ${{ secrets.RAKUTEN_SSO_ID }}
           RAKUTEN_SSO_PASSWORD: ${{ secrets.RAKUTEN_SSO_PASSWORD }}
         run: |
+          # 시크릿 무결성 체크 — 값은 안 찍고 길이+md5만 (로컬 대조용)
+          for k in RAKUTEN_RMS_LOGIN_ID RAKUTEN_RMS_LOGIN_PASSWORD RAKUTEN_SSO_ID RAKUTEN_SSO_PASSWORD; do
+            v="${!k}"
+            printf '%s len=%s md5=%s\n' "$k" "${#v}" "$(printf '%s' "$v" | md5sum | cut -c1-8)"
+          done
           set +e
           python tools/rms_login_probe.py --out runner_out
           echo "probe exit: $?"
