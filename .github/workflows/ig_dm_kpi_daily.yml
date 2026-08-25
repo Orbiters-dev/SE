@@ -1,0 +1,67 @@
+# IG DM 리치아웃 KPI 일일 수집 — @grosmimi_japan DM 원장 증분 수집 + 코호트 집계
+# (2026-08-25 세은 지시: 리치아웃/답장/계약 자동 집계, 담당자 분해 없음)
+# JST 23:55 (X:55 — 정각 부하 회피 룰). 원장은 repo data/ 에 커밋해 이력 보존.
+name: IG DM KPI Daily
+
+on:
+  schedule:
+    - cron: "55 14 * * *"   # UTC 14:55 = JST 23:55
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ig-dm-kpi
+  cancel-in-progress: false
+
+jobs:
+  collect-aggregate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      IG_DM_ACCESS_TOKEN: ${{ secrets.IG_DM_ACCESS_TOKEN }}
+      GOOGLE_SERVICE_ACCOUNT_PATH: credentials/google_service_account.json
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install --quiet python-dotenv gspread google-auth
+
+      - name: Write Google SA credentials
+        run: |
+          mkdir -p credentials
+          printf '%s' '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
+
+      - name: Collect DM ledger (incremental)
+        run: python tools/ig_dm_collector.py
+
+      # 토큰 refresh 는 매번 새 토큰을 발급 (2026-08-25 실측) → 시크릿 자가 갱신 필수.
+      # 실패해도 수집은 이미 끝났으므로 continue — 단 60일 내 미갱신 누적 시 만료 위험.
+      - name: Self-update token secret
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GH_CRON_BACKUP_PAT }}
+        run: |
+          NEW=$(cat .tmp/ig_token_current.txt)
+          if [ -n "$NEW" ] && [ "$NEW" != "${{ secrets.IG_DM_ACCESS_TOKEN }}" ]; then
+            gh secret set IG_DM_ACCESS_TOKEN --repo "$GITHUB_REPOSITORY" --body "$NEW" \
+              && echo "secret rotated" || echo "[WARN] secret update failed — PAT 권한 확인 필요"
+          fi
+
+      - name: Aggregate cohort → sheet
+        run: python tools/ig_dm_kpi_aggregate.py
+
+      - name: Commit ledger
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/ig_dm_ledger.json
+          git diff --cached --quiet || git commit -m "auto: IG DM ledger daily update [skip ci]"
+          git pull --rebase || true
+          git push || echo "[WARN] Push failed"
