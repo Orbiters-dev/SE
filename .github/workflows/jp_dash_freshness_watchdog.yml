@@ -1,0 +1,79 @@
+# JP 대시보드 신선도 감시자 — 로컬 PC와 무관하게 GH에서 돈다.
+# 매일 12:10 JST (로컬 체인 10:00 + 재시도 3회 종료 후) 프로덕션 앱의 데이터 최신일을 실측,
+# D-1 미달이면 세은 Teams DM 알림. 2026-08-20 신설 (8/14~19 6일 무갱신 무감지 사고 재발 방지).
+name: JP Dash Freshness Watchdog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "10 3 * * *" # 12:10 JST
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check dashboard data freshness
+        env:
+          APP_PASSWORD: ${{ secrets.META_APP_PASSWORD }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+        run: |
+          python3 - <<'EOF'
+          import os, re, json, datetime, urllib.request, sys
+
+          base = "https://meta-app-one.vercel.app"
+          jst_today = (datetime.datetime.utcnow() + datetime.timedelta(hours=9)).date()
+          expect = (jst_today - datetime.timedelta(days=1)).isoformat()  # D-1
+
+          def alert(text):
+              body = json.dumps({"text": text}).encode()
+              req = urllib.request.Request(os.environ["TEAMS_WEBHOOK"], data=body,
+                                           headers={"Content-Type": "application/json"})
+              urllib.request.urlopen(req, timeout=15)
+
+          try:
+              login = urllib.request.Request(base + "/api/login",
+                  data=json.dumps({"password": os.environ["APP_PASSWORD"]}).encode(),
+                  headers={"Content-Type": "application/json"})
+              r = urllib.request.urlopen(login, timeout=30)
+              cookie = r.headers.get("Set-Cookie", "").split(";")[0]
+              page = urllib.request.Request(base + "/decks/jp-ads-live.html",
+                                            headers={"Cookie": cookie})
+              html = urllib.request.urlopen(page, timeout=60).read().decode("utf-8", errors="ignore")
+          except Exception as e:
+              alert(f"[감시자] JP 대시보드 접속 실패 — {type(e).__name__}: {e}. 앱 자체가 죽었거나 배포 문제일 수 있음.")
+              sys.exit(1)
+
+          dates = sorted(set(d for d in re.findall(r"2026-\d{2}-\d{2}", html)
+                             if d <= jst_today.isoformat()))
+          latest = dates[-1] if dates else "NONE"
+          print(f"latest data date: {latest} / expected >= {expect}")
+
+          problems = []
+          if latest < expect:
+              behind = (jst_today - datetime.date.fromisoformat(latest)).days if latest != "NONE" else -1
+              problems.append(f"대시보드 데이터가 {latest}에 멈춰 있음 ({behind}일 뒤처짐, 기대 {expect}). "
+                              f"로컬 PC 꺼짐/절전 또는 JPDash_Daily 체인 실패. PC 켜면 자동 만회 실행됨.")
+
+          # 아마존 JP 세션 축 (로그인 수집 — SP-API 롤 승인 전까지 반자동): 수집 시점 3일 초과면 갱신 요청
+          try:
+              ppc = urllib.request.Request(base + "/ppc", headers={"Cookie": cookie})
+              ppc_html = urllib.request.urlopen(ppc, timeout=60).read().decode("utf-8", errors="ignore")
+              m = re.search(r"세션 수집 (\d{4}-\d{2}-\d{2})", ppc_html)
+              if m:
+                  col_date = datetime.date.fromisoformat(m.group(1))
+                  age = (jst_today - col_date).days
+                  print(f"amz session collected: {m.group(1)} ({age}d ago)")
+                  if age > 3:
+                      problems.append(f"아마존 JP 세션·전환 수집이 {m.group(1)} 이후 멈춤 ({age}일 경과). "
+                                      f"PC에서 「아마존 세션 갱신」 실행 필요 (로그인 1회).")
+              else:
+                  print("amz session label not found on /ppc — skip")
+          except Exception as e:
+              print(f"amz session check skipped: {type(e).__name__}")
+
+          if problems:
+              alert("[감시자] " + " / ".join(problems))
+              sys.exit(1)
+          print("OK: fresh")
+          EOF

@@ -1,0 +1,113 @@
+# 일회성: 라쿠텐 RMS 자동 로그인이 EC2(서울)·GH 러너(해외 DC) IP에서 성립하는지 프로브.
+# 검증 목적 — JP 대시보드 체인의 라쿠텐 축 클라우드 이관 가능성 판정 (2026-08-20).
+# 계정 보호: 실행당 환경별 로그인 시도 1회, 재시도 없음.
+name: RMS Login Probe (one-off)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "ec2 | runner | both"
+        default: "both"
+        required: false
+  schedule:
+    # 반복 안정성 실측 (2026-08-20 시작, 3~5일 후 결과 보고하고 제거) — 08:20 JST
+    - cron: "20 23 * * *"
+
+jobs:
+  ec2:
+    if: ${{ inputs.target == 'ec2' || inputs.target == 'both' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Prepare EC2 (disk check + playwright venv)
+        run: |
+          SSH="ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }}"
+          $SSH 'bash -s' <<'REMOTE'
+          set -e
+          avail_kb=$(df --output=avail / | tail -1 | tr -d ' ')
+          echo "disk avail: $((avail_kb/1024)) MB"
+          if [ "$avail_kb" -lt 3000000 ]; then echo "DISK_LOW — abort"; exit 42; fi
+          mkdir -p ~/rms_probe
+          cd ~/rms_probe
+          [ -d venv ] || python3 -m venv venv
+          ./venv/bin/pip -q install --upgrade pip playwright
+          ./venv/bin/python -m playwright install --with-deps chromium 2>&1 | tail -3 || ./venv/bin/python -m playwright install chromium
+          REMOTE
+
+      - name: Run probe on EC2
+        env:
+          A: ${{ secrets.RAKUTEN_RMS_LOGIN_ID }}
+          B: ${{ secrets.RAKUTEN_RMS_LOGIN_PASSWORD }}
+          C: ${{ secrets.RAKUTEN_SSO_ID }}
+          D: ${{ secrets.RAKUTEN_SSO_PASSWORD }}
+        run: |
+          SSH="ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }}"
+          SCP="scp -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no"
+          {
+            printf 'export RAKUTEN_RMS_LOGIN_ID=%q\n' "$A"
+            printf 'export RAKUTEN_RMS_LOGIN_PASSWORD=%q\n' "$B"
+            printf 'export RAKUTEN_SSO_ID=%q\n' "$C"
+            printf 'export RAKUTEN_SSO_PASSWORD=%q\n' "$D"
+          } > /tmp/probe.env
+          $SCP /tmp/probe.env ubuntu@${{ secrets.EC2_HOST }}:~/rms_probe/probe.env
+          $SCP tools/rms_login_probe.py ubuntu@${{ secrets.EC2_HOST }}:~/rms_probe/
+          set +e
+          $SSH 'cd ~/rms_probe && chmod 600 probe.env && source probe.env && rm -rf out && ./venv/bin/python rms_login_probe.py --out out; rc=$?; rm -f probe.env; exit $rc'
+          rc=$?
+          set -e
+          mkdir -p ec2_out
+          $SCP -r ubuntu@${{ secrets.EC2_HOST }}:~/rms_probe/out/* ec2_out/ || true
+          echo "probe exit: $rc"
+          cat ec2_out/result.json || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rms-probe-ec2
+          path: ec2_out/
+
+  runner:
+    # schedule 트리거에선 inputs 가 비므로 event_name 으로 통과시킴 (스케줄 = 러너만)
+    if: ${{ github.event_name == 'schedule' || inputs.target == 'runner' || inputs.target == 'both' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install playwright
+        run: |
+          pip -q install playwright
+          python -m playwright install --with-deps chromium 2>&1 | tail -3
+      - name: Run probe on runner
+        env:
+          RAKUTEN_RMS_LOGIN_ID: ${{ secrets.RAKUTEN_RMS_LOGIN_ID }}
+          RAKUTEN_RMS_LOGIN_PASSWORD: ${{ secrets.RAKUTEN_RMS_LOGIN_PASSWORD }}
+          RAKUTEN_SSO_ID: ${{ secrets.RAKUTEN_SSO_ID }}
+          RAKUTEN_SSO_PASSWORD: ${{ secrets.RAKUTEN_SSO_PASSWORD }}
+        run: |
+          # 시크릿 무결성 체크 — 값은 안 찍고 길이+md5만 (로컬 대조용)
+          for k in RAKUTEN_RMS_LOGIN_ID RAKUTEN_RMS_LOGIN_PASSWORD RAKUTEN_SSO_ID RAKUTEN_SSO_PASSWORD; do
+            v="${!k}"
+            printf '%s len=%s md5=%s\n' "$k" "${#v}" "$(printf '%s' "$v" | md5sum | cut -c1-8)"
+          done
+          set +e
+          python tools/rms_login_probe.py --out runner_out
+          echo "probe exit: $?"
+          cat runner_out/result.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rms-probe-runner
+          path: runner_out/
