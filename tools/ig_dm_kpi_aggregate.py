@@ -36,6 +36,9 @@ WL_TAB_GID = 751080099          # "WL Code & Payment"
 OUT_TAB = "Outreach Auto"
 OUT_TAB_MONTHLY = "Outreach Auto Monthly"
 JST = timezone(timedelta(hours=9))
+# 집계 시작점 — 2026-08-01 (JST) 이후 리치아웃만 코호트에 포함 (2026-08-25 세은 지시:
+# "8월부터 누적 시작". 원장 수집은 전 기간 그대로, 집계·표시만 컷).
+COHORT_START = datetime(2026, 8, 1, tzinfo=JST)
 
 
 def parse_ts(s: str) -> datetime | None:
@@ -201,14 +204,17 @@ def write_sheet(gc, rows: list[list], meta: dict) -> None:
     header = [["Week Start (Mon, JST)", "Reachout", "Reply", "Reply %",
                "Contract", "Contract %", "Low Confidence", "", f"updated {now}"]]
     ou, nd = meta["contracts_origin_unknown"], meta["contracts_no_dm"]
+    ps = meta.get("contracts_pre_start", [])
     trunc = lambda lst: ", ".join(lst[:30]) + (f" 외 {len(lst) - 30}건" if len(lst) > 30 else "")
     try:
-        if ws.row_count < len(rows) + 6:
+        if ws.row_count < len(rows) + 7:
             ws.resize(rows=len(rows) + 20)
         ws.clear()
         ws.update(values=header + rows, range_name="A1")
         note_row = len(rows) + 3
         ws.update(values=[
+            [f"집계 범위 = 2026-08-01(JST)~ 리치아웃 코호트"],
+            [f"8월 이전 리치아웃 계약 {len(ps)}건 (범위 외): {trunc(ps)}"],
             [f"코호트 미귀속 계약 {len(ou)}건 — DM 있으나 최초 발송일 소급불가(과거 20개 캡): {trunc(ou)}"],
             [f"DM 스레드 없는 계약 {len(nd)}건 (타 경로/표기 상이): {trunc(nd)}"],
         ], range_name=f"A{note_row}")
@@ -236,7 +242,19 @@ def main() -> int:
 
     all_peers = {norm_handle(t.get("peer", "")) for t in ledger["threads"].values()}
     all_peers.discard("")
+
+    # 8월 이전 리치아웃은 집계 범위 외 — 그쪽에 매칭되는 계약은 별도 각주로만
+    us = lambda s: s.strip("_")
+    pre = {p: i for p, i in threads.items() if i["reachout_ts"] < COHORT_START}
+    threads = {p: i for p, i in threads.items() if i["reachout_ts"] >= COHORT_START}
+    pre_us = {us(p) for p in pre}
+    pre_matched = sorted(h for h in contract_set if h in pre or us(h) in pre_us)
+    contract_set = contract_set - set(pre_matched)
+    print(f"집계 범위: {COHORT_START:%Y-%m-%d}~ — 범위 내 리치아웃 {len(threads)}개"
+          f" / 범위 외(8월 이전) {len(pre)}개, 범위 외 매칭 계약 {len(pre_matched)}건")
+
     rows, meta = build_weekly(threads, contract_set, all_peers)
+    meta["contracts_pre_start"] = pre_matched
     print(f"\n{'주차(월)':<12}{'리치아웃':>8}{'답장':>6}{'답장률':>8}{'계약':>6}{'계약률':>8}{'저신뢰':>8}")
     for r in rows:
         print(f"{r[0]:<12}{r[1]:>8}{r[2]:>6}{r[3]:>8}{r[4]:>6}{r[5]:>8}{r[6]:>8}")
