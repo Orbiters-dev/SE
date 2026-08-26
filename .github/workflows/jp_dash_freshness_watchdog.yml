@@ -5,6 +5,11 @@ name: JP Dash Freshness Watchdog
 
 on:
   workflow_dispatch:
+    inputs:
+      test_alert:
+        description: "GH 시크릿 웹훅 경로 테스트 (경보 1건 강제 발송)"
+        type: boolean
+        default: false
   schedule:
     - cron: "10 3 * * *" # 12:10 JST
 
@@ -17,6 +22,7 @@ jobs:
         env:
           APP_PASSWORD: ${{ secrets.META_APP_PASSWORD }}
           TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+          TEST_ALERT: ${{ github.event.inputs.test_alert }}
         run: |
           python3 - <<'EOF'
           import os, re, json, datetime, urllib.request, sys
@@ -31,6 +37,12 @@ jobs:
                                            headers={"Content-Type": "application/json"})
               urllib.request.urlopen(req, timeout=15)
 
+          if os.environ.get("TEST_ALERT") == "true":
+              alert("[감시자] GH 시크릿 웹훅 경로 테스트 — 이 메시지가 보이면 GH 경보 전달 정상. "
+                    "안 보이면 GH 시크릿 TEAMS_WEBHOOK_URL_SEEUN이 로컬과 다른(죽은) URL.")
+              print("TEST_ALERT sent")
+              sys.exit(0)
+
           try:
               login = urllib.request.Request(base + "/api/login",
                   data=json.dumps({"password": os.environ["APP_PASSWORD"]}).encode(),
@@ -44,16 +56,28 @@ jobs:
               alert(f"[감시자] JP 대시보드 접속 실패 — {type(e).__name__}: {e}. 앱 자체가 죽었거나 배포 문제일 수 있음.")
               sys.exit(1)
 
-          dates = sorted(set(d for d in re.findall(r"2026-\d{2}-\d{2}", html)
-                             if d <= jst_today.isoformat()))
-          latest = dates[-1] if dates else "NONE"
-          print(f"latest data date: {latest} / expected >= {expect}")
-
           problems = []
-          if latest < expect:
-              behind = (jst_today - datetime.date.fromisoformat(latest)).days if latest != "NONE" else -1
-              problems.append(f"대시보드 데이터가 {latest}에 멈춰 있음 ({behind}일 뒤처짐, 기대 {expect}). "
-                              f"로컬 PC 꺼짐/절전 또는 JPDash_Daily 체인 실패. PC 켜면 자동 만회 실행됨.")
+          # 1차: BUILD_AT 마커 (build_jp_dash.py가 심음). 날짜 정규식 스캔은 기간 라벨 때문에
+          # 데이터가 멈춰도 fresh로 오탐 (8/21~22 실사고) — 마커가 정본.
+          bm = re.search(r"BUILD_AT:(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})", html)
+          if bm:
+              built = datetime.datetime.fromisoformat(bm.group(1))
+              now_jst = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
+              age_h = (now_jst - built).total_seconds() / 3600
+              print(f"build marker: {bm.group(1)} ({age_h:.1f}h ago)")
+              # 체인 10:00 JST + 재시도 3회 → 정상이면 빌드 나이 항상 27h 미만
+              if age_h > 27:
+                  problems.append(f"대시보드가 {bm.group(1)} 빌드에서 멈춤 ({age_h/24:.1f}일 뒤처짐). "
+                                  f"로컬 PC 꺼짐/절전 또는 JPDash_Daily 체인 실패. PC 켜서 체인 확인 필요.")
+          else:
+              # 마커 없는 구버전 배포본 = 그 자체가 무갱신 신호
+              dates = sorted(set(d for d in re.findall(r"2026-\d{2}-\d{2}", html)
+                                 if d <= jst_today.isoformat()))
+              latest = dates[-1] if dates else "NONE"
+              print(f"no build marker; latest data date: {latest} / expected >= {expect}")
+              if latest < expect:
+                  problems.append(f"대시보드 데이터가 {latest}에 멈춰 있음 (기대 {expect}). "
+                                  f"로컬 PC 꺼짐/절전 또는 JPDash_Daily 체인 실패.")
 
           # 아마존 JP 세션 축 (로그인 수집 — SP-API 롤 승인 전까지 반자동): 수집 시점 3일 초과면 갱신 요청
           try:
@@ -74,6 +98,9 @@ jobs:
 
           if problems:
               alert("[감시자] " + " / ".join(problems))
-              sys.exit(1)
+              # 경보 발송 = 임무 완수 → exit 0. exit 1이면 gh_cron_backup이 "오늘 success 없음"으로
+              # 판정해 매시간 재디스패치 → 시간당 경보 스팸 (8/23~26 실사고, 76회 dispatch)
+              print("ALERTED: " + " / ".join(problems))
+              sys.exit(0)
           print("OK: fresh")
           EOF
