@@ -60,7 +60,9 @@ jobs:
           python-version: "3.12"
 
       - name: Install deps
-        run: pip install --quiet python-dotenv gspread google-auth
+        run: |
+          pip install --quiet python-dotenv gspread google-auth playwright
+          python -m playwright install --with-deps chromium
 
       - name: Write Google SA credentials
         run: |
@@ -89,7 +91,8 @@ jobs:
         continue-on-error: true
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
-        run: python tools/ig_dm_follower_enrich.py
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+        run: python tools/ig_dm_follower_enrich.py --with-browser
 
       - name: Aggregate cohort → sheet
         run: python tools/ig_dm_kpi_aggregate.py
