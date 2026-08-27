@@ -118,11 +118,15 @@ def fetch_contract_handles(gc) -> set[str]:
     return {h for r in rows if r for h in [norm_handle(r[0])] if h}
 
 
-def build_weekly(threads: dict, contract_set: set[str], all_peers: set[str]) -> tuple[list[list], dict]:
-    weekly = defaultdict(lambda: {"reachout": 0, "reply": 0, "contract": 0, "low_conf": 0})
+def build_weekly(threads: dict, contract_set: set[str], all_peers: set[str],
+                 first_posts: dict[str, str] | None = None) -> tuple[list[list], dict]:
+    """주별 코호트 퍼널 — 그 주 리치아웃 인원 중 답장/계약/포스팅 도달 수 (2026-08-27 세은 확정 축)."""
+    weekly = defaultdict(lambda: {"reachout": 0, "reply": 0, "contract": 0, "post": 0, "low_conf": 0})
     # 표기 편차 흡수: 앞뒤 언더스코어 제거 키로도 매칭 (WL "_musukono_kiroku_" vs DM "musukono_kiroku" 류)
     us = lambda s: s.strip("_")
     contract_us = {us(h): h for h in contract_set}
+    posts = first_posts or {}
+    posts_us = {us(h): d for h, d in posts.items()}
     matched_contracts = set()
     for peer, info in threads.items():
         wk = week_start(info["reachout_ts"])
@@ -135,6 +139,8 @@ def build_weekly(threads: dict, contract_set: set[str], all_peers: set[str]) -> 
         if hit and hit not in matched_contracts:
             weekly[wk]["contract"] += 1  # peer 는 threads 키라 주 1회만 진입 — 중복 불가
             matched_contracts.add(hit)
+        if peer in posts or us(peer) in posts_us:
+            weekly[wk]["post"] += 1
     unmatched = sorted(contract_set - matched_contracts)
     # 미매칭 분해: DM 스레드는 있으나 시작 소급 판정 불가(과거 20개 캡) vs DM 자체 없음
     all_us = {us(p) for p in all_peers}
@@ -142,12 +148,12 @@ def build_weekly(threads: dict, contract_set: set[str], all_peers: set[str]) -> 
     no_dm = [h for h in unmatched if not (h in all_peers or us(h) in all_us)]
 
     rows = []
+    rate = lambda n, d: f"{n / d:.0%}" if d else "-"
     for wk in sorted(weekly):
         w = weekly[wk]
-        reply_rate = f"{w['reply'] / w['reachout']:.0%}" if w["reachout"] else "-"
-        contract_rate = f"{w['contract'] / w['reachout']:.0%}" if w["reachout"] else "-"
-        rows.append([wk, w["reachout"], w["reply"], reply_rate,
-                     w["contract"], contract_rate, w["low_conf"]])
+        rows.append([wk, w["reachout"], w["reply"], rate(w["reply"], w["reachout"]),
+                     w["contract"], rate(w["contract"], w["reachout"]),
+                     w["post"], rate(w["post"], w["reachout"]), w["low_conf"]])
     meta = {
         "total_reachout": sum(w["reachout"] for w in weekly.values()),
         "total_reply": sum(w["reply"] for w in weekly.values()),
@@ -478,7 +484,7 @@ def write_sheet(gc, rows: list[list], meta: dict) -> None:
         ws = sh.add_worksheet(title=OUT_TAB, rows=max(1000, len(rows) + 20), cols=10)
     now = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
     header = [["Week Start (Mon, JST)", "Reachout", "Reply", "Reply %",
-               "Contract", "Contract %", "Low Confidence", "", f"updated {now}"]]
+               "Contract", "Contract %", "Post", "Post %", "Low Confidence", f"updated {now}"]]
     ou, nd = meta["contracts_origin_unknown"], meta["contracts_no_dm"]
     ps = meta.get("contracts_pre_start", [])
     trunc = lambda lst: ", ".join(lst[:30]) + (f" 외 {len(lst) - 30}건" if len(lst) > 30 else "")
@@ -529,11 +535,12 @@ def main() -> int:
     print(f"집계 범위: {COHORT_START:%Y-%m-%d}~ — 범위 내 리치아웃 {len(threads)}개"
           f" / 범위 외(8월 이전) {len(pre)}개, 범위 외 매칭 계약 {len(pre_matched)}건")
 
-    rows, meta = build_weekly(threads, contract_set, all_peers)
+    first_posts = fetch_dk_first_posts()
+    rows, meta = build_weekly(threads, contract_set, all_peers, first_posts)
     meta["contracts_pre_start"] = pre_matched
-    print(f"\n{'주차(월)':<12}{'리치아웃':>8}{'답장':>6}{'답장률':>8}{'계약':>6}{'계약률':>8}{'저신뢰':>8}")
+    print(f"\n{'주차(월)':<12}{'리치아웃':>8}{'답장':>6}{'답장률':>8}{'계약':>6}{'계약률':>8}{'포스팅':>7}{'포스팅률':>9}{'저신뢰':>8}")
     for r in rows:
-        print(f"{r[0]:<12}{r[1]:>8}{r[2]:>6}{r[3]:>8}{r[4]:>6}{r[5]:>8}{r[6]:>8}")
+        print(f"{r[0]:<12}{r[1]:>8}{r[2]:>6}{r[3]:>8}{r[4]:>6}{r[5]:>8}{r[6]:>7}{r[7]:>9}{r[8]:>8}")
     print(f"\n합계 — 리치아웃 {meta['total_reachout']} / 답장 {meta['total_reply']}"
           f" / 계약(DM매칭) {meta['total_contract']}"
           f" / 소급불가 계약 {len(meta['contracts_origin_unknown'])}건"
@@ -560,7 +567,6 @@ def main() -> int:
 
     # 인플루언서별 여정 맵핑 (2026-08-27 대표님 지시 — 리치아웃→답장→계약→포스팅 개인 단위)
     contract_periods = fetch_contract_periods(gc)
-    first_posts = fetch_dk_first_posts()
     journey_rows = build_journey(ledger, contract_periods, followers, first_posts)
     n_known = sum(1 for r in journey_rows if r[3] and r[3] != "미상(잘림)")
     print(f"\n여정 맵핑: {len(journey_rows)}명 (리치아웃일 확실 {n_known} / "
