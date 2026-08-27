@@ -8,7 +8,8 @@ name: IG DM KPI Daily
 on:
   schedule:
     - cron: "55 14 * * *"   # UTC 14:55 = JST 23:55 (본 슬롯)
-    - cron: "55 16 * * *"   # UTC 16:55 = JST 01:55 (재시도 슬롯 — 본 슬롯 성공 시 스킵)
+    - cron: "55 16 * * *"   # UTC 16:55 = JST 01:55 (재시도 1 — 이미 성공 시 guard 가 스킵)
+    - cron: "55 19 * * *"   # UTC 19:55 = JST 04:55 (재시도 2 — 〃)
   workflow_dispatch:
 
 permissions:
@@ -105,3 +106,27 @@ jobs:
           git diff --cached --quiet || git commit -m "auto: IG DM ledger daily update [skip ci]"
           git pull --rebase || true
           git push || echo "[WARN] Push failed"
+
+  # 잡 실패 즉시 세은 Teams 알림 (수집 공백 = 20개 창 유실 위험 — 침묵 실패 금지).
+  # 스케줄 자체가 안 뜨는 startup_failure 는 ig_dm_kpi_watchdog.yml 이 커버.
+  alert-failure:
+    needs: [guard, collect-aggregate]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Teams alert
+        env:
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, urllib.request
+          run_url = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          body = json.dumps({"text": ("[DM수집] IG DM KPI 수집 실패 — 이 슬롯 실행이 죽었습니다. "
+                                      "재시도 슬롯이 남아 있으면 자동 재시도되지만, 연속 실패 시 "
+                                      "스레드당 20개 창 밖 메시지가 영구 유실될 수 있음. " + run_url)}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              os.environ["TEAMS_WEBHOOK"], data=body,
+              headers={"Content-Type": "application/json"}), timeout=15)
+          print("alert sent")
+          EOF

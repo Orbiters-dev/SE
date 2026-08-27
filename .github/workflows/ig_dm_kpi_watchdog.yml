@@ -1,0 +1,47 @@
+# IG DM 수집 감시견 — 본 워크플로우(ig_dm_kpi_daily)의 3개 슬롯이 전멸한 날을 잡는다.
+# startup_failure(러너 미배정 등)는 잡이 아예 안 떠서 alert-failure 도 못 돈다 (8/26 실사고)
+# → 별도 스케줄에서 "오늘 성공 런 존재" 를 외부 검증하고, 없으면 구조 dispatch + 세은 Teams 알림.
+# JST 07:30 (UTC 22:30) — 마지막 슬롯(UTC 19:55) 지연 기동까지 여유 2.5h 둔 시각.
+name: IG DM KPI Watchdog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 22 * * *"   # UTC 22:30 = JST 07:30
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify today's success or rescue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          N=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ig_dm_kpi_daily.yml/runs?status=success&created=$TODAY&per_page=50" \
+                --jq '.workflow_runs | length' || echo 0)
+          echo "오늘($TODAY UTC) 성공 런: ${N:-0}건"
+          if [ "${N:-0}" -gt 0 ]; then
+            echo "OK"; exit 0
+          fi
+          echo "성공 런 없음 — 구조 dispatch + 알림"
+          gh api -X POST "repos/$GITHUB_REPOSITORY/actions/workflows/ig_dm_kpi_daily.yml/dispatches" \
+            -f ref=main && RESCUE="구조 실행을 방금 기동했습니다" || RESCUE="구조 실행 기동도 실패 — 수동 확인 필요"
+          python3 - <<EOF
+          import json, os, urllib.request
+          body = json.dumps({"text": ("[DM수집 감시견] 어젯밤~오늘 새벽 IG DM 수집 3개 슬롯 전부 실행 안 됨 "
+                                      "(GitHub 러너 장애 등). $RESCUE. 이 상태가 이틀 이어지면 "
+                                      "활발한 DM 스레드의 과거 메시지가 유실될 수 있음.")}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              os.environ["TEAMS_WEBHOOK"], data=body,
+              headers={"Content-Type": "application/json"}), timeout=15)
+          print("alert sent")
+          EOF
+          # 경보+구조 발사 = 임무 완수 → exit 0 (exit 1 이면 외부 재디스패처가 스팸 유발 — 8/23~26 실사고 패턴)
+          exit 0
