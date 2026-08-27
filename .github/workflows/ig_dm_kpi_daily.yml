@@ -1,11 +1,14 @@
 # IG DM 리치아웃 KPI 일일 수집 — @grosmimi_japan DM 원장 증분 수집 + 코호트 집계
 # (2026-08-25 세은 지시: 리치아웃/답장/계약 자동 집계, 담당자 분해 없음)
 # JST 23:55 (X:55 — 정각 부하 회피 룰). 원장은 repo data/ 에 커밋해 이력 보존.
+# 재시도 슬롯 JST 01:55: 8/26 GitHub 러너 장애("job was not acquired by Runner")로
+# 스케줄 실행이 통째로 죽은 사고 대비 — guard 잡이 "오늘 이미 성공" 이면 스킵.
 name: IG DM KPI Daily
 
 on:
   schedule:
-    - cron: "55 14 * * *"   # UTC 14:55 = JST 23:55
+    - cron: "55 14 * * *"   # UTC 14:55 = JST 23:55 (본 슬롯)
+    - cron: "55 16 * * *"   # UTC 16:55 = JST 01:55 (재시도 슬롯 — 본 슬롯 성공 시 스킵)
   workflow_dispatch:
 
 permissions:
@@ -16,7 +19,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # 같은 UTC 날짜에 성공 런이 이미 있으면 스킵 (수동 dispatch 는 항상 실행)
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      proceed: ${{ steps.check.outputs.proceed }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "proceed=yes" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          TODAY=$(date -u +%Y-%m-%d)
+          N=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ig_dm_kpi_daily.yml/runs?status=success&created=$TODAY&per_page=50" \
+                --jq "[.workflow_runs[] | select(.id != ${{ github.run_id }})] | length" || echo 0)
+          if [ "${N:-0}" -gt 0 ]; then
+            echo "오늘($TODAY UTC) 성공 런 $N건 존재 — 스킵"
+            echo "proceed=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=yes" >> "$GITHUB_OUTPUT"
+          fi
+
   collect-aggregate:
+    needs: guard
+    if: needs.guard.outputs.proceed == 'yes'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
@@ -54,6 +83,14 @@ jobs:
               && echo "secret rotated" || echo "[WARN] secret update failed — PAT 권한 확인 필요"
           fi
 
+      # 팔로워 티어 확보 (DK→Master DB→Apify, 핸들당 1회 영구 캐시) — 실패해도 집계는 진행
+      # (티어 표에서 미확인으로만 표기, 다음 실행 재시도)
+      - name: Enrich follower tiers
+        continue-on-error: true
+        env:
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+        run: python tools/ig_dm_follower_enrich.py
+
       - name: Aggregate cohort → sheet
         run: python tools/ig_dm_kpi_aggregate.py
 
@@ -61,7 +98,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/ig_dm_ledger.json
+          git add data/ig_dm_ledger.json data/ig_dm_followers.json
           git diff --cached --quiet || git commit -m "auto: IG DM ledger daily update [skip ci]"
           git pull --rebase || true
           git push || echo "[WARN] Push failed"

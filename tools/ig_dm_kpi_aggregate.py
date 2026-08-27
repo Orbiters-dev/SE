@@ -31,10 +31,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 LEDGER = ROOT / "data" / "ig_dm_ledger.json"
+FOLLOWERS_CACHE = ROOT / "data" / "ig_dm_followers.json"   # ig_dm_follower_enrich.py 산출
 TRACKER_ID = "13S1cST2ukuNNHNUmyXAr1HuaYPsuuK_EfUQ10IWIQsE"
 WL_TAB_GID = 751080099          # "WL Code & Payment"
 OUT_TAB = "Outreach Auto"
 OUT_TAB_MONTHLY = "Outreach Auto Monthly"
+OUT_TAB_TIER = "Outreach Auto Tier"
+# 팔로워 티어 컷 — KPI 목표(Projection_26)·meta-app influencer-kpi-targets.ts 와 동일 구간
+TIERS = [("0-5K", 0, 5_000), ("5-10K", 5_000, 10_000), ("10-20K", 10_000, 20_000),
+         ("20-50K", 20_000, 50_000), ("50K+", 50_000, None)]
 JST = timezone(timedelta(hours=9))
 # 집계 시작점 — 2026-08-01 (JST) 이후 리치아웃만 코호트에 포함 (2026-08-25 세은 지시:
 # "8월부터 누적 시작". 원장 수집은 전 기간 그대로, 집계·표시만 컷).
@@ -149,6 +154,101 @@ def build_weekly(threads: dict, contract_set: set[str], all_peers: set[str]) -> 
         "contracts_no_dm": no_dm,
     }
     return rows, meta
+
+
+def load_followers() -> dict[str, int]:
+    """팔로워 캐시 (핸들→수). 없으면 빈 dict — 티어 표는 전원 '미확인'으로 표기."""
+    if not FOLLOWERS_CACHE.exists():
+        return {}
+    try:
+        d = json.loads(FOLLOWERS_CACHE.read_text(encoding="utf-8"))
+    except ValueError:
+        print(f"  [WARN] 팔로워 캐시 JSON 손상 ({FOLLOWERS_CACHE}) — 티어 전원 미확인 처리")
+        return {}
+    out = {}
+    for h, e in (d.get("handles") or {}).items():
+        f = (e or {}).get("followers")
+        if isinstance(f, (int, float)) and f >= 0:
+            out[h] = int(f)
+    return out
+
+
+def tier_of(followers: int | None) -> str:
+    if followers is None:
+        return "미확인"
+    for name, lo, hi in TIERS:
+        if followers >= lo and (hi is None or followers < hi):
+            return name
+    return "미확인"
+
+
+def build_tier(threads: dict, contract_set: set[str], followers: dict[str, int]) -> list[list]:
+    """팔로워 티어별 코호트 — scope 별 분해 (2026-08-27 세은 지시: 전체 + 주별/월별 선택).
+
+    행 = [scope, tier, reachout, reply, reply%, contract, contract%].
+    scope = "ALL" / "M:YYYY-MM" / "W:YYYY-MM-DD"(월요일 시작 주차, 주간 표와 동일 귀속).
+    각 리치아웃은 ALL·자기 월·자기 주 3개 scope 에 동시 기여 — scope 내부 합계는 서로 일치.
+    """
+    us = lambda s: s.strip("_")
+    contract_us = {us(h): h for h in contract_set}
+    followers_us = {us(h): f for h, f in followers.items()}
+    agg = defaultdict(lambda: {"reachout": 0, "reply": 0, "contract": 0})
+    matched = set()
+    for peer, info in threads.items():
+        f = followers.get(peer)
+        if f is None:
+            f = followers_us.get(us(peer))
+        t = tier_of(f)
+        hit = peer if peer in contract_set else contract_us.get(us(peer), "")
+        is_contract = bool(hit and hit not in matched)
+        if is_contract:
+            matched.add(hit)
+        scopes = ["ALL",
+                  f"M:{info['reachout_ts'].strftime('%Y-%m')}",
+                  f"W:{week_start(info['reachout_ts'])}"]
+        for sc in scopes:
+            a = agg[(sc, t)]
+            a["reachout"] += 1
+            if info["reply_ts"]:
+                a["reply"] += 1
+            if is_contract:
+                a["contract"] += 1
+    rate = lambda n, d: f"{n / d:.0%}" if d else "-"
+    tier_order = [name for name, *_ in TIERS] + ["미확인"]
+    scope_keys = sorted({sc for sc, _ in agg}, key=lambda s: (s != "ALL", s))
+    rows = []
+    for sc in scope_keys:
+        for t in tier_order:
+            a = agg.get((sc, t))
+            if not a:
+                continue
+            rows.append([sc, t, a["reachout"], a["reply"], rate(a["reply"], a["reachout"]),
+                         a["contract"], rate(a["contract"], a["reachout"])])
+        tr = sum(a["reachout"] for (s, _), a in agg.items() if s == sc)
+        tp = sum(a["reply"] for (s, _), a in agg.items() if s == sc)
+        tc = sum(a["contract"] for (s, _), a in agg.items() if s == sc)
+        rows.append([sc, "TOTAL", tr, tp, rate(tp, tr), tc, rate(tc, tr)])
+    return rows
+
+
+def write_tier_sheet(gc, rows: list[list], coverage: str) -> None:
+    sh = gc.open_by_key(TRACKER_ID)
+    try:
+        ws = sh.worksheet(OUT_TAB_TIER)
+    except Exception:
+        ws = sh.add_worksheet(title=OUT_TAB_TIER, rows=max(300, len(rows) + 20), cols=8)
+    now = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
+    header = [["Scope", "Tier (Followers)", "Reachout", "Reply", "Reply %",
+               "Contract", "Contract %", f"updated {now}"]]
+    note = [[f"팔로워 소스: DK→Master DB→Apify (ig_dm_follower_enrich.py 캐시) · {coverage}"]]
+    try:
+        if ws.row_count < len(rows) + 7:
+            ws.resize(rows=len(rows) + 20)
+        ws.clear()
+        ws.update(values=header + rows, range_name="A1")
+        ws.update(values=note, range_name=f"A{len(rows) + 3}")
+    except Exception as e:
+        raise SystemExit(f"ERROR: 시트 쓰기 실패 ('{OUT_TAB_TIER}' 탭) — {e}") from e
 
 
 def build_monthly(threads: dict, contract_set: set[str]) -> list[list]:
@@ -268,12 +368,27 @@ def main() -> int:
     for r in monthly_rows:
         print(f"  {r[0]:<9}{r[1]:>6}{r[2]:>6}{r[3]:>7}{r[4]:>6}{r[5]:>7}")
 
+    # 팔로워 티어별 (2026-08-27 세은 지시 — 티어별 응답률, 전체/월/주 scope 분해)
+    followers = load_followers()
+    tier_rows = build_tier(threads, contract_set, followers)
+    # 행 = [scope, tier, reachout, reply, reply%, contract, contract%] — 커버리지는 ALL scope 기준
+    unknown = next((r[2] for r in tier_rows if r[0] == "ALL" and r[1] == "미확인"), 0)
+    total_r = next((r[2] for r in tier_rows if r[0] == "ALL" and r[1] == "TOTAL"), 0)
+    coverage = f"팔로워 확보 {total_r - unknown}/{total_r}명 (미확인 {unknown}명)"
+    n_scopes = len({r[0] for r in tier_rows})
+    print(f"\n티어별 — ALL scope ({coverage} · 시트엔 월/주 포함 {n_scopes}개 scope):")
+    for r in tier_rows:
+        if r[0] != "ALL":
+            continue
+        print(f"  {r[1]:<8}{r[2]:>6}{r[3]:>6}{r[4]:>7}{r[5]:>6}{r[6]:>7}")
+
     if args.dry_run:
         print("\nDRY RUN — 시트 미반영")
         return 0
     write_sheet(gc, rows, meta)
     write_monthly_sheet(gc, monthly_rows)
-    print(f"\n시트 반영 완료 → '{OUT_TAB}' + '{OUT_TAB_MONTHLY}' 탭")
+    write_tier_sheet(gc, tier_rows, coverage)
+    print(f"\n시트 반영 완료 → '{OUT_TAB}' + '{OUT_TAB_MONTHLY}' + '{OUT_TAB_TIER}' 탭")
     return 0
 
 
