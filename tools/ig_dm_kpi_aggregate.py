@@ -38,7 +38,9 @@ OUT_TAB = "Outreach Auto"
 OUT_TAB_MONTHLY = "Outreach Auto Monthly"
 OUT_TAB_TIER = "Outreach Auto Tier"
 OUT_TAB_JOURNEY = "Outreach Journey"   # 인플루언서별 여정 맵핑 (2026-08-27 대표님 지시)
-BACKFILL_TS = "2026-08-25T08:00:00+0000"   # 최초 원장 백필 시각 — 그 전 20개 초과 스레드 = 시작 소급불가
+# 최초 원장 백필 시각 (UTC) — 그 전에 이미 20개 초과였던 스레드 = 시작 소급불가.
+# 비교는 parse_ts 로 datetime 파싱 후 수행 (문자열 비교는 tz 표기 편차에 취약).
+BACKFILL_AT = datetime(2026, 8, 25, 8, 0, tzinfo=timezone.utc)
 # 팔로워 티어 컷 — KPI 목표(Projection_26)·meta-app influencer-kpi-targets.ts 와 동일 구간
 TIERS = [("0-5K", 0, 5_000), ("5-10K", 5_000, 10_000), ("10-20K", 10_000, 20_000),
          ("20-50K", 20_000, 50_000), ("50K+", 50_000, None)]
@@ -346,7 +348,8 @@ def build_journey(ledger: dict, contract_periods: dict[str, str],
         first_ts = parse_ts(msgs[0].get("ts", ""))
         if not first_ts:
             continue
-        pre = sum(1 for m in msgs if m.get("ts", "") < BACKFILL_TS)
+        pre = sum(1 for m in msgs
+                  if (mts := parse_ts(m.get("ts", ""))) is not None and mts < BACKFILL_AT)
         reply_ts = None
         if msgs[0].get("dir") == "out":
             for m in msgs:
@@ -410,6 +413,36 @@ def build_journey(ledger: dict, contract_periods: dict[str, str],
     # 최근 활동 순 (리치아웃일 우선, 미상은 계약/투고일)
     rows.sort(key=lambda r: max(r[3] if r[3] and r[3] != "미상(잘림)" else "", r[5], r[6]), reverse=True)
     return rows
+
+
+def write_follower_cache_sheet(gc) -> int:
+    """팔로워 캐시 전량 → 'Follower Cache' 탭 — meta-app KPI 티어(Unknown 제거)의 최종 폴백 소스.
+    (앱은 로컬 data/ 파일을 못 읽으므로 시트로 발행, 2026-08-27 세은 지시)"""
+    if not FOLLOWERS_CACHE.exists():
+        return 0
+    try:
+        d = json.loads(FOLLOWERS_CACHE.read_text(encoding="utf-8"))
+    except ValueError:
+        print("  [WARN] 팔로워 캐시 손상 — Follower Cache 탭 갱신 스킵")
+        return 0
+    rows = [[h, e.get("followers"), e.get("source", ""), e.get("at", "")]
+            for h, e in sorted((d.get("handles") or {}).items())
+            if isinstance((e or {}).get("followers"), (int, float))]
+    sh = gc.open_by_key(TRACKER_ID)
+    try:
+        ws = sh.worksheet("Follower Cache")
+    except Exception:
+        ws = sh.add_worksheet(title="Follower Cache", rows=max(1000, len(rows) + 20), cols=6)
+    now = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
+    try:
+        if ws.row_count < len(rows) + 5:
+            ws.resize(rows=len(rows) + 20)
+        ws.clear()
+        ws.update(values=[["Handle", "Followers", "Source", "At", f"updated {now}"]] + rows,
+                  range_name="A1")
+    except Exception as e:
+        raise SystemExit(f"ERROR: 시트 쓰기 실패 ('Follower Cache' 탭) — {e}") from e
+    return len(rows)
 
 
 def write_journey_sheet(gc, rows: list[list]) -> None:
@@ -579,7 +612,9 @@ def main() -> int:
     write_monthly_sheet(gc, monthly_rows)
     write_tier_sheet(gc, tier_rows, coverage)
     write_journey_sheet(gc, journey_rows)
-    print(f"\n시트 반영 완료 → '{OUT_TAB}' + '{OUT_TAB_MONTHLY}' + '{OUT_TAB_TIER}' + '{OUT_TAB_JOURNEY}' 탭")
+    n_cache = write_follower_cache_sheet(gc)
+    print(f"\n시트 반영 완료 → '{OUT_TAB}' + '{OUT_TAB_MONTHLY}' + '{OUT_TAB_TIER}' + "
+          f"'{OUT_TAB_JOURNEY}' + 'Follower Cache'({n_cache}행) 탭")
     return 0
 
 
