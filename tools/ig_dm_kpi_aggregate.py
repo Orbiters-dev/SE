@@ -394,8 +394,11 @@ def build_journey(ledger: dict, contract_periods: dict[str, str],
             else:
                 reachout = "미상(잘림)"
                 note = "잘림"
-        # 아무 단계도 없는 인바운드 잡음 제거 (문의만 오간 스레드)
-        if not (reachout or contract or post):
+        # 표시 범위 = 8월~ 만 (2026-08-27 세은 확정: "8월 리치아웃 기준/8월 업로드 기준 두 가지,
+        # 그 전 정보 불필요") — 8월 이후 리치아웃이거나 8월 이후 투고가 있는 행만.
+        aug_reachout = reachout not in ("", "미상(잘림)") and reachout >= "2026-08"
+        aug_post = bool(post)   # first_posts 는 이미 2026-08~ 컷
+        if not (aug_reachout or aug_post):
             continue
         rows.append([h, f if f is not None else "", tier_of(f), reachout, reply, contract, post, note])
     # 최근 활동 순 (리치아웃일 우선, 미상은 계약/투고일)

@@ -34,7 +34,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -44,6 +44,7 @@ LEDGER = ROOT / "data" / "ig_dm_ledger.json"
 CACHE = ROOT / "data" / "ig_dm_followers.json"
 TRACKER_ID = "13S1cST2ukuNNHNUmyXAr1HuaYPsuuK_EfUQ10IWIQsE"
 MASTER_GID = 1589913586
+WL_GID = 751080099        # "WL Code & Payment" 탭 (계약 핸들 = D열, 헤더 3행)
 DK_URL = ("https://orbitools.orbiters.co.kr/api/datakeeper/query/"
           "?table=content_posts&limit=20000&fields=username,followers")
 # meta-app lib/datakeeper.ts 와 동일 read 토큰 (로테이션 시 함께 교체)
@@ -81,14 +82,10 @@ def save_cache(cache: dict) -> None:
     tmp.replace(CACHE)
 
 
-JST = timezone(timedelta(hours=9))
-# 집계 코호트 시작점 (ig_dm_kpi_aggregate.py COHORT_START 와 동일) — 이전 리치아웃은
-# 집계 범위 외라 유료 조회 대상에서 제외 (Apify 낭비 방지)
-COHORT_START = datetime(2026, 8, 1, tzinfo=JST)
-
-
 def reachout_peers() -> dict[str, str]:
-    """우리가 먼저 연 스레드의 peer — 집계 코호트(2026-08~, JST) 범위만. {handle: peer_id}."""
+    """조회 대상 핸들 = 8월 코호트(2026-08~ 첫 발신) DM peer + WL 계약 핸들 전체.
+    {handle: peer_id ("" = DM 없음)}. 집계·여정 표시 범위가 8월~ 라 (2026-08-27 세은 확정)
+    그 이전 리치아웃 peer 는 조회 안 함 (표에 안 나옴 — 유료 소스 낭비 방지)."""
     if not LEDGER.exists():
         raise SystemExit(f"ERROR: DM 원장 없음 — 먼저 ig_dm_collector.py 실행 ({LEDGER})")
     try:
@@ -102,15 +99,23 @@ def reachout_peers() -> dict[str, str]:
         msgs = t.get("messages") or []
         if not (msgs and msgs[0].get("dir") == "out"):
             continue
-        try:
-            ts = datetime.strptime(msgs[0].get("ts", ""), "%Y-%m-%dT%H:%M:%S%z").astimezone(JST)
-        except (ValueError, TypeError):
-            continue
-        if ts < COHORT_START:
+        if (msgs[0].get("ts") or "") < "2026-08":   # ISO 문자열 비교 — 8월 이전 발신 스레드 제외
             continue
         p = norm(t.get("peer", ""))
         if p and p not in peers:
             peers[p] = str(t.get("peer_id") or "")
+    # WL 계약 핸들 (공개 CSV, Creator ID=D열·헤더 3행) — DM 없는 계약자도 여정 표 티어 확보
+    try:
+        wl_url = f"https://docs.google.com/spreadsheets/d/{TRACKER_ID}/export?format=csv&gid={WL_GID}"
+        rows = list(csv.reader(io.StringIO(
+            urllib.request.urlopen(wl_url, timeout=60).read().decode("utf-8"))))
+        for r in rows[3:]:
+            if len(r) > 3:
+                h = norm(r[3])
+                if h:
+                    peers.setdefault(h, "")
+    except (urllib.error.URLError, TimeoutError, ValueError) as e:
+        print(f"  [WARN] WL 계약 핸들 로드 실패 (여정 계약자 티어만 영향): {str(e)[:80]}")
     return peers
 
 
