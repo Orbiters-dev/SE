@@ -37,6 +37,8 @@ WL_TAB_GID = 751080099          # "WL Code & Payment"
 OUT_TAB = "Outreach Auto"
 OUT_TAB_MONTHLY = "Outreach Auto Monthly"
 OUT_TAB_TIER = "Outreach Auto Tier"
+OUT_TAB_JOURNEY = "Outreach Journey"   # 인플루언서별 여정 맵핑 (2026-08-27 대표님 지시)
+BACKFILL_TS = "2026-08-25T08:00:00+0000"   # 최초 원장 백필 시각 — 그 전 20개 초과 스레드 = 시작 소급불가
 # 팔로워 티어 컷 — KPI 목표(Projection_26)·meta-app influencer-kpi-targets.ts 와 동일 구간
 TIERS = [("0-5K", 0, 5_000), ("5-10K", 5_000, 10_000), ("10-20K", 10_000, 20_000),
          ("20-50K", 20_000, 50_000), ("50K+", 50_000, None)]
@@ -251,6 +253,177 @@ def write_tier_sheet(gc, rows: list[list], coverage: str) -> None:
         raise SystemExit(f"ERROR: 시트 쓰기 실패 ('{OUT_TAB_TIER}' 탭) — {e}") from e
 
 
+def fetch_contract_periods(gc) -> dict[str, str]:
+    """WL 탭 핸들별 계약(운영시작)일 — 운영기간 원문 최선 파싱. 일 단위 실패 시 월, 전부 실패 시 ''."""
+    import re
+    sh = gc.open_by_key(TRACKER_ID)
+    ws = next(w for w in sh.worksheets() if w.id == WL_TAB_GID)
+    rows = ws.get_values("A4:D")   # A=운영기간, D=Creator ID (헤더 3행)
+    out: dict[str, str] = {}
+    for r in rows:
+        if len(r) < 4:
+            continue
+        h = (r[3] or "").strip().lstrip("@").lower()
+        period = (r[0] or "").strip()
+        if not h:
+            continue
+        d = ""
+        m = re.search(r"(\d{4})\s*[.\-/]\s*(\d{1,2})\s*[.\-/]\s*(\d{1,2})", period)
+        if m:
+            d = f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
+        else:
+            m = re.search(r"(\d{4})\s*[.\-/년]\s*(\d{1,2})", period)
+            if m:
+                d = f"{m.group(1)}-{int(m.group(2)):02d}"
+        # 핸들당 가장 이른 계약일 채택
+        if h not in out or (d and (not out[h] or d < out[h])):
+            out[h] = d
+    return out
+
+
+def fetch_dk_first_posts() -> dict[str, str]:
+    """DK 실투고 (grosmimi 키워드, post_date >= 2026-08) — 핸들별 최초 투고일.
+    실패 시 빈 dict (여정 표의 포스팅 컬럼만 공란 — 다음 실행 재시도)."""
+    import os
+    import urllib.request
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(ROOT / ".env")
+    except Exception:
+        pass
+    from ig_dm_follower_enrich import DK_TOKEN_FALLBACK
+    tok = os.environ.get("DK_SE_READ_TOKEN") or DK_TOKEN_FALLBACK
+    out: dict[str, str] = {}
+    # limit=20000 은 서버 상한 흡수용 여유값 — content_posts 는 서버가 항상 "최신 1만행"만
+    # 반환 (2026-08-24 실측, lib/influencer-kpi.ts 동일 주석). region=jp + 글로벌 유니온으로
+    # region 오기록분 구제 (meta-app fetchGrosmimiPosts 와 동일 전략).
+    for extra in ["&region=jp", ""]:
+        url = ("https://orbitools.orbiters.co.kr/api/datakeeper/query/?table=content_posts"
+               "&limit=20000&fields=post_date,username,source_keywords" + extra)
+        try:
+            req = urllib.request.Request(url, headers={"Authorization": f"Bearer {tok}"})
+            d = json.loads(urllib.request.urlopen(req, timeout=120).read())
+        except Exception as e:
+            print(f"  [WARN] DK 투고 조회 실패({extra or 'global'}): {str(e)[:80]}")
+            continue
+        for r in (d if isinstance(d, list) else d.get("rows", [])):
+            pd = (r.get("post_date") or "")[:10]
+            if pd < "2026-08":
+                continue
+            if "grosmimi" not in (r.get("source_keywords") or "").lower():
+                continue
+            h = (r.get("username") or "").strip().lstrip("@").lower()
+            if h and (h not in out or pd < out[h]):
+                out[h] = pd
+    return out
+
+
+def build_journey(ledger: dict, contract_periods: dict[str, str],
+                  followers: dict[str, int], first_posts: dict[str, str]) -> list[list]:
+    """인플루언서별 여정 행 — [handle, followers, tier, reachout, reply, contract, post, note].
+
+    대상 = 리치아웃 스레드 전체(코호트 이전 포함 — 완전 보존 스레드는 7월 이전 발신일도 정확)
+    ∪ 계약/투고 실적 있는 핸들. reachout: 잘린 스레드(백필 시점 20개 초과)는 '미상(잘림)'.
+    """
+    us = lambda s: s.strip("_")
+    followers_us = {us(h): f for h, f in followers.items()}
+    posts_us = {us(h): d for h, d in first_posts.items()}
+    contracts_us = {us(h): d for h, d in contract_periods.items()}
+
+    # 스레드 분석 (peer 별 최선 스레드 = 가장 이른 첫 관측)
+    th: dict[str, dict] = {}
+    for t in ledger["threads"].values():
+        p = (t.get("peer") or "").strip().lower()
+        msgs = t.get("messages") or []
+        if not p or not msgs:
+            continue
+        first_ts = parse_ts(msgs[0].get("ts", ""))
+        if not first_ts:
+            continue
+        pre = sum(1 for m in msgs if m.get("ts", "") < BACKFILL_TS)
+        reply_ts = None
+        if msgs[0].get("dir") == "out":
+            for m in msgs:
+                ts = parse_ts(m.get("ts", ""))
+                if m.get("dir") == "in" and ts and ts > first_ts:
+                    reply_ts = ts
+                    break
+        cur = {"first_dir": msgs[0].get("dir"), "first_ts": first_ts,
+               "reply_ts": reply_ts, "complete": pre < 20}
+        if p not in th or first_ts < th[p]["first_ts"]:
+            th[p] = cur
+
+    th_us = {us(p): v for p, v in th.items()}
+    peers = set(th)
+    # 언더스코어 표기 편차 dedup — 같은 인물이 WL "_h_" / DM "h" 로 2행 나지 않게
+    # 정규화 키당 대표 표기 1개 (DM peer 표기 우선)
+    canon: dict[str, str] = {}
+    for h in sorted(peers):
+        canon.setdefault(us(h), h)
+    for h in sorted(contract_periods):
+        canon.setdefault(us(h), h)
+    for h in sorted(first_posts):
+        if us(h) in canon or h in peers:   # 투고만 있는 US 혼입 배제 (DM·계약 연고 있는 핸들만)
+            canon.setdefault(us(h), h)
+    targets = set(canon.values())
+
+    rows = []
+    for h in sorted(targets):
+        t = th.get(h) or th_us.get(us(h))
+        f = followers.get(h)
+        if f is None:
+            f = followers_us.get(us(h))
+        contract = contract_periods.get(h) or contracts_us.get(us(h), "")
+        post = first_posts.get(h) or posts_us.get(us(h), "")
+        if t is None and not contract and not post:
+            continue
+        reachout = reply = ""
+        note = ""
+        if t is None:
+            note = "DM 없음"
+        elif t["first_dir"] == "out":
+            if t["complete"]:
+                reachout = t["first_ts"].date().isoformat()
+            else:
+                reachout = "미상(잘림)"   # 실발신은 관측 첫 메시지보다 이전 — 20개 창 소급불가
+                note = "잘림"
+            reply = t["reply_ts"].date().isoformat() if t["reply_ts"] else ""
+        else:
+            if t["complete"]:
+                note = "인바운드"          # 상대 선발신 — 리치아웃 아님
+            else:
+                reachout = "미상(잘림)"
+                note = "잘림"
+        # 아무 단계도 없는 인바운드 잡음 제거 (문의만 오간 스레드)
+        if not (reachout or contract or post):
+            continue
+        rows.append([h, f if f is not None else "", tier_of(f), reachout, reply, contract, post, note])
+    # 최근 활동 순 (리치아웃일 우선, 미상은 계약/투고일)
+    rows.sort(key=lambda r: max(r[3] if r[3] and r[3] != "미상(잘림)" else "", r[5], r[6]), reverse=True)
+    return rows
+
+
+def write_journey_sheet(gc, rows: list[list]) -> None:
+    sh = gc.open_by_key(TRACKER_ID)
+    try:
+        ws = sh.worksheet(OUT_TAB_JOURNEY)
+    except Exception:
+        # cols=10 = 데이터 9열 + 여유 1열 (수기 메모용 헤드룸)
+        ws = sh.add_worksheet(title=OUT_TAB_JOURNEY, rows=max(1200, len(rows) + 20), cols=10)
+    now = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
+    header = [["Handle", "Followers", "Tier", "Reachout", "Reply", "Contract", "Post", "Note", f"updated {now}"]]
+    note = [["여정 = 리치아웃(DM 원장)→답장→계약(WL 운영기간)→포스팅(DK 실투고 최초일). "
+             "미상(잘림) = 2026-08-25 수집 개시 전 20개 창 초과 스레드 — 발신일 소급불가"]]
+    try:
+        if ws.row_count < len(rows) + 7:
+            ws.resize(rows=len(rows) + 20)
+        ws.clear()
+        ws.update(values=header + rows, range_name="A1")
+        ws.update(values=note, range_name=f"A{len(rows) + 3}")
+    except Exception as e:
+        raise SystemExit(f"ERROR: 시트 쓰기 실패 ('{OUT_TAB_JOURNEY}' 탭) — {e}") from e
+
+
 def build_monthly(threads: dict, contract_set: set[str]) -> list[list]:
     """월별 코호트 (리치아웃 날짜 기준 — 주간 합산 아님, 월 경계 정확) + TOTAL 행."""
     us = lambda s: s.strip("_")
@@ -382,13 +555,22 @@ def main() -> int:
             continue
         print(f"  {r[1]:<8}{r[2]:>6}{r[3]:>6}{r[4]:>7}{r[5]:>6}{r[6]:>7}")
 
+    # 인플루언서별 여정 맵핑 (2026-08-27 대표님 지시 — 리치아웃→답장→계약→포스팅 개인 단위)
+    contract_periods = fetch_contract_periods(gc)
+    first_posts = fetch_dk_first_posts()
+    journey_rows = build_journey(ledger, contract_periods, followers, first_posts)
+    n_known = sum(1 for r in journey_rows if r[3] and r[3] != "미상(잘림)")
+    print(f"\n여정 맵핑: {len(journey_rows)}명 (리치아웃일 확실 {n_known} / "
+          f"투고일 확보 {sum(1 for r in journey_rows if r[6])})")
+
     if args.dry_run:
         print("\nDRY RUN — 시트 미반영")
         return 0
     write_sheet(gc, rows, meta)
     write_monthly_sheet(gc, monthly_rows)
     write_tier_sheet(gc, tier_rows, coverage)
-    print(f"\n시트 반영 완료 → '{OUT_TAB}' + '{OUT_TAB_MONTHLY}' + '{OUT_TAB_TIER}' 탭")
+    write_journey_sheet(gc, journey_rows)
+    print(f"\n시트 반영 완료 → '{OUT_TAB}' + '{OUT_TAB_MONTHLY}' + '{OUT_TAB_TIER}' + '{OUT_TAB_JOURNEY}' 탭")
     return 0
 
 
