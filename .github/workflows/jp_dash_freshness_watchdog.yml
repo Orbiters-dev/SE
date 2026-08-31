@@ -1,13 +1,15 @@
 # JP 대시보드 신선도 감시자 — 로컬 PC와 무관하게 GH에서 돈다.
 # 매일 12:10 JST (로컬 체인 10:00 + 재시도 3회 종료 후) 프로덕션 앱의 데이터 최신일을 실측,
-# D-1 미달이면 세은 Teams DM 알림. 2026-08-20 신설 (8/14~19 6일 무갱신 무감지 사고 재발 방지).
+# D-1 미달이면 세은에게 경보. 2026-08-20 신설 (8/14~19 6일 무갱신 무감지 사고 재발 방지).
+# 2026-08-31 경보 2채널화: 8/28~30 3일 연속 경보가 Teams 웹훅 2xx 후 증발(세은 미도달 실사고)
+#   → Teams 웹훅 + Gmail 이메일 동시 발송. 두 채널 모두 실패 시에만 run 실패 (gh_cron_backup 재시도).
 name: JP Dash Freshness Watchdog
 
 on:
   workflow_dispatch:
     inputs:
       test_alert:
-        description: "GH 시크릿 웹훅 경로 테스트 (경보 1건 강제 발송)"
+        description: "경보 경로 테스트 (Teams+이메일 경보 1건 강제 발송)"
         type: boolean
         default: false
   schedule:
@@ -16,30 +18,70 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Gmail deps
+        run: pip install --quiet google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Set up Gmail credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
+
       - name: Check dashboard data freshness
         env:
           APP_PASSWORD: ${{ secrets.META_APP_PASSWORD }}
           TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
           TEST_ALERT: ${{ github.event.inputs.test_alert }}
+          GMAIL_OAUTH_CREDENTIALS_PATH: credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH: credentials/gmail_token.json
+          GMAIL_SENDER: orbiters11@gmail.com
         run: |
           python3 - <<'EOF'
           import os, re, json, datetime, urllib.request, sys
+
+          sys.path.insert(0, "tools")
 
           base = "https://meta-app-one.vercel.app"
           jst_today = (datetime.datetime.utcnow() + datetime.timedelta(hours=9)).date()
           expect = (jst_today - datetime.timedelta(days=1)).isoformat()  # D-1
 
+          # 경보 = Teams 웹훅 + Gmail 이메일 동시 발송. 웹훅은 202 후 증발 전례(8/26·8/28~30)가
+          # 있어 단독 신뢰 불가 — 한 채널이라도 성공하면 발송 성공, 둘 다 죽으면 예외(run 실패).
           def alert(text):
-              body = json.dumps({"text": text}).encode()
-              req = urllib.request.Request(os.environ["TEAMS_WEBHOOK"], data=body,
-                                           headers={"Content-Type": "application/json"})
-              urllib.request.urlopen(req, timeout=15)
+              sent = []
+              try:
+                  body = json.dumps({"text": text}).encode()
+                  req = urllib.request.Request(os.environ["TEAMS_WEBHOOK"], data=body,
+                                               headers={"Content-Type": "application/json"})
+                  urllib.request.urlopen(req, timeout=15)
+                  sent.append("teams")
+              except Exception as e:
+                  print(f"teams alert failed: {type(e).__name__}: {e}")
+              try:
+                  from send_gmail import send_email
+                  send_email(to="se.heo@orbiters.co.kr",
+                             subject="[감시자] JP 대시보드 경보",
+                             body_html=f"<p>{text}</p><p style='color:#888'>jp_dash_freshness_watchdog (GH Actions) — Teams 웹훅과 동시 발송된 경보입니다.</p>")
+                  sent.append("email")
+              except Exception as e:
+                  print(f"email alert failed: {type(e).__name__}: {e}")
+              if not sent:
+                  raise RuntimeError("ALL alert channels failed (teams + email)")
+              print("alert sent via: " + ",".join(sent))
 
           if os.environ.get("TEST_ALERT") == "true":
-              alert("[감시자] GH 시크릿 웹훅 경로 테스트 — 이 메시지가 보이면 GH 경보 전달 정상. "
-                    "안 보이면 GH 시크릿 TEAMS_WEBHOOK_URL_SEEUN이 로컬과 다른(죽은) URL.")
+              alert("[감시자] 경보 경로 테스트 (Teams+이메일) — 이 메시지가 두 채널 모두에 보이면 정상. "
+                    "한쪽만 보이면 안 보인 채널이 죽은 것.")
               print("TEST_ALERT sent")
               sys.exit(0)
 
