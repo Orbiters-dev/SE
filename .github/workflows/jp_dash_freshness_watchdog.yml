@@ -29,7 +29,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Gmail deps
-        run: pip install --quiet google-auth google-auth-oauthlib google-api-python-client
+        run: pip install --quiet google-auth google-auth-oauthlib google-api-python-client python-dotenv
 
       - name: Set up Gmail credentials
         run: |
