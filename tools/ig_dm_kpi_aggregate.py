@@ -20,6 +20,7 @@ Usage:
 """
 import argparse
 import json
+import re
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
@@ -65,6 +66,12 @@ def week_start(d: datetime) -> str:
 
 def norm_handle(s: str) -> str:
     return (s or "").strip().lstrip("@").lower()
+
+
+def us(s: str) -> str:
+    """언더스코어 표기 편차 흡수용 정규화 — 양끝 제거 + 내부 연속 언더스코어 1개로 축약.
+    WL 'chie_kosodate' vs DM 원장 'chie__kosodate' 류를 같은 키로 매칭 (핸들 매칭 fallback 전용)."""
+    return re.sub(r"_+", "_", (s or "").strip("_"))
 
 
 def load_ledger() -> dict:
@@ -125,7 +132,6 @@ def build_weekly(threads: dict, contract_set: set[str], all_peers: set[str],
     """주별 코호트 퍼널 — 그 주 리치아웃 인원 중 답장/계약/포스팅 도달 수 (2026-08-27 세은 확정 축)."""
     weekly = defaultdict(lambda: {"reachout": 0, "reply": 0, "contract": 0, "post": 0, "low_conf": 0})
     # 표기 편차 흡수: 앞뒤 언더스코어 제거 키로도 매칭 (WL "_musukono_kiroku_" vs DM "musukono_kiroku" 류)
-    us = lambda s: s.strip("_")
     contract_us = {us(h): h for h in contract_set}
     posts = first_posts or {}
     posts_us = {us(h): d for h, d in posts.items()}
@@ -199,7 +205,6 @@ def build_tier(threads: dict, contract_set: set[str], followers: dict[str, int])
     scope = "ALL" / "M:YYYY-MM" / "W:YYYY-MM-DD"(월요일 시작 주차, 주간 표와 동일 귀속).
     각 리치아웃은 ALL·자기 월·자기 주 3개 scope 에 동시 기여 — scope 내부 합계는 서로 일치.
     """
-    us = lambda s: s.strip("_")
     contract_us = {us(h): h for h in contract_set}
     followers_us = {us(h): f for h, f in followers.items()}
     agg = defaultdict(lambda: {"reachout": 0, "reply": 0, "contract": 0})
@@ -263,7 +268,6 @@ def write_tier_sheet(gc, rows: list[list], coverage: str) -> None:
 
 def fetch_contract_periods(gc) -> dict[str, str]:
     """WL 탭 핸들별 계약(운영시작)일 — 운영기간 원문 최선 파싱. 일 단위 실패 시 월, 전부 실패 시 ''."""
-    import re
     sh = gc.open_by_key(TRACKER_ID)
     ws = next(w for w in sh.worksheets() if w.id == WL_TAB_GID)
     rows = ws.get_values("A4:D")   # A=운영기간, D=Creator ID (헤더 3행)
@@ -333,7 +337,6 @@ def build_journey(ledger: dict, contract_periods: dict[str, str],
     대상 = 리치아웃 스레드 전체(코호트 이전 포함 — 완전 보존 스레드는 7월 이전 발신일도 정확)
     ∪ 계약/투고 실적 있는 핸들. reachout: 잘린 스레드(백필 시점 20개 초과)는 '미상(잘림)'.
     """
-    us = lambda s: s.strip("_")
     followers_us = {us(h): f for h, f in followers.items()}
     posts_us = {us(h): d for h, d in first_posts.items()}
     contracts_us = {us(h): d for h, d in contract_periods.items()}
@@ -468,7 +471,6 @@ def write_journey_sheet(gc, rows: list[list]) -> None:
 
 def build_monthly(threads: dict, contract_set: set[str]) -> list[list]:
     """월별 코호트 (리치아웃 날짜 기준 — 주간 합산 아님, 월 경계 정확) + TOTAL 행."""
-    us = lambda s: s.strip("_")
     contract_us = {us(h): h for h in contract_set}
     monthly = defaultdict(lambda: {"reachout": 0, "reply": 0, "contract": 0})
     matched = set()
@@ -559,7 +561,6 @@ def main() -> int:
     all_peers.discard("")
 
     # 8월 이전 리치아웃은 집계 범위 외 — 그쪽에 매칭되는 계약은 별도 각주로만
-    us = lambda s: s.strip("_")
     pre = {p: i for p, i in threads.items() if i["reachout_ts"] < COHORT_START}
     threads = {p: i for p, i in threads.items() if i["reachout_ts"] >= COHORT_START}
     pre_us = {us(p) for p in pre}
