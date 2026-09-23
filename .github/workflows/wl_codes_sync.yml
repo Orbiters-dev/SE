@@ -22,7 +22,8 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - run: pip install gspread google-auth requests python-dotenv apify-client
+      # apify-client 3.x 는 call(timeout_secs=) 를 없앴다 (run_timeout: timedelta) — 스크립트는 2.x API 기준
+      - run: pip install gspread google-auth requests python-dotenv "apify-client<3"
 
       - name: Write service account credentials
         run: |

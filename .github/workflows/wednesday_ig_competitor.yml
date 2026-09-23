@@ -33,12 +33,9 @@ jobs:
           echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
           echo '${{ secrets.GMAIL_TOKEN_JSON }}' > credentials/gmail_token.json
 
-      - name: Scrape competitor IG profiles
-        env:
-          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
-        run: |
-          python tools/scrape_ig_competitor.py
-
+      # scrape_ig_competitor.py (picnob→pixnoy) 단계는 제거: pixnoy 가 Cloudflare 챌린지로 403,
+      # 7/29 성공 run 에서도 0 posts 였고, 산출물(.tmp/competitor_refs)을 아래 분석 단계가 읽지 않는다.
+      # 분석 단계는 Firecrawl(imginn.com)로 자체 수집한다.
       - name: Run competitor IG analysis (Excel + email)
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}

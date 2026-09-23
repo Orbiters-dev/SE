@@ -56,6 +56,9 @@ WL_PROP = "WL code"
 LINK_PROP = "링크"
 POST_DATE_PROP = "Post Date"
 GASI_PROP = "게시일(지선) "  # 뒤에 공백 있음
+# Notion DB 에서 "다중 선택" → "속성", "다중 선택 (1)" → "SKU명" 으로 이름이 바뀜 (옵션 값은 동일)
+TAG_PROP = "속성"      # 옵션: Image / Video / WL
+SKU_PROP = "SKU명"     # 옵션: PPSU / Flip top / Stainless / 빨대
 
 
 def extract_wl_codes(s: str) -> list[str]:
@@ -69,7 +72,7 @@ def extract_urls(s: str) -> list[str]:
 
 
 def map_product(product_text: str) -> list[str]:
-    """Sheet Product 텍스트 → Notion 다중 선택 (1) 값 리스트."""
+    """Sheet Product 텍스트 → Notion SKU명 값 리스트."""
     p = product_text.lower()
     result = []
     if "ppsu" in p:
@@ -195,8 +198,8 @@ def create_page(handle: str, wl_code: str, url: str, product: str = "", status: 
 
     기본값:
       - 유형: 'Meta | JP'
-      - 다중 선택: ['WL']
-      - 다중 선택 (1): Product 컬럼 매핑 (PPSU/Flip top/Stainless/빨대)
+      - 속성: ['WL']
+      - SKU명: Product 컬럼 매핑 (PPSU/Flip top/Stainless/빨대)
       - 진행 상태: Sheet Status 매핑
       - 제목: ' ' (빈 칸)
     """
@@ -207,11 +210,11 @@ def create_page(handle: str, wl_code: str, url: str, product: str = "", status: 
         WL_PROP: {"rich_text": [{"text": {"content": wl_code}}]},
         LINK_PROP: {"url": url},
         "유형": {"select": {"name": "Meta | JP"}},
-        "다중 선택": {"multi_select": [{"name": "WL"}]},
+        TAG_PROP: {"multi_select": [{"name": "WL"}]},
         "진행 상태": {"status": {"name": FIXED_STATUS}},
     }
     if product_tags:
-        props["다중 선택 (1)"] = {"multi_select": [{"name": t} for t in product_tags]}
+        props[SKU_PROP] = {"multi_select": [{"name": t} for t in product_tags]}
     if post_date:
         props[POST_DATE_PROP] = {"date": {"start": post_date}}
     body = {
@@ -247,6 +250,7 @@ def main():
     print(f"  데이터 행: {len(data_rows)}건")
 
     candidates = []
+    seen_handle_wl = set()
     for i, row in enumerate(data_rows, start=4):
         if len(row) <= COL_URL:
             continue
@@ -264,6 +268,10 @@ def main():
             continue
         pairs = list(zip(wl_list, url_list))
         for wl, url in pairs:
+            # 시트에 같은 핸들+WL 행이 두 번 있으면 한 run 에서 같은 슬롯이 두 번 생성된다
+            if (handle_key, wl) in seen_handle_wl:
+                continue
+            seen_handle_wl.add((handle_key, wl))
             candidates.append({
                 "row": i,
                 "handle": handle_key,
