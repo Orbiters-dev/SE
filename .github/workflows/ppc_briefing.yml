@@ -22,7 +22,7 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install requests anthropic
+        run: pip install requests anthropic python-dotenv
 
       - name: Run PPC Briefing
         env:

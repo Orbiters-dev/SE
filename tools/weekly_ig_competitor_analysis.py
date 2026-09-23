@@ -552,7 +552,7 @@ def main():
 
     if not brands:
         logger.error("No brand data found. Check .firecrawl/ig-baby-brands/ directory.")
-        return
+        sys.exit(1)
 
     # Step 3: Build Excel
     ts = datetime.now().strftime("%Y%m%d")

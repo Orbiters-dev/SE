@@ -17,6 +17,7 @@ Usage:
 """
 
 import os
+import sys
 import json
 import time
 from datetime import datetime, timedelta, timezone
@@ -168,7 +169,9 @@ class DataKeeper:
             r = requests.get(f"{ORBITOOLS_BASE}/query/", **kwargs)
             r.raise_for_status()
             return r.json().get("rows", [])
-        except Exception:
+        except Exception as e:
+            # 401(자격증명 없음)도 빈 결과와 구분 안 되면 호출부가 "데이터 없음"으로 오진한다
+            print(f"[DataKeeper] PG query failed ({table}): {e}", file=sys.stderr)
             return []
 
     def _filter(self, rows, date_from, date_to, brand,

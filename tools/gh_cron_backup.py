@@ -2,9 +2,11 @@
 
 매시간 (X:30 권장) 외부 cron에서 호출:
 - 37개 schedule cron 워크플로우 점검
-- daily 워크플로우: 오늘 KST schedule success 없고, 마지막 cron 예상시각 + 30분 경과 → dispatch
-- weekly 워크플로우: 이번 주 (KST 월 0시 기준) success 없고, 마지막 예상시각 + 30분 경과 → dispatch
+- daily 워크플로우: 오늘 KST success 없고, 마지막 cron 예상시각 이후 run 도 없고, 그 시각 + 30분 경과 → dispatch
+- weekly 워크플로우: 이번 주 (KST 월 0시 기준) success 없고, 마지막 예상시각 이후 run 도 없고, + 30분 경과 → dispatch
 - hourly+ 워크플로우: 마지막 schedule run + 1.5h 경과 → dispatch
+- '이후 run' 은 결과(실패 포함)·event(schedule/dispatch) 무관 — 이미 fire 됐거나 이미 보충한 cron 의
+  실패는 재dispatch 하지 않는다 (미트리거만 보충).
 
 Env:
   GH_TOKEN (PAT) — repo:write 권한
@@ -190,10 +192,25 @@ def kst_week_start_utc(now_utc: datetime) -> datetime:
     return monday.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
 
 
+def workflow_states(token: str) -> dict[str, str]:
+    """wf 이름 → state ('active' / 'disabled_manually' / 'disabled_inactivity' ...)."""
+    data = gh_get(token, f'/repos/{REPO}/actions/workflows', params={'per_page': 100})
+    return {Path(w['path']).stem: w['state'] for w in data.get('workflows', [])}
+
+
 def check_workflow(token: str, meta: dict, now_utc: datetime) -> dict:
     wf = meta['wf']
     freq = meta['freq']
     crons = meta['crons']
+
+    # 비활성 워크플로우는 dispatch 가 HTTP 422 로 거부되고 백업 run 자체가 실패한다
+    state = meta.get('state', 'active')
+    if state != 'active':
+        return {
+            'wf': wf, 'owner': meta['owner'], 'freq': freq,
+            'decision': 'skip', 'reason': f'workflow {state}',
+            'in_window': 0, 'success_in_window': 0,
+        }
 
     runs = gh_get(
         token,
@@ -216,7 +233,12 @@ def check_workflow(token: str, meta: dict, now_utc: datetime) -> dict:
     success_in_window = [r for r in in_window if r.get('conclusion') == 'success']
     inprogress = [r for r in in_window if r.get('status') in ('in_progress', 'queued', 'requested')]
 
+    def conclusions(rs: list[dict]) -> str:
+        return ','.join(sorted({str(r.get('conclusion')) for r in rs}))
+
     # 트리거 결정
+    # 이미 fire 된 cron 은 결과(실패 포함)와 무관하게 재dispatch 하지 않는다 — 실패 run 을 매시간
+    # 다시 돌리면 실패 메일만 곱해진다. 백업의 목적은 '미트리거' 보충뿐.
     decision = 'skip'
     reason = ''
 
@@ -228,13 +250,25 @@ def check_workflow(token: str, meta: dict, now_utc: datetime) -> dict:
         # 트리거 시점 결정
         if freq == 'hourly+':
             # 1.5h 안에 schedule run 없으면 트리거
-            decision = 'dispatch'
-            reason = 'no run in last 1.5h'
+            scheduled = [r for r in in_window if r.get('event') == 'schedule']
+            if scheduled:
+                reason = f'schedule already fired in last 1.5h ({len(scheduled)}, {conclusions(scheduled)})'
+            else:
+                decision = 'dispatch'
+                reason = 'no run in last 1.5h'
         else:
             # daily / weekly / multi-daily: 이번 주기에 이미 지나간 cron 중 마지막 + 30분 경과 시 트리거
             last = last_fire_in_period(crons, now_utc, freq)
+            # 마지막 예상 fire 이후 생긴 run (schedule 이든 백업·수동 dispatch 든) 이 있으면 그 fire 는 처리됨.
+            # KST 창이 아닌 전체 runs 에서 찾는다 — last 는 UTC 일 기준이라 KST 00시(15:00 UTC) 창 리셋 뒤에도
+            # 이미 돈 run 이 창 밖에 있어 '미트리거' 로 오판된다 (매일 15:40 UTC 일괄 재dispatch 원인).
+            after_fire = [] if last is None else [r for r in runs if parse_dt(r['created_at']) >= last]
             if last is None:
                 reason = 'no fire in current period yet'
+            elif after_fire:
+                events = ','.join(sorted({str(r.get('event')) for r in after_fire}))
+                reason = (f'already ran after last fire {last.strftime("%m/%d %H:%M UTC")} '
+                          f'({len(after_fire)} {events}: {conclusions(after_fire)})')
             else:
                 threshold = last + timedelta(minutes=30)
                 if now_utc >= threshold:
@@ -274,6 +308,8 @@ def main() -> int:
         metas = [m for m in metas if args.filter in m['wf']]
 
     token = gh_token()
+    states = workflow_states(token)
+    metas = [{**m, 'state': states.get(m['wf'], 'active')} for m in metas]
     now_utc = datetime.now(timezone.utc)
     print(f'now UTC: {now_utc.strftime("%Y-%m-%d %H:%M:%S")}  (KST {now_utc.astimezone(KST).strftime("%H:%M")})')
     print(f'repo: {REPO}  |  workflows: {len(metas)}  |  dry-run: {args.dry_run}')

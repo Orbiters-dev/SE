@@ -14,6 +14,7 @@ Usage:
 
 import os
 import re
+import sys
 import json
 import time
 import argparse
@@ -232,6 +233,7 @@ def save_summary(all_profiles: list[dict], output_dir: Path) -> Path:
 
         summary["accounts"].append(account_summary)
 
+    output_dir.mkdir(parents=True, exist_ok=True)
     summary_path = output_dir / "summary.json"
     with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
@@ -304,6 +306,12 @@ def main():
     for p in all_profiles:
         status = f"{len(p.get('posts', []))} posts" if not p.get("error") else f"ERROR: {p['error']}"
         print(f"  @{p['account']}: {status}")
+
+    total_posts = sum(len(p.get("posts", [])) for p in all_profiles)
+    if total_posts == 0:
+        logger.error(f"Scrape returned no posts for all {len(all_profiles)} accounts — "
+                     f"picnob/pixnoy blocked or page layout changed (see per-account errors above)")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
