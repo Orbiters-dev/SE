@@ -42,7 +42,7 @@ load_env()
 
 TOKEN = os.getenv("META_JP_ACCESS_TOKEN")
 ACCT = os.getenv("META_JP_AD_ACCOUNT_ID")
-BASE = "https://graph.facebook.com/v18.0"
+BASE = "https://graph.facebook.com/v21.0"
 
 DEFAULT_TO = "se.heo@orbiters.co.kr"
 TMP_DIR = ROOT / ".tmp" / "meta_jp_daily"
@@ -63,16 +63,26 @@ KPI_CPC = 100       # CPC 목표 (₩)
 
 # WL Testing 운영 게이트 (2026-06-16 확정 — 1:1 분리 운영 절대 지표).
 # memory/reference_meta_wl_testing_gate_criteria.md. meta-app/lib/meta-constants.ts 와 동기화.
-# 졸업(D+3): CPC≤₩95 AND CTR≥8% AND CPLPV≤₩135. 1:1 분리라 share 무의미 → 개별 절대 지표.
+# 졸업(D+3): CPC≤₩95 AND CTR≥8% AND CPLPV≤₩130. 1:1 분리라 share 무의미 → 개별 절대 지표.
+# CPLPV 135→130 (2026-07-09 세은 확정, PPSU/Stainless 공통).
 GRAD_CPC_MAX = 95       # 졸업 CPC ≤ ₩95
 GRAD_CTR_MIN = 8.0      # 졸업 CTR ≥ 8%
-GRAD_CPLPV_MAX = 135    # 졸업 CPLPV ≤ ₩135
+GRAD_CPLPV_MAX = 130    # 졸업 CPLPV ≤ ₩130 (2026-07-09 세은: 135→130)
 GRAD_MIN_DAYS = 3       # 졸업 판정 시점 D+3 (2026-07-06 세은: OFF·졸업 모두 D+3)
 # OFF(D+3): CPC>₩150 OR CTR<5% → CPLPV≥₩190 시 OFF / 정상 시 D+5 유예. 양호해도 CPLPV≥₩190 = 이탈형 OFF.
 OFF_D3_CPC_MAX = 150    # D+3 CPC 나쁨선
 OFF_D3_CTR_MIN = 5.0    # D+3 CTR 나쁨선
 OFF_D3_CPLPV_OFF = 190  # D+3 CPLPV OFF 트리거 (이탈형 돈샘)
 OFF_MIN_DAYS = 3        # OFF 판정 시점 D+3
+
+# Proven CPLPV OFF 게이트 (2026-07-27 세은 확정 — 지속성 판정, meta-constants.ts 동기화).
+# OFF = 14d AND 30d 모두 CPLPV ≥ 150 (양 창 LPV ≥ 30) / 모니터링 = 14d ≥ 135.
+# 150 근거: 졸업컷 130 +15% 구조적 악화 = 자격 상실, BEP(Stainless ≈100) 1.5배.
+# 이관 D+14 미만은 재학습 구간(CPLPV +25~32%) 보호.
+PROVEN_CPLPV_OFF = 150
+PROVEN_CPLPV_WATCH = 135
+PROVEN_MIN_LPV = 30
+PROVEN_MIN_AGE_DAYS = 14
 
 
 def api_get(path, params=None):
@@ -90,6 +100,36 @@ def api_get(path, params=None):
             break
         req = urllib.request.Request(nxt)
     return out
+
+
+# ── 절대 룰 (2026-07-09 세은): OFF/졸업/증액/delivery 후보 판정 = Graph 실시간 status 만 ──
+# DK raw_meta_ad_creative 등 적재 테이블은 push 파이프라인이 죽으면 stale ACTIVE 로 남아
+# 이미 졸업/OFF 한 광고가 후보에 재등장한다 (7/9 RHYTHMICAL_MAMA 사고).
+# 후보 빌더(graduation/off/delivery/budget) 내부에서 _is_live_active() 로 강제 —
+# 호출자가 필터를 깜빡해도 비ACTIVE 는 후보에 못 들어온다. meta-app dk-meta.ts 와 동일 룰.
+_LIVE_STATUS_CACHE = None
+
+
+def live_ad_statuses():
+    """전 광고 effective_status 실시간 맵 (계정 edge — per-id 배치는 한 id 오류로 전체 400)."""
+    global _LIVE_STATUS_CACHE
+    if _LIVE_STATUS_CACHE is None:
+        try:
+            rows = api_get(f"{ACCT}/ads", {"fields": "id,effective_status", "limit": 500})
+            _LIVE_STATUS_CACHE = {r["id"]: r.get("effective_status", "") for r in rows if r.get("id")}
+            print(f"[live-status] {len(_LIVE_STATUS_CACHE)} ads fetched")
+        except Exception as e:
+            print(f"[live-status] WARN fetch failed ({e}) — 후보 status 필터 생략 (fail-open)")
+            _LIVE_STATUS_CACHE = {}
+    return _LIVE_STATUS_CACHE
+
+
+def _is_live_active(ad_id):
+    """후보 자격 게이트. status 전체 조회 실패 시에만 fail-open (빈 표 방지, 앱과 동일)."""
+    st = live_ad_statuses()
+    if not st:
+        return True
+    return st.get(ad_id or "") == "ACTIVE"
 
 
 _DK = DataKeeper()
@@ -463,8 +503,8 @@ def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, min_impr=200):
     """Testing → Proven 졸업 후보 (2026-06-16 확정 — WL 1:1 분리 운영 절대 지표).
 
     memory/reference_meta_wl_testing_gate_criteria.md 게이트 2.
-    조건: Testing adset 소속 · D+7+ · 노출 ≥ min_impr(200) ·
-          CPC ≤ ₩95 AND CTR ≥ 8% AND CPLPV ≤ ₩135 모두 통과 · Off 트리거 미해당.
+    조건: Testing adset 소속 · D+3+ · 노출 ≥ min_impr(200) ·
+          CPC ≤ ₩95 AND CTR ≥ 8% AND CPLPV ≤ ₩130 모두 통과 · Off 트리거 미해당.
     1:1 분리(소재1=adset1)라 풀 share 무의미 → 개별 절대 지표로 판정.
     meta-app/lib/meta-aggregations.ts graduationCandidates 와 동기화.
     clicks 0→cpc 0, lpv 0→cplpv 0 이 게이트를 거짓 통과하므로 양수 가드 필수.
@@ -477,6 +517,8 @@ def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, min_impr=200):
         ad_id = row.get("ad_id", "")
         if ad_id in off_ad_ids:
             continue
+        if not _is_live_active(ad_id):      # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지
+            continue
         asname = row.get("adset_name", "")
         if adset_stage(asname, row.get("campaign_name", "")) != "testing":
             continue
@@ -485,7 +527,7 @@ def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, min_impr=200):
             continue
         ad_name = row.get("ad_name", "")
         days = calc_days_live(ad_name, ref_date)
-        if days is None or days < GRAD_MIN_DAYS:        # D+7+
+        if days is None or days < GRAD_MIN_DAYS:        # D+3+
             continue
         spend = to_float(row.get("spend"))
         clicks = to_float(row.get("clicks"))
@@ -500,7 +542,7 @@ def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, min_impr=200):
             continue
         if ctr < GRAD_CTR_MIN:                           # CTR ≥ 8%
             continue
-        if cplpv > GRAD_CPLPV_MAX:                       # CPLPV ≤ ₩135
+        if cplpv > GRAD_CPLPV_MAX:                       # CPLPV ≤ ₩130
             continue
         out.append({
             "ad_name": ad_name,
@@ -514,7 +556,7 @@ def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, min_impr=200):
             "spend": spend,
             "clicks": clicks,
             "lpv": lpv,
-            "reason": f"D+{days} · CPC ₩{cpc:.0f}≤95 · CTR {ctr:.1f}%≥8% · CPLPV ₩{cplpv:.0f}≤135",
+            "reason": f"D+{days} · CPC ₩{cpc:.0f}≤95 · CTR {ctr:.1f}%≥8% · CPLPV ₩{cplpv:.0f}≤130",
         })
     return sorted(out, key=lambda x: x["cplpv"])         # CPLPV 좋은 순
 
@@ -545,6 +587,8 @@ def delivery_failure_candidates(ad_rows_14d, ad_rows_14d_daily, ref_date,
     out = []
     for r in ad_rows_14d:
         ad_id = r.get("ad_id", "")
+        if not _is_live_active(ad_id):      # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지 (2026-07-09)
+            continue
         ad_name = r.get("ad_name", "")
         days_live = calc_days_live(ad_name, ref_date)
         if days_live is None or days_live < min_age_days:
@@ -573,6 +617,80 @@ def delivery_failure_candidates(ad_rows_14d, ad_rows_14d_daily, ref_date,
     return sorted(out, key=lambda x: x["share"])
 
 
+def graph_ad_rows_for_gate(since_d, until_d):
+    """Proven CPLPV 게이트 전용 Graph 직접 조회.
+
+    DK meta_ads_daily 는 과거 행 LPV 부재 (7/8 발견: spend 전기간·LPV 최근만) →
+    30d 창 CPLPV 부풀림 (실측: KOMUGIKO 221 vs Graph 148). 과거 창 LPV 는 Graph 직접이 원칙.
+    실패 시 None 반환 — 호출부에서 DK rows fallback (부풀림 가능성 있는 창은 OFF 확정에 못 쓰므로
+    fallback 시 모니터링만 유효).
+    """
+    try:
+        return api_get(f"{ACCT}/insights", {
+            "level": "ad",
+            "fields": "ad_id,ad_name,adset_name,campaign_name,spend,impressions,actions",
+            "time_range": json.dumps({"since": since_d.isoformat(), "until": until_d.isoformat()}),
+            "limit": 500,
+        })
+    except Exception as e:
+        print(f"[WARN] proven gate Graph fetch failed ({e}) — DK rows fallback")
+        return None
+
+
+def proven_cplpv_candidates(ad_rows_14d, ad_rows_30d, ref_date):
+    """7/27 세은 확정: Proven CPLPV OFF 게이트 — 지속성 판정 (meta-app provenCplpvCandidates 동기).
+
+    OFF = 14d AND 30d 모두 CPLPV ≥ PROVEN_CPLPV_OFF (양 창 LPV ≥ PROVEN_MIN_LPV)
+    모니터링 = 14d CPLPV ≥ PROVEN_CPLPV_WATCH.
+    Testing D+3 스냅샷과 달리 장기 운용(WL 3~6개월) — 일시 스파이크는 30d 창이 흡수.
+    이관 D+PROVEN_MIN_AGE_DAYS 미만은 재학습 구간(CPLPV +25~32%) 보호.
+    """
+    def _cplpv(r):
+        lpv = extract_lpv(r.get("actions"))
+        spend = to_float(r.get("spend"))
+        return (spend / lpv if lpv else 0.0), lpv
+
+    by30 = {r.get("ad_id", ""): r for r in ad_rows_30d}
+    candidates, monitoring = [], []
+    for r in ad_rows_14d:
+        ad_id = r.get("ad_id", "")
+        if not _is_live_active(ad_id):      # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지 (2026-07-09)
+            continue
+        ad_name = r.get("ad_name", "")
+        if re.search("test", r.get("campaign_name", ""), re.I):
+            continue                          # Proven 풀만 (Testing 은 D+3 게이트)
+        flag = parse_paid_flag(ad_name)
+        if flag == "UNKNOWN":
+            continue                          # WL 만 (이미지 광고 제외)
+        days_live = calc_days_live(ad_name, ref_date)
+        if days_live is None or days_live < PROVEN_MIN_AGE_DAYS:
+            continue
+        cplpv14, lpv14 = _cplpv(r)
+        if lpv14 < PROVEN_MIN_LPV:
+            continue                          # 소표본 노이즈 → delivery 게이트 영역
+        r30 = by30.get(ad_id)
+        cplpv30, lpv30 = _cplpv(r30) if r30 else (0.0, 0)
+        entry = {
+            "ad_id": ad_id,
+            "ad_name": ad_name,
+            "adset_name": r.get("adset_name", ""),
+            "paid_flag": flag,
+            "days_live": days_live,
+            "spend": to_float(r.get("spend")),
+            "cplpv_14d": cplpv14,
+            "cplpv_30d": cplpv30,
+            "lpv_14d": lpv14,
+            "lpv_30d": lpv30,
+        }
+        if cplpv14 >= PROVEN_CPLPV_OFF and lpv30 >= PROVEN_MIN_LPV and cplpv30 >= PROVEN_CPLPV_OFF:
+            candidates.append(entry)
+        elif cplpv14 >= PROVEN_CPLPV_WATCH:
+            monitoring.append(entry)
+    candidates.sort(key=lambda x: -x["cplpv_14d"])
+    monitoring.sort(key=lambda x: -x["cplpv_14d"])
+    return {"candidates": candidates, "monitoring": monitoring}
+
+
 def budget_increase_candidates(ads, min_spend=30000):
     """예산 증액 후보: 계정 평균 대비 효율 좋고 학습단계 통과한 ad."""
     if not ads:
@@ -583,7 +701,8 @@ def budget_increase_candidates(ads, min_spend=30000):
         if dl is None:
             return True  # 라벨 없는 이미지 광고는 통과
         return 7 <= dl < 60
-    qualified = [a for a in ads if a["spend"] >= min_spend and a["lpv"] > 0 and a["ctr"] > 0 and a["freq"] <= 2.5 and _stage_ok(a)]
+    # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지 (2026-07-09)
+    qualified = [a for a in ads if _is_live_active(a.get("ad_id")) and a["spend"] >= min_spend and a["lpv"] > 0 and a["ctr"] > 0 and a["freq"] <= 2.5 and _stage_ok(a)]
     if not qualified:
         return []
     avg_cplpv = sum(a["cplpv"] for a in qualified) / len(qualified)
@@ -1015,7 +1134,7 @@ def render_graduation_box(grads):
   <tr><th>광고</th><th>PAID</th><th>CTR</th><th>CPC</th><th>CPLPV</th><th>Freq</th><th>D+N</th><th>현 adset</th></tr>
   {rows}
 </table>
-<p class=meta>기준 (2026-06-16 확정 · WL 1:1 분리 운영): Testing adset · D+7+ · <b>CPC ≤ ₩95 AND CTR ≥ 8% AND CPLPV ≤ ₩135</b> 모두 통과 · Off 트리거 미해당.<br/>
+<p class=meta>기준 (2026-06-16 확정 · 2026-07-09 CPLPV 130 갱신 · WL 1:1 분리 운영): Testing adset · D+3+ · <b>CPC ≤ ₩95 AND CTR ≥ 8% AND CPLPV ≤ ₩130</b> 모두 통과 · Off 트리거 미해당.<br/>
 1:1 분리(소재1=adset1)라 풀 share 무의미 → 개별 절대 지표. 액션: Proven 승급 (Testing PAUSE → Proven 새 ad_id).</p>
 """
 
@@ -1045,6 +1164,48 @@ ad 단위 예산 X 구조 — 풀 winner 살아있는 한 부진 광고 살아�
 """
 
 
+def render_proven_cplpv_box(result):
+    """7/27: Proven CPLPV OFF 게이트 박스 (지속성 판정 — 14d+30d 이중창)."""
+    if not result:
+        return ""
+    candidates = result.get("candidates", [])
+    monitoring = result.get("monitoring", [])
+    if not candidates and not monitoring:
+        return ""
+
+    def _rows(items):
+        return "".join(
+            f"<tr><td class=l>{c['ad_name'][:55]}</td>"
+            f"<td>{c['paid_flag']}×Proven</td>"
+            f"<td>{fmt_won(c['cplpv_14d'])}</td>"
+            f"<td>{fmt_won(c['cplpv_30d']) if c['lpv_30d'] >= PROVEN_MIN_LPV else '—'}</td>"
+            f"<td>{fmt_won(c['spend'])}</td>"
+            f"<td>D+{c['days_live']}</td></tr>"
+            for c in items
+        )
+
+    html = ""
+    if candidates:
+        html += f"""
+<h2 style="color:#b91c1c">Off 권장 — Proven CPLPV 지속 악화 ({len(candidates)}건)</h2>
+<table>
+  <tr><th>광고</th><th>풀</th><th>14d CPLPV</th><th>30d CPLPV</th><th>14d spend</th><th>D+N</th></tr>
+  {_rows(candidates)}
+</table>
+<p class=meta>트리거: 14d AND 30d 모두 CPLPV ≥ ₩{PROVEN_CPLPV_OFF} (양 창 LPV ≥ {PROVEN_MIN_LPV}) — 구조적 악화만, 일시 스파이크는 30d 창이 흡수. Off 액션은 세은 직접 (Ads Manager).</p>
+"""
+    if monitoring:
+        html += f"""
+<h2 style="color:#9a3412">Proven CPLPV 모니터링 — 졸업컷 130 이탈 관찰 ({len(monitoring)}건)</h2>
+<table>
+  <tr><th>광고</th><th>풀</th><th>14d CPLPV</th><th>30d CPLPV</th><th>14d spend</th><th>D+N</th></tr>
+  {_rows(monitoring)}
+</table>
+<p class=meta>14d CPLPV ≥ ₩{PROVEN_CPLPV_WATCH} 관찰 리스트. 14d·30d 모두 ₩{PROVEN_CPLPV_OFF} 이상 지속 시 Off 권장으로 승격.</p>
+"""
+    return html
+
+
 def render_off_recommend_box(bw, ref_date=None):
     """WL Testing OFF 권장 박스 (2026-06-16 — D+3 게이트).
 
@@ -1062,6 +1223,8 @@ def render_off_recommend_box(bw, ref_date=None):
         if "testing" not in pool_key:        # Testing 풀만 D+3 OFF (Proven 은 delivery_failure 별도)
             continue
         for a in pool.get("members", []):
+            if not _is_live_active(a.get("ad_id")):   # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지
+                continue
             dl = a.get("days_live")
             if dl is None or dl < OFF_MIN_DAYS:   # D+3+ 만 판정
                 continue
@@ -1535,7 +1698,7 @@ def analyze_1d(target_date):
     for name, v in by_camp.items():
         ctr = (v["clicks"] / v["impressions"] * 100) if v["impressions"] else 0
         cpc = (v["spend"] / v["clicks"]) if v["clicks"] else 0
-        freq = (v["freq_sum"] / v["n"]) if v["n"] else 0
+        freq = (v["impressions"] / v["reach"]) if v["reach"] else 0   # 합산 freq = Σimpr/Σreach (AVG(freq) 오류 수리 2026-07-09)
         camp_rows.append({
             "name": name, "spend": v["spend"], "impressions": v["impressions"],
             "clicks": v["clicks"], "ctr": ctr, "cpc": cpc, "freq": freq, "reach": v["reach"],
@@ -1625,6 +1788,20 @@ def analyze_1d(target_date):
     rows_14d_daily = fetch("ad", time_range={"since": fortnight_start.isoformat(), "until": yday.isoformat()}, with_daily=True)
     delivery_fail = delivery_failure_candidates(rows_14d, rows_14d_daily, yday)
 
+    # 7/27: Proven CPLPV OFF 게이트 — 14d+30d 이중창 지속성 판정.
+    # LPV 는 Graph 직접 (DK 과거 행 LPV 부재 → 30d CPLPV 부풀림, 7/8 발견) — 실패 시 DK fallback.
+    month_start = yday - timedelta(days=29)
+    g14 = graph_ad_rows_for_gate(fortnight_start, yday)
+    g30 = graph_ad_rows_for_gate(month_start, yday)
+    rows_30d_fallback = None
+    if g30 is None:
+        rows_30d_fallback = fetch("ad", time_range={"since": month_start.isoformat(), "until": yday.isoformat()})
+    proven_cplpv = proven_cplpv_candidates(
+        g14 if g14 is not None else rows_14d,
+        g30 if g30 is not None else rows_30d_fallback,
+        yday,
+    )
+
     # 6/4 — 슈퍼세일 증액 모니터링 (~6/11 자동 hide)
     supersale_trend = None
     supersale_compare = None
@@ -1650,6 +1827,7 @@ def analyze_1d(target_date):
         "budget_candidates": candidates,
         "graduation_candidates": grads,
         "delivery_failure_candidates": delivery_fail,
+        "proven_cplpv": proven_cplpv,
         "supersale_trend": supersale_trend,
         "supersale_compare": supersale_compare,
         "supersale_period": supersale_period,
@@ -1689,19 +1867,20 @@ def analyze_7d(end_date):
         daily_trend.append({"date": ds, "spend": v["spend"], "ctr": ctr, "cpc": cpc, "impressions": v["impressions"]})
         cur_d += timedelta(days=1)
 
-    by_camp = defaultdict(lambda: {"spend": 0, "impressions": 0, "clicks": 0, "freq_sum": 0, "n": 0})
+    by_camp = defaultdict(lambda: {"spend": 0, "impressions": 0, "clicks": 0, "reach": 0, "freq_sum": 0, "n": 0})
     for row in cur_daily:
         c = by_camp[row.get("campaign_name", "(unknown)")]
         c["spend"] += to_float(row.get("spend"))
         c["impressions"] += to_float(row.get("impressions"))
         c["clicks"] += to_float(row.get("clicks"))
+        c["reach"] += to_float(row.get("reach"))
         c["freq_sum"] += to_float(row.get("frequency"))
         c["n"] += 1
     camp_rows = []
     for name, v in by_camp.items():
         ctr = (v["clicks"] / v["impressions"] * 100) if v["impressions"] else 0
         cpc = (v["spend"] / v["clicks"]) if v["clicks"] else 0
-        freq = (v["freq_sum"] / v["n"]) if v["n"] else 0
+        freq = (v["impressions"] / v["reach"]) if v["reach"] else 0   # 합산 freq = Σimpr/Σreach (AVG(freq) 오류 수리 2026-07-09)
         camp_rows.append({"name": name, "spend": v["spend"], "impressions": v["impressions"],
                           "clicks": v["clicks"], "ctr": ctr, "cpc": cpc, "freq": freq})
     camp_rows.sort(key=lambda x: x["spend"], reverse=True)
@@ -1715,6 +1894,7 @@ def analyze_7d(end_date):
             "ad_name": row.get("ad_name", ""),
             "spend": to_float(row.get("spend")),
             "impressions": impr,
+            "reach": to_float(row.get("reach")),
             "ctr": to_float(row.get("ctr")),
             "cpc": to_float(row.get("cpc")),
             "freq": to_float(row.get("frequency")),
@@ -1851,12 +2031,13 @@ def analyze_14d(end_date):
         spend = sum(r["spend"] for r in rows)
         impr = sum(r["impressions"] for r in rows)
         clicks = sum(r["clicks"] for r in rows)
-        freq_avg = sum(r["freq"] for r in rows) / len(rows)
+        reach = sum(r.get("reach", 0) for r in rows)
         creative_class[grp] = {
             "n": len(rows), "spend": spend, "impressions": impr,
             "ctr": (clicks / impr * 100) if impr else 0,
             "cpc": (spend / clicks) if clicks else 0,
-            "freq": freq_avg,
+            # 합산 freq = Σimpr/Σreach (AVG(freq) 오류 수리 2026-07-09)
+            "freq": (impr / reach) if reach else 0,
         }
 
     fatigue = []
@@ -2026,6 +2207,8 @@ def render_1d(d):
 {render_kpi_counter(d['best_worst'].get('all_ads', []))}
 
 {render_off_recommend_box(d.get('best_worst_7d') or d['best_worst'], ref_date=d.get('ref_date'))}
+
+{render_proven_cplpv_box(d.get('proven_cplpv'))}
 
 {render_delivery_failure_box(d.get('delivery_failure_candidates', []))}
 
