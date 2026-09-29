@@ -1,0 +1,52 @@
+name: Monitor Applicants Sync
+
+# 모니터 응모자(Typeform Nqea8Gic) → Google Sheet 자동 동기화
+# 신규 지원자만 감지 → Apify 팔로워+최고재생 크롤 → 응모일시순 append
+# 실패 시 job fail (감시견/알림)
+
+on:
+  schedule:
+    - cron: '55 22 * * *'   # KST Daily 07:55 (= UTC 22:55, 정각 부하 회피)
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            python-dotenv \
+            gspread \
+            google-auth \
+            apify-client
+
+      - name: Write .env
+        run: |
+          cat > .env <<'ENVEOF'
+          TYPEFORM_API_KEY=${{ secrets.TYPEFORM_API_KEY }}
+          APIFY_API_TOKEN=${{ secrets.APIFY_API_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
+          ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
+
+      - name: Write credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
+
+      - name: Run monitor applicants sync
+        env:
+          TYPEFORM_API_KEY: ${{ secrets.TYPEFORM_API_KEY }}
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
+        run: python -u tools/monitor_applicants_sync.py
