@@ -1,0 +1,120 @@
+name: Meta JP 졸업/OFF Executor — 자동 집행 (클라우드)
+
+# 로컬 JPDash_WL_AutoUpload 체인(wl→grad_off→ih)의 세 번째 스크립트.
+# WL/IH 를 클라우드로 옮기며 이 체인을 disable → grad_off 도 함께 멎으므로 같이 이전.
+# 졸업(Testing→Proven 재생성 ACTIVE)·OFF(PAUSED) 실제 집행. 세은 2026-09-15 위임(auto).
+# on/off 판정=Graph 실시간(절대룰6). 실행 전 스냅샷·실행 후 알림.
+
+on:
+  schedule:
+    # JST 09:00 목표(UTC 00:00). WL(09:02/20/45)·IH(09:08/28/50)와 분 분리.
+    - cron: '12 0 * * *'   # JST 09:12
+    - cron: '38 0 * * *'   # JST 09:38 (안전망)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry-run (스냅샷/판정만, 집행·알림 없음)'
+        type: boolean
+        default: false
+
+jobs:
+  dedup:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Check today already succeeded (KST)
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            echo "manual/dispatch — proceed"
+            exit 0
+          fi
+          DECISION=$(python3 - << 'EOF'
+          import json, subprocess
+          from datetime import datetime, timezone, timedelta
+          KST = timezone(timedelta(hours=9))
+          today = datetime.now(KST).date()
+          out = subprocess.check_output(['gh','run','list','-R','${{ github.repository }}','-w','meta_jp_grad_off.yml','-L','20','--json','conclusion,createdAt,databaseId'])
+          runs = json.loads(out)
+          for r in runs:
+              if r['conclusion'] != 'success': continue
+              t = datetime.fromisoformat(r['createdAt'].replace('Z','+00:00')).astimezone(KST).date()
+              if t == today and str(r['databaseId']) != "${{ github.run_id }}":
+                  print("false")
+                  break
+          else:
+              print("true")
+          EOF
+          )
+          echo "should_run=$DECISION" >> $GITHUB_OUTPUT
+          echo "Decision: $DECISION"
+
+  execute:
+    needs: dedup
+    if: needs.dedup.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests \
+            python-dotenv \
+            google-genai \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client \
+            gspread \
+            matplotlib
+
+      - name: Write .env
+        run: |
+          cat > .env << 'ENVEOF'
+          META_JP_ACCESS_TOKEN=${{ secrets.META_JP_ACCESS_TOKEN }}
+          META_JP_SYSUSER_TOKEN=${{ secrets.META_JP_SYSUSER_TOKEN }}
+          META_JP_AD_ACCOUNT_ID=${{ secrets.META_JP_AD_ACCOUNT_ID }}
+          TEAMS_WEBHOOK_URL_SEEUN=${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+          GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH=credentials/gmail_token.json
+          GMAIL_SENDER=orbiters11@gmail.com
+          ENVEOF
+
+      - name: Write credentials
+        run: |
+          mkdir -p credentials
+          printf '%s' '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google_service_account.json
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
+
+      - name: Run grad/off executor
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          DRY="${{ github.event.inputs.dry_run }}"
+          if [ "$DRY" = "true" ]; then
+            python -u tools/meta_jp_grad_off_executor.py --dry-run
+          else
+            python -u tools/meta_jp_grad_off_executor.py --notify
+          fi
+
+      - name: Notify Teams on failure
+        if: failure()
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          if [ -z "$TEAMS_WEBHOOK_URL" ]; then exit 0; fi
+          curl -s -X POST -H "Content-Type: application/json" \
+            -d "{\"text\":\"❌ meta_jp_grad_off 실패 — ${{ github.run_id }} | https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+            "$TEAMS_WEBHOOK_URL"
