@@ -1,0 +1,61 @@
+name: Meta Token Expiry Watch — 만료 1주일 전 사전 경보
+
+# META_JP_ACCESS_TOKEN(LIVE) data_access 는 90일 주기 만료 → 만료 시 wl/ih 자동집행 전멸.
+# 매일 만료일을 체크해 D-7 이내면 Teams+Gmail 로 세은에게 미리 통보(세은 2026-09-29 지시).
+
+on:
+  schedule:
+    - cron: '0 1 * * *'   # 매일 JST 10:00 (자동집행 이후)
+  workflow_dispatch:
+    inputs:
+      threshold_days:
+        description: '경보 임계 (남은 일수 <= 이 값이면 알림)'
+        default: '7'
+      dry_run:
+        description: 'Dry-run (알림 없이 판정만)'
+        type: boolean
+        default: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - run: pip install --quiet requests python-dotenv google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Write .env
+        run: |
+          cat > .env << 'ENVEOF'
+          META_JP_ACCESS_TOKEN=${{ secrets.META_JP_ACCESS_TOKEN }}
+          FB_APP_ID=${{ secrets.FB_APP_ID }}
+          FB_APP_SECRET=${{ secrets.FB_APP_SECRET }}
+          TEAMS_WEBHOOK_URL_SEEUN=${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
+          GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH=credentials/gmail_token.json
+          GMAIL_SENDER=orbiters11@gmail.com
+          ENVEOF
+
+      - name: Write Gmail credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
+
+      - name: Run token expiry watch
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          TH="${{ github.event.inputs.threshold_days || '7' }}"
+          DRY="${{ github.event.inputs.dry_run }}"
+          ARGS="--threshold-days $TH"
+          if [ "$DRY" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          python -u tools/meta_token_expiry_watch.py $ARGS
