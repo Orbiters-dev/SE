@@ -85,6 +85,8 @@ jobs:
           META_JP_ACCESS_TOKEN=${{ secrets.META_JP_ACCESS_TOKEN }}
           META_JP_SYSUSER_TOKEN=${{ secrets.META_JP_SYSUSER_TOKEN }}
           META_JP_AD_ACCOUNT_ID=${{ secrets.META_JP_AD_ACCOUNT_ID }}
+          ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
+          ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
           TEAMS_WEBHOOK_URL_SEEUN=${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
           GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
           GMAIL_TOKEN_PATH=credentials/gmail_token.json
