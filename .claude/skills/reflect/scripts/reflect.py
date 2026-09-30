@@ -16,12 +16,27 @@ from pathlib import Path
 # 경로 설정
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent.parent  # 세은테스트/
-MEMORY_DIR = Path(os.environ.get(
-    "CLAUDE_MEMORY_DIR",
-    Path.home() / ".claude" / "projects" /
-    "z--ORBI-CLAUDE-0223-ORBITERS-CLAUDE-ORBITERS-CLAUDE------" / "memory"
-))
+# fallback (transcript로 유도 실패 시에만) — 현재 프로젝트 memory
+_FALLBACK_MEMORY_DIR = (Path.home() / ".claude" / "projects" /
+                        "c--Users-orbit-Desktop-SE" / "memory")
 STATE_DIR = SCRIPT_DIR.parent / ".state"
+
+
+def _resolve_memory_dir(transcript_path: str | None) -> Path:
+    """기록 대상 memory 디렉토리 결정.
+
+    우선순위: CLAUDE_MEMORY_DIR env → transcript 파일과 같은 프로젝트의 memory/ → fallback.
+    (9/29 수리: 기본 경로가 옛 z--ORBI 프로젝트로 하드코딩돼 감지 신호가 엉뚱한
+     디렉토리에 기록되던 버그. transcript_path 부모의 memory/ 로 프로젝트 불문 정확히 유도.)
+    """
+    env = os.environ.get("CLAUDE_MEMORY_DIR")
+    if env:
+        return Path(env)
+    if transcript_path:
+        cand = Path(transcript_path).parent / "memory"
+        if cand.exists():
+            return cand
+    return _FALLBACK_MEMORY_DIR
 
 # 모듈 임포트
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -58,10 +73,13 @@ def main():
             return
 
         # 2. HIGH confidence → mistakes.md 추가
+        memory_dir = _resolve_memory_dir(transcript_path)
+        print(f"[reflect] memory_dir = {memory_dir}", file=sys.stderr)
         high_signals = [s for s in signals if s["confidence"] >= 0.8]
         if high_signals:
-            _update_mistakes(high_signals)
-            print(f"[reflect] {len(high_signals)}개 실수 기록 추가", file=sys.stderr)
+            added = _update_mistakes(high_signals, memory_dir)
+            print(f"[reflect] 실수 기록 {added}개 추가 (중복 스킵 {len(high_signals) - added}개)",
+                  file=sys.stderr)
 
         # 3. 세션 요약 저장
         today = datetime.now().strftime("%Y%m%d")
@@ -81,12 +99,19 @@ def main():
             lock_file.unlink()
 
 
-def _update_mistakes(signals: list[dict]):
-    """mistakes.md에 새 실수 추가."""
-    mistakes_path = MEMORY_DIR / "mistakes.md"
+def _update_mistakes(signals: list[dict], memory_dir: Path) -> int:
+    """mistakes.md에 새 실수 추가. 실제 추가된 엔트리 수를 반환."""
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    mistakes_path = memory_dir / "mistakes.md"
 
+    # 없으면 생성 (8/7 수리: 없으면 조용히 리턴해 "N개 추가" 로그가 허위가 되던 버그)
     if not mistakes_path.exists():
-        return
+        header = (
+            "# mistakes.md — reflect 자동 감지 로그\n\n"
+            "세션 종료 시 reflect 파이프라인이 감지한 교정 신호의 원문 로그.\n"
+            "정제된 교훈은 mistakes_YYYYMMDD_*.md 오답노트로 승격한다.\n"
+        )
+        mistakes_path.write_text(header, encoding="utf-8")
 
     existing = mistakes_path.read_text(encoding="utf-8")
     today = datetime.now().strftime("%Y-%m-%d")
@@ -107,6 +132,7 @@ def _update_mistakes(signals: list[dict]):
             f.write("\n## 자동 감지 (reflect)\n")
             for entry in new_entries:
                 f.write(entry)
+    return len(new_entries)
 
 
 def _save_session_signals(date_str: str, signals: list[dict]):
