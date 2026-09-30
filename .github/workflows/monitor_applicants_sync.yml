@@ -29,7 +29,7 @@ jobs:
             python-dotenv \
             gspread \
             google-auth \
-            apify-client
+            'apify-client==2.5.0'
 
       - name: Write .env
         run: |
