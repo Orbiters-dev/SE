@@ -114,11 +114,17 @@ def apify_client():
     from apify_client import ApifyClient
     return ApifyClient(APIFY_TOKEN)
 
+def _dataset_id(run):
+    # apify-client 버전 호환: 구버전(2.5)은 dict, 신버전(2.6+)은 Run 객체 반환
+    if isinstance(run, dict):
+        return run["defaultDatasetId"]
+    return run.default_dataset_id
+
 def crawl_followers(handles):
     c = apify_client()
     run = c.actor("apify/instagram-profile-scraper").call(run_input={"usernames": handles})
     out = {}
-    for it in c.dataset(run["defaultDatasetId"]).iterate_items():
+    for it in c.dataset(_dataset_id(run)).iterate_items():
         u = (it.get("username") or "").lower()
         if u: out[u] = it.get("followersCount")
     return out
@@ -129,7 +135,7 @@ def crawl_top(handles):
     run = c.actor("apify/instagram-scraper").call(run_input={
         "directUrls": urls, "resultsType": "posts", "resultsLimit": 15})
     posts = defaultdict(list)
-    for it in c.dataset(run["defaultDatasetId"]).iterate_items():
+    for it in c.dataset(_dataset_id(run)).iterate_items():
         u = (it.get("ownerUsername") or "").lower()
         if u: posts[u].append(it)
     def play(p):
