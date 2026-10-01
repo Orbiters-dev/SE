@@ -4919,6 +4919,51 @@
 "followers": 1202,
 "source": "apify",
 "at": "2026-09-30"
+},
+"__hina_ikuji": {
+"followers": 893,
+"source": "ig_msg",
+"at": "2026-10-01"
+},
+"miku_6kidslife": {
+"followers": 865,
+"source": "ig_msg",
+"at": "2026-10-01"
+},
+"___aya1101": {
+"followers": 8308,
+"source": "apify",
+"at": "2026-10-01"
+},
+"chun_ohana": {
+"followers": 93,
+"source": "apify",
+"at": "2026-10-01"
+},
+"har_ka628": {
+"followers": null,
+"source": "apify_fail",
+"at": "2026-10-01"
+},
+"ku__vlog": {
+"followers": null,
+"source": "apify_fail",
+"at": "2026-10-01"
+},
+"miiikuuu_1215": {
+"followers": null,
+"source": "apify_fail",
+"at": "2026-10-01"
+},
+"okane_pinchi": {
+"followers": null,
+"source": "apify_fail",
+"at": "2026-10-01"
+},
+"rukako713": {
+"followers": 2211,
+"source": "apify",
+"at": "2026-10-01"
 }
 }
 }
