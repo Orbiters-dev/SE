@@ -6,7 +6,7 @@
 
 2레이어 비교:
   A) 광고 플랫폼 측(볼륨/효율) — Meta DK(PPSU_Proven 트래픽, stainless 제외) vs TT 대시보드 수동 누적.
-  B) 랜딩 도달 측(질) — 라쿠텐 fliptop(Meta 착지) vs 기본컵(TikTok 착지) 非RPP 방문·주문·CVR.
+  B) 랜딩 도달 측(질) — 라쿠텐 fliptop vs 기본컵 非RPP 방문·주문·CVR (스왑 후 fliptop=Meta·기본컵=TikTok 유료 유입, 오가닉 상시 혼입 = 순수 채널 아님).
 
 데이터원:
   - Meta: DataKeeper meta_ads_daily (objective=OUTCOME_TRAFFIC, brand=Grosmimi JP/Grosmimi, JP, stainless 제외)
@@ -165,8 +165,8 @@ def build_html(meta_daily, rkt, tt):
             f'<td>{kw(k["visit"])}</td><td>{k["orders"]}</td><td>{cvr(k["orders"],k["visit"])}</td></tr>')
 
     def scard(s):
-        return (f'fliptop(Meta) <b>{kw(s["fliptop"]["visit_avg"])}</b>방문/일 · 주문 {s["fliptop"]["orders"]} · CVR {s["fliptop"]["cvr"]}%'
-                f'<br>기본컵(TT) <b>{kw(s["kihon"]["visit_avg"])}</b>방문/일 · 주문 {s["kihon"]["orders"]} · CVR {s["kihon"]["cvr"]}%')
+        return (f'fliptop <b>{kw(s["fliptop"]["visit_avg"])}</b>방문/일 · 주문 {s["fliptop"]["orders"]} · CVR {s["fliptop"]["cvr"]}%'
+                f'<br>기본컵(PPSU) <b>{kw(s["kihon"]["visit_avg"])}</b>방문/일 · 주문 {s["kihon"]["orders"]} · CVR {s["kihon"]["cvr"]}%')
 
     html = f"""<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -224,13 +224,13 @@ tr.swap td{{background:#fff7e6;font-weight:600}} tr.after td{{background:#f3f8ff
 </div>
 
 <div class="card"><h2>B. 랜딩 도달 측 — 라쿠텐 질 (RPP 차감 = gross 소셜근사)</h2>
-<p class="desc">라쿠텐 상품페이지 방문·주문에서 RPP(유료검색)만 차감. fliptop 페이지=Meta 착지(스왑 검증됨), 기본컵 페이지=TikTok 착지. <b>오가닉·직접유입은 차감 못 함</b> → 순수 소셜 아님. "스왑 전후 변화(리프트)"로 읽어야 한다.</p>
+<p class="desc">라쿠텐 상품페이지 방문·주문에서 RPP(유료검색)만 차감. 스왑 후 fliptop 페이지엔 Meta·기본컵 페이지엔 TikTok 유료가 유입되지만, <b>오가닉·직접유입·RPP 외 라쿠텐 유료는 차감 못 함 → 순수 채널 아님</b>. "스왑 전후 변화(리프트)"로만 읽어야 한다.</p>
 <div class="smy">
 <div><h4>스왑 전 (9/7~9/21)</h4>{scard(pre)}</div>
 <div><h4>스왑 후 (9/22~{int(RKT_TO[5:7])}/{int(RKT_TO[8:10])})</h4>{scard(post)}</div>
 </div>
-<div class="legend" style="margin-top:10px">※ 착지 라벨은 <b>스왑(9/21) 후</b> 기준. 스왑 <b>전</b>엔 fliptop·기본컵 <b>둘 다 Meta 착지 + 오가닉</b>이었고, 스왑 후 fliptop=Meta / 기본컵=TikTok 으로 분리. 전/후를 갈라 읽을 것.</div>
-<table style="margin-top:8px"><tr><th rowspan="2">날짜</th><th class="gf" colspan="3">fliptop (스왑후 Meta 착지)</th><th class="gk" colspan="3">기본컵 PPSU (스왑후 TT 착지)</th></tr>
+<div class="legend" style="margin-top:10px">※ 방문엔 <b>항상 오가닉·직접유입(+RPP 외 라쿠텐 유료)이 섞여 있음 — 순수 채널 아님</b>. 유료 유입 변화: 스왑 <b>전</b> = fliptop·기본컵 <b>둘 다 Meta</b>. 스왑 <b>후</b> = fliptop에 <b>Meta</b>·기본컵에 <b>TikTok</b>(오가닉은 양쪽 계속 혼입). 그래서 페이지 라벨에 단일 채널 안 붙임 — <b>스왑 전/후 리프트(변화)로만</b> 해석.</div>
+<table style="margin-top:8px"><tr><th rowspan="2">날짜</th><th class="gf" colspan="3">fliptop</th><th class="gk" colspan="3">기본컵 PPSU</th></tr>
 <tr><th class="gf">방문</th><th class="gf">주문</th><th class="gf">CVR%</th><th class="gk">방문</th><th class="gk">주문</th><th class="gk">CVR%</th></tr>
 {''.join(rows_rkt)}</table>
 <div class="legend">방문=アクセス人数(visitAll)−RPP클릭, 주문=orderCountAll−RPP주문. 스왑 직후 fliptop 방문 급증({kw(f21)}→{kw(f22)}, 非RPP)=Meta 트래픽의 fliptop 착지 전환 신호. 주문 0 다수=D+1 지연·저표본.</div>
