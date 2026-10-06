@@ -148,7 +148,6 @@ def build_html(meta_daily, rkt, tt):
         row_cmp("클릭(clicks)", kw(m["clicks"]), kw(tt["clicks"]), f"<b>TT {clicks_ratio}배</b>"),
         row_cmp("CTR", f"{m['ctr']}%", f"{tt['ctr']}%", "유사 (정의 다름)"),
         row_cmp("CPC(클릭당)", f"{m['cpc']} KRW", f"{tt_cpc} JPY<br><span class=sub>≈{tt_cpc_krw} KRW</span>", f"<b>Meta가 {cpc_ratio}배 비쌈</b>"),
-        row_cmp("CPM(1천노출당)", "—", f"{tt['cpm']} JPY", "Meta 미집계"),
     ])
 
     # Part B 라쿠텐 일별 표
@@ -219,19 +218,19 @@ tr.swap td{{background:#fff7e6;font-weight:600}} tr.after td{{background:#f3f8ff
 <div class="kpi tt"><div class="v">{tt['ctr']}%</div><div class="l">TT CTR(destination)</div></div>
 <div class="kpi meta"><div class="v">{m['ctr']}%</div><div class="l">Meta CTR(link)</div></div>
 </div>
-<table><tr><th>지표</th><th class="meta">Meta (PPSU→fliptop)</th><th class="tt">TikTok (PPSU)</th><th>해석</th></tr>
+<table><tr><th>지표</th><th class="meta">fliptop</th><th class="tt">TikTok (PPSU)</th><th>해석</th></tr>
 {partA}</table>
-<div class="legend">Meta 통화=KRW, TikTok 통화=JPY. ≈KRW는 1 JPY=8.6 환산(참고). CPM은 Meta DK 미집계. LPV: Meta {kw(m['lpv'])}건(CPLPV {m['cplpv']} KRW) / TT 대시보드 미제공.</div>
+<div class="legend">Meta 통화=KRW, TikTok 통화=JPY. ≈KRW는 1 JPY=8.6 환산(참고). LPV: Meta {kw(m['lpv'])}건(CPLPV {m['cplpv']} KRW) / TT 대시보드 미제공.</div>
 </div>
 
 <div class="card"><h2>B. 랜딩 도달 측 — 라쿠텐 질 (RPP 차감 = gross 소셜근사)</h2>
-<p class="desc">라쿠텐 상품페이지 방문·주문에서 RPP(유료검색)만 차감. fliptop 페이지=Meta 착지(스왑 검증됨), 기본컵 페이지=TikTok 착지(세팅 완료·세은 확인). <b>오가닉·직접유입은 차감 못 함</b> → 순수 소셜 아님. "스왑 전후 변화(리프트)"로 읽어야 한다.</p>
+<p class="desc">라쿠텐 상품페이지 방문·주문에서 RPP(유료검색)만 차감. fliptop 페이지=Meta 착지(스왑 검증됨), 기본컵 페이지=TikTok 착지. <b>오가닉·직접유입은 차감 못 함</b> → 순수 소셜 아님. "스왑 전후 변화(리프트)"로 읽어야 한다.</p>
 <div class="smy">
 <div><h4>스왑 전 (9/7~9/21)</h4>{scard(pre)}</div>
 <div><h4>스왑 후 (9/22~{int(RKT_TO[5:7])}/{int(RKT_TO[8:10])})</h4>{scard(post)}</div>
 </div>
-<div class="flag">ℹ️ TikTok 트래픽 → 라쿠텐 기본컵 착지 <b>세팅 완료</b>(세은 확인). 단 <b>세팅일 이후</b> 기본컵 방문만 TT 귀속 — 세팅 전은 오가닉. 정확한 세팅일을 기준으로 전/후를 갈라 읽을 것.</div>
-<table style="margin-top:14px"><tr><th rowspan="2">날짜</th><th class="gf" colspan="3">fliptop (Meta 착지)</th><th class="gk" colspan="3">기본컵 PPSU (TT 착지)</th></tr>
+<div class="legend" style="margin-top:10px">※ 착지 라벨은 <b>스왑(9/21) 후</b> 기준. 스왑 <b>전</b>엔 fliptop·기본컵 <b>둘 다 Meta 착지 + 오가닉</b>이었고, 스왑 후 fliptop=Meta / 기본컵=TikTok 으로 분리. 전/후를 갈라 읽을 것.</div>
+<table style="margin-top:8px"><tr><th rowspan="2">날짜</th><th class="gf" colspan="3">fliptop (스왑후 Meta 착지)</th><th class="gk" colspan="3">기본컵 PPSU (스왑후 TT 착지)</th></tr>
 <tr><th class="gf">방문</th><th class="gf">주문</th><th class="gf">CVR%</th><th class="gk">방문</th><th class="gk">주문</th><th class="gk">CVR%</th></tr>
 {''.join(rows_rkt)}</table>
 <div class="legend">방문=アクセス人数(visitAll)−RPP클릭, 주문=orderCountAll−RPP주문. 스왑 직후 fliptop 방문 급증({kw(f21)}→{kw(f22)}, 非RPP)=Meta 트래픽의 fliptop 착지 전환 신호. 주문 0 다수=D+1 지연·저표본.</div>
