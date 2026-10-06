@@ -140,12 +140,16 @@ def graduate(ad_id, name, dry):
                                      "creative": json.dumps({"creative_id": creative_id}), "status": "ACTIVE"})
     if "id" not in ad:
         return ("fail_ad", f"{name[:40]} — ad 추가 실패: {W.err_of(ad).get('message')}", None)
-    # Testing PAUSE
+    # Testing PAUSE — ad + 소속 Testing adset 동반 OFF.
+    # 졸업도 Testing 쪽은 adset까지 끈다(세은 2026-09-17 'Testing off=ad+adset' 룰이 졸업 경로엔
+    # 누락돼, 졸업건이 'adset ACTIVE + ad PAUSED' 엇박으로 남던 버그. 2026-10-06 재지시로 보강).
+    # pause_testing_adset = ②Testing 캠페인 재확인 + ③공용 Proven adset 제외 가드 내장이라 안전.
     pz = W.post(ad_id, LIVE, {"status": "PAUSED"})
+    _as_ok, adset_off_detail, _asid = pause_testing_adset(ad_id, False)
     # created: proven_ad 는 롤백 시 삭제 대상 / shared_adset 은 공용이라 삭제 금지
     created = {"proven_ad": ad["id"], "shared_adset": adset_id, "reused_creative": creative_id,
               "testing_ad": ad_id, "testing_orig_status": orig_status, "product": prod}
-    return ("graduated", f"{name[:40]} → Proven adset {adset_id} 광고 {ad['id']} (Testing {ad_id} PAUSED={pz.get('success') or pz})", created)
+    return ("graduated", f"{name[:40]} → Proven adset {adset_id} 광고 {ad['id']} (Testing {ad_id} PAUSED={pz.get('success') or pz} | {adset_off_detail})", created)
 
 
 def turn_off(ad_id, name, reason, dry):
