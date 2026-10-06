@@ -207,7 +207,7 @@ tr.swap td{{background:#fff7e6;font-weight:600}} tr.after td{{background:#f3f8ff
 <div class="card tldr"><h2>TL;DR</h2><ul>
 <li><b>Meta는 TikTok의 {spend_ratio}배 예산({kw(m['spend'])} vs ≈{kw(tt_spend_krw)} KRW)을 쓰고도 클릭은 더 적었다</b> — Meta {kw(m['clicks'])} vs TT {kw(tt['clicks'])} 클릭(TT {clicks_ratio}배). CPC는 Meta가 {cpc_ratio}배({m['cpc']}원 vs ≈{tt_cpc_krw}원). 동일기간 {META_CMP_FROM}~{META_CMP_TO}.</li>
 <li><b>CTR은 Meta {m['ctr']}% · TT {tt['ctr']}%로 유사</b>하나, 지표 정의가 다르다(Meta=link click / TT=destination click). 절대값 직접 등치 금지 — "클릭 볼륨/단가" 레이어로만 비교.</li>
-<li><b>랜딩 질(라쿠텐 CVR)</b> — 스왑 후({META_CMP_FROM}~{int(RKT_TO[5:7])}/{int(RKT_TO[8:10])}, D+14 누적) fliptop/기본컵 방문·주문·CVR을 실측 반영. 대표님 가설(Meta=저의도 광폭) 검증은 아래 B표의 전/후 리프트로 읽는다.</li>
+<li><b>랜딩 질(라쿠텐 CVR)</b> — 스왑 후({META_CMP_FROM}~{int(RKT_TO[5:7])}/{int(RKT_TO[8:10])}, D+14 누적) fliptop/기본컵 방문·주문·CVR을 실측 반영. 아래 B표의 전/후 리프트로 읽는다.</li>
 </ul></div>
 
 <div class="card"><h2>A. 광고 플랫폼 측 — 볼륨 · 효율 ({META_CMP_FROM}~{META_CMP_TO} 동일기간)</h2>
