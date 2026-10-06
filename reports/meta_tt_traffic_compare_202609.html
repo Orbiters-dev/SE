@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta vs TikTok 트래픽 비교 — 2026-09</title><style>
+*{box-sizing:border-box}
+body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:#f4f6f9;color:#1b2430;margin:0;padding:34px}
+.wrap{max-width:1040px;margin:0 auto}
+h1{font-size:24px;margin:0 0 4px} .sub{color:#8a94a2;font-size:12px}
+.topmeta{color:#6b7684;font-size:12.5px;margin:6px 0 24px}
+.card{background:#fff;border:1px solid #e4e9f0;border-radius:14px;padding:22px 26px;margin-bottom:22px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card h2{font-size:17px;margin:0 0 4px} .card .desc{color:#5a6675;font-size:13px;margin:0 0 16px;line-height:1.6}
+.tldr{background:linear-gradient(135deg,#eef4ff,#fdeef5);border:1px solid #dde6f2}
+.tldr ul{margin:8px 0 0;padding-left:20px} .tldr li{margin:7px 0;font-size:14px;line-height:1.6}
+.kpis{display:flex;gap:14px;flex-wrap:wrap;margin:4px 0 8px}
+.kpi{flex:1;min-width:150px;background:#f7f9fc;border-radius:10px;padding:14px 16px;border:1px solid #eceff4}
+.kpi .v{font-size:23px;font-weight:700} .kpi .l{font-size:11.5px;color:#7a8696;margin-top:3px}
+.kpi.tt .v{color:#e23b7a} .kpi.meta .v{color:#2563c9}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{border:1px solid #e4e9f0;padding:7px 10px;text-align:center}
+th{background:#eef2f7;font-weight:600}
+td.lbl{text-align:left;font-weight:600;background:#fafbfd} td.meta{color:#2563c9;font-weight:600} td.tt{color:#e23b7a;font-weight:600}
+td.note{color:#5a6675;font-size:12px;text-align:left} .sub{font-size:11px;color:#9aa4b2}
+td.day{text-align:left;font-variant-numeric:tabular-nums}
+tr.swap td{background:#fff7e6;font-weight:600} tr.after td{background:#f3f8ff}
+.gf{background:#eaf2ff} .gk{background:#fdeef5}
+.smy{display:flex;gap:20px;flex-wrap:wrap} .smy>div{flex:1;min-width:300px;background:#f7f9fc;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.8;border:1px solid #eceff4}
+.smy h4{margin:0 0 6px;font-size:13px;color:#41505f}
+.warn{background:#fff8ee;border:1px solid #f3dca8} .warn h2{color:#9a6a00}
+.warn ol{margin:6px 0 0;padding-left:20px} .warn li{margin:8px 0;font-size:13px;line-height:1.6}
+.flag{background:#fdecea;border:1px solid #f1b0a8;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#a3382c;margin-top:12px}
+.legend{font-size:11.5px;color:#8a94a2;margin-top:8px}
+.src{color:#9aa4b2;font-size:11.5px;margin-top:6px}
+</style></head><body><div class="wrap">
+
+<h1>Meta vs TikTok — 트래픽 비교 리포트</h1>
+<div class="topmeta">Meta→fliptop(ワンタッチ) · TikTok→PPSU 기본컵 &nbsp;|&nbsp; 채널 분담 스왑 2026-09-21 17:07 &nbsp;|&nbsp; A 광고볼륨 2026-09-22~2026-10-05(동일기간) · B 라쿠텐질 2026-09-07~2026-10-05 &nbsp;|&nbsp; 산출 2026-10-06 09:05 JST (틱톡이) &nbsp;|&nbsp; 환율 1 JPY=8.6 KRW</div>
+
+<div class="card tldr"><h2>TL;DR</h2><ul>
+<li><b>Meta는 TikTok의 2.4배 예산(1,457,402 vs ≈604,021 KRW)을 쓰고도 클릭은 더 적었다</b> — Meta 27,736 vs TT 46,033 클릭(TT 1.7배). CPC는 Meta가 4.0배(52.5원 vs ≈13.2원). 동일기간 2026-09-22~2026-10-05.</li>
+<li><b>CTR은 Meta 11.42% · TT 14.84%로 유사</b>하나, 지표 정의가 다르다(Meta=link click / TT=destination click). 절대값 직접 등치 금지 — "클릭 볼륨/단가" 레이어로만 비교.</li>
+<li><b>랜딩 질(라쿠텐 CVR)</b> — 스왑 후(2026-09-22~10/5, D+14 누적) fliptop/기본컵 방문·주문·CVR을 실측 반영. 대표님 가설(Meta=저의도 광폭) 검증은 아래 B표의 전/후 리프트로 읽는다.</li>
+</ul></div>
+
+<div class="card"><h2>A. 광고 플랫폼 측 — 볼륨 · 효율 (2026-09-22~2026-10-05 동일기간)</h2>
+<p class="desc">각 플랫폼 대시보드/DK 자체 지표. 착지 전제와 무관하게 "광고가 트래픽을 얼마나·얼마나 싸게 만들었나"를 본다. Meta=9/21 fliptop URL로 스왑된 42개 광고(PPSU Proven + Testing의 PPSU, stainless 0 교차검증). TikTok=<code>260918_traffic_IHV_PPSU&amp;Stainless</code> 동일기간 누적.</p>
+<div class="kpis">
+<div class="kpi tt"><div class="v">1.7×</div><div class="l">TT 클릭 볼륨 (vs Meta)</div></div>
+<div class="kpi meta"><div class="v">4.0×</div><div class="l">Meta CPC 배수 (더 비쌈)</div></div>
+<div class="kpi tt"><div class="v">14.84%</div><div class="l">TT CTR(destination)</div></div>
+<div class="kpi meta"><div class="v">11.42%</div><div class="l">Meta CTR(link)</div></div>
+</div>
+<table><tr><th>지표</th><th class="meta">Meta (PPSU→fliptop)</th><th class="tt">TikTok (PPSU)</th><th>해석</th></tr>
+<tr><td class="lbl">지출(spend)</td><td class="meta">1,457,402 KRW</td><td class="tt">70,235 JPY<br><span class=sub>≈604,021 KRW</span></td><td class="note"><b>Meta가 2.4배 더 씀</b></td></tr><tr><td class="lbl">노출(impressions)</td><td class="meta">242,843</td><td class="tt">310,094</td><td class="note">TT 1.3배</td></tr><tr><td class="lbl">클릭(clicks)</td><td class="meta">27,736</td><td class="tt">46,033</td><td class="note"><b>TT 1.7배</b></td></tr><tr><td class="lbl">CTR</td><td class="meta">11.42%</td><td class="tt">14.84%</td><td class="note">유사 (정의 다름)</td></tr><tr><td class="lbl">CPC(클릭당)</td><td class="meta">52.5 KRW</td><td class="tt">1.53 JPY<br><span class=sub>≈13.2 KRW</span></td><td class="note"><b>Meta가 4.0배 비쌈</b></td></tr><tr><td class="lbl">CPM(1천노출당)</td><td class="meta">—</td><td class="tt">227 JPY</td><td class="note">Meta 미집계</td></tr></table>
+<div class="legend">Meta 통화=KRW, TikTok 통화=JPY. ≈KRW는 1 JPY=8.6 환산(참고). CPM은 Meta DK 미집계. LPV: Meta 22,865건(CPLPV 63.7 KRW) / TT 대시보드 미제공.</div>
+</div>
+
+<div class="card"><h2>B. 랜딩 도달 측 — 라쿠텐 질 (RPP 차감 = gross 소셜근사)</h2>
+<p class="desc">라쿠텐 상품페이지 방문·주문에서 RPP(유료검색)만 차감. fliptop 페이지=Meta 착지(스왑 검증됨), 기본컵 페이지=TikTok 착지(세팅 완료·세은 확인). <b>오가닉·직접유입은 차감 못 함</b> → 순수 소셜 아님. "스왑 전후 변화(리프트)"로 읽어야 한다.</p>
+<div class="smy">
+<div><h4>스왑 전 (9/7~9/21)</h4>fliptop(Meta) <b>365</b>방문/일 · 주문 7 · CVR 0.13%<br>기본컵(TT) <b>1,760</b>방문/일 · 주문 13 · CVR 0.05%</div>
+<div><h4>스왑 후 (9/22~10/5)</h4>fliptop(Meta) <b>2,659</b>방문/일 · 주문 1 · CVR 0.0%<br>기본컵(TT) <b>1,487</b>방문/일 · 주문 10 · CVR 0.05%</div>
+</div>
+<div class="flag">ℹ️ TikTok 트래픽 → 라쿠텐 기본컵 착지 <b>세팅 완료</b>(세은 확인). 단 <b>세팅일 이후</b> 기본컵 방문만 TT 귀속 — 세팅 전은 오가닉. 정확한 세팅일을 기준으로 전/후를 갈라 읽을 것.</div>
+<table style="margin-top:14px"><tr><th rowspan="2">날짜</th><th class="gf" colspan="3">fliptop (Meta 착지)</th><th class="gk" colspan="3">기본컵 PPSU (TT 착지)</th></tr>
+<tr><th class="gf">방문</th><th class="gf">주문</th><th class="gf">CVR%</th><th class="gk">방문</th><th class="gk">주문</th><th class="gk">CVR%</th></tr>
+<tr><td class="day">09-07</td><td>514</td><td>2</td><td>0.39</td><td>1,717</td><td>0</td><td>0.0</td></tr><tr><td class="day">09-08</td><td>449</td><td>2</td><td>0.45</td><td>1,442</td><td>0</td><td>0.0</td></tr><tr><td class="day">09-09</td><td>282</td><td>1</td><td>0.35</td><td>1,359</td><td>0</td><td>0.0</td></tr><tr><td class="day">09-10</td><td>441</td><td>1</td><td>0.23</td><td>1,258</td><td>1</td><td>0.08</td></tr><tr><td class="day">09-11</td><td>477</td><td>0</td><td>0.0</td><td>827</td><td>0</td><td>0.0</td></tr><tr><td class="day">09-12</td><td>925</td><td>0</td><td>0.0</td><td>894</td><td>1</td><td>0.11</td></tr><tr><td class="day">09-13</td><td>600</td><td>0</td><td>0.0</td><td>1,732</td><td>0</td><td>0.0</td></tr><tr><td class="day">09-14</td><td>325</td><td>0</td><td>0.0</td><td>2,248</td><td>0</td><td>0.0</td></tr><tr><td class="day">09-15</td><td>101</td><td>0</td><td>0.0</td><td>2,671</td><td>2</td><td>0.07</td></tr><tr><td class="day">09-16</td><td>330</td><td>0</td><td>0.0</td><td>2,403</td><td>3</td><td>0.12</td></tr><tr><td class="day">09-17</td><td>26</td><td>0</td><td>0.0</td><td>1,725</td><td>0</td><td>0.0</td></tr><tr><td class="day">09-18</td><td>347</td><td>0</td><td>0.0</td><td>1,726</td><td>1</td><td>0.06</td></tr><tr><td class="day">09-19</td><td>12</td><td>0</td><td>0.0</td><td>1,677</td><td>2</td><td>0.12</td></tr><tr><td class="day">09-20</td><td>107</td><td>1</td><td>0.93</td><td>2,371</td><td>1</td><td>0.04</td></tr><tr class="swap"><td class="day">09-21 ⟵스왑</td><td>542</td><td>0</td><td>0.0</td><td>2,343</td><td>2</td><td>0.09</td></tr><tr class="after"><td class="day">09-22</td><td>3,648</td><td>0</td><td>0.0</td><td>1,222</td><td>0</td><td>0.0</td></tr><tr class="after"><td class="day">09-23</td><td>3,197</td><td>0</td><td>0.0</td><td>3,161</td><td>1</td><td>0.03</td></tr><tr class="after"><td class="day">09-24</td><td>3,113</td><td>0</td><td>0.0</td><td>1,283</td><td>0</td><td>0.0</td></tr><tr class="after"><td class="day">09-25</td><td>2,734</td><td>0</td><td>0.0</td><td>1,153</td><td>3</td><td>0.26</td></tr><tr class="after"><td class="day">09-26</td><td>2,746</td><td>0</td><td>0.0</td><td>709</td><td>0</td><td>0.0</td></tr><tr class="after"><td class="day">09-27</td><td>3,423</td><td>0</td><td>0.0</td><td>1,294</td><td>1</td><td>0.08</td></tr><tr class="after"><td class="day">09-28</td><td>2,371</td><td>0</td><td>0.0</td><td>2,320</td><td>0</td><td>0.0</td></tr><tr class="after"><td class="day">09-29</td><td>2,349</td><td>0</td><td>0.0</td><td>484</td><td>0</td><td>0.0</td></tr><tr class="after"><td class="day">09-30</td><td>2,933</td><td>0</td><td>0.0</td><td>5,864</td><td>3</td><td>0.05</td></tr><tr class="after"><td class="day">10-01</td><td>2,648</td><td>0</td><td>0.0</td><td>236</td><td>1</td><td>0.42</td></tr><tr class="after"><td class="day">10-02</td><td>2,702</td><td>1</td><td>0.04</td><td>2,176</td><td>0</td><td>0.0</td></tr><tr class="after"><td class="day">10-03</td><td>2,261</td><td>0</td><td>0.0</td><td>586</td><td>1</td><td>0.17</td></tr><tr class="after"><td class="day">10-04</td><td>3,101</td><td>0</td><td>0.0</td><td>331</td><td>0</td><td>0.0</td></tr><tr class="after"><td class="day">10-05</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table>
+<div class="legend">방문=アクセス人数(visitAll)−RPP클릭, 주문=orderCountAll−RPP주문. 스왑 직후 fliptop 방문 급증(542→3,648, 非RPP)=Meta 트래픽의 fliptop 착지 전환 신호. 주문 0 다수=D+1 지연·저표본.</div>
+</div>
+
+<div class="card warn"><h2>⚠️ 한계 · 읽는 법</h2><ol>
+<li><b>gross 소셜근사</b> — 라쿠텐 방문에서 RPP만 뺐다. 오가닉 검색·직접유입·내부 브라우즈가 남아 "순수 채널 트래픽"이 아니다. 실제 RPP는 방문의 극히 일부(fliptop 日 5~42·기본컵 20~95)라 잔차가 크다 → 절대값 아닌 <b>리프트(스왑 전후 변화)</b>로 해석.</li>
+<li><b>상품 confound</b> — fliptop(¥4,200·12m~) ≠ 기본컵(¥3,190·6m~). 가격·연령대가 달라 CVR 직접 등치 금지. 각 페이지를 자기 베이스라인과 비교.</li>
+</ol></div>
+
+<div class="src">소스: Meta=DataKeeper meta_ads_daily(OUTCOME_TRAFFIC·JP·stainless제외) · TikTok=Ads Manager 수동 스크랩(.tmp/tiktok_probe→tt_ads_summary.json, 2026-09-22~2026-10-05) · 라쿠텐=RMS get-item-list − RPP商品別 리포트 · 빌더 tools/build_meta_tt_traffic_report.py · 실험설계 project_meta_tiktok_channel_cvr_experiment</div>
+</div></body></html>
