@@ -28,6 +28,7 @@ jobs:
         env:
           ORBITOOLS_USER: ${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS: ${{ secrets.ORBITOOLS_PASS }}
+          DK_SE_READ_TOKEN: ${{ secrets.DK_SE_READ_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TEAMS_WEBHOOK_URL_SEEUN: ${{ secrets.TEAMS_WEBHOOK_URL_SEEUN }}
         run: |

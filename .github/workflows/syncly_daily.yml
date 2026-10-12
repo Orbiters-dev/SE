@@ -49,6 +49,7 @@ jobs:
           SHOPIFY_ACCESS_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          DK_SE_READ_TOKEN=${{ secrets.DK_SE_READ_TOKEN }}
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env
 

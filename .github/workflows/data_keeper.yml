@@ -90,6 +90,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          DK_SE_READ_TOKEN=${{ secrets.DK_SE_READ_TOKEN }}
           APIFY_API_TOKEN=${{ secrets.APIFY_API_TOKEN }}
           PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           DATA_KEEPER_RECIPIENT=${{ secrets.DATA_KEEPER_RECIPIENT }}

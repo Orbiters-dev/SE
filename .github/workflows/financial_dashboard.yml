@@ -35,6 +35,7 @@ jobs:
           cat > .env << ENVEOF
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          DK_SE_READ_TOKEN=${{ secrets.DK_SE_READ_TOKEN }}
           ENVEOF
 
       - name: Generate fin_data.js

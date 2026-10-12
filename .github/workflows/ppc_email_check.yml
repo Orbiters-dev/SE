@@ -39,6 +39,7 @@ jobs:
           AMZ_SP_REFRESH_TOKEN_ORBITOOL=${{ secrets.AMZ_SP_REFRESH_TOKEN_ORBITOOL }}
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          DK_SE_READ_TOKEN=${{ secrets.DK_SE_READ_TOKEN }}
           PPC_REPORT_RECIPIENT=${{ secrets.PPC_REPORT_RECIPIENT }}
           ENVEOF
 

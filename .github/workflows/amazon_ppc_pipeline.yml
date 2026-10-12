@@ -42,6 +42,7 @@ jobs:
           AMZ_ADS_JP_PROFILE_ID=${{ secrets.AMZ_ADS_JP_PROFILE_ID }}
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          DK_SE_READ_TOKEN=${{ secrets.DK_SE_READ_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT_JSON_PATH=credentials/google_sa.json
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env

@@ -62,6 +62,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_PATH=credentials/google_service_account.json
           ORBITOOLS_USER=${{ secrets.ORBITOOLS_USER }}
           ORBITOOLS_PASS=${{ secrets.ORBITOOLS_PASS }}
+          DK_SE_READ_TOKEN=${{ secrets.DK_SE_READ_TOKEN }}
           ENVEOF
           sed -i 's/^[[:space:]]*//' .env
 
