@@ -50,7 +50,10 @@
   #actionsView .abCount{font-size:11px; font-weight:700; border-radius:10px; padding:0 8px; color:#fff; background:#c0392b;}
   #actionsView .abCount.zero{background:#8a94a3;}
   #actionsView .abGo{font-size:11px; color:#2563a8; cursor:pointer; margin-left:auto;}
-  #actionsView .abItem{display:flex; gap:8px; align-items:baseline; font-size:12.5px; padding:4px 8px; border-radius:6px; border:1px solid #f0f0f0; margin-bottom:3px;}
+  #actionsView .abItem{display:flex; gap:8px; align-items:baseline; font-size:12.5px; padding:4px 8px; border-radius:6px; border:1px solid #f0f0f0; margin-bottom:3px; cursor:pointer;}
+  #actionsView .abItem:hover{border-color:#b8bfc9; background:#fafbfd;}
+  #actionsView .abExt{flex:0 0 auto; margin-left:auto; font-size:11px; color:#2563a8; text-decoration:none; border:1px solid #d6e2f0; border-radius:4px; padding:0 6px;}
+  #actionsView .abExt:hover{background:#eef4fb;}
   #actionsView .sev{flex:0 0 auto; font-size:10.5px; font-weight:800; border-radius:4px; padding:1px 6px; color:#fff;}
   .sev.off{background:#c0392b;} .sev.half{background:#d35400;} .sev.scale{background:#1e8449;}
   .sev.watch{background:#b7950b;} .sev.pre{background:#8a94a3;} .sev.info{background:#8a94a3;}
@@ -1920,11 +1923,18 @@ function sevRank(s){ return {off:0, half:1, scale:2, watch:3, pre:4, info:5}[s] 
 function renderActionsView(){
   const view = document.getElementById('actionsView');
   const data = actionsData; if(!data) return;
-  const row = a => `<div class="abItem">
+  const AM_BASE = 'https://adsmanager.facebook.com/adsmanager/manage/ads?act=4117678028561958';
+  const row = (a, ch) => {
+    const adId = (a.metrics || {}).ad_id;
+    const amLink = (ch.key || '').startsWith('meta') && adId
+      ? `<a class="abExt" href="${AM_BASE}&selected_ad_ids=${esc(String(adId))}" target="_blank" rel="noopener" title="Meta 광고 관리자에서 열기">광고관리자 ↗</a>` : '';
+    return `<div class="abItem" data-tab="${esc(ch.tab || '')}" title="클릭 = ${esc(ch.title || '')} 판정 룰 탭 이동">
       <span class="sev ${esc(a.severity)}">${esc((a.severity || '').toUpperCase())}</span>
       <span>${esc(a.title || '')}</span>
       <span class="abDetail">${esc(a.detail || '')}${a.execute === 'auto' ? ' · 자동집행' : a.execute === 'proposal' ? ' · 제안(수동 집행)' : ''}</span>
+      ${amLink}
     </div>`;
+  };
   let html = `<div class="abMeta">기준일 ${esc(data.ref_date || '')} · 생성 ${esc(data.generated_at || '')} · 매일 아침 자동 갱신 (GHA KST 08:40)</div>`;
   for(const ch of (data.channels || [])){
     const acts = (ch.actions || []).slice().sort((a,b) => sevRank(a.severity) - sevRank(b.severity));
@@ -1936,16 +1946,21 @@ function renderActionsView(){
       </div>
       ${ch.note ? `<div class="abSecNote">${esc(ch.note)}</div>` : ''}
       ${ch.status === 'error' ? `<div class="abErr">⚠ 판정 실패 — ${esc(ch.error || '')}</div>` : ''}
-      ${acts.map(row).join('')}
+      ${acts.map(a => row(a, ch)).join('')}
       ${!acts.length && ch.status === 'ok' ? '<div class="abNote">오늘 룰에 걸린 액션 없음</div>' : ''}
-      ${infos.map(row).join('')}
+      ${infos.map(a => row(a, ch)).join('')}
     </div>`;
   }
   view.innerHTML = html;
+  const jump = t => { actionsTabOn = false; tab = t; sel = null; renderTabs(); applyActionsView(); render(); };
   view.querySelectorAll('[data-go]').forEach(el => {
-    el.addEventListener('click', () => {
-      actionsTabOn = false; tab = el.dataset.go; sel = null;
-      renderTabs(); applyActionsView(); render();
+    el.addEventListener('click', () => jump(el.dataset.go));
+  });
+  view.querySelectorAll('.abItem[data-tab]').forEach(el => {
+    el.addEventListener('click', ev => {
+      if(ev.target.closest('.abExt')) return;   /* 외부 링크 클릭은 탭 이동 안 함 */
+      const t = el.dataset.tab;
+      if(t && TAB_ORDER.includes(t)) jump(t);
     });
   });
 }
