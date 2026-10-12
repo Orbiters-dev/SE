@@ -1949,14 +1949,16 @@ function renderActionsView(){
     });
   });
 }
-/* 상대경로(배포본) → 실패 시 절대경로(claude artifact 등 외부 환경, CORS 허용돼 있으면 표시).
-   둘 다 실패하면 탭 자체가 안 생김. 쿼리 = CDN 엣지 캐시 우회 */
+/* 상대경로(배포본) → 절대경로(외부 환경) → 인라인(claude artifact: 외부 fetch가 CSP로
+   막히므로 빌드 시 window.__ACTIONS_INLINE 으로 구워 넣음 — tools/build_board_artifact.py).
+   전부 없으면 탭 자체가 안 생김. 쿼리 = CDN 엣지 캐시 우회 */
 (function loadActions(){
   const got = d => { actionsData = d; renderActionsView(); renderTabs(); };
+  const inline = () => { if(window.__ACTIONS_INLINE) got(window.__ACTIONS_INLINE); };
   const pull = u => fetch(u + '?v=' + Date.now(), {cache: 'no-store'})
     .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); });
   pull('actions.json').then(got)
-    .catch(() => pull('https://jp-perf-board.vercel.app/actions.json').then(got).catch(() => {}));
+    .catch(() => pull('https://jp-perf-board.vercel.app/actions.json').then(got).catch(inline));
 })();
 </script>
 </body>
