@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>GROSMIMI JP 퍼포먼스 — 판정 보드 (편집형)</title>
+<style>
+  :root{
+    --ink:#1f2328; --quiet:#667085; --line:#d0d5dd; --bg:#f4f5f7;
+    --red:#d64545; --redbg:#fdf1f1; --orange:#e8a33d; --orangebg:#fdf8ee;
+    --blue:#4a7dd6; --bluebg:#f1f5fd; --green:#3f9e5f; --greenbg:#f0faf3;
+    --gray:#8a8f98; --graybg:#ffffff; --yellow:#d9c55a; --yellowbg:#fff8d6;
+    --sel:#2f6fed;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif; background:var(--bg); color:var(--ink);}
+  header{background:#fff; border-bottom:1px solid var(--line); padding:10px 20px 0;}
+  header h1{font-size:17px; font-weight:700;}
+  header .sub{font-size:11.5px; color:var(--quiet); margin-top:2px;}
+  .tabs{display:flex; gap:4px; margin-top:10px;}
+  .tabs button{border:1px solid var(--line); border-bottom:none; background:#eceef1; padding:7px 18px; font-size:13px; font-weight:600; color:var(--quiet); border-radius:8px 8px 0 0; cursor:pointer;}
+  .tabs button.on{background:#fff; color:var(--ink); border-color:#b8bfc9; position:relative; top:1px;}
+  .ribbon{background:#fff; border-bottom:1px solid var(--line); padding:7px 20px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; position:sticky; top:0; z-index:30;}
+  .ribbon .grp{display:flex; gap:4px; align-items:center; padding:0 10px; border-right:1px solid #e7eaee;}
+  .ribbon .grp:last-child{border-right:none;}
+  .ribbon button{border:1px solid var(--line); background:#fff; border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer; color:var(--ink);}
+  .ribbon button:hover{background:#f0f3f7;}
+  .ribbon button.active{background:#e7efff; border-color:var(--sel); color:var(--sel);}
+  .ribbon .lbl{font-size:10.5px; color:var(--quiet); margin-right:2px;}
+  .sw{width:22px; height:22px; border-radius:5px; border:1px solid var(--line); cursor:pointer; padding:0;}
+  .legend{display:flex; gap:14px; padding:8px 20px; font-size:11.5px; color:var(--ink); align-items:center; flex-wrap:wrap;}
+  .legend .chip{display:flex; gap:5px; align-items:center;}
+  .legend .box{width:13px; height:13px; border-radius:3px; border:1.5px solid;}
+  .wrap{overflow:auto; padding:0 20px 40px;}
+  .canvasbox{background:#fff; border:1px solid var(--line); border-radius:8px; margin-top:14px; box-shadow:0 1px 4px rgba(0,0,0,.07); display:block; width:max-content;}
+  svg{display:block; user-select:none; -webkit-user-select:none;}
+  svg text{pointer-events:none;}
+  .status{font-size:11px; color:var(--quiet); padding:6px 20px;}
+  #editor{position:absolute; display:none; z-index:50; font-family:inherit; font-size:13px; border:2px solid var(--sel); border-radius:6px; padding:6px; resize:none; background:#fff; line-height:1.45;}
+  .hint{font-size:11px; color:var(--quiet); margin-left:8px;}
+  #jsonPanel button{border:1px solid var(--line); background:#fff; border-radius:6px; padding:6px 14px; font-size:12.5px; cursor:pointer;}
+  #jsonPanel button:hover{background:#f0f3f7;}
+  /* ── 오늘의 액션 (별도 탭 뷰) ── */
+  #actionsView{display:none; padding:14px 24px 50px; max-width:1240px;}
+  #actionsView .abMeta{font-size:11.5px; color:var(--quiet); margin-bottom:12px;}
+  #actionsView .abSection{background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  #actionsView .abSecTitle{font-size:13.5px; font-weight:700; display:flex; gap:8px; align-items:center; margin-bottom:4px;}
+  #actionsView .abSecNote{font-size:11px; color:var(--quiet); margin-bottom:7px;}
+  #actionsView .abCount{font-size:11px; font-weight:700; border-radius:10px; padding:0 8px; color:#fff; background:#c0392b;}
+  #actionsView .abCount.zero{background:#8a94a3;}
+  #actionsView .abGo{font-size:11px; color:#2563a8; cursor:pointer; margin-left:auto;}
+  #actionsView .abItem{display:flex; gap:8px; align-items:baseline; font-size:12.5px; padding:4px 8px; border-radius:6px; border:1px solid #f0f0f0; margin-bottom:3px;}
+  #actionsView .sev{flex:0 0 auto; font-size:10.5px; font-weight:800; border-radius:4px; padding:1px 6px; color:#fff;}
+  .sev.off{background:#c0392b;} .sev.half{background:#d35400;} .sev.scale{background:#1e8449;}
+  .sev.watch{background:#b7950b;} .sev.pre{background:#8a94a3;} .sev.info{background:#8a94a3;}
+  #actionsView .abDetail{color:var(--quiet); font-size:11.5px;}
+  #actionsView .abErr{font-size:11.5px; color:#c0392b; padding:2px 8px;}
+  #actionsView .abNote{font-size:11.5px; color:var(--quiet); padding:2px 0;}
+  .tabs .tabBadge{display:inline-block; min-width:16px; margin-left:6px; font-size:10.5px; font-weight:800; border-radius:9px; padding:0 5px; color:#fff; background:#c0392b; vertical-align:1px;}
+  .tabs .tabBadge.zero{background:#8a94a3;}
+</style>
+</head>
+<body>
+<header>
+  <h1>GROSMIMI JP 퍼포먼스 마케팅 — 실집행 판정 보드 <span style="font-weight:400; font-size:12px; color:var(--quiet)">편집형 v1 · 기준 2026-10-08 · 세은 JP</span></h1>
+  <div class="sub">도형 드래그 이동 · 더블클릭(또는 「글 수정」/F2)으로 텍스트 편집 — 편집 중 글자 드래그 선택 후 B/I/U(Ctrl+B/I/U) · 글자색은 도형 선택 후 · 변경은 이 브라우저에 자동 저장</div>
+  <div class="tabs" id="tabs"></div>
+</header>
+<div id="actionsView"></div>
+<div class="ribbon" id="ribbon">
+  <div class="grp">
+    <span class="lbl">삽입</span>
+    <button data-tool="box">사각형</button>
+    <button data-tool="dia">판정 ◇</button>
+    <button data-tool="sticker">스티커</button>
+    <button data-tool="text">텍스트</button>
+    <button data-tool="arrow">화살표</button>
+  </div>
+  <div class="grp">
+    <span class="lbl">편집</span>
+    <button id="btnEditText" title="더블클릭 또는 F2">글 수정</button>
+    <button id="btnDup">복제</button>
+    <button id="btnDel">삭제</button>
+    <button id="btnUndo" title="Ctrl+Z">↶</button>
+    <button id="btnRedo" title="Ctrl+Y">↷</button>
+  </div>
+  <div class="grp">
+    <span class="lbl">색</span>
+    <button class="sw" data-color="gray" style="background:#fff; border-color:#8a8f98"></button>
+    <button class="sw" data-color="red" style="background:#fdf1f1; border-color:#d64545"></button>
+    <button class="sw" data-color="orange" style="background:#fdf8ee; border-color:#e8a33d"></button>
+    <button class="sw" data-color="blue" style="background:#f1f5fd; border-color:#4a7dd6"></button>
+    <button class="sw" data-color="green" style="background:#f0faf3; border-color:#3f9e5f"></button>
+    <button class="sw" data-color="yellow" style="background:#fff8d6; border-color:#d9c55a"></button>
+    <button id="btnDash">┅ 점선</button>
+  </div>
+  <div class="grp">
+    <span class="lbl">글자</span>
+    <button id="btnBold" class="fmt-keep" title="편집 중 선택 후 · Ctrl+B"><b>B</b></button>
+    <button id="btnItal" class="fmt-keep" title="편집 중 선택 후 · Ctrl+I"><i>I</i></button>
+    <button id="btnUnder" class="fmt-keep" title="편집 중 선택 후 · Ctrl+U"><u>U</u></button>
+    <button id="btnFminus">A−</button>
+    <button id="btnFplus">A+</button>
+  </div>
+  <div class="grp">
+    <span class="lbl">글자색</span>
+    <button class="sw tc" data-tcolor="default" style="background:#1f2328" title="기본"></button>
+    <button class="sw tc" data-tcolor="#c0392b" style="background:#c0392b" title="빨강"></button>
+    <button class="sw tc" data-tcolor="#1f5fbf" style="background:#1f5fbf" title="파랑"></button>
+    <button class="sw tc" data-tcolor="#2e7d4f" style="background:#2e7d4f" title="초록"></button>
+  </div>
+  <div class="grp">
+    <button id="btnReset">이 탭 원본 복원</button>
+    <button id="btnJson">JSON 저장/불러오기</button>
+  </div>
+  <span class="hint" id="hint"></span>
+</div>
+<div class="legend">
+  <b style="font-size:11.5px">범례</b>
+  <span class="chip"><span class="box" style="border-color:#8a8f98; background:#fff"></span>확정·현행</span>
+  <span class="chip"><span class="box" style="border-color:#d64545; border-style:dashed; background:#fff"></span>미정·보류 (점선)</span>
+  <span class="chip"><span class="box" style="border-color:#d64545; background:#fdf1f1"></span>OFF / CUT</span>
+  <span class="chip"><span class="box" style="border-color:#e8a33d; background:#fdf8ee"></span>게이트·관찰</span>
+  <span class="chip"><span class="box" style="border-color:#4a7dd6; background:#f1f5fd"></span>잔류·유지</span>
+  <span class="chip"><span class="box" style="border-color:#3f9e5f; background:#f0faf3"></span>졸업·인상</span>
+  <span class="chip"><span class="box" style="border-color:#d9c55a; background:#fff8d6"></span>메모</span>
+</div>
+<div class="wrap" id="wrap"></div>
+<div class="status" id="status">자동 저장됨</div>
+<textarea id="editor"></textarea>
+<div id="jsonPanel" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:100;">
+  <div style="background:#fff; max-width:780px; margin:50px auto; padding:16px 18px; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.25);">
+    <b style="font-size:14px">보드 JSON</b>
+    <span style="font-size:11px; color:#667085; margin-left:8px">「복사」로 보관 → 나중에 여기 붙여넣고 「적용」하면 복원됩니다 (환경 무관 동작)</span>
+    <textarea id="jsonText" spellcheck="false" style="width:100%; height:320px; margin-top:10px; font-size:11px; font-family:Consolas,monospace; border:1px solid var(--line); border-radius:6px; padding:8px; box-sizing:border-box;"></textarea>
+    <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+      <button id="jsonCopy">복사</button>
+      <button id="jsonFile">파일로 저장</button>
+      <button id="jsonApply">적용 (붙여넣은 JSON 반영)</button>
+      <button id="jsonClose">닫기</button>
+      <span id="jsonMsg" style="font-size:11.5px; color:#2e7d4f"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============ 색 ============ */
+const COLORS = {
+  gray:   {stroke:'#8a8f98', fill:'#ffffff'},
+  red:    {stroke:'#d64545', fill:'#fdf1f1'},
+  orange: {stroke:'#e8a33d', fill:'#fdf8ee'},
+  blue:   {stroke:'#4a7dd6', fill:'#f1f5fd'},
+  green:  {stroke:'#3f9e5f', fill:'#f0faf3'},
+  yellow: {stroke:'#d9c55a', fill:'#fff8d6'},
+};
+/* ============ 초기 보드 데이터 ============
+   shape: {id,t:'box'|'dia'|'sticker'|'text', x,y,w,h, text, color, dashed, fs}
+   arrow: {id,t:'arrow', x1,y1,x2,y2, dashed}
+   text 첫 줄 = 볼드 제목, 이후 줄 = 설명 */
+let _id = 0; const nid = () => 's' + (++_id) + '_' + Math.random().toString(36).slice(2,6);
+const B = (x,y,w,h,text,color='gray',dashed=false) => ({id:nid(),t:'box',x,y,w,h,text,color,dashed,fs:1});
+const D = (x,y,w,h,text,color='orange') => ({id:nid(),t:'dia',x,y,w,h,text,color,dashed:false,fs:1});
+const S = (x,y,w,h,text) => ({id:nid(),t:'sticker',x,y,w,h,text,color:'yellow',dashed:false,fs:1});
+const T = (x,y,text,fs=1) => ({id:nid(),t:'text',x,y,w:10,h:10,text,color:'gray',dashed:false,fs});
+const A = (x1,y1,x2,y2,dashed=false) => ({id:nid(),t:'arrow',x1,y1,x2,y2,dashed});
+
+/* 원본 = 세은 편집 반영본 (2026-10-08 JSON 베이크) */
+const INIT_STATE = {
+ "rpp": {
+  "name": "라쿠텐 RPP",
+  "pages": [
+   {
+    "w": 1280,
+    "h": 640,
+    "shapes": [
+     {
+      "id": "s1_l7om",
+      "t": "text",
+      "x": 38,
+      "y": 22,
+      "w": 216.6875,
+      "h": 32.125,
+      "text": "라쿠텐 RPP — CBO",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s2_mn0l",
+      "t": "box",
+      "x": 40,
+      "y": 80,
+      "w": 228,
+      "h": 78,
+      "text": "키워드 등록 (1캠페인/CBO)\n\n상품별(PPSU / Stainless / fliptop) \n20개 제한\n",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s3_8gge",
+      "t": "box",
+      "x": 330,
+      "y": 80,
+      "w": 230,
+      "h": 70,
+      "text": "집행\n\n자동최적화 · 캠페인CPC ¥100",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s4_7psx",
+      "t": "box",
+      "x": 620,
+      "y": 80,
+      "w": 150,
+      "h": 70,
+      "text": "실측\n\n매일 9:20\n",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s5_m558",
+      "t": "dia",
+      "x": 850,
+      "y": 70,
+      "w": 160,
+      "h": 90,
+      "text": "판정\n\nD+7 · 2트랙",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s6_cah6",
+      "t": "box",
+      "x": 730,
+      "y": 250,
+      "w": 450,
+      "h": 64,
+      "text": "CUT · OFF\n\n¥5,000 소진 + 전환 0 (효율퇴출은 ¥3,000~4,500 소진 후)",
+      "color": "red",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s7_2h07",
+      "t": "box",
+      "x": 730,
+      "y": 330,
+      "w": 450,
+      "h": 64,
+      "text": "SCALE · 目安 인상\n\n노출/클릭 없음 → 단계 인상 (T1부터)",
+      "color": "green",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s8_kb55",
+      "t": "box",
+      "x": 730,
+      "y": 410,
+      "w": 450,
+      "h": 64,
+      "text": "미노출 / 지출 0 → 교체\n\n수요부재 → 슬롯 회수 · 가설 D+14 노출 0 삭제",
+      "color": "gray",
+      "dashed": true,
+      "fs": 1
+     },
+     {
+      "id": "s9_fbgh",
+      "t": "sticker",
+      "x": 40,
+      "y": 250,
+      "w": 270,
+      "h": 100,
+      "text": "예산\n\n継続月予算 월캡 ¥50,000\n증액 ¥5,000 단위 · 손익선 RKT ¥96",
+      "color": "yellow",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s11_85q8",
+      "t": "box",
+      "x": 311,
+      "y": 522,
+      "w": 520,
+      "h": 67,
+      "text": "랜딩: 라쿠텐 각 상품 페이지\n스텐 / 기본컵 / 원터치\n상품별 키워드 20개 제한\n",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s12_cup9",
+      "t": "arrow",
+      "x1": 270,
+      "y1": 115,
+      "x2": 330,
+      "y2": 115,
+      "dashed": false
+     },
+     {
+      "id": "s13_klfl",
+      "t": "arrow",
+      "x1": 560,
+      "y1": 115,
+      "x2": 620,
+      "y2": 115,
+      "dashed": false
+     },
+     {
+      "id": "s14_d018",
+      "t": "arrow",
+      "x1": 770,
+      "y1": 115,
+      "x2": 850,
+      "y2": 115,
+      "dashed": false
+     },
+     {
+      "id": "s15_x2bl",
+      "t": "arrow",
+      "x1": 930,
+      "y1": 160,
+      "x2": 930,
+      "y2": 244,
+      "dashed": false
+     }
+    ]
+   }
+  ]
+ },
+ "amz": {
+  "name": "Amazon SP+SBV",
+  "pages": [
+   {
+    "w": 1280,
+    "h": 950,
+    "shapes": [
+     {
+      "id": "s16_svs0",
+      "t": "text",
+      "x": 31,
+      "y": 27,
+      "w": 247.5625,
+      "h": 32.125,
+      "text": "Amazon SP — CBO",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s17_728o",
+      "t": "box",
+      "x": 40,
+      "y": 70,
+      "w": 241,
+      "h": 62,
+      "text": "PPSU+Fliptop 캠페인\n\n¥5,000/일",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s18_82es",
+      "t": "box",
+      "x": 40,
+      "y": 140,
+      "w": 242,
+      "h": 62,
+      "text": "Stainless 캠페인\n\n¥15,000/일",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s19_12ui",
+      "t": "box",
+      "x": 340,
+      "y": 100,
+      "w": 210,
+      "h": 70,
+      "text": "집행\n\n키워드 입찰 (2캠페인 공통)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s20_49a7",
+      "t": "dia",
+      "x": 620,
+      "y": 90,
+      "w": 150,
+      "h": 90,
+      "text": "D+7 판정",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s21_0hn7",
+      "t": "box",
+      "x": 820,
+      "y": 70,
+      "w": 413,
+      "h": 62,
+      "text": "CUT · pause\n\n키워드당 ¥3,000~4,500 소진 후 전환 0",
+      "color": "red",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s22_p24p",
+      "t": "box",
+      "x": 820,
+      "y": 146,
+      "w": 420,
+      "h": 67,
+      "text": "관찰 · 별도 트랙\n\n클릭有 CVR 0 · 지출 ¥0 = 수요판정(슬롯회수/입찰인상)",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s23_mjws",
+      "t": "box",
+      "x": 820,
+      "y": 222,
+      "w": 420,
+      "h": 60,
+      "text": "SCALE · 인상\n\n目安 단계 인상 (T1부터) · 승자 보존",
+      "color": "green",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s24_m6a4",
+      "t": "text",
+      "x": 40,
+      "y": 240,
+      "w": 527.29,
+      "h": 27.05,
+      "text": "랜딩: 아마존 JP 상품 페이지 (PPSU / Stainless / fliptop)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 0.9
+     },
+     {
+      "id": "s25_3aly",
+      "t": "arrow",
+      "x1": 280,
+      "y1": 98,
+      "x2": 340,
+      "y2": 122,
+      "dashed": false
+     },
+     {
+      "id": "s26_xrab",
+      "t": "arrow",
+      "x1": 280,
+      "y1": 168,
+      "x2": 340,
+      "y2": 148,
+      "dashed": false
+     },
+     {
+      "id": "s27_knsx",
+      "t": "arrow",
+      "x1": 550,
+      "y1": 135,
+      "x2": 620,
+      "y2": 135,
+      "dashed": false
+     },
+     {
+      "id": "s28_6cf8",
+      "t": "arrow",
+      "x1": 770,
+      "y1": 135,
+      "x2": 820,
+      "y2": 100,
+      "dashed": false
+     },
+     {
+      "id": "s29_gxpk",
+      "t": "arrow",
+      "x1": 770,
+      "y1": 135,
+      "x2": 820,
+      "y2": 176,
+      "dashed": false
+     },
+     {
+      "id": "s30_x4rj",
+      "t": "arrow",
+      "x1": 770,
+      "y1": 135,
+      "x2": 820,
+      "y2": 252,
+      "dashed": false
+     },
+     {
+      "id": "s31_0dcw",
+      "t": "text",
+      "x": 36,
+      "y": 342,
+      "w": 263,
+      "h": 32.125,
+      "text": "Amazon SBV — CBO",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s32_nhab",
+      "t": "box",
+      "x": 48,
+      "y": 397,
+      "w": 220,
+      "h": 64,
+      "text": "영상별 1캠페인 CBO\n\n각 ¥2,000/일 · 귀속 14d",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s33_xwqh",
+      "t": "box",
+      "x": 332,
+      "y": 397,
+      "w": 220,
+      "h": 64,
+      "text": "보호 런칭~2주\n\n판정·예산 변경 금지",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s34_nh22",
+      "t": "dia",
+      "x": 613,
+      "y": 383,
+      "w": 160,
+      "h": 90,
+      "text": "1차 컷\n\n지출 ¥25,000",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s35_ex9q",
+      "t": "box",
+      "x": 838,
+      "y": 379,
+      "w": 420,
+      "h": 64,
+      "text": "OFF — ROAS14d 30% 미만 (주문 0 포함)\n\n¥25,000 = 손익선 소재면 주문 5~6건 금액 ",
+      "color": "red",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s36_nj4k",
+      "t": "dia",
+      "x": 609,
+      "y": 536,
+      "w": 160,
+      "h": 96,
+      "text": "2차 컷 ¥45,000\nI = ROAS14d ÷ BEP 1.0",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s37_ghqn",
+      "t": "box",
+      "x": 836,
+      "y": 496,
+      "w": 420,
+      "h": 50,
+      "text": "I 0.6 미만 → OFF",
+      "color": "red",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s38_116u",
+      "t": "box",
+      "x": 834,
+      "y": 562,
+      "w": 420,
+      "h": 50,
+      "text": "I 0.6~0.8 → 예산 반감 후 2주 재판정",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s39_pvk5",
+      "t": "box",
+      "x": 835,
+      "y": 625,
+      "w": 420,
+      "h": 50,
+      "text": "I 0.8~1.0 → 유지",
+      "color": "blue",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s40_i07v",
+      "t": "box",
+      "x": 836,
+      "y": 688,
+      "w": 420,
+      "h": 50,
+      "text": "I 1.0 이상 → 증액 (+¥1,000/일 단위)",
+      "color": "green",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s41_6yic",
+      "t": "box",
+      "x": 352,
+      "y": 795,
+      "w": 720,
+      "h": 54,
+      "text": "\n생존 — 격주 월요일 재판정 (판정창 = 최근 4주만 · 최근 3일 제외 )",
+      "color": "blue",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s44_aei3",
+      "t": "text",
+      "x": 36,
+      "y": 897,
+      "w": 905.1999999999999,
+      "h": 27.05,
+      "text": "보조: 상대효율 = SBV ROAS ÷ (동기간 SP ROAS × 0.45) — 낮은 I + 상대효율 1.0 이상 = 소재 아닌 계정·시장 이슈",
+      "color": "gray",
+      "dashed": false,
+      "fs": 0.9
+     },
+     {
+      "id": "s45_uzqd",
+      "t": "arrow",
+      "x1": 268,
+      "y1": 427,
+      "x2": 328,
+      "y2": 427,
+      "dashed": false
+     },
+     {
+      "id": "s46_p2c6",
+      "t": "arrow",
+      "x1": 552,
+      "y1": 427,
+      "x2": 613,
+      "y2": 427,
+      "dashed": false
+     },
+     {
+      "id": "s47_s6f4",
+      "t": "arrow",
+      "x1": 773,
+      "y1": 427,
+      "x2": 833,
+      "y2": 424,
+      "dashed": false
+     },
+     {
+      "id": "s48_uqp4",
+      "t": "arrow",
+      "x1": 692,
+      "y1": 474,
+      "x2": 692,
+      "y2": 534,
+      "dashed": false
+     },
+     {
+      "id": "s49_5vbd",
+      "t": "arrow",
+      "x1": 766,
+      "y1": 585,
+      "x2": 826,
+      "y2": 532,
+      "dashed": false
+     },
+     {
+      "id": "s50_s9yd",
+      "t": "arrow",
+      "x1": 767,
+      "y1": 582,
+      "x2": 827,
+      "y2": 589,
+      "dashed": false
+     },
+     {
+      "id": "s51_mg8b",
+      "t": "arrow",
+      "x1": 768,
+      "y1": 581,
+      "x2": 828,
+      "y2": 648,
+      "dashed": false
+     },
+     {
+      "id": "s52_1ujn",
+      "t": "arrow",
+      "x1": 771,
+      "y1": 583,
+      "x2": 831,
+      "y2": 710,
+      "dashed": false
+     },
+     {
+      "id": "s53_d5b6",
+      "t": "arrow",
+      "x1": 1032,
+      "y1": 744,
+      "x2": 1032,
+      "y2": 784,
+      "dashed": false
+     }
+    ]
+   }
+  ]
+ },
+ "meta": {
+  "name": "Meta",
+  "pages": [
+   {
+    "w": 1280,
+    "h": 1130,
+    "shapes": [
+     {
+      "id": "s54_o9ct",
+      "t": "text",
+      "x": 40,
+      "y": 30,
+      "w": 386.5,
+      "h": 32.125,
+      "text": "Meta WL (인플루언서 소재) — ABO",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s55_9gjk",
+      "t": "box",
+      "x": 40,
+      "y": 80,
+      "w": 220,
+      "h": 64,
+      "text": "소재 풀 WL\n\n인플루언서 콘텐츠",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s56_ozff",
+      "t": "box",
+      "x": 320,
+      "y": 80,
+      "w": 260,
+      "h": 64,
+      "text": "심사 게이트\n\n정량 (오가닉 D+3 좋아요 ≥10) + 정성",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s57_4bqj",
+      "t": "box",
+      "x": 640,
+      "y": 80,
+      "w": 330,
+      "h": 64,
+      "text": "WL Testing · ABO\n\n각 소재 = 1 adset · budget : 일 ₩8,000",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s58_218m",
+      "t": "dia",
+      "x": 790,
+      "y": 190,
+      "w": 160,
+      "h": 90,
+      "text": "D+3 판정",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s59_5jcs",
+      "t": "box",
+      "x": 60,
+      "y": 320,
+      "w": 350,
+      "h": 64,
+      "text": "OFF · CUT\n\nCPLPV ≥ ₩190 · CPC/CTR 악화 → PAUSE",
+      "color": "red",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s60_p8bz",
+      "t": "box",
+      "x": 460,
+      "y": 320,
+      "w": 350,
+      "h": 64,
+      "text": "잔류 · KEEP\n\nCPLPV ₩190 미만 → Testing 유지",
+      "color": "blue",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s61_1yai",
+      "t": "box",
+      "x": 860,
+      "y": 320,
+      "w": 350,
+      "h": 64,
+      "text": "졸업 → Proven\n\nCPC ≤ ₩95 · CTR ≥ 8% · CPLPV ≤ ₩130",
+      "color": "green",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s62_25iw",
+      "t": "box",
+      "x": 460,
+      "y": 430,
+      "w": 750,
+      "h": 72,
+      "text": "Proven · ABO 1 adset/제품 — 졸업 광고들을 한 예산에서 경쟁\n\nbudget : Stainless adset ₩160K  · PPSU adset ₩40K",
+      "color": "green",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s63_u6va",
+      "t": "box",
+      "x": 460,
+      "y": 530,
+      "w": 750,
+      "h": 60,
+      "text": "Proven OFF (4축)\n\n지출 ≥ ₩30K · Freq ≥ 3.0 · ",
+      "color": "red",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s64_zufl",
+      "t": "sticker",
+      "x": 40,
+      "y": 430,
+      "w": 350,
+      "h": 90,
+      "text": "랜딩 = 라쿠텐\n\nPPSU 영상 → fliptop 페이지\nStainless 영상 → 스텐 페이지",
+      "color": "yellow",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s65_9dah",
+      "t": "arrow",
+      "x1": 260,
+      "y1": 112,
+      "x2": 320,
+      "y2": 112,
+      "dashed": false
+     },
+     {
+      "id": "s66_4uca",
+      "t": "arrow",
+      "x1": 580,
+      "y1": 112,
+      "x2": 640,
+      "y2": 112,
+      "dashed": false
+     },
+     {
+      "id": "s67_j2e2",
+      "t": "arrow",
+      "x1": 870,
+      "y1": 144,
+      "x2": 870,
+      "y2": 190,
+      "dashed": false
+     },
+     {
+      "id": "s68_74r2",
+      "t": "arrow",
+      "x1": 870,
+      "y1": 280,
+      "x2": 235,
+      "y2": 318,
+      "dashed": false
+     },
+     {
+      "id": "s69_f70l",
+      "t": "arrow",
+      "x1": 870,
+      "y1": 280,
+      "x2": 635,
+      "y2": 318,
+      "dashed": false
+     },
+     {
+      "id": "s70_fbu5",
+      "t": "arrow",
+      "x1": 870,
+      "y1": 280,
+      "x2": 1035,
+      "y2": 318,
+      "dashed": false
+     },
+     {
+      "id": "s71_76ii",
+      "t": "arrow",
+      "x1": 1035,
+      "y1": 384,
+      "x2": 1035,
+      "y2": 430,
+      "dashed": false
+     },
+     {
+      "id": "s72_3zgw",
+      "t": "arrow",
+      "x1": 835,
+      "y1": 502,
+      "x2": 835,
+      "y2": 530,
+      "dashed": false
+     },
+     {
+      "id": "s73_iqku",
+      "t": "text",
+      "x": 40,
+      "y": 640,
+      "w": 355.625,
+      "h": 32.125,
+      "text": "Meta IHV (자사 영상) — ABO",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s74_q3pe",
+      "t": "box",
+      "x": 40,
+      "y": 690,
+      "w": 240,
+      "h": 64,
+      "text": "IH 소재 (키메시지)\n\nadset = 키메시지별 · 일 ₩8,000",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s75_9m4i",
+      "t": "box",
+      "x": 340,
+      "y": 690,
+      "w": 240,
+      "h": 64,
+      "text": "학습기 D0~D2\n\nCPLPV 2~3배 튐 · 판정 금지",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s76_h7ie",
+      "t": "dia",
+      "x": 650,
+      "y": 680,
+      "w": 170,
+      "h": 96,
+      "text": "D9 판정\n\nD3~9 창 CPLPV",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s77_r93w",
+      "t": "box",
+      "x": 890,
+      "y": 631,
+      "w": 364,
+      "h": 97,
+      "text": "증액 후보 — CPLPV ≤ 130 \n\nTesting 내 adset 증액\n증액 스텝 — 회당 +20~25%\n(주 1회: ₩8,000 → 10,000 → 12,000 → 15,000 → 18,000)",
+      "color": "green",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s78_qqs1",
+      "t": "box",
+      "x": 888,
+      "y": 759,
+      "w": 370,
+      "h": 64,
+      "text": "잔류 관찰 — 130 ~ 190\n\n유지 + 주간 롤링 재판정 (하락 시 증액 재심)",
+      "color": "blue",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s79_ps6k",
+      "t": "box",
+      "x": 888,
+      "y": 848,
+      "w": 370,
+      "h": 64,
+      "text": "OFF 트랙 — 190 초과\n\n230 초과 즉시 OFF · 190~230 = 1주 유예 후 재판정",
+      "color": "red",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s80_f9nn",
+      "t": "arrow",
+      "x1": 280,
+      "y1": 722,
+      "x2": 340,
+      "y2": 722,
+      "dashed": false
+     },
+     {
+      "id": "s81_384d",
+      "t": "arrow",
+      "x1": 580,
+      "y1": 722,
+      "x2": 650,
+      "y2": 728,
+      "dashed": false
+     },
+     {
+      "id": "s82_2327",
+      "t": "arrow",
+      "x1": 820,
+      "y1": 728,
+      "x2": 888,
+      "y2": 669,
+      "dashed": false
+     },
+     {
+      "id": "s83_ctxt",
+      "t": "arrow",
+      "x1": 820,
+      "y1": 728,
+      "x2": 884,
+      "y2": 782,
+      "dashed": false
+     },
+     {
+      "id": "s84_g43w",
+      "t": "arrow",
+      "x1": 820,
+      "y1": 728,
+      "x2": 883,
+      "y2": 877,
+      "dashed": false
+     },
+     {
+      "id": "s85_6gz9",
+      "t": "sticker",
+      "x": 40,
+      "y": 810,
+      "w": 330,
+      "h": 100,
+      "text": "보조축 CTR (D3~9)\n\n≥8% = 상위 4/4 · 4.5% 미만 = 하위 5/5\nCTR 단독 컷 금지 (CPLPV가 판정축)",
+      "color": "yellow",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s88_k8po",
+      "t": "text",
+      "x": 430,
+      "y": 1020,
+      "w": 816.28,
+      "h": 27.05,
+      "text": "기간 기준 자동 OFF 불필요 — 28일차 frequency 중앙값 1.03 (모수 미포화) · freq 1.5~2 넘으면 재검토",
+      "color": "gray",
+      "dashed": false,
+      "fs": 0.9
+     },
+     {
+      "id": "s89_ix7x",
+      "t": "text",
+      "x": 430,
+      "y": 1050,
+      "w": 816.28,
+      "h": 27.05,
+      "text": "정상 궤적 = 학습 스파이크 후 100~130 띠 안착 · 실패 = 학습 후에도 200± 횡보 (D9에 190 위 = 끝난 광고)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 0.9
+     }
+    ]
+   }
+  ]
+ },
+ "tiktok": {
+  "name": "TikTok",
+  "pages": [
+   {
+    "w": 1280,
+    "h": 640,
+    "shapes": [
+     {
+      "id": "s73_38sb",
+      "t": "text",
+      "x": 39,
+      "y": 27,
+      "w": 818.75,
+      "h": 32.125,
+      "text": "TikTok — Traffic · 소재 판정 기준 (2026-10-08 확정 · 21일 실측)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s74_mghi",
+      "t": "box",
+      "x": 45,
+      "y": 81,
+      "w": 236,
+      "h": 82,
+      "text": "Spark Ads 캠페인 1개\n\n일 ₩50,000 \n전 제품 통합(PPSU / Stainless / fliptop) ",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s75_qqbq",
+      "t": "box",
+      "x": 340,
+      "y": 80,
+      "w": 230,
+      "h": 64,
+      "text": "보호 D0~D2\n\n미끼 구간 · 판정·증액 금지",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s76_75wz",
+      "t": "dia",
+      "x": 630,
+      "y": 70,
+      "w": 170,
+      "h": 96,
+      "text": "판정일 D3부터\n\n일 지출 ≥ 200엔",
+      "color": "orange",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s77_70mf",
+      "t": "box",
+      "x": 860,
+      "y": 60,
+      "w": 400,
+      "h": 64,
+      "text": "OFF — CPLPV 4엔 초과 or CTR 8% 미만\n\n3판정일 연속 · 최초 OFF = D6 (D+3~D+6 관찰)",
+      "color": "red",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s78_u7h4",
+      "t": "box",
+      "x": 864,
+      "y": 144,
+      "w": 400,
+      "h": 64,
+      "text": "\n** 잔존 — CPLPV 3엔 이하 + CTR 10% 이상**\n\n",
+      "color": "green",
+      "dashed": false,
+      "fs": 1.1,
+      "tc": null
+     },
+     {
+      "id": "s79_7coz",
+      "t": "box",
+      "x": 860,
+      "y": 220,
+      "w": 400,
+      "h": 64,
+      "text": "\n판정 유보 — 누적 지출 1,500엔 미만\n\n",
+      "color": "gray",
+      "dashed": true,
+      "fs": 1
+     },
+     {
+      "id": "s83_8tew",
+      "t": "box",
+      "x": 845,
+      "y": 534,
+      "w": 400,
+      "h": 63,
+      "text": "랜딩 분기: PPSU→기본컵 · Stainless→스텐\n\n추후 틱톡샵(TTS) 랜딩 예정",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s84_yupx",
+      "t": "arrow",
+      "x1": 280,
+      "y1": 112,
+      "x2": 340,
+      "y2": 112,
+      "dashed": false
+     },
+     {
+      "id": "s85_uphj",
+      "t": "arrow",
+      "x1": 570,
+      "y1": 112,
+      "x2": 630,
+      "y2": 118,
+      "dashed": false
+     },
+     {
+      "id": "s86_y6a4",
+      "t": "arrow",
+      "x1": 800,
+      "y1": 118,
+      "x2": 860,
+      "y2": 92,
+      "dashed": false
+     },
+     {
+      "id": "s87_7bk2",
+      "t": "arrow",
+      "x1": 800,
+      "y1": 118,
+      "x2": 860,
+      "y2": 172,
+      "dashed": false
+     },
+     {
+      "id": "s88_m32a",
+      "t": "arrow",
+      "x1": 800,
+      "y1": 118,
+      "x2": 860,
+      "y2": 252,
+      "dashed": false
+     }
+    ]
+   }
+  ]
+ },
+ "notes": {
+  "name": "운영 노트",
+  "ver": 1,
+  "pages": [
+   {
+    "w": 1280,
+    "h": 450,
+    "shapes": [
+     {
+      "id": "s106_w507",
+      "t": "text",
+      "x": 40,
+      "y": 40,
+      "w": 10,
+      "h": 10,
+      "text": "Meta 운영 노트 — WL·IHV",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s107_f2qz",
+      "t": "text",
+      "x": 40,
+      "y": 84,
+      "w": 10,
+      "h": 10,
+      "text": "WL (인플루언서 소재)\n· 심사 통과분만 광고 집행 — 오가닉 D+3 좋아요 ≥10 (정량) + 정성 7축 (집행컷 4점)\n· 유상/기프트는 ad 이름 WL-P / WL-G 표기로만 구분 — 캠페인·adset 구조는 동일\n· 졸업 시 Proven으로 복제 + Testing adset까지 PAUSE — ad만 끄면 재점등·자기잠식 (코드로 차단돼 있음)\n· 랜딩 = 라쿠텐 (PPSU 영상→fliptop 페이지 · Stainless 영상→스텐 페이지)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s108_09n8",
+      "t": "text",
+      "x": 40,
+      "y": 204,
+      "w": 10,
+      "h": 10,
+      "text": "IHV (자사 영상)\n· 판정축 = CPLPV 하나 — CTR은 보조. CTR 낮아도 CPLPV 좋으면 살림 (CTR 단독 컷 금지)\n· D0~2 학습기 수치로 판정 금지 — CPLPV가 2~3배 튀는 구간 (TikTok 미끼와 반대 방향)\n· 증액은 Testing 안에서 adset 예산만 — Proven 캠 이동 없음 (ABO라 분리 이점 없음 + 학습 리셋 회피)\n· 스텐 IHV 6본 전부 CPLPV 169 이상 — 소재 재기획 필요 (잘 도는 건 전부 PPSU)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s109_nhn0",
+      "t": "text",
+      "x": 40,
+      "y": 324,
+      "w": 10,
+      "h": 10,
+      "text": "지표·인프라\n· CPLPV = 지출 ÷ 랜딩페이지뷰 — 라쿠텐 랜딩이라 전환 대신 LPV가 기준축\n· Meta LIVE 토큰 90일 주기 만료 (다음 11/1) — D-7에 Teams+Gmail 사전 경보 · 만료 시 전 자동배치 정지\n· 자동집행 (WL 업로드·졸업·OFF·IH) = GitHub Actions JST 09시 배치 — 로컬 PC 아님",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     }
+    ]
+   },
+   {
+    "w": 1280,
+    "h": 480,
+    "shapes": [
+     {
+      "id": "s110_l36p",
+      "t": "text",
+      "x": 40,
+      "y": 40,
+      "w": 10,
+      "h": 10,
+      "text": "Amazon SP·SBV 운영 노트",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s111_zluu",
+      "t": "text",
+      "x": 40,
+      "y": 84,
+      "w": 10,
+      "h": 10,
+      "text": "SP (키워드)\n· 키워드 분류 = branded / competitor / generic 3종만 — 다른 분류 쓰지 않음\n· 지출 ¥0 키워드 = 효율 문제가 아니라 수요·송출 문제 — 슬롯 회수 or 입찰 인상 (2트랙의 이유)\n· 손익선: generic 추천비드 기본 ¥53 · 자동타겟(KEYWORD_GROUP) 잔존 스캔 필수\n· 입찰 인상은 目安 방향 단계 인상 — T1(인상 1순위)부터",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s112_xu4p",
+      "t": "text",
+      "x": 40,
+      "y": 204,
+      "w": 10,
+      "h": 10,
+      "text": "SBV (영상)\n· 금액 게이트지 시간 게이트 아님 — 일예산 ¥3,000~4,000으로 올리면 1차 1주·2차 2주로 단축 가능\n· BEP 1.0은 보수적 확정값 — 실제 손익분기는 이보다 위 (추후 상향 여지만 기록)\n· US 실측: 첫 28일 ≈ 생애 ROAS (중단 17캠 중 13캠) — 판정의 본체는 감쇠 감지가 아니라 초기 4주 확정\n· CTR·CPC는 판정력 없음 — 주문 0인 소재가 CTR 최고·CPC 최저였음 (주문·매출만 신호)\n· AOV ¥4,500 기준 (SBV 실측 ¥4,086 · SP ¥5,216 절충) · 판정 전 체크 해당 시 그 회차 스킵",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s113_wot3",
+      "t": "text",
+      "x": 40,
+      "y": 344,
+      "w": 10,
+      "h": 10,
+      "text": "주의\n· 9월 이후 Amazon JP 전체 효율 저하 (동기간 SP ROAS 26.9% · 수집 전 57.2%) — SBV 밖 이슈로 별도 인지 중\n· US 개념 이식 금지 — E·I 문턱 $값·KM그룹·T1~T3·H1~H3·E20 보호구간은 US 실측 전용 · 구조(금액 게이트·사다리)만 차용",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     }
+    ]
+   },
+   {
+    "w": 1280,
+    "h": 430,
+    "shapes": [
+     {
+      "id": "s114_rnkl",
+      "t": "text",
+      "x": 40,
+      "y": 40,
+      "w": 10,
+      "h": 10,
+      "text": "라쿠텐 RPP 운영 노트",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s115_gpv0",
+      "t": "text",
+      "x": 40,
+      "y": 84,
+      "w": 10,
+      "h": 10,
+      "text": "구조\n· 자동최적화 캠페인 1개 · 키워드만 상품별 등록 (스텐·기본컵·원터치) · 상품당 슬롯 약 20\n· 키워드 CPC ¥40~ · 캠페인 CPC ¥100 · 손익선 RKT ¥96 · 継続月予算 월캡 ¥474K · 증액 ¥5,000 단위\n· 設定CPC = 상한 · 推奨CPC = 目安 — 혼동 금지",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s116_kr14",
+      "t": "text",
+      "x": 40,
+      "y": 184,
+      "w": 10,
+      "h": 10,
+      "text": "키워드\n· 분류 = branded / competitor / generic 3종만\n· generic을 3상품에 중복 등록 = 자기잠식 — 전환축은 branded + 속성 키워드\n· 리포트(클릭 있는 것만)만 보면 반쪽 — 미노출 키워드가 빠지므로 콘솔 등록 전량과 교차 필수\n· 슈퍼세일 대응 = is_sale_sku copy(_ss) 전량 비움 (9/21) — 세일 키워드는 판정 축에서 제외",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s117_c5va",
+      "t": "text",
+      "x": 40,
+      "y": 304,
+      "w": 10,
+      "h": 10,
+      "text": "판정 (D+7 · 2트랙)\n· 효율 퇴출: ¥3,000~4,500 소진 후 전환 0 · OFF 확정: ¥5,000 소진 + 전환 0\n· 수요 부재: 노출/클릭 없음 → 目安 단계 인상 (T1부터) · 가설 D+14 노출 0 → 삭제\n· 데이터 출처 = 삐삐 트래커 (09:20 자동) — DK rakuten_ads_daily는 0행이라 못 씀",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     }
+    ]
+   },
+   {
+    "w": 1280,
+    "h": 430,
+    "shapes": [
+     {
+      "id": "s118_b151",
+      "t": "text",
+      "x": 40,
+      "y": 40,
+      "w": 10,
+      "h": 10,
+      "text": "TikTok 운영 노트",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s119_xl0l",
+      "t": "text",
+      "x": 40,
+      "y": 84,
+      "w": 10,
+      "h": 10,
+      "text": "지표·정의\n· 전부 TikTok destination 기준 (LPV = landing page view · 구매 아님) — Meta link click과 직접 비교 금지\n· 구매(라쿠텐 착지) CVR은 D+14 누적 후 별도 판정 — 트래픽 룰과 분리",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s120_27gz",
+      "t": "text",
+      "x": 40,
+      "y": 164,
+      "w": 10,
+      "h": 10,
+      "text": "판정에서 알아야 할 것\n· D0~1은 미끼 구간 — 실패작도 CTR 19~56%로 정상과 구분 불가 → 론칭 직후 성과로 증액·판정 금지\n· (Meta IHV 학습기와 반대 방향 — IHV는 나쁘게 튀고, TikTok은 좋게 튐)\n· 하루 반등을 회복으로 믿지 말 것 — 간헐 회복일 미끼 때문에 룰이 「3판정일 연속」\n· 자동배분은 효율을 안 따라감 — 지출 1·2위가 효율 최하위권 (수동 OFF 룰이 필요한 직접 근거)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s121_f8a8",
+      "t": "text",
+      "x": 40,
+      "y": 284,
+      "w": 10,
+      "h": 10,
+      "text": "운영 주의\n· 신규 소재를 같은 캠에 투입하면 기존 성과까지 흔들림 (9/30 투입 → 10/1~4 캠 전체 붕괴 실측) — 투입 후 D2~D4 광고별 감시\n· 임계값(4엔·8%·1,500엔)은 트래픽 캠 전용 — GMV Max 등 타 목적엔 구조(학습기 제외·연속 판정·지출 게이트)만 이식\n· 추후 틱톡샵(TTS) 전환 시 랜딩·판정 재설계",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     }
+    ]
+   },
+   {
+    "w": 1280,
+    "h": 440,
+    "shapes": [
+     {
+      "id": "s122_dve1",
+      "t": "text",
+      "x": 40,
+      "y": 40,
+      "w": 10,
+      "h": 10,
+      "text": "공통 용어 · 원칙",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1.25
+     },
+     {
+      "id": "s123_0mz1",
+      "t": "text",
+      "x": 40,
+      "y": 84,
+      "w": 10,
+      "h": 10,
+      "text": "용어\n· CPLPV = 지출 ÷ 랜딩페이지뷰(LPV) — Meta·TikTok의 판정축 (랜딩이 라쿠텐이라 전환 대신 사용)\n· ROAS14d = 14일 귀속 매출 ÷ 지출 (Amazon) · I = ROAS14d ÷ BEP(1.0) — SBV 2차 컷 사다리 축\n· 상대효율 = SBV ROAS ÷ (동기간 SP ROAS × 0.45) — 1.0 이상이면 소재 아닌 계정·시장 이슈\n· 판정창 4주 · D−3 = 판정일 기준 최근 3일 제외 (매출이 소급 가산돼 덜 찬 숫자)\n· 目安 = 플랫폼 추천(기준) 값 · 継続月予算 = RPP 월 예산 캡\n· ABO/CBO = 예산을 adset이 드나 캠페인이 드나 — Meta JP는 전부 ABO · Amazon SP/SBV는 CBO\n· WL = 인플루언서 화이트리스트 광고 · IHV/IH = 자사 제작 (영상/키메시지)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     },
+     {
+      "id": "s124_di9a",
+      "t": "text",
+      "x": 40,
+      "y": 264,
+      "w": 10,
+      "h": 10,
+      "text": "공통 원칙\n· 룰은 설계·판정까지 — 콘솔 실행(OFF·예산 변경)은 전부 승인 후 별도\n· 룰은 백테스트로 검증 후 적용 — 「정상을 잘못 자를 확률(오컷)」을 문턱 근거로\n· 지출 0 · 노출 0 = 효율 문제가 아니라 송출 문제 — 효율 트랙과 분리해서 처리\n· 학습기·미끼 구간 수치로 판정 금지 (Meta IHV D0~2 · TikTok D0~1)\n· 판정 기준 정본 문서 = sbv_judgment_rule · tt_ads_criteria · ihv_operating_criteria (각 20261008 · s 폴더 performance marketing)",
+      "color": "gray",
+      "dashed": false,
+      "fs": 1
+     }
+    ]
+   }
+  ]
+ }
+};
+function initBoards(){ return JSON.parse(JSON.stringify(INIT_STATE)); }
+
+/* ============ 상태 ============ */
+const LS_KEY = 'jpboard_v2';
+/* claude artifact 등 localStorage 차단 환경에선 메모리 저장으로 폴백 */
+const store = (() => {
+  try { localStorage.setItem('__jpb_t','1'); localStorage.removeItem('__jpb_t'); return localStorage; }
+  catch(e){ const m = {}; return {getItem:k => (k in m ? m[k] : null), setItem:(k,v) => {m[k]=v;}, removeItem:k => {delete m[k];}, _mem:true}; }
+})();
+let boards, tab = 'rpp', sel = null, tool = null, undoStack = [], redoStack = [];
+let actionsData = null, actionsTabOn = false;   /* 오늘의 액션 탭 상태 */
+const TAB_ORDER = ['rpp','amz','meta','tiktok','notes'];
+boards = initBoards();
+try {
+  /* 저장본은 탭별로 복원하되, 원본 룰이 갱신된 탭(ver 상승)은 새 원본으로 교체.
+     구버전 단일 캔버스 저장본(shapes)은 pages[0]로 승계 */
+  const saved = JSON.parse(store.getItem(LS_KEY) || 'null');
+  if(saved) for(const k of TAB_ORDER){
+    let sv = saved[k];
+    if(!sv) continue;
+    if(sv.shapes && !sv.pages){ sv = {name:sv.name, ver:sv.ver, pages:[{w:sv.w||1280, h:sv.h||640, shapes:sv.shapes}]}; }
+    if(!sv.pages) continue;
+    boards[k] = sv; /* 저장본(사용자 편집) 무조건 우선 — 룰 갱신으로 교체하지 않음. 새 원본이 필요하면 「이 탭 원본 복원」으로만 */
+  }
+  const names = initBoards();
+  for(const k of TAB_ORDER){ boards[k].name = names[k].name; }
+} catch(e){}
+
+const wrap = document.getElementById('wrap');
+const editor = document.getElementById('editor');
+const statusEl = document.getElementById('status');
+const hintEl = document.getElementById('hint');
+
+function save(){
+  store.setItem(LS_KEY, JSON.stringify(boards));
+  statusEl.textContent = store._mem
+    ? '⚠ 이 환경은 자동 저장이 안 됩니다 (새로고침 시 소실) — 「JSON 내보내기」로 보존하세요'
+    : '자동 저장됨 · ' + new Date().toLocaleTimeString('ko-KR');
+}
+function snapshot(){ undoStack.push(JSON.stringify(boards)); if(undoStack.length>60) undoStack.shift(); redoStack = []; }
+function undo(){ if(!undoStack.length) return; redoStack.push(JSON.stringify(boards)); boards = JSON.parse(undoStack.pop()); sel=null; render(); save(); }
+function redo(){ if(!redoStack.length) return; undoStack.push(JSON.stringify(boards)); boards = JSON.parse(redoStack.pop()); sel=null; render(); save(); }
+
+/* ============ 렌더 ============ */
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* 인라인 서식: **볼드** · //기울임// · __밑줄__ */
+function parseLine(ln){
+  const segs = []; let b=false, i=false, u=false;
+  ln.split(/(\*\*|\/\/|__)/).forEach(tok => {
+    if(tok==='**'){ b=!b; return; }
+    if(tok==='//'){ i=!i; return; }
+    if(tok==='__'){ u=!u; return; }
+    if(tok) segs.push({t:tok, b, i, u});
+  });
+  return segs.length ? segs : [{t:'', b:false, i:false, u:false}];
+}
+function stripMarks(ln){ return ln.replace(/\*\*|\/\/|__/g,''); }
+function shapeText(sh, cx, topY, centered){
+  const lines = (sh.text||'').split('\n');
+  const t0 = 13.5*sh.fs, ts = 11.5*sh.fs;
+  let out = '', y = topY;
+  lines.forEach((ln, i) => {
+    const fsz = i===0 ? t0 : ts;
+    y += (i===0 ? fsz : fsz+4);
+    const baseFill = sh.tc || (i===0 ? '#1f2328' : '#555c66');
+    const spans = parseLine(ln).map(sg => {
+      const at = [(i===0||sg.b)?'font-weight="700"':'', sg.i?'font-style="italic"':'', sg.u?'text-decoration="underline"':''].filter(Boolean).join(' ');
+      return `<tspan ${at}>${esc(sg.t)}</tspan>`;
+    }).join('');
+    out += `<text x="${cx}" y="${y}" font-size="${fsz}" fill="${baseFill}" ${centered?'text-anchor="middle"':''}>${spans}</text>`;
+  });
+  return out;
+}
+function renderShape(sh, isSel, mk){
+  if(sh.t === 'arrow'){
+    const dash = sh.dashed ? 'stroke-dasharray="7,6"' : '';
+    return `<g data-id="${sh.id}">
+      <line x1="${sh.x1}" y1="${sh.y1}" x2="${sh.x2}" y2="${sh.y2}" stroke="transparent" stroke-width="14" data-hit="body"/>
+      <line x1="${sh.x1}" y1="${sh.y1}" x2="${sh.x2}" y2="${sh.y2}" stroke="${isSel?'#2f6fed':'#667085'}" stroke-width="1.6" ${dash} marker-end="url(#${mk})" pointer-events="none"/>
+      ${isSel?`<circle cx="${sh.x1}" cy="${sh.y1}" r="6" fill="#fff" stroke="#2f6fed" stroke-width="2" data-hit="p1" style="cursor:move"/>
+      <circle cx="${sh.x2}" cy="${sh.y2}" r="6" fill="#fff" stroke="#2f6fed" stroke-width="2" data-hit="p2" style="cursor:move"/>`:''}
+    </g>`;
+  }
+  const c = COLORS[sh.color] || COLORS.gray;
+  const dash = sh.dashed ? 'stroke-dasharray="7,6"' : '';
+  const selR = isSel ? `<rect x="${sh.x-4}" y="${sh.y-4}" width="${sh.w+8}" height="${sh.h+8}" fill="none" stroke="#2f6fed" stroke-width="1.5" stroke-dasharray="4,3" pointer-events="none"/>
+    <rect x="${sh.x+sh.w-7}" y="${sh.y+sh.h-7}" width="14" height="14" fill="#fff" stroke="#2f6fed" stroke-width="2" data-hit="rs" style="cursor:nwse-resize"/>` : '';
+  if(sh.t === 'box' || sh.t === 'sticker'){
+    const shadow = sh.t==='sticker' ? `<rect x="${sh.x+3}" y="${sh.y+3}" width="${sh.w}" height="${sh.h}" rx="6" fill="rgba(0,0,0,.08)" pointer-events="none"/>` : '';
+    return `<g data-id="${sh.id}" style="cursor:move">${shadow}
+      <rect x="${sh.x}" y="${sh.y}" width="${sh.w}" height="${sh.h}" rx="8" fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.6" ${dash} data-hit="body"/>
+      ${shapeText(sh, sh.x+sh.w/2, sh.y+8, true)}${selR}</g>`;
+  }
+  if(sh.t === 'dia'){
+    const cx=sh.x+sh.w/2, cy=sh.y+sh.h/2;
+    return `<g data-id="${sh.id}" style="cursor:move">
+      <polygon points="${sh.x},${cy} ${cx},${sh.y} ${sh.x+sh.w},${cy} ${cx},${sh.y+sh.h}" fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.8" ${dash} data-hit="body"/>
+      ${shapeText(sh, cx, cy-14*sh.fs-(sh.text.includes('\n')?8:0), true)}${selR}</g>`;
+  }
+  /* text */
+  const lines=(sh.text||'').split('\n'); const w=Math.max(...lines.map(l=>stripMarks(l).length))*13*sh.fs*0.95+16, h=lines.length*(14.5*sh.fs+4)+10;
+  sh.w=w; sh.h=h;
+  return `<g data-id="${sh.id}" style="cursor:move">
+    <rect x="${sh.x}" y="${sh.y}" width="${w}" height="${h}" fill="transparent" ${isSel?'stroke="#2f6fed" stroke-dasharray="4,3"':''} data-hit="body"/>
+    ${shapeText(sh, sh.x+6, sh.y+4, false)}</g>`;
+}
+function render(){
+  const b = boards[tab];
+  let html = '';
+  b.pages.forEach((pg, pi) => {
+    const mk = 'arw' + pi;
+    let g = `<defs><marker id="${mk}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#667085"/></marker></defs>`;
+    for(const sh of pg.shapes) g += renderShape(sh, sel === sh.id, mk);
+    html += `<div class="canvasbox"><svg data-page="${pi}" width="${pg.w}" height="${pg.h}" viewBox="0 0 ${pg.w} ${pg.h}">${g}</svg></div>`;
+  });
+  wrap.innerHTML = html;
+}
+function renderTabs(){
+  let html = TAB_ORDER.map(k =>
+    `<button data-tab="${k}" class="${k===tab && !actionsTabOn ? 'on':''}">${boards[k].name}</button>`).join('');
+  if(actionsData){
+    const n = (actionsData.channels || []).reduce((s,c) => s + (c.actions||[]).length, 0);
+    html += `<button data-tab="__actions" class="${actionsTabOn?'on':''}">오늘의 액션<span class="tabBadge${n?'':' zero'}">${n}</span></button>`;
+  }
+  document.getElementById('tabs').innerHTML = html;
+}
+
+/* ============ 상호작용 ============ */
+function pagesOf(){ return boards[tab].pages; }
+function findShape(id){ for(const pg of pagesOf()){ const s = pg.shapes.find(s=>s.id===id); if(s) return s; } return null; }
+function findPage(id){ const ps = pagesOf(); for(let i=0;i<ps.length;i++){ if(ps[i].shapes.some(s=>s.id===id)) return i; } return 0; }
+function pageSvg(pi){ return wrap.querySelector('svg[data-page="'+pi+'"]'); }
+function svgPoint(ev, pi){
+  const el = pageSvg(pi); if(!el) return {x:0,y:0};
+  const r = el.getBoundingClientRect();
+  return {x: Math.round(ev.clientX - r.left), y: Math.round(ev.clientY - r.top)};
+}
+let drag = null;
+let lastClick = {id:null, t:0};
+wrap.addEventListener('pointerdown', ev => {
+  closeEditor();
+  const svgEl = ev.target.closest('svg[data-page]');
+  if(!svgEl){ sel = null; lastClick = {id:null,t:0}; render(); return; }
+  const pi = +svgEl.dataset.page;
+  const p = svgPoint(ev, pi);
+  if(tool){ placeTool(p, pi); return; }
+  const gEl = ev.target.closest('[data-id]');
+  if(!gEl){ sel = null; lastClick = {id:null,t:0}; render(); return; }
+  const id = gEl.getAttribute('data-id');
+  const hit = ev.target.getAttribute('data-hit');
+  const sh = findShape(id);
+  /* 더블클릭 직접 감지 — 재렌더로 요소가 바뀌어도 동작 */
+  const now = Date.now();
+  if(lastClick.id === id && (now - lastClick.t) < 450 && sh.t !== 'arrow' && hit !== 'rs'){
+    lastClick = {id:null, t:0};
+    ev.preventDefault();
+    openEditor(sh);
+    return;
+  }
+  lastClick = {id, t:now};
+  sel = id; render();
+  if(sh.t==='arrow'){
+    drag = {sh, page:pi, hit: hit==='p1'||hit==='p2' ? hit : 'arrowbody', px:p.x, py:p.y, o:{...sh}, snapped:false};
+  } else if(hit==='rs'){
+    drag = {sh, page:pi, hit:'resize', px:p.x, py:p.y, o:{...sh}, snapped:false};
+  } else {
+    drag = {sh, page:pi, hit:'move', px:p.x, py:p.y, o:{...sh}, snapped:false};
+  }
+});
+window.addEventListener('pointermove', ev => {
+  if(!drag) return;
+  const p = svgPoint(ev, drag.page);
+  const dx = p.x - drag.px, dy = p.y - drag.py;
+  if(!drag.snapped){
+    if(Math.abs(dx) < 3 && Math.abs(dy) < 3) return; /* 더블클릭 중 미세 이동은 드래그로 안 봄 */
+    snapshot(); drag.snapped = true;
+  }
+  const sh = drag.sh, o = drag.o;
+  if(drag.hit==='move'){ sh.x = o.x+dx; sh.y = o.y+dy; }
+  else if(drag.hit==='resize'){ sh.w = Math.max(60, o.w+dx); sh.h = Math.max(30, o.h+dy); }
+  else if(drag.hit==='p1'){ sh.x1 = o.x1+dx; sh.y1 = o.y1+dy; }
+  else if(drag.hit==='p2'){ sh.x2 = o.x2+dx; sh.y2 = o.y2+dy; }
+  else if(drag.hit==='arrowbody'){ sh.x1=o.x1+dx; sh.y1=o.y1+dy; sh.x2=o.x2+dx; sh.y2=o.y2+dy; }
+  render();
+});
+window.addEventListener('pointerup', () => { if(drag){ if(drag.snapped) save(); drag=null; } });
+
+/* 인라인 편집 열기 — 더블클릭(직접 감지) · 글 수정 버튼 · F2 */
+function openEditor(sh){
+  if(!sh || sh.t==='arrow') return;
+  snapshot();
+  drag = null;
+  sel = sh.id; render();
+  const r = pageSvg(findPage(sh.id)).getBoundingClientRect();
+  editor.style.display='block';
+  editor.style.left = (r.left + window.scrollX + sh.x) + 'px';
+  editor.style.top  = (r.top + window.scrollY + sh.y) + 'px';
+  editor.style.width = Math.max(sh.w, 240) + 'px';
+  editor.style.height = Math.max(sh.h + 24, 80) + 'px';
+  editor.value = sh.text;
+  editor.dataset.target = sh.id;
+  setTimeout(() => { editor.focus(); editor.select(); }, 0);
+}
+/* 네이티브 dblclick도 백업으로 유지 */
+wrap.addEventListener('dblclick', ev => {
+  const gEl = ev.target.closest('[data-id]');
+  if(!gEl) return;
+  if(editor.style.display === 'block') return;
+  openEditor(findShape(gEl.getAttribute('data-id')));
+});
+function closeEditor(){
+  if(editor.style.display!=='block') return;
+  const sh = findShape(editor.dataset.target);
+  if(sh){ sh.text = editor.value; }
+  editor.style.display='none';
+  render(); save();
+}
+editor.addEventListener('keydown', ev => {
+  if(ev.key==='Escape'){ closeEditor(); }
+  if(ev.ctrlKey || ev.metaKey){
+    const k = ev.key.toLowerCase();
+    if(k==='b'){ ev.preventDefault(); wrapSel('**'); }
+    if(k==='i'){ ev.preventDefault(); wrapSel('//'); }
+    if(k==='u'){ ev.preventDefault(); wrapSel('__'); }
+  }
+  ev.stopPropagation();
+});
+editor.addEventListener('blur', ev => {
+  /* 서식 버튼 클릭으로 포커스가 나간 경우엔 닫지 않음 */
+  if(ev.relatedTarget && ev.relatedTarget.closest && ev.relatedTarget.closest('.fmt-keep')){ setTimeout(()=>editor.focus(),0); return; }
+  closeEditor();
+});
+/* 편집 중 서식 적용 — 선택 구간을 마커로 감싸기 */
+function wrapSel(marker){
+  if(editor.style.display !== 'block'){ setHint('도형을 더블클릭해 편집 상태에서, 글자를 드래그 선택한 뒤 누르세요'); return; }
+  const s = editor.selectionStart, e = editor.selectionEnd, v = editor.value;
+  editor.value = v.slice(0,s) + marker + v.slice(s,e) + marker + v.slice(e);
+  editor.focus(); editor.setSelectionRange(s + marker.length, e + marker.length);
+}
+document.querySelectorAll('.fmt-keep').forEach(b => {
+  b.addEventListener('pointerdown', ev => ev.preventDefault());  /* 에디터 포커스 유지 */
+});
+document.getElementById('btnBold').onclick  = () => wrapSel('**');
+document.getElementById('btnItal').onclick  = () => wrapSel('//');
+document.getElementById('btnUnder').onclick = () => wrapSel('__');
+document.querySelectorAll('.tc').forEach(b => b.onclick = () => {
+  if(!sel) { setHint('먼저 도형을 클릭해 선택하세요'); return; }
+  const sh = findShape(sel); if(!sh || sh.t==='arrow') return;
+  snapshot(); sh.tc = (b.dataset.tcolor==='default') ? null : b.dataset.tcolor; render(); save();
+});
+
+/* 도구 삽입 */
+function setTool(t){
+  tool = (tool===t) ? null : t;
+  document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active', b.dataset.tool===tool));
+  hintEl.textContent = tool ? (tool==='arrow' ? '캔버스에서 드래그해 화살표를 그리세요' : '캔버스를 클릭해 배치하세요') : '';
+}
+function placeTool(p, pi){
+  snapshot();
+  let sh;
+  if(tool==='box') sh = B(p.x-110, p.y-32, 220, 64, '새 박스\n내용');
+  else if(tool==='dia') sh = D(p.x-80, p.y-45, 160, 90, '판정');
+  else if(tool==='sticker') sh = S(p.x-120, p.y-45, 240, 90, '메모');
+  else if(tool==='text') sh = T(p.x, p.y, '텍스트');
+  else if(tool==='arrow'){
+    sh = A(p.x, p.y, p.x+140, p.y);
+    pagesOf()[pi].shapes.push(sh); sel = sh.id;
+    drag = {sh, page:pi, hit:'p2', px:p.x, py:p.y, o:{...sh}, snapped:true};
+    setTool(null); render(); return;
+  }
+  pagesOf()[pi].shapes.push(sh); sel = sh.id;
+  setTool(null); render(); save();
+}
+document.querySelectorAll('[data-tool]').forEach(b => b.addEventListener('click', ()=>setTool(b.dataset.tool)));
+
+/* 리본 버튼 */
+function setHint(msg){ hintEl.textContent = msg; setTimeout(()=>{ if(hintEl.textContent===msg) hintEl.textContent=''; }, 3500); }
+document.getElementById('btnEditText').onclick = () => {
+  if(!sel) { setHint('먼저 도형을 클릭해 선택한 뒤 누르세요'); return; }
+  openEditor(findShape(sel));
+};
+document.getElementById('btnDel').onclick = () => {
+  if(!sel) return; snapshot();
+  pagesOf().forEach(pg => { pg.shapes = pg.shapes.filter(s=>s.id!==sel); });
+  sel=null; render(); save();
+};
+document.getElementById('btnDup').onclick = () => {
+  if(!sel) return; const sh = findShape(sel); if(!sh) return; snapshot();
+  const pi = findPage(sel);
+  const cp = JSON.parse(JSON.stringify(sh)); cp.id = nid();
+  if(cp.t==='arrow'){ cp.x1+=24; cp.y1+=24; cp.x2+=24; cp.y2+=24; } else { cp.x+=24; cp.y+=24; }
+  pagesOf()[pi].shapes.push(cp); sel=cp.id; render(); save();
+};
+document.getElementById('btnUndo').onclick = undo;
+document.getElementById('btnRedo').onclick = redo;
+document.getElementById('btnDash').onclick = () => {
+  if(!sel) return; const sh=findShape(sel); snapshot(); sh.dashed=!sh.dashed; render(); save();
+};
+document.querySelectorAll('.sw:not(.tc)').forEach(b => b.onclick = () => {
+  if(!sel) return; const sh=findShape(sel); if(sh.t==='arrow') return;
+  snapshot(); sh.color = b.dataset.color; render(); save();
+});
+document.getElementById('btnFminus').onclick = () => { if(!sel) return; const sh=findShape(sel); snapshot(); sh.fs=Math.max(.6,(sh.fs||1)-0.1); render(); save(); };
+document.getElementById('btnFplus').onclick  = () => { if(!sel) return; const sh=findShape(sel); snapshot(); sh.fs=Math.min(2,(sh.fs||1)+0.1); render(); save(); };
+/* 원본 복원 — confirm() 없는 2단 클릭 (샌드박스 환경에서도 동작) */
+let resetArmed = null;
+document.getElementById('btnReset').onclick = function(){
+  if(resetArmed){ clearTimeout(resetArmed); resetArmed = null;
+    this.textContent = '이 탭 원본 복원';
+    snapshot(); boards[tab] = initBoards()[tab]; sel=null; render(); save(); return;
+  }
+  this.textContent = '⚠ 한 번 더 누르면 복원됩니다';
+  resetArmed = setTimeout(() => { resetArmed = null; document.getElementById('btnReset').textContent = '이 탭 원본 복원'; }, 3000);
+};
+/* JSON 패널 — 복사/파일저장/붙여넣기 적용 (다운로드 막힌 환경 대비) */
+const jsonPanel = document.getElementById('jsonPanel'), jsonText = document.getElementById('jsonText'), jsonMsg = document.getElementById('jsonMsg');
+document.getElementById('btnJson').onclick = () => {
+  jsonText.value = JSON.stringify(boards, null, 1);
+  jsonMsg.textContent = '';
+  jsonPanel.style.display = 'block';
+};
+document.getElementById('jsonClose').onclick = () => { jsonPanel.style.display = 'none'; };
+document.getElementById('jsonCopy').onclick = () => {
+  jsonText.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch(e){}
+  if(!ok && navigator.clipboard){ navigator.clipboard.writeText(jsonText.value).then(()=>{ jsonMsg.textContent='복사됨'; }).catch(()=>{ jsonMsg.textContent='복사 실패 — 텍스트를 직접 전체선택(Ctrl+A) 후 Ctrl+C 하세요'; }); }
+  else jsonMsg.textContent = ok ? '복사됨' : '복사 실패 — Ctrl+A 후 Ctrl+C 하세요';
+};
+document.getElementById('jsonFile').onclick = () => {
+  try {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([jsonText.value],{type:'application/json'}));
+    a.download = 'jp_perf_board.json'; a.click();
+    jsonMsg.textContent = '다운로드 시도됨 — 안 되는 환경이면 「복사」를 쓰세요';
+  } catch(e){ jsonMsg.textContent = '이 환경은 파일 저장 불가 — 「복사」를 쓰세요'; }
+};
+document.getElementById('jsonApply').onclick = () => {
+  try {
+    const d = JSON.parse(jsonText.value);
+    if(!(d.rpp && d.amz && d.meta && d.tiktok)){ jsonMsg.textContent = '형식이 맞지 않습니다'; return; }
+    snapshot();
+    const base = initBoards();
+    for(const k of TAB_ORDER){
+      let sv = d[k]; if(!sv) continue;
+      if(sv.shapes && !sv.pages){ sv = {name:sv.name, ver:sv.ver, pages:[{w:sv.w||1280, h:sv.h||640, shapes:sv.shapes}]}; }
+      if(sv.pages) base[k] = {...base[k], ...sv, name:base[k].name};
+    }
+    boards = base; sel = null; render(); save();
+    jsonMsg.textContent = '적용됨';
+  } catch(e){ jsonMsg.textContent = 'JSON 파싱 실패 — 붙여넣은 내용을 확인하세요'; }
+};
+
+/* 키보드 */
+window.addEventListener('keydown', ev => {
+  if(editor.style.display==='block') return;
+  if(ev.key==='Delete' || ev.key==='Backspace'){ if(sel){ ev.preventDefault(); document.getElementById('btnDel').onclick(); } }
+  if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='z'){ ev.preventDefault(); undo(); }
+  if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='y'){ ev.preventDefault(); redo(); }
+  if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='d'){ ev.preventDefault(); document.getElementById('btnDup').onclick(); }
+  if(ev.key==='F2' && sel){ ev.preventDefault(); openEditor(findShape(sel)); }
+});
+
+/* 탭 */
+document.getElementById('tabs').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-tab]'); if(!b) return;
+  closeEditor();
+  if(b.dataset.tab === '__actions'){ actionsTabOn = true; sel=null; renderTabs(); applyActionsView(); return; }
+  actionsTabOn = false; tab = b.dataset.tab; sel=null; undoStack=[]; redoStack=[];
+  renderTabs(); applyActionsView(); render();
+});
+
+renderTabs(); render();
+
+/* ============ 오늘의 액션 — 별도 탭 (actions.json, GHA 일일 판정 산출) ============
+   탭 선택 시 캔버스 대신 채널별 섹션 뷰 표시. fetch 실패(artifact 붙여넣기 환경 등)면
+   탭 자체가 안 생긴다. */
+function applyActionsView(){
+  const on = actionsTabOn;
+  document.getElementById('actionsView').style.display = on ? 'block' : 'none';
+  document.getElementById('ribbon').style.display = on ? 'none' : '';
+  document.querySelector('.legend').style.display = on ? 'none' : '';
+  wrap.style.display = on ? 'none' : '';
+  statusEl.style.display = on ? 'none' : '';
+}
+function sevRank(s){ return {off:0, half:1, scale:2, watch:3, pre:4, info:5}[s] ?? 9; }
+function renderActionsView(){
+  const view = document.getElementById('actionsView');
+  const data = actionsData; if(!data) return;
+  const row = a => `<div class="abItem">
+      <span class="sev ${esc(a.severity)}">${esc((a.severity || '').toUpperCase())}</span>
+      <span>${esc(a.title || '')}</span>
+      <span class="abDetail">${esc(a.detail || '')}${a.execute === 'auto' ? ' · 자동집행' : a.execute === 'proposal' ? ' · 제안(수동 집행)' : ''}</span>
+    </div>`;
+  let html = `<div class="abMeta">기준일 ${esc(data.ref_date || '')} · 생성 ${esc(data.generated_at || '')} · 매일 아침 자동 갱신 (GHA KST 08:40)</div>`;
+  for(const ch of (data.channels || [])){
+    const acts = (ch.actions || []).slice().sort((a,b) => sevRank(a.severity) - sevRank(b.severity));
+    const infos = (ch.info || []).slice().sort((a,b) => sevRank(a.severity) - sevRank(b.severity));
+    html += `<div class="abSection">
+      <div class="abSecTitle">${esc(ch.title || ch.key)}
+        <span class="abCount${acts.length ? '' : ' zero'}">${acts.length}</span>
+        ${ch.tab && TAB_ORDER.includes(ch.tab) ? `<span class="abGo" data-go="${esc(ch.tab)}">판정 룰 탭 보기 →</span>` : ''}
+      </div>
+      ${ch.note ? `<div class="abSecNote">${esc(ch.note)}</div>` : ''}
+      ${ch.status === 'error' ? `<div class="abErr">⚠ 판정 실패 — ${esc(ch.error || '')}</div>` : ''}
+      ${acts.map(row).join('')}
+      ${!acts.length && ch.status === 'ok' ? '<div class="abNote">오늘 룰에 걸린 액션 없음</div>' : ''}
+      ${infos.map(row).join('')}
+    </div>`;
+  }
+  view.innerHTML = html;
+  view.querySelectorAll('[data-go]').forEach(el => {
+    el.addEventListener('click', () => {
+      actionsTabOn = false; tab = el.dataset.go; sel = null;
+      renderTabs(); applyActionsView(); render();
+    });
+  });
+}
+/* 상대경로(배포본) → 실패 시 절대경로(claude artifact 등 외부 환경, CORS 허용돼 있으면 표시).
+   둘 다 실패하면 탭 자체가 안 생김. 쿼리 = CDN 엣지 캐시 우회 */
+(function loadActions(){
+  const got = d => { actionsData = d; renderActionsView(); renderTabs(); };
+  const pull = u => fetch(u + '?v=' + Date.now(), {cache: 'no-store'})
+    .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); });
+  pull('actions.json').then(got)
+    .catch(() => pull('https://jp-perf-board.vercel.app/actions.json').then(got).catch(() => {}));
+})();
+</script>
+</body>
+</html>

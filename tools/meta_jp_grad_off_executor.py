@@ -65,6 +65,33 @@ def pause_testing_adset(ad_id, dry):
     return (bool(aok), f"adset {adset_id} PAUSED={'OK' if aok else az}", adset_id)
 
 
+_PROVEN_NAMES_CACHE = {}
+
+
+def _proven_ad_names(adset_id):
+    """Proven adset 내 기존 광고명 집합 (재졸업 가드용, 1회 조회 캐시).
+    조회 실패 시 빈 집합 = 가드 미작동이므로 경고만 남기고 졸업은 진행(기존 동작 보존)."""
+    if adset_id not in _PROVEN_NAMES_CACHE:
+        names, after = set(), None
+        while True:
+            p = {"fields": "name", "limit": 200}
+            if after:
+                p["after"] = after
+            res = W.get(f"{adset_id}/ads", LIVE, **p)
+            data = (res or {}).get("data")
+            if data is None:
+                print(f"[warn] Proven adset {adset_id} 광고목록 조회 실패 — 재졸업 가드 미작동: {W.err_of(res).get('message', '')[:80]}")
+                return set()
+            names |= {a.get("name") for a in data}
+            paging = (res or {}).get("paging") or {}
+            after = (paging.get("cursors") or {}).get("after")
+            # 마지막 페이지 신호 = paging.next 부재 (after 커서는 마지막 페이지에도 남는다)
+            if not paging.get("next") or not after or not data:
+                break
+        _PROVEN_NAMES_CACHE[adset_id] = names
+    return _PROVEN_NAMES_CACHE[adset_id]
+
+
 def product_route(name):
     """광고명에서 ASIN 정확 추출(정규식) → (제품, 기존 Proven ad set id).
     ASIN 0개·복수·미매핑이면 (None,None) → 호출측이 skip+보고(오라우팅 방지)."""
@@ -107,10 +134,16 @@ def today_candidates():
 
     # graduation_candidates/일부 OFF 후보는 ad_id 를 반환 dict 에 안 담음(ad_name 만) →
     # fetch 한 row 로 ad_name→ad_id 매핑 주입 (공유 meta_jp_daily 미변경).
+    # 졸업된 광고는 Testing/Proven 양쪽에 동명으로 존재 → Testing 캠페인 행 우선 매핑.
+    # (동명 Proven 사본 id 를 집으면 graduate() 가 Proven 쪽을 PAUSE 하는 사고 — 2026-10-12 실측)
     name2id = {}
     for row in (rows_7d or []) + (r14 or []):
         an, ai = row.get("ad_name"), row.get("ad_id")
-        if an and ai:
+        if not (an and ai):
+            continue
+        if "Testing" in (row.get("campaign_name") or ""):
+            name2id[an] = ai
+        else:
             name2id.setdefault(an, ai)
     for c in grads + off_rows + dfl + pcl:
         if isinstance(c, dict) and not c.get("ad_id"):
@@ -133,6 +166,16 @@ def graduate(ad_id, name, dry):
         return ("fail_route", f"{name[:40]} — ASIN 미매핑/모호로 Proven 라우팅 불가", None)
     if not creative_id:
         return ("fail_no_creative", f"{name[:40]} — creative_id 조회 실패", None)
+    # 재졸업(중복 사본) 가드: 같은 이름 광고가 Proven adset 에 이미 있으면 생성 금지,
+    # Testing 쪽 정리만. (졸업 후 Testing ACTIVE 잔존 → 매일 재후보 → Proven 중복 루프.
+    # 2026-10-12 DK 13일 공백 복구 중 NICOGAKU 건으로 실측 — 졸업명은 양쪽 동일이 조인키)
+    if name in _proven_ad_names(adset_id):
+        if dry:
+            return ("would_cleanup", f"{name[:46]} — 이미 Proven {adset_id} 존재 → 재졸업 skip, Testing 정리만", None)
+        pz = W.post(ad_id, LIVE, {"status": "PAUSED"})
+        _ok, adset_detail, _asid = pause_testing_adset(ad_id, False)
+        return ("already_graduated",
+                f"{name[:40]} — Proven 기존재(재졸업 skip), Testing {ad_id} PAUSED={pz.get('success') or pz} | {adset_detail}", None)
     if dry:
         return ("would_graduate", f"{name[:46]} → {prod} Proven adset {adset_id} 에 광고 추가 creative={creative_id} (Testing status={orig_status})", None)
     # 기존 제품별 Proven ABO ad set 에 광고(asset)만 추가 (adset 신설 X — 세은 2026-09-15 교정)
