@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-10-13 14:10 PST",
+ "generated_pst": "2026-10-13 15:37 PST",
  "through_date": "2026-10-12",
  "months": [
   "2025-07",
@@ -14289,11 +14289,1065 @@ const FIN_DATA = {
   }
  ],
  "keyword_rankings": {
-  "7d": [],
-  "30d": [],
-  "90d": []
+  "7d": [
+   {
+    "query": "onzenna",
+    "clicks": 6,
+    "impressions": 31,
+    "avg_position": 1.8,
+    "ctr": 19.35,
+    "weekly_positions": [
+     1.8
+    ]
+   },
+   {
+    "query": "hawaiian girl names",
+    "clicks": 4,
+    "impressions": 290,
+    "avg_position": 8.1,
+    "ctr": 1.38,
+    "weekly_positions": [
+     8.1
+    ]
+   },
+   {
+    "query": "french names",
+    "clicks": 4,
+    "impressions": 198,
+    "avg_position": 7.6,
+    "ctr": 2.02,
+    "weekly_positions": [
+     7.6
+    ]
+   },
+   {
+    "query": "grosmimi straw cup",
+    "clicks": 4,
+    "impressions": 245,
+    "avg_position": 5.5,
+    "ctr": 1.63,
+    "weekly_positions": [
+     5.5
+    ]
+   },
+   {
+    "query": "grosmimi straw",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 2.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     2.5
+    ]
+   },
+   {
+    "query": "girl hawaiian names",
+    "clicks": 2,
+    "impressions": 24,
+    "avg_position": 7.4,
+    "ctr": 8.33,
+    "weekly_positions": [
+     7.4
+    ]
+   },
+   {
+    "query": "cha and mom",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 1.0,
+    "ctr": 25.0,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "cha & mom",
+    "clicks": 2,
+    "impressions": 12,
+    "avg_position": 1.0,
+    "ctr": 16.67,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "ชื่อเกาหลี ผู้หญิง",
+    "clicks": 2,
+    "impressions": 12,
+    "avg_position": 10.0,
+    "ctr": 16.67,
+    "weekly_positions": [
+     10.0
+    ]
+   },
+   {
+    "query": "yes",
+    "clicks": 2,
+    "impressions": 14,
+    "avg_position": 1.7,
+    "ctr": 14.29,
+    "weekly_positions": [
+     1.7
+    ]
+   },
+   {
+    "query": "why is my 8 month old refusing to eat",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 2.9,
+    "ctr": 25.0,
+    "weekly_positions": [
+     2.9
+    ]
+   },
+   {
+    "query": "onzenna cup",
+    "clicks": 2,
+    "impressions": 10,
+    "avg_position": 1.0,
+    "ctr": 20.0,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "nama korea perempuan modern",
+    "clicks": 2,
+    "impressions": 26,
+    "avg_position": 7.7,
+    "ctr": 7.69,
+    "weekly_positions": [
+     7.7
+    ]
+   },
+   {
+    "query": "middle names for girls",
+    "clicks": 2,
+    "impressions": 24,
+    "avg_position": 14.0,
+    "ctr": 8.33,
+    "weekly_positions": [
+     14.0
+    ]
+   },
+   {
+    "query": "korean baby toys",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 3.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     3.5
+    ]
+   },
+   {
+    "query": "korean baby products brands",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 4.5,
+    "ctr": 25.0,
+    "weekly_positions": [
+     4.5
+    ]
+   },
+   {
+    "query": "korea baby products",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 1.6,
+    "ctr": 25.0,
+    "weekly_positions": [
+     1.6
+    ]
+   },
+   {
+    "query": "hawaiian baby names",
+    "clicks": 2,
+    "impressions": 39,
+    "avg_position": 6.6,
+    "ctr": 5.13,
+    "weekly_positions": [
+     6.6
+    ]
+   },
+   {
+    "query": "grossimi",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 3.7,
+    "ctr": 25.0,
+    "weekly_positions": [
+     3.7
+    ]
+   },
+   {
+    "query": "episiotomy healing stages",
+    "clicks": 2,
+    "impressions": 38,
+    "avg_position": 5.9,
+    "ctr": 5.26,
+    "weekly_positions": [
+     5.9
+    ]
+   },
+   {
+    "query": "diastasis recti underwear reviews",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 11.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     11.5
+    ]
+   },
+   {
+    "query": "diastasis recti underwear",
+    "clicks": 2,
+    "impressions": 32,
+    "avg_position": 9.3,
+    "ctr": 6.25,
+    "weekly_positions": [
+     9.3
+    ]
+   },
+   {
+    "query": "baby ear crusty",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 6.0,
+    "ctr": 50.0,
+    "weekly_positions": [
+     6.0
+    ]
+   },
+   {
+    "query": "alpremio",
+    "clicks": 2,
+    "impressions": 22,
+    "avg_position": 2.8,
+    "ctr": 9.09,
+    "weekly_positions": [
+     2.8
+    ]
+   },
+   {
+    "query": "8 month old not eating solids",
+    "clicks": 2,
+    "impressions": 10,
+    "avg_position": 3.6,
+    "ctr": 20.0,
+    "weekly_positions": [
+     3.7
+    ]
+   }
+  ],
+  "30d": [
+   {
+    "query": "onzenna",
+    "clicks": 6,
+    "impressions": 31,
+    "avg_position": 1.8,
+    "ctr": 19.35,
+    "weekly_positions": [
+     1.8
+    ]
+   },
+   {
+    "query": "hawaiian girl names",
+    "clicks": 4,
+    "impressions": 290,
+    "avg_position": 8.1,
+    "ctr": 1.38,
+    "weekly_positions": [
+     8.1
+    ]
+   },
+   {
+    "query": "french names",
+    "clicks": 4,
+    "impressions": 198,
+    "avg_position": 7.6,
+    "ctr": 2.02,
+    "weekly_positions": [
+     7.6
+    ]
+   },
+   {
+    "query": "grosmimi straw cup",
+    "clicks": 4,
+    "impressions": 245,
+    "avg_position": 5.5,
+    "ctr": 1.63,
+    "weekly_positions": [
+     5.5
+    ]
+   },
+   {
+    "query": "grosmimi straw",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 2.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     2.5
+    ]
+   },
+   {
+    "query": "girl hawaiian names",
+    "clicks": 2,
+    "impressions": 24,
+    "avg_position": 7.4,
+    "ctr": 8.33,
+    "weekly_positions": [
+     7.4
+    ]
+   },
+   {
+    "query": "cha and mom",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 1.0,
+    "ctr": 25.0,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "cha & mom",
+    "clicks": 2,
+    "impressions": 12,
+    "avg_position": 1.0,
+    "ctr": 16.67,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "ชื่อเกาหลี ผู้หญิง",
+    "clicks": 2,
+    "impressions": 12,
+    "avg_position": 10.0,
+    "ctr": 16.67,
+    "weekly_positions": [
+     10.0
+    ]
+   },
+   {
+    "query": "yes",
+    "clicks": 2,
+    "impressions": 14,
+    "avg_position": 1.7,
+    "ctr": 14.29,
+    "weekly_positions": [
+     1.7
+    ]
+   },
+   {
+    "query": "why is my 8 month old refusing to eat",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 2.9,
+    "ctr": 25.0,
+    "weekly_positions": [
+     2.9
+    ]
+   },
+   {
+    "query": "onzenna cup",
+    "clicks": 2,
+    "impressions": 10,
+    "avg_position": 1.0,
+    "ctr": 20.0,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "nama korea perempuan modern",
+    "clicks": 2,
+    "impressions": 26,
+    "avg_position": 7.7,
+    "ctr": 7.69,
+    "weekly_positions": [
+     7.7
+    ]
+   },
+   {
+    "query": "middle names for girls",
+    "clicks": 2,
+    "impressions": 24,
+    "avg_position": 14.0,
+    "ctr": 8.33,
+    "weekly_positions": [
+     14.0
+    ]
+   },
+   {
+    "query": "korean baby toys",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 3.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     3.5
+    ]
+   },
+   {
+    "query": "korean baby products brands",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 4.5,
+    "ctr": 25.0,
+    "weekly_positions": [
+     4.5
+    ]
+   },
+   {
+    "query": "korea baby products",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 1.6,
+    "ctr": 25.0,
+    "weekly_positions": [
+     1.6
+    ]
+   },
+   {
+    "query": "hawaiian baby names",
+    "clicks": 2,
+    "impressions": 39,
+    "avg_position": 6.6,
+    "ctr": 5.13,
+    "weekly_positions": [
+     6.6
+    ]
+   },
+   {
+    "query": "grossimi",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 3.7,
+    "ctr": 25.0,
+    "weekly_positions": [
+     3.7
+    ]
+   },
+   {
+    "query": "episiotomy healing stages",
+    "clicks": 2,
+    "impressions": 38,
+    "avg_position": 5.9,
+    "ctr": 5.26,
+    "weekly_positions": [
+     5.9
+    ]
+   },
+   {
+    "query": "diastasis recti underwear reviews",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 11.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     11.5
+    ]
+   },
+   {
+    "query": "diastasis recti underwear",
+    "clicks": 2,
+    "impressions": 32,
+    "avg_position": 9.3,
+    "ctr": 6.25,
+    "weekly_positions": [
+     9.3
+    ]
+   },
+   {
+    "query": "baby ear crusty",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 6.0,
+    "ctr": 50.0,
+    "weekly_positions": [
+     6.0
+    ]
+   },
+   {
+    "query": "alpremio",
+    "clicks": 2,
+    "impressions": 22,
+    "avg_position": 2.8,
+    "ctr": 9.09,
+    "weekly_positions": [
+     2.8
+    ]
+   },
+   {
+    "query": "8 month old not eating solids",
+    "clicks": 2,
+    "impressions": 10,
+    "avg_position": 3.6,
+    "ctr": 20.0,
+    "weekly_positions": [
+     3.7
+    ]
+   }
+  ],
+  "90d": [
+   {
+    "query": "onzenna",
+    "clicks": 6,
+    "impressions": 31,
+    "avg_position": 1.8,
+    "ctr": 19.35,
+    "weekly_positions": [
+     1.8
+    ]
+   },
+   {
+    "query": "hawaiian girl names",
+    "clicks": 4,
+    "impressions": 290,
+    "avg_position": 8.1,
+    "ctr": 1.38,
+    "weekly_positions": [
+     8.1
+    ]
+   },
+   {
+    "query": "french names",
+    "clicks": 4,
+    "impressions": 198,
+    "avg_position": 7.6,
+    "ctr": 2.02,
+    "weekly_positions": [
+     7.6
+    ]
+   },
+   {
+    "query": "grosmimi straw cup",
+    "clicks": 4,
+    "impressions": 245,
+    "avg_position": 5.5,
+    "ctr": 1.63,
+    "weekly_positions": [
+     5.5
+    ]
+   },
+   {
+    "query": "grosmimi straw",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 2.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     2.5
+    ]
+   },
+   {
+    "query": "girl hawaiian names",
+    "clicks": 2,
+    "impressions": 24,
+    "avg_position": 7.4,
+    "ctr": 8.33,
+    "weekly_positions": [
+     7.4
+    ]
+   },
+   {
+    "query": "cha and mom",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 1.0,
+    "ctr": 25.0,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "cha & mom",
+    "clicks": 2,
+    "impressions": 12,
+    "avg_position": 1.0,
+    "ctr": 16.67,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "ชื่อเกาหลี ผู้หญิง",
+    "clicks": 2,
+    "impressions": 12,
+    "avg_position": 10.0,
+    "ctr": 16.67,
+    "weekly_positions": [
+     10.0
+    ]
+   },
+   {
+    "query": "yes",
+    "clicks": 2,
+    "impressions": 14,
+    "avg_position": 1.7,
+    "ctr": 14.29,
+    "weekly_positions": [
+     1.7
+    ]
+   },
+   {
+    "query": "why is my 8 month old refusing to eat",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 2.9,
+    "ctr": 25.0,
+    "weekly_positions": [
+     2.9
+    ]
+   },
+   {
+    "query": "onzenna cup",
+    "clicks": 2,
+    "impressions": 10,
+    "avg_position": 1.0,
+    "ctr": 20.0,
+    "weekly_positions": [
+     1.0
+    ]
+   },
+   {
+    "query": "nama korea perempuan modern",
+    "clicks": 2,
+    "impressions": 26,
+    "avg_position": 7.7,
+    "ctr": 7.69,
+    "weekly_positions": [
+     7.7
+    ]
+   },
+   {
+    "query": "middle names for girls",
+    "clicks": 2,
+    "impressions": 24,
+    "avg_position": 14.0,
+    "ctr": 8.33,
+    "weekly_positions": [
+     14.0
+    ]
+   },
+   {
+    "query": "korean baby toys",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 3.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     3.5
+    ]
+   },
+   {
+    "query": "korean baby products brands",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 4.5,
+    "ctr": 25.0,
+    "weekly_positions": [
+     4.5
+    ]
+   },
+   {
+    "query": "korea baby products",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 1.6,
+    "ctr": 25.0,
+    "weekly_positions": [
+     1.6
+    ]
+   },
+   {
+    "query": "hawaiian baby names",
+    "clicks": 2,
+    "impressions": 39,
+    "avg_position": 6.6,
+    "ctr": 5.13,
+    "weekly_positions": [
+     6.6
+    ]
+   },
+   {
+    "query": "grossimi",
+    "clicks": 2,
+    "impressions": 8,
+    "avg_position": 3.7,
+    "ctr": 25.0,
+    "weekly_positions": [
+     3.7
+    ]
+   },
+   {
+    "query": "episiotomy healing stages",
+    "clicks": 2,
+    "impressions": 38,
+    "avg_position": 5.9,
+    "ctr": 5.26,
+    "weekly_positions": [
+     5.9
+    ]
+   },
+   {
+    "query": "diastasis recti underwear reviews",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 11.5,
+    "ctr": 50.0,
+    "weekly_positions": [
+     11.5
+    ]
+   },
+   {
+    "query": "diastasis recti underwear",
+    "clicks": 2,
+    "impressions": 32,
+    "avg_position": 9.3,
+    "ctr": 6.25,
+    "weekly_positions": [
+     9.3
+    ]
+   },
+   {
+    "query": "baby ear crusty",
+    "clicks": 2,
+    "impressions": 4,
+    "avg_position": 6.0,
+    "ctr": 50.0,
+    "weekly_positions": [
+     6.0
+    ]
+   },
+   {
+    "query": "alpremio",
+    "clicks": 2,
+    "impressions": 22,
+    "avg_position": 2.8,
+    "ctr": 9.09,
+    "weekly_positions": [
+     2.8
+    ]
+   },
+   {
+    "query": "8 month old not eating solids",
+    "clicks": 2,
+    "impressions": 10,
+    "avg_position": 3.6,
+    "ctr": 20.0,
+    "weekly_positions": [
+     3.7
+    ]
+   }
+  ]
  },
- "kw_positions_summary": [],
+ "kw_positions_summary": [
+  {
+   "query": "onzenna",
+   "pos_7d": 1.8,
+   "clicks_7d": 6,
+   "impressions_7d": 31,
+   "pos_30d": 1.8,
+   "clicks_30d": 6,
+   "impressions_30d": 31,
+   "pos_90d": 1.8,
+   "clicks_90d": 6,
+   "impressions_90d": 31
+  },
+  {
+   "query": "french names",
+   "pos_7d": 7.6,
+   "clicks_7d": 4,
+   "impressions_7d": 198,
+   "pos_30d": 7.6,
+   "clicks_30d": 4,
+   "impressions_30d": 198,
+   "pos_90d": 7.6,
+   "clicks_90d": 4,
+   "impressions_90d": 198
+  },
+  {
+   "query": "grosmimi straw cup",
+   "pos_7d": 5.5,
+   "clicks_7d": 4,
+   "impressions_7d": 245,
+   "pos_30d": 5.5,
+   "clicks_30d": 4,
+   "impressions_30d": 245,
+   "pos_90d": 5.5,
+   "clicks_90d": 4,
+   "impressions_90d": 245
+  },
+  {
+   "query": "hawaiian girl names",
+   "pos_7d": 8.1,
+   "clicks_7d": 4,
+   "impressions_7d": 290,
+   "pos_30d": 8.1,
+   "clicks_30d": 4,
+   "impressions_30d": 290,
+   "pos_90d": 8.1,
+   "clicks_90d": 4,
+   "impressions_90d": 290
+  },
+  {
+   "query": "8 month old not eating solids",
+   "pos_7d": 3.6,
+   "clicks_7d": 2,
+   "impressions_7d": 10,
+   "pos_30d": 3.6,
+   "clicks_30d": 2,
+   "impressions_30d": 10,
+   "pos_90d": 3.6,
+   "clicks_90d": 2,
+   "impressions_90d": 10
+  },
+  {
+   "query": "alpremio",
+   "pos_7d": 2.8,
+   "clicks_7d": 2,
+   "impressions_7d": 22,
+   "pos_30d": 2.8,
+   "clicks_30d": 2,
+   "impressions_30d": 22,
+   "pos_90d": 2.8,
+   "clicks_90d": 2,
+   "impressions_90d": 22
+  },
+  {
+   "query": "baby ear crusty",
+   "pos_7d": 6.0,
+   "clicks_7d": 2,
+   "impressions_7d": 4,
+   "pos_30d": 6.0,
+   "clicks_30d": 2,
+   "impressions_30d": 4,
+   "pos_90d": 6.0,
+   "clicks_90d": 2,
+   "impressions_90d": 4
+  },
+  {
+   "query": "cha & mom",
+   "pos_7d": 1.0,
+   "clicks_7d": 2,
+   "impressions_7d": 12,
+   "pos_30d": 1.0,
+   "clicks_30d": 2,
+   "impressions_30d": 12,
+   "pos_90d": 1.0,
+   "clicks_90d": 2,
+   "impressions_90d": 12
+  },
+  {
+   "query": "cha and mom",
+   "pos_7d": 1.0,
+   "clicks_7d": 2,
+   "impressions_7d": 8,
+   "pos_30d": 1.0,
+   "clicks_30d": 2,
+   "impressions_30d": 8,
+   "pos_90d": 1.0,
+   "clicks_90d": 2,
+   "impressions_90d": 8
+  },
+  {
+   "query": "diastasis recti underwear",
+   "pos_7d": 9.3,
+   "clicks_7d": 2,
+   "impressions_7d": 32,
+   "pos_30d": 9.3,
+   "clicks_30d": 2,
+   "impressions_30d": 32,
+   "pos_90d": 9.3,
+   "clicks_90d": 2,
+   "impressions_90d": 32
+  },
+  {
+   "query": "diastasis recti underwear reviews",
+   "pos_7d": 11.5,
+   "clicks_7d": 2,
+   "impressions_7d": 4,
+   "pos_30d": 11.5,
+   "clicks_30d": 2,
+   "impressions_30d": 4,
+   "pos_90d": 11.5,
+   "clicks_90d": 2,
+   "impressions_90d": 4
+  },
+  {
+   "query": "episiotomy healing stages",
+   "pos_7d": 5.9,
+   "clicks_7d": 2,
+   "impressions_7d": 38,
+   "pos_30d": 5.9,
+   "clicks_30d": 2,
+   "impressions_30d": 38,
+   "pos_90d": 5.9,
+   "clicks_90d": 2,
+   "impressions_90d": 38
+  },
+  {
+   "query": "girl hawaiian names",
+   "pos_7d": 7.4,
+   "clicks_7d": 2,
+   "impressions_7d": 24,
+   "pos_30d": 7.4,
+   "clicks_30d": 2,
+   "impressions_30d": 24,
+   "pos_90d": 7.4,
+   "clicks_90d": 2,
+   "impressions_90d": 24
+  },
+  {
+   "query": "grosmimi straw",
+   "pos_7d": 2.5,
+   "clicks_7d": 2,
+   "impressions_7d": 4,
+   "pos_30d": 2.5,
+   "clicks_30d": 2,
+   "impressions_30d": 4,
+   "pos_90d": 2.5,
+   "clicks_90d": 2,
+   "impressions_90d": 4
+  },
+  {
+   "query": "grossimi",
+   "pos_7d": 3.7,
+   "clicks_7d": 2,
+   "impressions_7d": 8,
+   "pos_30d": 3.7,
+   "clicks_30d": 2,
+   "impressions_30d": 8,
+   "pos_90d": 3.7,
+   "clicks_90d": 2,
+   "impressions_90d": 8
+  },
+  {
+   "query": "hawaiian baby names",
+   "pos_7d": 6.6,
+   "clicks_7d": 2,
+   "impressions_7d": 39,
+   "pos_30d": 6.6,
+   "clicks_30d": 2,
+   "impressions_30d": 39,
+   "pos_90d": 6.6,
+   "clicks_90d": 2,
+   "impressions_90d": 39
+  },
+  {
+   "query": "korea baby products",
+   "pos_7d": 1.6,
+   "clicks_7d": 2,
+   "impressions_7d": 8,
+   "pos_30d": 1.6,
+   "clicks_30d": 2,
+   "impressions_30d": 8,
+   "pos_90d": 1.6,
+   "clicks_90d": 2,
+   "impressions_90d": 8
+  },
+  {
+   "query": "korean baby products brands",
+   "pos_7d": 4.5,
+   "clicks_7d": 2,
+   "impressions_7d": 8,
+   "pos_30d": 4.5,
+   "clicks_30d": 2,
+   "impressions_30d": 8,
+   "pos_90d": 4.5,
+   "clicks_90d": 2,
+   "impressions_90d": 8
+  },
+  {
+   "query": "korean baby toys",
+   "pos_7d": 3.5,
+   "clicks_7d": 2,
+   "impressions_7d": 4,
+   "pos_30d": 3.5,
+   "clicks_30d": 2,
+   "impressions_30d": 4,
+   "pos_90d": 3.5,
+   "clicks_90d": 2,
+   "impressions_90d": 4
+  },
+  {
+   "query": "middle names for girls",
+   "pos_7d": 14.0,
+   "clicks_7d": 2,
+   "impressions_7d": 24,
+   "pos_30d": 14.0,
+   "clicks_30d": 2,
+   "impressions_30d": 24,
+   "pos_90d": 14.0,
+   "clicks_90d": 2,
+   "impressions_90d": 24
+  },
+  {
+   "query": "nama korea perempuan modern",
+   "pos_7d": 7.7,
+   "clicks_7d": 2,
+   "impressions_7d": 26,
+   "pos_30d": 7.7,
+   "clicks_30d": 2,
+   "impressions_30d": 26,
+   "pos_90d": 7.7,
+   "clicks_90d": 2,
+   "impressions_90d": 26
+  },
+  {
+   "query": "onzenna cup",
+   "pos_7d": 1.0,
+   "clicks_7d": 2,
+   "impressions_7d": 10,
+   "pos_30d": 1.0,
+   "clicks_30d": 2,
+   "impressions_30d": 10,
+   "pos_90d": 1.0,
+   "clicks_90d": 2,
+   "impressions_90d": 10
+  },
+  {
+   "query": "why is my 8 month old refusing to eat",
+   "pos_7d": 2.9,
+   "clicks_7d": 2,
+   "impressions_7d": 8,
+   "pos_30d": 2.9,
+   "clicks_30d": 2,
+   "impressions_30d": 8,
+   "pos_90d": 2.9,
+   "clicks_90d": 2,
+   "impressions_90d": 8
+  },
+  {
+   "query": "yes",
+   "pos_7d": 1.7,
+   "clicks_7d": 2,
+   "impressions_7d": 14,
+   "pos_30d": 1.7,
+   "clicks_30d": 2,
+   "impressions_30d": 14,
+   "pos_90d": 1.7,
+   "clicks_90d": 2,
+   "impressions_90d": 14
+  },
+  {
+   "query": "ชื่อเกาหลี ผู้หญิง",
+   "pos_7d": 10.0,
+   "clicks_7d": 2,
+   "impressions_7d": 12,
+   "pos_30d": 10.0,
+   "clicks_30d": 2,
+   "impressions_30d": 12,
+   "pos_90d": 10.0,
+   "clicks_90d": 2,
+   "impressions_90d": 12
+  }
+ ],
  "keyword_volumes": [],
  "brand_analytics": {
   "Grosmimi JP": [
@@ -63317,9 +64371,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 43,
       "ads_sales_30d": 302,
       "ads_acos": 0.07,
-      "google_volume": 4,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 108,
+      "google_ads_impressions": 104,
+      "google_ads_clicks": 13
      },
      {
       "keyword": "grosmimi ppsu straw cup",
@@ -63358,9 +64412,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 59,
       "ads_sales_30d": 433,
       "ads_acos": 0.07,
-      "google_volume": 15,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 52,
+      "google_ads_impressions": 37,
+      "google_ads_clicks": 1
      },
      {
       "keyword": "teteros para niño de 2 año",
@@ -63530,10 +64584,6 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B08398HJRD",
-      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
-     },
-     {
       "asin": "B083986L91",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
@@ -63542,11 +64592,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B0F9Q2F89Y",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
       "asin": "B0F9PZGGF2",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F9Q2F89Y",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -63662,7 +64716,7 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Baby Straw Cup Stage 2, 12M+, Spill-Proof, 6oz (Sugar Bear)"
      },
      {
-      "asin": "B0F9PVZMR1",
+      "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -63670,7 +64724,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PY2LBV",
+      "asin": "B0F9PVZMR1",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -63939,9 +64993,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 17,
       "ads_sales_30d": 234,
       "ads_acos": 0.03,
-      "google_volume": 22,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 76,
+      "google_ads_impressions": 54,
+      "google_ads_clicks": 5
      },
      {
       "keyword": "stainless steel baby straw cup",
@@ -63962,8 +65016,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 18,
       "ads_sales_30d": 18,
       "ads_acos": 1.15,
-      "google_volume": 0,
-      "google_ads_impressions": 0,
+      "google_volume": 2,
+      "google_ads_impressions": 2,
       "google_ads_clicks": 0
      },
      {
@@ -64006,9 +65060,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 25,
       "ads_sales_30d": 201,
       "ads_acos": 0.06,
-      "google_volume": 38,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 460,
+      "google_ads_impressions": 422,
+      "google_ads_clicks": 52
      },
      {
       "keyword": "baby straw cup stainless steel",
@@ -64027,8 +65081,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 21,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 2,
-      "google_ads_impressions": 0,
+      "google_volume": 4,
+      "google_ads_impressions": 2,
       "google_ads_clicks": 0
      },
      {
@@ -64054,8 +65108,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 10,
       "ads_sales_30d": 47,
       "ads_acos": 0.2,
-      "google_volume": 0,
-      "google_ads_impressions": 0,
+      "google_volume": 2,
+      "google_ads_impressions": 2,
       "google_ads_clicks": 0
      },
      {
@@ -64116,9 +65170,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 389,
       "ads_sales_30d": 2982,
       "ads_acos": 0.08,
-      "google_volume": 16,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 212,
+      "google_ads_impressions": 196,
+      "google_ads_clicks": 18
      }
     ],
     "sfr_branded": [],
@@ -64128,15 +65182,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
+      "asin": "B0H2CS5DLJ",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
       "asin": "B0H2CMFCSJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
       "asin": "B0H2CQ4LWL",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0H2CS5DLJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -64417,9 +65471,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 22,
       "ads_sales_30d": 132,
       "ads_acos": 0.1,
-      "google_volume": 2,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 37,
+      "google_ads_impressions": 35,
+      "google_ads_clicks": 6
      },
      {
       "keyword": "grosmimi sippy cup",
@@ -64440,9 +65494,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 173,
       "ads_sales_30d": 1133,
       "ads_acos": 0.08,
-      "google_volume": 0,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 122,
+      "google_ads_impressions": 122,
+      "google_ads_clicks": 11
      },
      {
       "keyword": "grosmimi cup",
@@ -64459,19 +65513,19 @@ const FIN_DATA = {
       "ads_clicks_30d": 179,
       "ads_sales_30d": 775,
       "ads_acos": 0.11,
-      "google_volume": 54,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 861,
+      "google_ads_impressions": 807,
+      "google_ads_clicks": 116
      }
     ],
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H32PSCF9",
+      "asin": "B0H32T8XBS",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0H32T8XBS",
+      "asin": "B0H32PSCF9",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -64726,9 +65780,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 22,
       "ads_sales_30d": 132,
       "ads_acos": 0.1,
-      "google_volume": 2,
-      "google_ads_impressions": 0,
-      "google_ads_clicks": 0
+      "google_volume": 37,
+      "google_ads_impressions": 35,
+      "google_ads_clicks": 6
      }
     ],
     "sfr_branded": [],
