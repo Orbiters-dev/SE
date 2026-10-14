@@ -51,7 +51,12 @@
   .cover .theme{display:inline-block;font-size:13px;font-weight:700;color:var(--ink2);
     border:1px solid var(--line);border-radius:999px;padding:7px 18px}
   .cover .ph{text-align:center}
-  .cover .ph img{max-width:100%;max-height:440px;border-radius:12px}
+  .stage{position:relative;height:480px;max-width:520px;margin:0 auto}
+  .stage .halo{position:absolute;right:-14px;bottom:4px;width:350px;height:350px;border-radius:50%;background:var(--accent-soft)}
+  .stage img{position:absolute;filter:drop-shadow(0 16px 26px rgba(34,48,74,.16))}
+  .stage .bottle{top:0;left:0;width:41%;opacity:.96}
+  .stage .mug{right:0;bottom:0;width:65%}
+  .stage .diag{position:absolute;left:39%;top:37%;font-size:30px;color:var(--accent);font-weight:900;transform:rotate(45deg)}
   .cap{font-size:12px;color:var(--label);margin-top:12px;text-align:center}
 
   /* slide 2 voices */
@@ -144,6 +149,8 @@
     .foot{left:28px}
     .cover{grid-template-columns:1fr}
     .cover h1{font-size:36px}
+    .stage{height:340px;max-width:380px}
+    .stage .halo{width:240px;height:240px}
     .quotes,.trio,.beats,.opts,.experts,.refs,.post,.dos{grid-template-columns:1fr}
     .film{grid-template-columns:1fr}
     .flow{flex-direction:column}
@@ -183,7 +190,12 @@
       <span class="theme" data-e="s1-theme">テーマ · ステップアップ（移行）</span>
     </div>
     <div class="ph">
-      <img src="img/cover.jpg" alt="グロミミ PPSU哺乳瓶とPPSUストローマグ">
+      <div class="stage">
+        <div class="halo"></div>
+        <img class="bottle" src="img/bottle.png" alt="グロミミ PPSU哺乳瓶">
+        <span class="diag">→</span>
+        <img class="mug" src="img/mug.png" alt="グロミミ PPSUストローマグ">
+      </div>
       <div class="cap" data-e="s1-cap">哺乳瓶 → グロミミ PPSUストローマグ、6ヶ月〜（Stage 1 ストロー付属）</div>
     </div>
   </div>
