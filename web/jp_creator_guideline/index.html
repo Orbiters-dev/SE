@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Grosmimi クリエイターガイドライン — 1-A 哺乳瓶からストローマグへ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F1EA; --card:#FFFFFF; --ink:#22304A; --ink2:#51607A;
+    --accent:#E05C43; --accent-soft:#FBEAE5; --line:#E6DFD3; --label:#9A8F7C;
+    --ok:#2E7D5B; --ng:#B3432F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:'Noto Sans JP','Inter',sans-serif;color:var(--ink);line-height:1.6}
+
+  /* ── toolbar ── */
+  .bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;
+    padding:10px 20px;background:rgba(245,241,234,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  .bar .t{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--ink2)}
+  .bar .sp{flex:1}
+  .btn{font-family:inherit;font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;
+    border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn.primary.on{background:var(--accent);border-color:var(--accent)}
+  .hint{font-size:11px;color:var(--label)}
+  body.editing [data-e]{outline:1.5px dashed rgba(224,92,67,.55);outline-offset:3px;border-radius:2px;cursor:text}
+  body.editing [data-e]:hover{background:rgba(224,92,67,.06)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;
+    background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:9px 18px;border-radius:999px;
+    opacity:0;transition:opacity .25s;pointer-events:none}
+  .toast.show{opacity:1}
+
+  /* ── deck layout ── */
+  .deck{max-width:1150px;margin:0 auto;padding:28px 20px 80px;display:flex;flex-direction:column;gap:36px}
+  .slide{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 10px 30px rgba(34,48,74,.06);padding:56px 64px;position:relative;min-height:620px;
+    display:flex;flex-direction:column}
+  .pageno{position:absolute;bottom:20px;right:26px;font-size:11px;color:var(--label);font-weight:600}
+  .foot{position:absolute;bottom:20px;left:64px;font-size:10.5px;letter-spacing:.08em;color:var(--label)}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.22em;color:var(--accent);margin-bottom:14px}
+  h2.sl{font-size:34px;font-weight:900;letter-spacing:.01em;line-height:1.3;margin-bottom:30px}
+
+  /* slide 1 cover */
+  .cover{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;min-height:620px}
+  .cover .brand{font-size:12px;font-weight:700;letter-spacing:.3em;color:var(--label);margin-bottom:28px}
+  .cover h1{font-size:54px;font-weight:900;line-height:1.25;margin-bottom:26px}
+  .cover .theme{display:inline-block;font-size:13px;font-weight:700;color:var(--ink2);
+    border:1px solid var(--line);border-radius:999px;padding:7px 18px}
+  .cover .ph{text-align:center}
+  .cover .ph img{max-width:100%;max-height:440px;border-radius:12px}
+  .cap{font-size:12px;color:var(--label);margin-top:12px;text-align:center}
+
+  /* slide 2 voices */
+  .quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:30px}
+  .q{background:var(--accent-soft);border-radius:12px;padding:24px 22px;font-size:15.5px;font-weight:500;line-height:1.8}
+  .q .src{display:block;margin-top:12px;font-size:11px;color:var(--label);font-weight:600;letter-spacing:.05em}
+  .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:auto}
+  .trio .cell{border-top:2px solid var(--ink);padding-top:14px}
+  .trio .cell .lb{font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--accent);margin-bottom:8px}
+  .trio .cell p{font-size:13.5px;color:var(--ink2)}
+
+  /* slide 3 key message */
+  .bigmsg{font-size:26px;font-weight:700;line-height:2;max-width:920px;margin-bottom:46px}
+  .flow{display:flex;align-items:stretch;gap:0;margin-top:auto;margin-bottom:30px}
+  .flow .node{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:22px 16px;text-align:center}
+  .flow .node.hot{background:var(--accent-soft);border-color:var(--accent)}
+  .flow .node b{display:block;font-size:16px;font-weight:900;margin-bottom:6px}
+  .flow .node span{font-size:12px;color:var(--ink2)}
+  .flow .arr{display:flex;align-items:center;padding:0 10px;font-size:20px;color:var(--accent);font-weight:900}
+
+  /* slide 4 beats */
+  .beats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:6px}
+  .beat{border:1px solid var(--line);border-radius:12px;padding:26px 24px;display:flex;flex-direction:column;min-height:300px}
+  .beat .num{width:38px;height:38px;border-radius:50%;background:var(--ink);color:#fff;font-weight:900;
+    display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:16px}
+  .beat h3{font-size:19px;font-weight:900;margin-bottom:10px}
+  .beat p{font-size:14px;color:var(--ink2);flex:1}
+  .beat .tag{margin-top:14px;font-size:11px;font-weight:700;letter-spacing:.15em;color:var(--accent)}
+
+  /* slide 5 hook */
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+  .opt{border:1px solid var(--line);border-radius:12px;padding:24px}
+  .opt .lb{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent);margin-bottom:12px}
+  .opt .line{font-size:16.5px;font-weight:700;line-height:1.9;margin-bottom:12px}
+  .opt .shot{font-size:12.5px;color:var(--label)}
+  .worry{background:var(--bg);border-radius:12px;padding:22px 26px;margin-top:auto}
+  .worry .lb{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ink2);margin-bottom:14px}
+  .worry ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}
+  .worry li{font-size:14.5px;font-weight:500;padding-left:16px;position:relative}
+  .worry li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+
+  /* slide 6 experts */
+  .experts{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:4px}
+  .exp{border-left:3px solid var(--accent);background:var(--bg);border-radius:0 12px 12px 0;padding:22px 24px}
+  .exp .who{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--accent);margin-bottom:10px}
+  .exp p{font-size:14.5px;line-height:1.95}
+  .note{margin-top:22px;font-size:12.5px;color:var(--label)}
+
+  /* slide 7 filming */
+  .film{display:grid;grid-template-columns:2.2fr 1fr;gap:28px;margin-top:4px}
+  .dos{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .do{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg)}
+  .do img{width:100%;aspect-ratio:14/15;object-fit:cover;display:block}
+  .do p{font-size:13px;font-weight:700;padding:12px 14px}
+  .colhead{font-size:14px;font-weight:900;margin-bottom:14px}
+  .colhead.ok{color:var(--ok)} .colhead.ng{color:var(--ng)}
+  .donts{border:1px solid var(--line);border-radius:12px;padding:22px}
+  .donts ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+  .donts li{font-size:14px;font-weight:500;padding-left:24px;position:relative}
+  .donts li::before{content:"✕";position:absolute;left:0;color:var(--ng);font-weight:900}
+
+  /* slide 8 references */
+  .refs{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:4px}
+  .ref{border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .ref img{width:100%;aspect-ratio:9/14;object-fit:cover;display:block}
+  .ref .body{padding:16px 18px}
+  .ref .pf{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--label)}
+  .ref .hd{font-size:15px;font-weight:900;margin:4px 0 10px}
+  .ref ul{list-style:none}
+  .ref li{font-size:12.5px;color:var(--ink2);padding-left:14px;position:relative;margin-bottom:5px}
+  .ref li::before{content:"";position:absolute;left:0;top:.6em;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .ref .watch{display:inline-block;margin-top:12px;font-size:12.5px;font-weight:700;color:#fff;
+    background:var(--accent);border-radius:999px;padding:8px 18px;text-decoration:none}
+  .ref .watch:hover{background:var(--ink)}
+
+  /* slide 9 posting */
+  .post{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:4px}
+  .pcard{border:1px solid var(--line);border-radius:12px;padding:26px}
+  .pcard h3{font-size:17px;font-weight:900;margin-bottom:18px}
+  .pline{margin-bottom:18px}
+  .pline .lb{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--accent);margin-bottom:5px}
+  .pline p{font-size:14px;line-height:1.85}
+  .pline code{font-family:inherit;background:var(--bg);border-radius:6px;padding:2px 8px;font-size:13.5px;font-weight:700}
+  .tags{background:var(--bg);border-radius:10px;padding:14px 16px;font-size:13.5px;font-weight:700;line-height:2;margin-bottom:14px}
+  .tags .lb{display:block;font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--accent);margin-bottom:4px}
+
+  @media(max-width:900px){
+    .slide{padding:36px 28px;min-height:0}
+    .foot{left:28px}
+    .cover{grid-template-columns:1fr}
+    .cover h1{font-size:36px}
+    .quotes,.trio,.beats,.opts,.experts,.refs,.post,.dos{grid-template-columns:1fr}
+    .film{grid-template-columns:1fr}
+    .flow{flex-direction:column}
+    .flow .arr{justify-content:center;transform:rotate(90deg);padding:4px 0}
+    .worry ul{grid-template-columns:1fr}
+    h2.sl{font-size:26px}
+    .bigmsg{font-size:20px}
+  }
+  @media print{
+    .bar,.toast{display:none}
+    body{background:#fff}
+    .deck{max-width:none;padding:0;gap:0}
+    .slide{border:none;box-shadow:none;border-radius:0;page-break-after:always;min-height:100vh}
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <span class="t">GROSMIMI JAPAN · クリエイターガイドライン 1-A</span>
+  <span class="sp"></span>
+  <span class="hint" id="hint">✏️で本文を直接編集 → ✔ 編集完了 で、このURLを開く全員に反映されます</span>
+  <button class="btn primary" id="editBtn">✏️ 編集</button>
+  <button class="btn" id="exportBtn">変更を書き出し</button>
+  <button class="btn" id="resetBtn">リセット</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="deck">
+
+<!-- ════ SLIDE 1 · COVER ════ -->
+<section class="slide" id="s1">
+  <div class="cover">
+    <div>
+      <div class="brand" data-e="s1-brand">GROSMIMI · CREATOR GUIDELINE</div>
+      <h1 data-e="s1-title">哺乳瓶から、<br>ストローマグへ</h1>
+      <span class="theme" data-e="s1-theme">テーマ · ステップアップ（移行）</span>
+    </div>
+    <div class="ph">
+      <img src="img/cover.jpg" alt="グロミミ PPSU哺乳瓶とPPSUストローマグ">
+      <div class="cap" data-e="s1-cap">哺乳瓶 → グロミミ PPSUストローマグ、6ヶ月〜（Stage 1 ストロー付属）</div>
+    </div>
+  </div>
+  <div class="pageno">01</div>
+</section>
+
+<!-- ════ SLIDE 2 · PARENT CONCERN ════ -->
+<section class="slide" id="s2">
+  <div class="kicker" data-e="s2-kick">ママたちの悩み</div>
+  <h2 class="sl" data-e="s2-h">日本のママたちが、実際に話していること</h2>
+  <div class="quotes">
+    <div class="q" data-e="s2-q1">「ストローマグ、うまく吸い上がってこなくて…娘もお茶が飲めなくてパニック😅」<span class="src">— ママリ（Q&amp;Aコミュニティ）</span></div>
+    <div class="q" data-e="s2-q2">「卒乳してから息子が水分補給をしてくれません。一口飲んで終わり、マグは振り払われて終わりです」<span class="src">— ママリ（Q&amp;Aコミュニティ）</span></div>
+    <div class="q" data-e="s2-q3">「1歳になる頃から練習を始めたのですが、まだストローもコップも使えません」<span class="src">— ピジョン お悩み相談室</span></div>
+  </div>
+  <div class="trio">
+    <div class="cell">
+      <div class="lb">いつ</div>
+      <p data-e="s2-when">6〜12ヶ月：初めてのストロー練習。1歳前後には健診や保育園入園を前に「哺乳瓶卒業」のプレッシャーが強まる。</p>
+    </div>
+    <div class="cell">
+      <div class="lb">つまずき</div>
+      <p data-e="s2-strug">硬いストローは噛むだけで、吸えずにぷいっ。水分が足りているか不安になり、マグを何個も買っては拒否される「マグ難民」に。</p>
+    </div>
+    <div class="cell">
+      <div class="lb">うれしい瞬間</div>
+      <p data-e="s2-win">初めてストローで吸えた一口と、その直後にママを見上げる顔。</p>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · クリエイターガイドライン · 1-A 哺乳瓶からストローマグへ</div>
+  <div class="pageno">02</div>
+</section>
+
+<!-- ════ SLIDE 3 · KEY MESSAGE ════ -->
+<section class="slide" id="s3">
+  <div class="kicker" data-e="s3-kick">キーメッセージ</div>
+  <h2 class="sl" data-e="s3-h">どの動画でも、この1つを伝える</h2>
+  <p class="bigmsg" data-e="s3-msg">ほとんどのストローは、赤ちゃんが飲み慣れた哺乳瓶の乳首よりずっと硬い。グロミミのStage 1・Stage 2ストローは<b>乳首のようにやわらかい</b>から、ストローマグが「次の一歩」として自然につながる。</p>
+  <div class="flow">
+    <div class="node"><b data-e="s3-n1">哺乳瓶</b><span data-e="s3-n1s">飲み慣れたやわらかさ</span></div>
+    <div class="arr">→</div>
+    <div class="node hot"><b data-e="s3-n2">Stage 1 ストロー</b><span data-e="s3-n2s">乳首のようにやわらかい</span></div>
+    <div class="arr">→</div>
+    <div class="node hot"><b data-e="s3-n3">Stage 2 ストロー</b><span data-e="s3-n3s">次のステップへ</span></div>
+    <div class="arr">→</div>
+    <div class="node"><b data-e="s3-n4">ストローマグ卒業</b><span data-e="s3-n4s">じぶんで飲める</span></div>
+  </div>
+  <div class="foot">Grosmimi · クリエイターガイドライン · 1-A 哺乳瓶からストローマグへ</div>
+  <div class="pageno">03</div>
+</section>
+
+<!-- ════ SLIDE 4 · CONTENT GUIDELINE ════ -->
+<section class="slide" id="s4">
+  <div class="kicker" data-e="s4-kick">コンテンツガイドライン</div>
+  <h2 class="sl" data-e="s4-h">動画は3つのビートで</h2>
+  <div class="beats">
+    <div class="beat">
+      <div class="num">1</div>
+      <h3 data-e="s4-b1h">フック</h3>
+      <p data-e="s4-b1p">ママたちが「うちもそう」と感じる場面から。ストローを嫌がる赤ちゃん、またはストローの先を指でつまむ手元。</p>
+      <div class="tag" data-e="s4-b1t">最初の3秒</div>
+    </div>
+    <div class="beat">
+      <div class="num">2</div>
+      <h3 data-e="s4-b2h">説明して、見せる</h3>
+      <p data-e="s4-b2p">「なぜ」をひとこと（専門家の知見を引用してもOK）。そして3つの飲み口をカメラの前で並べて、つまんで比べて見せる。</p>
+      <div class="tag" data-e="s4-b2t">動画の核</div>
+    </div>
+    <div class="beat">
+      <div class="num">3</div>
+      <h3 data-e="s4-b3h">リアルな瞬間とCTA</h3>
+      <p data-e="s4-b3p">赤ちゃんが実際にストローマグで飲む姿を見せる。</p>
+      <div class="tag" data-e="s4-b3t">締め</div>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · クリエイターガイドライン · 1-A 哺乳瓶からストローマグへ</div>
+  <div class="pageno">04</div>
+</section>
+
+<!-- ════ SLIDE 5 · BEAT 1 HOOK ════ -->
+<section class="slide" id="s5">
+  <div class="kicker" data-e="s5-kick">ビート 1 · フック</div>
+  <h2 class="sl" data-e="s5-h">入り方は、この2つ</h2>
+  <div class="opts">
+    <div class="opt">
+      <div class="lb" data-e="s5-o1l">OPTION 1 · つまんで比べるテスト</div>
+      <div class="line" data-e="s5-o1q">「うちの子が拒否したマグと、グロミミ。ストローを同時につまんでみると…全然違うんです。嫌がってた理由、味じゃなくて"硬さ"でした」</div>
+      <div class="shot" data-e="s5-o1s">ショット：両手で2本のストローの先を同時につまむクローズアップ（拒否されたマグはロゴ・ブランド名が映らない角度で）</div>
+    </div>
+    <div class="opt">
+      <div class="lb" data-e="s5-o2l">OPTION 2 · 「卒業」の質問</div>
+      <div class="line" data-e="s5-o2q">「ママ友にもSNSでも、いちばん聞かれる質問：哺乳瓶って、いつやめるの？」</div>
+      <div class="shot" data-e="s5-o2s">ショット：カメラ目線で語りかける（自宅や普段の空間で）</div>
+    </div>
+  </div>
+  <div class="worry">
+    <div class="lb" data-e="s5-wl">フックは、この「不安」のどれかに当てる — ママたちの実際の声から</div>
+    <ul>
+      <li data-e="s5-w1">何個買っても、全部拒否。もう「マグ難民」。</li>
+      <li data-e="s5-w2">硬いストローは噛むだけで、吸えずにおしまい。</li>
+      <li data-e="s5-w3">もうすぐ1歳。なのに、まだ哺乳瓶。</li>
+      <li data-e="s5-w4">麦茶もお水も飲んでくれない。水分、足りてる…？</li>
+    </ul>
+  </div>
+  <div class="foot">Grosmimi · クリエイターガイドライン · 1-A 哺乳瓶からストローマグへ</div>
+  <div class="pageno">05</div>
+</section>
+
+<!-- ════ SLIDE 6 · BEAT 2 EXPERTS ════ -->
+<section class="slide" id="s6">
+  <div class="kicker" data-e="s6-kick">ビート 2 · 説明して、見せる</div>
+  <h2 class="sl" data-e="s6-h">動画で引用できる、専門家の知見</h2>
+  <div class="experts">
+    <div class="exp">
+      <div class="who" data-e="s6-e1w">言語聴覚士（ST）は、こう説明する</div>
+      <p data-e="s6-e1p">赤ちゃんがつまずくのは、お口が覚えている乳首よりストローが硬いとき。やわらかいStage 1・Stage 2の飲み口なら、哺乳瓶の「続き」として受け入れやすい。</p>
+    </div>
+    <div class="exp">
+      <div class="who" data-e="s6-e2w">フィーディング（離乳食）の専門家は、こう勧める</div>
+      <p data-e="s6-e2p">一度に全部変えないこと。まずは慣れたやわらかさのままマグに慣れて、それからやわらかいStage 1ストローへ進む。</p>
+    </div>
+    <div class="exp">
+      <div class="who" data-e="s6-e3w">小児科では、こう答えている</div>
+      <p data-e="s6-e3p">ストロー練習は6ヶ月頃から始められる（このマグも6ヶ月〜対象）。焦らなくて大丈夫 — コップ飲みの練習と並行して進めてOK。</p>
+    </div>
+    <div class="exp">
+      <div class="who" data-e="s6-e4w">歯科の視点では、こう語られる</div>
+      <p data-e="s6-e4p">やわらかいシリコンの飲み口は、歯ぐきにやさしい「次の一歩」。</p>
+    </div>
+  </div>
+  <p class="note" data-e="s6-note">※ そのまま引用しても、自分の言葉に直してもOK。断定的な医療効果の表現（「歯並びが良くなる」等）は避けてください。</p>
+  <div class="foot">Grosmimi · クリエイターガイドライン · 1-A 哺乳瓶からストローマグへ</div>
+  <div class="pageno">06</div>
+</section>
+
+<!-- ════ SLIDE 7 · FILMING ════ -->
+<section class="slide" id="s7">
+  <div class="kicker" data-e="s7-kick">撮影</div>
+  <h2 class="sl" data-e="s7-h">カメラの前での Do &amp; Don't</h2>
+  <div class="film">
+    <div>
+      <div class="colhead ok" data-e="s7-okh">Please do ✓</div>
+      <div class="dos">
+        <div class="do"><img src="img/do1.jpg" alt="飲み口を指でつまむクローズアップ"><p data-e="s7-d1">やわらかさをクローズアップで見せる</p></div>
+        <div class="do"><img src="img/do2.jpg" alt="カメラに向かって話す"><p data-e="s7-d2">カメラに向かって直接話す</p></div>
+        <div class="do"><img src="img/do3.jpg" alt="赤ちゃんがマグで飲む姿"><p data-e="s7-d3">赤ちゃんが実際にマグで飲む姿を見せる</p></div>
+      </div>
+    </div>
+    <div>
+      <div class="colhead ng" data-e="s7-ngh">Please don't ✕</div>
+      <div class="donts">
+        <ul>
+          <li data-e="s7-n1">他社のロゴ・ブランド名を映さない</li>
+          <li data-e="s7-n2">おもり付きストロー（ウェイト）を主役にしない</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · クリエイターガイドライン · 1-A 哺乳瓶からストローマグへ</div>
+  <div class="pageno">07</div>
+</section>
+
+<!-- ════ SLIDE 8 · REFERENCES ════ -->
+<section class="slide" id="s8">
+  <div class="kicker" data-e="s8-kick">参考動画</div>
+  <h2 class="sl" data-e="s8-h">こんな雰囲気の動画が理想です</h2>
+  <div class="refs">
+    <div class="ref">
+      <img src="img/ref1.jpg" alt="@cassidyandkids TikTokカバー">
+      <div class="body">
+        <div class="pf" data-e="s8-r1pf">TIKTOK</div>
+        <div class="hd" data-e="s8-r1h">@cassidyandkids</div>
+        <ul>
+          <li data-e="s8-r1a">最初のフレームにオンスクリーンのフックテキスト</li>
+          <li data-e="s8-r1b">同じ悩みを持つママの指が止まる</li>
+          <li data-e="s8-r1c">自分の赤ちゃんと一緒に、プロセスをそのまま撮影</li>
+        </ul>
+        <a class="watch" href="https://www.instagram.com/reel/DdFhnmWOyOk/" target="_blank" rel="noopener">▶ 動画を見る</a>
+      </div>
+    </div>
+    <div class="ref">
+      <img src="img/ref2.jpg" alt="@livfuselli TikTokカバー">
+      <div class="body">
+        <div class="pf" data-e="s8-r2pf">TIKTOK</div>
+        <div class="hd" data-e="s8-r2h">@livfuselli</div>
+        <ul>
+          <li data-e="s8-r2a">豆知識の羅列ではなく、自分自身のストーリー</li>
+          <li data-e="s8-r2b">切り替えられた月齢を具体的に伝える</li>
+          <li data-e="s8-r2c">自然に切り替わっていく様子を見せる</li>
+        </ul>
+        <a class="watch" href="https://www.instagram.com/reel/DNiNYqjNMLh/" target="_blank" rel="noopener">▶ 動画を見る</a>
+      </div>
+    </div>
+    <div class="ref">
+      <img src="img/ref3.jpg" alt="@chatterwithsam Instagramリールカバー">
+      <div class="body">
+        <div class="pf" data-e="s8-r3pf">INSTAGRAM</div>
+        <div class="hd" data-e="s8-r3h">@chatterwithsam</div>
+        <ul>
+          <li data-e="s8-r3a">冒頭に目を引くフック</li>
+          <li data-e="s8-r3b">切り替えのコツを、はっきり見せる</li>
+          <li data-e="s8-r3c">赤ちゃんがストローマグを上手に使う姿</li>
+        </ul>
+        <a class="watch" href="https://www.instagram.com/reels/DVZqMOnAY8a/" target="_blank" rel="noopener">▶ 動画を見る</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · クリエイターガイドライン · 1-A 哺乳瓶からストローマグへ</div>
+  <div class="pageno">08</div>
+</section>
+
+<!-- ════ SLIDE 9 · POSTING ════ -->
+<section class="slide" id="s9">
+  <div class="kicker" data-e="s9-kick">投稿</div>
+  <h2 class="sl" data-e="s9-h">キャプションとハッシュタグ</h2>
+  <div class="post">
+    <div class="pcard">
+      <h3 data-e="s9-c1h">キャプション</h3>
+      <div class="pline">
+        <div class="lb" data-e="s9-l1">アカウントタグ</div>
+        <p data-e="s9-p1"><code>@grosmimi_japan</code> をタグ付け＋共同投稿（コラボ投稿）に設定してください（「共同投稿者を招待」から）</p>
+      </div>
+      <div class="pline">
+        <div class="lb" data-e="s9-l2">商品</div>
+        <p data-e="s9-p2"><b>PPSUストローマグ：</b>楽天市場 <code>rakuten.co.jp/littlefingerusa</code><br><b>ステンレスストローマグ：</b>楽天市場・Amazonでも販売中</p>
+      </div>
+      <div class="pline">
+        <div class="lb" data-e="s9-l3">ブランド名の表記</div>
+        <p data-e="s9-p3">グロミミ（GROSMIMI）、Stage 1・Stage 2 ストロー</p>
+      </div>
+    </div>
+    <div class="pcard">
+      <h3 data-e="s9-c2h">ハッシュタグ</h3>
+      <div class="tags"><span class="lb" data-e="s9-t1l">PPSUストローマグ／ワンタッチ</span><span data-e="s9-t1">#グロミミ #grosmimi #ストローマグ #スマートマグ #PPSU</span></div>
+      <div class="tags"><span class="lb" data-e="s9-t2l">ステンレスストローマグ</span><span data-e="s9-t2">#グロミミ #grosmimi #ストローマグ #スマートマグ</span></div>
+      <p style="font-size:12px;color:var(--label)" data-e="s9-t3">※ 有償・無償を問わず共通です。</p>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · クリエイターガイドライン · 1-A 哺乳瓶からストローマグへ</div>
+  <div class="pageno">09</div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var KEY='gm_jp_guideline_1a_v1';           // 送信前の下書き（オフライン保険）
+  var API='/api/state';
+  var body=document.body,
+      editBtn=document.getElementById('editBtn'),
+      exportBtn=document.getElementById('exportBtn'),
+      resetBtn=document.getElementById('resetBtn'),
+      toast=document.getElementById('toast');
+  var els=document.querySelectorAll('[data-e]');
+
+  function showToast(msg,long){
+    toast.textContent=msg; toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t=setTimeout(function(){toast.classList.remove('show')},long?3200:1800);
+  }
+  function applyEdits(map){
+    els.forEach(function(el){
+      var id=el.getAttribute('data-e');
+      if(map && map[id]!==undefined) el.innerHTML=map[id];
+    });
+  }
+  function currentEdits(){
+    var st={};
+    els.forEach(function(el){
+      var id=el.getAttribute('data-e');
+      if(el.innerHTML!==el.dataset.orig) st[id]=el.innerHTML;
+    });
+    return st;
+  }
+  function saveDraft(){ try{ localStorage.setItem(KEY,JSON.stringify(currentEdits())); }catch(e){} }
+  function clearDraft(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+  function localDraft(){
+    try{ return JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){ return null; }
+  }
+
+  els.forEach(function(el){ el.dataset.orig=el.innerHTML; });
+
+  // 起動：サーバの共有状態 → その上に自分の未送信下書き
+  fetch(API,{cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(st){ applyEdits(st && st.edits); })
+    .catch(function(){})
+    .finally(function(){
+      var d=localDraft();
+      if(d && Object.keys(d).length){
+        applyEdits(d);
+        showToast('未送信の下書きがあります — ✏️編集 → ✔完了 で全員に反映されます',true);
+      }
+    });
+
+  function publish(edits,doneMsg){
+    return fetch(API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({edits:edits})
+    }).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      clearDraft();
+      showToast(doneMsg,true);
+      return true;
+    }).catch(function(){
+      saveDraft();
+      showToast('保存に失敗しました — 下書きとしてこの端末に保持しています。後でもう一度お試しください',true);
+      return false;
+    });
+  }
+
+  var editing=false;
+  editBtn.addEventListener('click',function(){
+    if(!editing){
+      editing=true;
+      body.classList.add('editing');
+      editBtn.classList.add('on');
+      editBtn.textContent='✔ 編集完了';
+      els.forEach(function(el){ el.contentEditable=true; });
+      showToast('編集モード：テキストを直接クリックして書き換えられます');
+    }else{
+      editing=false;
+      body.classList.remove('editing');
+      editBtn.classList.remove('on');
+      editBtn.textContent='✏️ 編集';
+      els.forEach(function(el){ el.contentEditable=false; });
+      publish(currentEdits(),'保存しました — このURLを開く全員に反映されます');
+    }
+  });
+  document.addEventListener('input',function(e){
+    if(editing && e.target.closest('[data-e]')) saveDraft();
+  });
+
+  exportBtn.addEventListener('click',function(){
+    var st=currentEdits();
+    var n=Object.keys(st).length;
+    if(!n){ showToast('変更はありません'); return; }
+    var out='GROSMIMI JP ガイドライン 1-A 変更箇所 ('+n+'件)\n'+
+      '--------------------------------------\n';
+    els.forEach(function(el){
+      var id=el.getAttribute('data-e');
+      if(st[id]!==undefined){
+        var tmp=document.createElement('div');
+        tmp.innerHTML=st[id];
+        out+='['+id+'] '+tmp.textContent.trim()+'\n\n';
+      }
+    });
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(out).then(function(){
+        showToast(n+'件の変更をコピーしました');
+      },function(){ fallback(out); });
+    }else fallback(out);
+    function fallback(text){
+      var blob=new Blob([text],{type:'text/plain'});
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='grosmimi_jp_guideline_changes.txt';
+      a.click();
+      showToast('変更内容をファイルで保存しました');
+    }
+  });
+
+  resetBtn.addEventListener('click',function(){
+    if(!confirm('すべての編集を破棄して元の内容に戻しますか？\n（このURLを開く全員に反映されます）')) return;
+    els.forEach(function(el){ el.innerHTML=el.dataset.orig; });
+    publish({},'元の内容に戻しました — 全員に反映されます');
+  });
+})();
+</script>
+</body>
+</html>
