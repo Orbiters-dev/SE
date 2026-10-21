@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-10-21 14:10 PST",
+ "generated_pst": "2026-10-21 15:38 PST",
  "through_date": "2026-10-20",
  "months": [
   "2025-07",
@@ -14052,1065 +14052,11 @@ const FIN_DATA = {
   }
  ],
  "keyword_rankings": {
-  "7d": [
-   {
-    "query": "onzenna",
-    "clicks": 12,
-    "impressions": 34,
-    "avg_position": 2.0,
-    "ctr": 35.29,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "name skyrocketing guy",
-    "clicks": 8,
-    "impressions": 448,
-    "avg_position": 5.4,
-    "ctr": 1.79,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "korean baby products",
-    "clicks": 4,
-    "impressions": 22,
-    "avg_position": 2.8,
-    "ctr": 18.18,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "grosmimi straw cup",
-    "clicks": 4,
-    "impressions": 170,
-    "avg_position": 4.9,
-    "ctr": 2.35,
-    "weekly_positions": [
-     4.9
-    ]
-   },
-   {
-    "query": "grosmimi stainless steel",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 5.4,
-    "ctr": 6.25,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "episiotomy recovery timeline",
-    "clicks": 2,
-    "impressions": 7,
-    "avg_position": 3.8,
-    "ctr": 28.57,
-    "weekly_positions": [
-     3.8
-    ]
-   },
-   {
-    "query": "a name",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 2.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "silicone baby bottles",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 9.0,
-    "ctr": 25.0,
-    "weekly_positions": [
-     9.0
-    ]
-   },
-   {
-    "query": "pacifier types",
-    "clicks": 2,
-    "impressions": 24,
-    "avg_position": 8.5,
-    "ctr": 8.33,
-    "weekly_positions": [
-     8.5
-    ]
-   },
-   {
-    "query": "nama korea perempuan modern",
-    "clicks": 2,
-    "impressions": 36,
-    "avg_position": 7.5,
-    "ctr": 5.56,
-    "weekly_positions": [
-     7.5
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 2,
-    "impressions": 157,
-    "avg_position": 6.6,
-    "ctr": 1.27,
-    "weekly_positions": [
-     6.6
-    ]
-   },
-   {
-    "query": "girl hawaiian names",
-    "clicks": 2,
-    "impressions": 21,
-    "avg_position": 7.0,
-    "ctr": 9.52,
-    "weekly_positions": [
-     7.0
-    ]
-   },
-   {
-    "query": "common korean names girl",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 10.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     10.0
-    ]
-   },
-   {
-    "query": "baby was eating solids now refuses",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 5.2,
-    "ctr": 25.0,
-    "weekly_positions": [
-     5.2
-    ]
-   },
-   {
-    "query": "baby girls names 2026 with meaning",
-    "clicks": 2,
-    "impressions": 7,
-    "avg_position": 8.8,
-    "ctr": 28.57,
-    "weekly_positions": [
-     8.8
-    ]
-   },
-   {
-    "query": "wake windows 1 month old",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 7.6,
-    "ctr": 6.25,
-    "weekly_positions": [
-     7.6
-    ]
-   },
-   {
-    "query": "spanish names gender neutral",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 18.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     18.0
-    ]
-   },
-   {
-    "query": "short korean names girl",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "pacifier shapes",
-    "clicks": 2,
-    "impressions": 74,
-    "avg_position": 2.4,
-    "ctr": 2.7,
-    "weekly_positions": [
-     2.4
-    ]
-   },
-   {
-    "query": "hawaiian girl names",
-    "clicks": 2,
-    "impressions": 191,
-    "avg_position": 7.5,
-    "ctr": 1.05,
-    "weekly_positions": [
-     7.5
-    ]
-   },
-   {
-    "query": "grosmimi cap",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "ear cradle cap",
-    "clicks": 2,
-    "impressions": 3,
-    "avg_position": 4.3,
-    "ctr": 66.67,
-    "weekly_positions": [
-     4.3
-    ]
-   },
-   {
-    "query": "childproofing kitchen",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "ancient names",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 3.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "9 month sleep regression signs",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   }
-  ],
-  "30d": [
-   {
-    "query": "onzenna",
-    "clicks": 12,
-    "impressions": 34,
-    "avg_position": 2.0,
-    "ctr": 35.29,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "name skyrocketing guy",
-    "clicks": 8,
-    "impressions": 448,
-    "avg_position": 5.4,
-    "ctr": 1.79,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "korean baby products",
-    "clicks": 4,
-    "impressions": 22,
-    "avg_position": 2.8,
-    "ctr": 18.18,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "grosmimi straw cup",
-    "clicks": 4,
-    "impressions": 170,
-    "avg_position": 4.9,
-    "ctr": 2.35,
-    "weekly_positions": [
-     4.9
-    ]
-   },
-   {
-    "query": "grosmimi stainless steel",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 5.4,
-    "ctr": 6.25,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "episiotomy recovery timeline",
-    "clicks": 2,
-    "impressions": 7,
-    "avg_position": 3.8,
-    "ctr": 28.57,
-    "weekly_positions": [
-     3.8
-    ]
-   },
-   {
-    "query": "a name",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 2.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "silicone baby bottles",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 9.0,
-    "ctr": 25.0,
-    "weekly_positions": [
-     9.0
-    ]
-   },
-   {
-    "query": "pacifier types",
-    "clicks": 2,
-    "impressions": 24,
-    "avg_position": 8.5,
-    "ctr": 8.33,
-    "weekly_positions": [
-     8.5
-    ]
-   },
-   {
-    "query": "nama korea perempuan modern",
-    "clicks": 2,
-    "impressions": 36,
-    "avg_position": 7.5,
-    "ctr": 5.56,
-    "weekly_positions": [
-     7.5
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 2,
-    "impressions": 157,
-    "avg_position": 6.6,
-    "ctr": 1.27,
-    "weekly_positions": [
-     6.6
-    ]
-   },
-   {
-    "query": "girl hawaiian names",
-    "clicks": 2,
-    "impressions": 21,
-    "avg_position": 7.0,
-    "ctr": 9.52,
-    "weekly_positions": [
-     7.0
-    ]
-   },
-   {
-    "query": "common korean names girl",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 10.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     10.0
-    ]
-   },
-   {
-    "query": "baby was eating solids now refuses",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 5.2,
-    "ctr": 25.0,
-    "weekly_positions": [
-     5.2
-    ]
-   },
-   {
-    "query": "baby girls names 2026 with meaning",
-    "clicks": 2,
-    "impressions": 7,
-    "avg_position": 8.8,
-    "ctr": 28.57,
-    "weekly_positions": [
-     8.8
-    ]
-   },
-   {
-    "query": "wake windows 1 month old",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 7.6,
-    "ctr": 6.25,
-    "weekly_positions": [
-     7.6
-    ]
-   },
-   {
-    "query": "spanish names gender neutral",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 18.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     18.0
-    ]
-   },
-   {
-    "query": "short korean names girl",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "pacifier shapes",
-    "clicks": 2,
-    "impressions": 74,
-    "avg_position": 2.4,
-    "ctr": 2.7,
-    "weekly_positions": [
-     2.4
-    ]
-   },
-   {
-    "query": "hawaiian girl names",
-    "clicks": 2,
-    "impressions": 191,
-    "avg_position": 7.5,
-    "ctr": 1.05,
-    "weekly_positions": [
-     7.5
-    ]
-   },
-   {
-    "query": "grosmimi cap",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "ear cradle cap",
-    "clicks": 2,
-    "impressions": 3,
-    "avg_position": 4.3,
-    "ctr": 66.67,
-    "weekly_positions": [
-     4.3
-    ]
-   },
-   {
-    "query": "childproofing kitchen",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "ancient names",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 3.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "9 month sleep regression signs",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   }
-  ],
-  "90d": [
-   {
-    "query": "onzenna",
-    "clicks": 12,
-    "impressions": 34,
-    "avg_position": 2.0,
-    "ctr": 35.29,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "name skyrocketing guy",
-    "clicks": 8,
-    "impressions": 448,
-    "avg_position": 5.4,
-    "ctr": 1.79,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "korean baby products",
-    "clicks": 4,
-    "impressions": 22,
-    "avg_position": 2.8,
-    "ctr": 18.18,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "grosmimi straw cup",
-    "clicks": 4,
-    "impressions": 170,
-    "avg_position": 4.9,
-    "ctr": 2.35,
-    "weekly_positions": [
-     4.9
-    ]
-   },
-   {
-    "query": "grosmimi stainless steel",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 5.4,
-    "ctr": 6.25,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "episiotomy recovery timeline",
-    "clicks": 2,
-    "impressions": 7,
-    "avg_position": 3.8,
-    "ctr": 28.57,
-    "weekly_positions": [
-     3.8
-    ]
-   },
-   {
-    "query": "a name",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 2.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "silicone baby bottles",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 9.0,
-    "ctr": 25.0,
-    "weekly_positions": [
-     9.0
-    ]
-   },
-   {
-    "query": "pacifier types",
-    "clicks": 2,
-    "impressions": 24,
-    "avg_position": 8.5,
-    "ctr": 8.33,
-    "weekly_positions": [
-     8.5
-    ]
-   },
-   {
-    "query": "nama korea perempuan modern",
-    "clicks": 2,
-    "impressions": 36,
-    "avg_position": 7.5,
-    "ctr": 5.56,
-    "weekly_positions": [
-     7.5
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 2,
-    "impressions": 157,
-    "avg_position": 6.6,
-    "ctr": 1.27,
-    "weekly_positions": [
-     6.6
-    ]
-   },
-   {
-    "query": "girl hawaiian names",
-    "clicks": 2,
-    "impressions": 21,
-    "avg_position": 7.0,
-    "ctr": 9.52,
-    "weekly_positions": [
-     7.0
-    ]
-   },
-   {
-    "query": "common korean names girl",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 10.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     10.0
-    ]
-   },
-   {
-    "query": "baby was eating solids now refuses",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 5.2,
-    "ctr": 25.0,
-    "weekly_positions": [
-     5.2
-    ]
-   },
-   {
-    "query": "baby girls names 2026 with meaning",
-    "clicks": 2,
-    "impressions": 7,
-    "avg_position": 8.8,
-    "ctr": 28.57,
-    "weekly_positions": [
-     8.8
-    ]
-   },
-   {
-    "query": "wake windows 1 month old",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 7.6,
-    "ctr": 6.25,
-    "weekly_positions": [
-     7.6
-    ]
-   },
-   {
-    "query": "spanish names gender neutral",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 18.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     18.0
-    ]
-   },
-   {
-    "query": "short korean names girl",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "pacifier shapes",
-    "clicks": 2,
-    "impressions": 74,
-    "avg_position": 2.4,
-    "ctr": 2.7,
-    "weekly_positions": [
-     2.4
-    ]
-   },
-   {
-    "query": "hawaiian girl names",
-    "clicks": 2,
-    "impressions": 191,
-    "avg_position": 7.5,
-    "ctr": 1.05,
-    "weekly_positions": [
-     7.5
-    ]
-   },
-   {
-    "query": "grosmimi cap",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "ear cradle cap",
-    "clicks": 2,
-    "impressions": 3,
-    "avg_position": 4.3,
-    "ctr": 66.67,
-    "weekly_positions": [
-     4.3
-    ]
-   },
-   {
-    "query": "childproofing kitchen",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "ancient names",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 3.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "9 month sleep regression signs",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   }
-  ]
+  "7d": [],
+  "30d": [],
+  "90d": []
  },
- "kw_positions_summary": [
-  {
-   "query": "onzenna",
-   "pos_7d": 2.0,
-   "clicks_7d": 12,
-   "impressions_7d": 34,
-   "pos_30d": 2.0,
-   "clicks_30d": 12,
-   "impressions_30d": 34,
-   "pos_90d": 2.0,
-   "clicks_90d": 12,
-   "impressions_90d": 34
-  },
-  {
-   "query": "name skyrocketing guy",
-   "pos_7d": 5.4,
-   "clicks_7d": 8,
-   "impressions_7d": 448,
-   "pos_30d": 5.4,
-   "clicks_30d": 8,
-   "impressions_30d": 448,
-   "pos_90d": 5.4,
-   "clicks_90d": 8,
-   "impressions_90d": 448
-  },
-  {
-   "query": "grosmimi straw cup",
-   "pos_7d": 4.9,
-   "clicks_7d": 4,
-   "impressions_7d": 170,
-   "pos_30d": 4.9,
-   "clicks_30d": 4,
-   "impressions_30d": 170,
-   "pos_90d": 4.9,
-   "clicks_90d": 4,
-   "impressions_90d": 170
-  },
-  {
-   "query": "korean baby products",
-   "pos_7d": 2.8,
-   "clicks_7d": 4,
-   "impressions_7d": 22,
-   "pos_30d": 2.8,
-   "clicks_30d": 4,
-   "impressions_30d": 22,
-   "pos_90d": 2.8,
-   "clicks_90d": 4,
-   "impressions_90d": 22
-  },
-  {
-   "query": "9 month sleep regression signs",
-   "pos_7d": 1.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 1.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 1.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "a name",
-   "pos_7d": 2.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 2.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 2.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "ancient names",
-   "pos_7d": 3.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 3.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 3.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "baby girls names 2026 with meaning",
-   "pos_7d": 8.8,
-   "clicks_7d": 2,
-   "impressions_7d": 7,
-   "pos_30d": 8.8,
-   "clicks_30d": 2,
-   "impressions_30d": 7,
-   "pos_90d": 8.8,
-   "clicks_90d": 2,
-   "impressions_90d": 7
-  },
-  {
-   "query": "baby was eating solids now refuses",
-   "pos_7d": 5.2,
-   "clicks_7d": 2,
-   "impressions_7d": 8,
-   "pos_30d": 5.2,
-   "clicks_30d": 2,
-   "impressions_30d": 8,
-   "pos_90d": 5.2,
-   "clicks_90d": 2,
-   "impressions_90d": 8
-  },
-  {
-   "query": "childproofing kitchen",
-   "pos_7d": 11.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 11.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 11.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "common korean names girl",
-   "pos_7d": 10.0,
-   "clicks_7d": 2,
-   "impressions_7d": 4,
-   "pos_30d": 10.0,
-   "clicks_30d": 2,
-   "impressions_30d": 4,
-   "pos_90d": 10.0,
-   "clicks_90d": 2,
-   "impressions_90d": 4
-  },
-  {
-   "query": "ear cradle cap",
-   "pos_7d": 4.3,
-   "clicks_7d": 2,
-   "impressions_7d": 3,
-   "pos_30d": 4.3,
-   "clicks_30d": 2,
-   "impressions_30d": 3,
-   "pos_90d": 4.3,
-   "clicks_90d": 2,
-   "impressions_90d": 3
-  },
-  {
-   "query": "episiotomy recovery timeline",
-   "pos_7d": 3.8,
-   "clicks_7d": 2,
-   "impressions_7d": 7,
-   "pos_30d": 3.8,
-   "clicks_30d": 2,
-   "impressions_30d": 7,
-   "pos_90d": 3.8,
-   "clicks_90d": 2,
-   "impressions_90d": 7
-  },
-  {
-   "query": "girl hawaiian names",
-   "pos_7d": 7.0,
-   "clicks_7d": 2,
-   "impressions_7d": 21,
-   "pos_30d": 7.0,
-   "clicks_30d": 2,
-   "impressions_30d": 21,
-   "pos_90d": 7.0,
-   "clicks_90d": 2,
-   "impressions_90d": 21
-  },
-  {
-   "query": "grosmimi cap",
-   "pos_7d": 1.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 1.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 1.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "grosmimi stainless steel",
-   "pos_7d": 5.4,
-   "clicks_7d": 2,
-   "impressions_7d": 32,
-   "pos_30d": 5.4,
-   "clicks_30d": 2,
-   "impressions_30d": 32,
-   "pos_90d": 5.4,
-   "clicks_90d": 2,
-   "impressions_90d": 32
-  },
-  {
-   "query": "hawaiian boy names",
-   "pos_7d": 6.6,
-   "clicks_7d": 2,
-   "impressions_7d": 157,
-   "pos_30d": 6.6,
-   "clicks_30d": 2,
-   "impressions_30d": 157,
-   "pos_90d": 6.6,
-   "clicks_90d": 2,
-   "impressions_90d": 157
-  },
-  {
-   "query": "hawaiian girl names",
-   "pos_7d": 7.5,
-   "clicks_7d": 2,
-   "impressions_7d": 191,
-   "pos_30d": 7.5,
-   "clicks_30d": 2,
-   "impressions_30d": 191,
-   "pos_90d": 7.5,
-   "clicks_90d": 2,
-   "impressions_90d": 191
-  },
-  {
-   "query": "nama korea perempuan modern",
-   "pos_7d": 7.5,
-   "clicks_7d": 2,
-   "impressions_7d": 36,
-   "pos_30d": 7.5,
-   "clicks_30d": 2,
-   "impressions_30d": 36,
-   "pos_90d": 7.5,
-   "clicks_90d": 2,
-   "impressions_90d": 36
-  },
-  {
-   "query": "pacifier shapes",
-   "pos_7d": 2.4,
-   "clicks_7d": 2,
-   "impressions_7d": 74,
-   "pos_30d": 2.4,
-   "clicks_30d": 2,
-   "impressions_30d": 74,
-   "pos_90d": 2.4,
-   "clicks_90d": 2,
-   "impressions_90d": 74
-  },
-  {
-   "query": "pacifier types",
-   "pos_7d": 8.5,
-   "clicks_7d": 2,
-   "impressions_7d": 24,
-   "pos_30d": 8.5,
-   "clicks_30d": 2,
-   "impressions_30d": 24,
-   "pos_90d": 8.5,
-   "clicks_90d": 2,
-   "impressions_90d": 24
-  },
-  {
-   "query": "short korean names girl",
-   "pos_7d": 11.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 11.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 11.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "silicone baby bottles",
-   "pos_7d": 9.0,
-   "clicks_7d": 2,
-   "impressions_7d": 8,
-   "pos_30d": 9.0,
-   "clicks_30d": 2,
-   "impressions_30d": 8,
-   "pos_90d": 9.0,
-   "clicks_90d": 2,
-   "impressions_90d": 8
-  },
-  {
-   "query": "spanish names gender neutral",
-   "pos_7d": 18.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 18.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 18.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "wake windows 1 month old",
-   "pos_7d": 7.6,
-   "clicks_7d": 2,
-   "impressions_7d": 32,
-   "pos_30d": 7.6,
-   "clicks_30d": 2,
-   "impressions_30d": 32,
-   "pos_90d": 7.6,
-   "clicks_90d": 2,
-   "impressions_90d": 32
-  }
- ],
+ "kw_positions_summary": [],
  "keyword_volumes": [],
  "brand_analytics": {
   "Grosmimi JP": [
@@ -63812,9 +62758,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 40,
       "ads_sales_30d": 291,
       "ads_acos": 0.06,
-      "google_volume": 122,
-      "google_ads_impressions": 115,
-      "google_ads_clicks": 10
+      "google_volume": 7,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi ppsu straw cup",
@@ -63853,9 +62799,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 58,
       "ads_sales_30d": 408,
       "ads_acos": 0.07,
-      "google_volume": 41,
-      "google_ads_impressions": 35,
-      "google_ads_clicks": 1
+      "google_volume": 6,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "teteros para niño de 2 año",
@@ -64001,9 +62947,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 0,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 78,
-      "google_ads_impressions": 68,
-      "google_ads_clicks": 13
+      "google_volume": 10,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
@@ -64011,14 +62957,6 @@ const FIN_DATA = {
      {
       "asin": "B0FR4MVTL7",
       "name": "GROSMIMI - Vaso de agua de flujo lento para niños pequeños, sin BPA, 10 onzas (P"
-     },
-     {
-      "asin": "B0842DMZ3H",
-      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
-     },
-     {
-      "asin": "B07YL2FT96",
-      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
       "asin": "B08398HJRD",
@@ -64029,19 +62967,27 @@ const FIN_DATA = {
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B0F9PZGGF2",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+      "asin": "B0842DMZ3H",
+      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
+     },
+     {
+      "asin": "B07YL2FT96",
+      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
       "asin": "B0F9Q2F89Y",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0H2CG2S1G",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+      "asin": "B0F9PZGGF2",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
       "asin": "B0H2CFQFFN",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B0H2CG2S1G",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -64149,10 +63095,6 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Baby Straw Cup Stage 2, 12M+, Spill-Proof, 6oz (Sugar Bear) | Flip"
      },
      {
-      "asin": "B0F9PZPMH8",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
       "asin": "B0F9PVZMR1",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
@@ -64165,6 +63107,10 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
+      "asin": "B0F9PZPMH8",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
       "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
@@ -64173,11 +63119,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B082SSPN4X",
+      "asin": "B07YKJ18D5",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
-      "asin": "B07YKJ18D5",
+      "asin": "B082SSPN4X",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
@@ -64422,9 +63368,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 13,
       "ads_sales_30d": 187,
       "ads_acos": 0.04,
-      "google_volume": 53,
-      "google_ads_impressions": 53,
-      "google_ads_clicks": 4
+      "google_volume": 0,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "stainless steel baby straw cup",
@@ -64445,8 +63391,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 15,
       "ads_sales_30d": 18,
       "ads_acos": 1.03,
-      "google_volume": 1,
-      "google_ads_impressions": 1,
+      "google_volume": 0,
+      "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
      {
@@ -64489,9 +63435,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 25,
       "ads_sales_30d": 277,
       "ads_acos": 0.05,
-      "google_volume": 464,
-      "google_ads_impressions": 432,
-      "google_ads_clicks": 55
+      "google_volume": 32,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "stainless steel weighted straw cup",
@@ -64508,8 +63454,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 19,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 6,
-      "google_ads_impressions": 2,
+      "google_volume": 4,
+      "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
      {
@@ -64570,9 +63516,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 124,
       "ads_sales_30d": 924,
       "ads_acos": 0.08,
-      "google_volume": 32,
-      "google_ads_impressions": 30,
-      "google_ads_clicks": 2
+      "google_volume": 2,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi stainless steel plate",
@@ -64589,27 +63535,27 @@ const FIN_DATA = {
       "ads_clicks_30d": 5,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 61,
-      "google_ads_impressions": 61,
-      "google_ads_clicks": 12
+      "google_volume": 0,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
     "asins": [
-     {
-      "asin": "B0H2CGC2FB",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0H2CS5DLJ",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
      {
       "asin": "B0H2CMFCSJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
       "asin": "B0H2CQ4LWL",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0H2CGC2FB",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0H2CS5DLJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -64890,9 +63836,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 18,
       "ads_sales_30d": 82,
       "ads_acos": 0.15,
-      "google_volume": 36,
-      "google_ads_impressions": 32,
-      "google_ads_clicks": 4
+      "google_volume": 4,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi sippy cup",
@@ -64913,9 +63859,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 153,
       "ads_sales_30d": 915,
       "ads_acos": 0.09,
-      "google_volume": 105,
-      "google_ads_impressions": 102,
-      "google_ads_clicks": 12
+      "google_volume": 3,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi cup",
@@ -64932,19 +63878,19 @@ const FIN_DATA = {
       "ads_clicks_30d": 160,
       "ads_sales_30d": 796,
       "ads_acos": 0.1,
-      "google_volume": 768,
-      "google_ads_impressions": 732,
-      "google_ads_clicks": 103
+      "google_volume": 36,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H32T8XBS",
+      "asin": "B0H32PSCF9",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0H32PSCF9",
+      "asin": "B0H32T8XBS",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -65199,9 +64145,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 18,
       "ads_sales_30d": 82,
       "ads_acos": 0.15,
-      "google_volume": 36,
-      "google_ads_impressions": 32,
-      "google_ads_clicks": 4
+      "google_volume": 4,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
