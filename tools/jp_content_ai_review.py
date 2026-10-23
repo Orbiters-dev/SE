@@ -1,7 +1,7 @@
 """JP 콘텐츠 AI 1차 채점 — content 신호(caption·Whisper transcript·ci_analysis) → 7축 채점 → 시트 ai_* 기록.
 
 human-in-the-loop: 이 도구가 AI 1차, 메타몽 app /influencer/review 에서 인간 2차 확정.
-시트 "JP Content Review" 의 AI 블록(A:P)만 쓴다 (인간 블록 Q:AC 는 앱이 씀).
+시트 "JP Content Review" 의 AI 블록(A:P)만 쓴다 (인간 블록 Q:AD 는 앱이 씀).
 컬럼 레이아웃은 meta-app/lib/review-store.ts HEADER 와 반드시 동일.
 
 루브릭 정본: memory/reference_jp_content_review_rubric.md
@@ -144,11 +144,25 @@ SYSTEM = """あなたは日本の育児系インフルエンサー動画を広�
 主観ではなく観察可能な事実で判断し、確信が持てない軸は保守的に低めを選び理由に明記してください。
 必ず指定のJSONだけを返します。"""
 
+# GROSMIMI 제품 식별 지식 — "商品" 판정을 자사 제품 한정으로 좁히기 위한 텍스트 블록 (2026-10-22).
+# 시각 판정 정본은 frame_vision 참조 이미지(data/product_ref/) — 이 블록은 캡션/transcript 추정 보강용.
+# 출처: Notion 제품 DB 「GROSMIMI JAPAN 판매·식품검사 현황」 39d86c6dc04681df934bc016bcb3679b
+PRODUCT_KNOWLEDGE = """
+=== GROSMIMI(グロミミ)商品知識 — 「商品」とは以下の自社商品のみを指す ===
+- PPSUストローマグ 200ml/300ml: 両側ハンドル+円錐形キャップ&リング+Gロゴ刻印。単色(Butter/Peach/Pink/Sky Blue/Aqua Green/White/Cream Beige/Charcoal)
+- PPSUワンタッチキャップ型ストローマグ: 恐竜(Dino)/ユニコーン柄+フリップ式ワンタッチ蓋
+- ステンレス製ストローマグ 200ml/300ml: キャラ柄(さくらんぼCherrish/くまDotgom/オリーブOlive等)+ワンタッチ蓋
+- 交換用ストロー(Stage 1/2)・シリコンニップル(Stage 0〜4): 透明シリコン・台紙パック
+- キッズタンブラー 300ml(PPSU/ステンレス): 持ち手ストラップ+ワンタッチ蓋 (ギフティング品)
+他社のマグ・コップ(b.box, Richell, コンビ等)は「商品」に該当しない。
+キャプションの @grosmimi_japan タグ・グロミミ言及は商品登場の傍証になる。
+"""
+
 RUBRIC = """採点軸 (JSON keys):
 - km (0-2) KM単一性: 一つのキーメッセージが明確に伝わるか。2=単一メッセージが動画全体を貫き無音でも伝わる / 1=複数メッセージ混在 or 音声が要る / 0=主張が特定できない
 - voice (0-1) 実音声・自然音(1)/AI音声・BGMのみ・無音(0): 実在の人物の声(ナレーション)、または自然な現場音・生活音(自然音=非BGMの環境音)が含まれるか。書き起こしが自然な口語 or 自然音ありなら1。AI生成音声/自然言語・自然音なくBGM(音源)のみ/無音 のみ0
 - cta (0-1) CTA有無: 購入/リンク/プロフィール等の行動喚起があるか。script_structure に cta が含まれる/「詳細は本文」等
-- product3s (0-1) 3秒以内に製品登場: 冒頭3秒で製品が画面に出るか。フレーム映像信号が乏しい場合は hook/product_mention から保守的に推定し理由に不確実性を明記
+- product3s (0-1) 3秒以内に製品登場: 冒頭3秒で【GROSMIMI商品(上記商品知識参照)】が画面に出るか。他社のマグ・コップは0。フレーム実測(is_our_product/product3s)があればそれを最優先。映像信号が乏しい場合は hook/product_mention から保守的に推定し理由に不確実性を明記
 - face (0-1) 子供の顔出し(モザイクなし=1): 実証的に効果あり。映像信号が乏しい場合は保守的に0寄りで推定し不確実性を明記
 - problem (0-1) 問題→解決構造: persuasion_type=problem_solution なら1
 - hook (0-2) フック: 冒頭の掴み+本編との接続。2=最初の場面/キャプションが目を引きフックの約束を本編が回収 / 1=フックはあるが本編と繋がらない or 出だしが平凡 / 0=単調な挨拶やVlog形式で掴みなし
@@ -259,9 +273,13 @@ def signal_block(item: dict) -> str:
     # 이 실측(0/1)을 우선 근거로 삼을 것(画像を実際に見た判定).
     fv = item.get("frame_vision") or {}
     if fv:
+        # is_our_product: GROSMIMI 공식 사진 참조 판정 (None=참조 세트 없이 범용 판정이라 미판정)
+        iop = fv.get("is_our_product")
+        iop_txt = "未判定" if iop is None else iop
         parts.append(
-            "[映像フレーム実測(GPT-4o Vision・画像を実見／テキスト推定より優先)] "
-            f"顔出し(モザイクなし)={fv.get('face')} 3秒以内商品={fv.get('product3s')} "
+            "[映像フレーム実測(GPT-4o Vision・GROSMIMI公式商品写真と対照して実見／テキスト推定より優先)] "
+            f"顔出し(モザイクなし)={fv.get('face')} 3秒以内GROSMIMI商品={fv.get('product3s')} "
+            f"GROSMIMI商品が動画内に登場={iop_txt} "
             f"CTA画面表示={fv.get('cta')} 乳幼児出現={fv.get('child_visible')} "
             f"根拠:{fv.get('note','')}"
         )
@@ -277,7 +295,9 @@ def score_item(item: dict, model: str, examples: str = "") -> dict | None:
         except Exception as e:
             print(f"  [frame_vision] skip: {str(e)[:80]}", file=sys.stderr)
             item["frame_vision"] = {}
-    res = call_openai(SYSTEM + examples, RUBRIC + "\n\n=== 動画シグナル ===\n" + signal_block(item), model)
+    res = call_openai(SYSTEM + examples,
+                      PRODUCT_KNOWLEDGE + "\n" + RUBRIC + "\n\n=== 動画シグナル ===\n" + signal_block(item),
+                      model)
     if not res["ok"]:
         print(f"  ✗ LLM 실패: {res['error'][:150]}", file=sys.stderr)
         return None
@@ -286,6 +306,9 @@ def score_item(item: dict, model: str, examples: str = "") -> dict | None:
     except Exception:
         print(f"  ✗ JSON 파싱 실패: {res['content'][:150]}", file=sys.stderr)
         return None
+    missing = [ax for ax in AXES if ax not in obj]
+    if missing:
+        print(f"  [경고] LLM 응답에 축 누락 {missing} — 0점 처리 (응답 드리프트 신호)", file=sys.stderr)
     scores = {}
     for ax in AXES:
         try:
@@ -334,7 +357,7 @@ def get_or_create_ws(gc):
 
 
 def write_ai(ws, item: dict, scores: dict):
-    """AI 블록(A:P)만 기록. 인간 블록(Q:AC)은 건드리지 않음."""
+    """AI 블록(A:P)만 기록. 인간 블록(Q:AD)은 건드리지 않음."""
     total = sum(scores[a] for a in AXES)
     verdict = "집행" if total >= 4 else "미집행"
     now_iso = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
@@ -346,11 +369,11 @@ def write_ai(ws, item: dict, scores: dict):
     rows = ws.get_all_values()
     hdr = rows[0] if rows else HEADER
     i_sc = hdr.index("shortcode")
-    row_ix = None
-    for r_i in range(1, len(rows)):
-        if len(rows[r_i]) > i_sc and rows[r_i][i_sc].strip() == item["shortcode"]:
-            row_ix = r_i + 1
-            break
+    matches = [r_i + 1 for r_i in range(1, len(rows))
+               if len(rows[r_i]) > i_sc and rows[r_i][i_sc].strip() == item["shortcode"]]
+    if len(matches) > 1:
+        print(f"  [경고] shortcode {item['shortcode']} 중복 {len(matches)}행 — 첫 행만 갱신", file=sys.stderr)
+    row_ix = matches[0] if matches else None
     if row_ix:
         ws.spreadsheet.values_batch_update({
             "valueInputOption": "RAW",
@@ -402,6 +425,9 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="시트 미기록, 채점 출력만")
     ap.add_argument("--limit", type=int, default=0, help="상위 N건만 (0=전체)")
     ap.add_argument("--rescore", default="", help="특정 shortcode 재채점(이미 채점된 것도)")
+    # gpt-4.1 = 실존 OpenAI 모델 (2025-04 출시, snapshot gpt-4.1-2025-04-14). 증거: 본 레포 하네스의
+    # Codex Auditor 가 동일 ID 로 호출되어 응답 수신 중 (.tmp/harness_results/*/codex_loop_1.json 의
+    # "model": "gpt-4.1-2025-04-14" 실측). 2026-09 부터 본 파이프라인 운영 검증값 — 변경 금지.
     ap.add_argument("--model", default="gpt-4.1")
     ap.add_argument("--email", default="", help="완료 후 요약 발송할 이메일 (Task Scheduler용)")
     args = ap.parse_args()
@@ -438,12 +464,19 @@ def main():
         queue = queue[:args.limit]
     print(f"[채점 대상] {len(queue)}건 (이미 채점 {len(scored)}건 제외)\n")
 
+    # 프레임 Vision 가용성 선체크 — 불가 시 무음 다운그레이드 대신 명시 경고 (face·product3s 정확도 저하)
+    if not (fetch_frame_vision and FRAMES_KEY):
+        print("[경고] 프레임 Vision 비활성 (ci.frame_vision 임포트 실패 또는 DK_CONTENT_FRAMES_KEY 부재) "
+              "— face·product3s 는 텍스트 추정만으로 채점됨", file=sys.stderr)
+
     done = 0
     results = []
+    failures = []
     for i, item in enumerate(queue, 1):
         print(f"[{i}/{len(queue)}] @{item['handle']} CT{item['ct_id']} ♥{item['d3_likes']} ({item['post_date']})")
         sc = score_item(item, args.model, examples)
         if not sc:
+            failures.append(item["handle"])
             continue
         total = sum(sc[a] for a in AXES)
         verdict = "집행" if total >= 4 else "미집행"
@@ -457,6 +490,9 @@ def main():
             write_ai(ws, item, sc)
             done += 1
     print(f"\n완료: {done}건 기록" + (" (dry-run — 미기록)" if args.dry_run else f" → 시트 '{TAB}'"))
+    if failures:
+        print(f"[경고] 채점 실패 {len(failures)}건 (미기록·재실행 시 자동 재시도): "
+              + ", ".join(f"@{h}" for h in failures), file=sys.stderr)
 
     if args.email and not args.dry_run:
         send_summary_email(results, len(scored), args.email)
