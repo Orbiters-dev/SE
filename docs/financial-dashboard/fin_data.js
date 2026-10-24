@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-10-24 14:09 PST",
+ "generated_pst": "2026-10-24 15:37 PST",
  "through_date": "2026-10-23",
  "months": [
   "2025-07",
@@ -13986,1065 +13986,11 @@ const FIN_DATA = {
   }
  ],
  "keyword_rankings": {
-  "7d": [
-   {
-    "query": "onzenna",
-    "clicks": 10,
-    "impressions": 38,
-    "avg_position": 2.4,
-    "ctr": 26.32,
-    "weekly_positions": [
-     2.4
-    ]
-   },
-   {
-    "query": "ppsu material",
-    "clicks": 6,
-    "impressions": 54,
-    "avg_position": 4.8,
-    "ctr": 11.11,
-    "weekly_positions": [
-     4.8
-    ]
-   },
-   {
-    "query": "baby acne vs milia",
-    "clicks": 4,
-    "impressions": 6,
-    "avg_position": 3.0,
-    "ctr": 66.67,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "signs of healing episiotomy",
-    "clicks": 4,
-    "impressions": 54,
-    "avg_position": 8.9,
-    "ctr": 7.41,
-    "weekly_positions": [
-     8.9
-    ]
-   },
-   {
-    "query": "hawaiian names",
-    "clicks": 4,
-    "impressions": 126,
-    "avg_position": 9.0,
-    "ctr": 3.17,
-    "weekly_positions": [
-     8.9
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 4,
-    "impressions": 158,
-    "avg_position": 7.3,
-    "ctr": 2.53,
-    "weekly_positions": [
-     7.3
-    ]
-   },
-   {
-    "query": "why my 8 month baby not eating food",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 2.8,
-    "ctr": 33.33,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "alpremio feeding seat",
-    "clicks": 2,
-    "impressions": 14,
-    "avg_position": 4.8,
-    "ctr": 14.29,
-    "weekly_positions": [
-     4.8
-    ]
-   },
-   {
-    "query": "8 month old refusing solids",
-    "clicks": 2,
-    "impressions": 20,
-    "avg_position": 2.8,
-    "ctr": 10.0,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "korean baby toys",
-    "clicks": 2,
-    "impressions": 10,
-    "avg_position": 5.6,
-    "ctr": 20.0,
-    "weekly_positions": [
-     5.6
-    ]
-   },
-   {
-    "query": "anti fungal cream for diaper rash",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "1 month old overtired",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 3.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "zezebaebae",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 1.0,
-    "ctr": 25.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "yes",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 3.2,
-    "ctr": 6.25,
-    "weekly_positions": [
-     3.2
-    ]
-   },
-   {
-    "query": "what are the rarest names in the world",
-    "clicks": 2,
-    "impressions": 28,
-    "avg_position": 9.4,
-    "ctr": 7.14,
-    "weekly_positions": [
-     9.4
-    ]
-   },
-   {
-    "query": "unique hawaiian names",
-    "clicks": 2,
-    "impressions": 12,
-    "avg_position": 11.0,
-    "ctr": 16.67,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "unique girl hawaiian names with meaning",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 6.0,
-    "ctr": 33.33,
-    "weekly_positions": [
-     6.0
-    ]
-   },
-   {
-    "query": "sensory bins for 1 year old",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 14.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     14.0
-    ]
-   },
-   {
-    "query": "rare names",
-    "clicks": 2,
-    "impressions": 90,
-    "avg_position": 7.8,
-    "ctr": 2.22,
-    "weekly_positions": [
-     7.8
-    ]
-   },
-   {
-    "query": "rare baby names",
-    "clicks": 2,
-    "impressions": 40,
-    "avg_position": 6.1,
-    "ctr": 5.0,
-    "weekly_positions": [
-     6.2
-    ]
-   },
-   {
-    "query": "pacifier shapes",
-    "clicks": 2,
-    "impressions": 40,
-    "avg_position": 1.9,
-    "ctr": 5.0,
-    "weekly_positions": [
-     1.9
-    ]
-   },
-   {
-    "query": "old names that are coming back",
-    "clicks": 2,
-    "impressions": 16,
-    "avg_position": 4.5,
-    "ctr": 12.5,
-    "weekly_positions": [
-     4.5
-    ]
-   },
-   {
-    "query": "hawaiian ocean names",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 6.8,
-    "ctr": 25.0,
-    "weekly_positions": [
-     6.8
-    ]
-   },
-   {
-    "query": "hawaiian names and meanings",
-    "clicks": 2,
-    "impressions": 24,
-    "avg_position": 8.0,
-    "ctr": 8.33,
-    "weekly_positions": [
-     8.0
-    ]
-   },
-   {
-    "query": "hawaiian baby girl names",
-    "clicks": 2,
-    "impressions": 34,
-    "avg_position": 6.0,
-    "ctr": 5.88,
-    "weekly_positions": [
-     5.9
-    ]
-   }
-  ],
-  "30d": [
-   {
-    "query": "onzenna",
-    "clicks": 10,
-    "impressions": 38,
-    "avg_position": 2.4,
-    "ctr": 26.32,
-    "weekly_positions": [
-     2.4
-    ]
-   },
-   {
-    "query": "ppsu material",
-    "clicks": 6,
-    "impressions": 54,
-    "avg_position": 4.8,
-    "ctr": 11.11,
-    "weekly_positions": [
-     4.8
-    ]
-   },
-   {
-    "query": "baby acne vs milia",
-    "clicks": 4,
-    "impressions": 6,
-    "avg_position": 3.0,
-    "ctr": 66.67,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "signs of healing episiotomy",
-    "clicks": 4,
-    "impressions": 54,
-    "avg_position": 8.9,
-    "ctr": 7.41,
-    "weekly_positions": [
-     8.9
-    ]
-   },
-   {
-    "query": "hawaiian names",
-    "clicks": 4,
-    "impressions": 126,
-    "avg_position": 9.0,
-    "ctr": 3.17,
-    "weekly_positions": [
-     8.9
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 4,
-    "impressions": 158,
-    "avg_position": 7.3,
-    "ctr": 2.53,
-    "weekly_positions": [
-     7.3
-    ]
-   },
-   {
-    "query": "why my 8 month baby not eating food",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 2.8,
-    "ctr": 33.33,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "alpremio feeding seat",
-    "clicks": 2,
-    "impressions": 14,
-    "avg_position": 4.8,
-    "ctr": 14.29,
-    "weekly_positions": [
-     4.8
-    ]
-   },
-   {
-    "query": "8 month old refusing solids",
-    "clicks": 2,
-    "impressions": 20,
-    "avg_position": 2.8,
-    "ctr": 10.0,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "korean baby toys",
-    "clicks": 2,
-    "impressions": 10,
-    "avg_position": 5.6,
-    "ctr": 20.0,
-    "weekly_positions": [
-     5.6
-    ]
-   },
-   {
-    "query": "anti fungal cream for diaper rash",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "1 month old overtired",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 3.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "zezebaebae",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 1.0,
-    "ctr": 25.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "yes",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 3.2,
-    "ctr": 6.25,
-    "weekly_positions": [
-     3.2
-    ]
-   },
-   {
-    "query": "what are the rarest names in the world",
-    "clicks": 2,
-    "impressions": 28,
-    "avg_position": 9.4,
-    "ctr": 7.14,
-    "weekly_positions": [
-     9.4
-    ]
-   },
-   {
-    "query": "unique hawaiian names",
-    "clicks": 2,
-    "impressions": 12,
-    "avg_position": 11.0,
-    "ctr": 16.67,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "unique girl hawaiian names with meaning",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 6.0,
-    "ctr": 33.33,
-    "weekly_positions": [
-     6.0
-    ]
-   },
-   {
-    "query": "sensory bins for 1 year old",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 14.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     14.0
-    ]
-   },
-   {
-    "query": "rare names",
-    "clicks": 2,
-    "impressions": 90,
-    "avg_position": 7.8,
-    "ctr": 2.22,
-    "weekly_positions": [
-     7.8
-    ]
-   },
-   {
-    "query": "rare baby names",
-    "clicks": 2,
-    "impressions": 40,
-    "avg_position": 6.1,
-    "ctr": 5.0,
-    "weekly_positions": [
-     6.2
-    ]
-   },
-   {
-    "query": "pacifier shapes",
-    "clicks": 2,
-    "impressions": 40,
-    "avg_position": 1.9,
-    "ctr": 5.0,
-    "weekly_positions": [
-     1.9
-    ]
-   },
-   {
-    "query": "old names that are coming back",
-    "clicks": 2,
-    "impressions": 16,
-    "avg_position": 4.5,
-    "ctr": 12.5,
-    "weekly_positions": [
-     4.5
-    ]
-   },
-   {
-    "query": "hawaiian ocean names",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 6.8,
-    "ctr": 25.0,
-    "weekly_positions": [
-     6.8
-    ]
-   },
-   {
-    "query": "hawaiian names and meanings",
-    "clicks": 2,
-    "impressions": 24,
-    "avg_position": 8.0,
-    "ctr": 8.33,
-    "weekly_positions": [
-     8.0
-    ]
-   },
-   {
-    "query": "hawaiian baby girl names",
-    "clicks": 2,
-    "impressions": 34,
-    "avg_position": 6.0,
-    "ctr": 5.88,
-    "weekly_positions": [
-     5.9
-    ]
-   }
-  ],
-  "90d": [
-   {
-    "query": "onzenna",
-    "clicks": 10,
-    "impressions": 38,
-    "avg_position": 2.4,
-    "ctr": 26.32,
-    "weekly_positions": [
-     2.4
-    ]
-   },
-   {
-    "query": "ppsu material",
-    "clicks": 6,
-    "impressions": 54,
-    "avg_position": 4.8,
-    "ctr": 11.11,
-    "weekly_positions": [
-     4.8
-    ]
-   },
-   {
-    "query": "baby acne vs milia",
-    "clicks": 4,
-    "impressions": 6,
-    "avg_position": 3.0,
-    "ctr": 66.67,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "signs of healing episiotomy",
-    "clicks": 4,
-    "impressions": 54,
-    "avg_position": 8.9,
-    "ctr": 7.41,
-    "weekly_positions": [
-     8.9
-    ]
-   },
-   {
-    "query": "hawaiian names",
-    "clicks": 4,
-    "impressions": 126,
-    "avg_position": 9.0,
-    "ctr": 3.17,
-    "weekly_positions": [
-     8.9
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 4,
-    "impressions": 158,
-    "avg_position": 7.3,
-    "ctr": 2.53,
-    "weekly_positions": [
-     7.3
-    ]
-   },
-   {
-    "query": "why my 8 month baby not eating food",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 2.8,
-    "ctr": 33.33,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "alpremio feeding seat",
-    "clicks": 2,
-    "impressions": 14,
-    "avg_position": 4.8,
-    "ctr": 14.29,
-    "weekly_positions": [
-     4.8
-    ]
-   },
-   {
-    "query": "8 month old refusing solids",
-    "clicks": 2,
-    "impressions": 20,
-    "avg_position": 2.8,
-    "ctr": 10.0,
-    "weekly_positions": [
-     2.8
-    ]
-   },
-   {
-    "query": "korean baby toys",
-    "clicks": 2,
-    "impressions": 10,
-    "avg_position": 5.6,
-    "ctr": 20.0,
-    "weekly_positions": [
-     5.6
-    ]
-   },
-   {
-    "query": "anti fungal cream for diaper rash",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 1.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "1 month old overtired",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 3.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     3.0
-    ]
-   },
-   {
-    "query": "zezebaebae",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 1.0,
-    "ctr": 25.0,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "yes",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 3.2,
-    "ctr": 6.25,
-    "weekly_positions": [
-     3.2
-    ]
-   },
-   {
-    "query": "what are the rarest names in the world",
-    "clicks": 2,
-    "impressions": 28,
-    "avg_position": 9.4,
-    "ctr": 7.14,
-    "weekly_positions": [
-     9.4
-    ]
-   },
-   {
-    "query": "unique hawaiian names",
-    "clicks": 2,
-    "impressions": 12,
-    "avg_position": 11.0,
-    "ctr": 16.67,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "unique girl hawaiian names with meaning",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 6.0,
-    "ctr": 33.33,
-    "weekly_positions": [
-     6.0
-    ]
-   },
-   {
-    "query": "sensory bins for 1 year old",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 14.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     14.0
-    ]
-   },
-   {
-    "query": "rare names",
-    "clicks": 2,
-    "impressions": 90,
-    "avg_position": 7.8,
-    "ctr": 2.22,
-    "weekly_positions": [
-     7.8
-    ]
-   },
-   {
-    "query": "rare baby names",
-    "clicks": 2,
-    "impressions": 40,
-    "avg_position": 6.1,
-    "ctr": 5.0,
-    "weekly_positions": [
-     6.2
-    ]
-   },
-   {
-    "query": "pacifier shapes",
-    "clicks": 2,
-    "impressions": 40,
-    "avg_position": 1.9,
-    "ctr": 5.0,
-    "weekly_positions": [
-     1.9
-    ]
-   },
-   {
-    "query": "old names that are coming back",
-    "clicks": 2,
-    "impressions": 16,
-    "avg_position": 4.5,
-    "ctr": 12.5,
-    "weekly_positions": [
-     4.5
-    ]
-   },
-   {
-    "query": "hawaiian ocean names",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 6.8,
-    "ctr": 25.0,
-    "weekly_positions": [
-     6.8
-    ]
-   },
-   {
-    "query": "hawaiian names and meanings",
-    "clicks": 2,
-    "impressions": 24,
-    "avg_position": 8.0,
-    "ctr": 8.33,
-    "weekly_positions": [
-     8.0
-    ]
-   },
-   {
-    "query": "hawaiian baby girl names",
-    "clicks": 2,
-    "impressions": 34,
-    "avg_position": 6.0,
-    "ctr": 5.88,
-    "weekly_positions": [
-     5.9
-    ]
-   }
-  ]
+  "7d": [],
+  "30d": [],
+  "90d": []
  },
- "kw_positions_summary": [
-  {
-   "query": "onzenna",
-   "pos_7d": 2.4,
-   "clicks_7d": 10,
-   "impressions_7d": 38,
-   "pos_30d": 2.4,
-   "clicks_30d": 10,
-   "impressions_30d": 38,
-   "pos_90d": 2.4,
-   "clicks_90d": 10,
-   "impressions_90d": 38
-  },
-  {
-   "query": "ppsu material",
-   "pos_7d": 4.8,
-   "clicks_7d": 6,
-   "impressions_7d": 54,
-   "pos_30d": 4.8,
-   "clicks_30d": 6,
-   "impressions_30d": 54,
-   "pos_90d": 4.8,
-   "clicks_90d": 6,
-   "impressions_90d": 54
-  },
-  {
-   "query": "baby acne vs milia",
-   "pos_7d": 3.0,
-   "clicks_7d": 4,
-   "impressions_7d": 6,
-   "pos_30d": 3.0,
-   "clicks_30d": 4,
-   "impressions_30d": 6,
-   "pos_90d": 3.0,
-   "clicks_90d": 4,
-   "impressions_90d": 6
-  },
-  {
-   "query": "hawaiian boy names",
-   "pos_7d": 7.3,
-   "clicks_7d": 4,
-   "impressions_7d": 158,
-   "pos_30d": 7.3,
-   "clicks_30d": 4,
-   "impressions_30d": 158,
-   "pos_90d": 7.3,
-   "clicks_90d": 4,
-   "impressions_90d": 158
-  },
-  {
-   "query": "hawaiian names",
-   "pos_7d": 9.0,
-   "clicks_7d": 4,
-   "impressions_7d": 126,
-   "pos_30d": 9.0,
-   "clicks_30d": 4,
-   "impressions_30d": 126,
-   "pos_90d": 9.0,
-   "clicks_90d": 4,
-   "impressions_90d": 126
-  },
-  {
-   "query": "signs of healing episiotomy",
-   "pos_7d": 8.9,
-   "clicks_7d": 4,
-   "impressions_7d": 54,
-   "pos_30d": 8.9,
-   "clicks_30d": 4,
-   "impressions_30d": 54,
-   "pos_90d": 8.9,
-   "clicks_90d": 4,
-   "impressions_90d": 54
-  },
-  {
-   "query": "1 month old overtired",
-   "pos_7d": 3.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 3.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 3.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "8 month old refusing solids",
-   "pos_7d": 2.8,
-   "clicks_7d": 2,
-   "impressions_7d": 20,
-   "pos_30d": 2.8,
-   "clicks_30d": 2,
-   "impressions_30d": 20,
-   "pos_90d": 2.8,
-   "clicks_90d": 2,
-   "impressions_90d": 20
-  },
-  {
-   "query": "alpremio feeding seat",
-   "pos_7d": 4.8,
-   "clicks_7d": 2,
-   "impressions_7d": 14,
-   "pos_30d": 4.8,
-   "clicks_30d": 2,
-   "impressions_30d": 14,
-   "pos_90d": 4.8,
-   "clicks_90d": 2,
-   "impressions_90d": 14
-  },
-  {
-   "query": "anti fungal cream for diaper rash",
-   "pos_7d": 1.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 1.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 1.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "hawaiian baby girl names",
-   "pos_7d": 6.0,
-   "clicks_7d": 2,
-   "impressions_7d": 34,
-   "pos_30d": 6.0,
-   "clicks_30d": 2,
-   "impressions_30d": 34,
-   "pos_90d": 6.0,
-   "clicks_90d": 2,
-   "impressions_90d": 34
-  },
-  {
-   "query": "hawaiian names and meanings",
-   "pos_7d": 8.0,
-   "clicks_7d": 2,
-   "impressions_7d": 24,
-   "pos_30d": 8.0,
-   "clicks_30d": 2,
-   "impressions_30d": 24,
-   "pos_90d": 8.0,
-   "clicks_90d": 2,
-   "impressions_90d": 24
-  },
-  {
-   "query": "hawaiian ocean names",
-   "pos_7d": 6.8,
-   "clicks_7d": 2,
-   "impressions_7d": 8,
-   "pos_30d": 6.8,
-   "clicks_30d": 2,
-   "impressions_30d": 8,
-   "pos_90d": 6.8,
-   "clicks_90d": 2,
-   "impressions_90d": 8
-  },
-  {
-   "query": "korean baby toys",
-   "pos_7d": 5.6,
-   "clicks_7d": 2,
-   "impressions_7d": 10,
-   "pos_30d": 5.6,
-   "clicks_30d": 2,
-   "impressions_30d": 10,
-   "pos_90d": 5.6,
-   "clicks_90d": 2,
-   "impressions_90d": 10
-  },
-  {
-   "query": "old names that are coming back",
-   "pos_7d": 4.5,
-   "clicks_7d": 2,
-   "impressions_7d": 16,
-   "pos_30d": 4.5,
-   "clicks_30d": 2,
-   "impressions_30d": 16,
-   "pos_90d": 4.5,
-   "clicks_90d": 2,
-   "impressions_90d": 16
-  },
-  {
-   "query": "pacifier shapes",
-   "pos_7d": 1.9,
-   "clicks_7d": 2,
-   "impressions_7d": 40,
-   "pos_30d": 1.9,
-   "clicks_30d": 2,
-   "impressions_30d": 40,
-   "pos_90d": 1.9,
-   "clicks_90d": 2,
-   "impressions_90d": 40
-  },
-  {
-   "query": "rare baby names",
-   "pos_7d": 6.1,
-   "clicks_7d": 2,
-   "impressions_7d": 40,
-   "pos_30d": 6.1,
-   "clicks_30d": 2,
-   "impressions_30d": 40,
-   "pos_90d": 6.1,
-   "clicks_90d": 2,
-   "impressions_90d": 40
-  },
-  {
-   "query": "rare names",
-   "pos_7d": 7.8,
-   "clicks_7d": 2,
-   "impressions_7d": 90,
-   "pos_30d": 7.8,
-   "clicks_30d": 2,
-   "impressions_30d": 90,
-   "pos_90d": 7.8,
-   "clicks_90d": 2,
-   "impressions_90d": 90
-  },
-  {
-   "query": "sensory bins for 1 year old",
-   "pos_7d": 14.0,
-   "clicks_7d": 2,
-   "impressions_7d": 4,
-   "pos_30d": 14.0,
-   "clicks_30d": 2,
-   "impressions_30d": 4,
-   "pos_90d": 14.0,
-   "clicks_90d": 2,
-   "impressions_90d": 4
-  },
-  {
-   "query": "unique girl hawaiian names with meaning",
-   "pos_7d": 6.0,
-   "clicks_7d": 2,
-   "impressions_7d": 6,
-   "pos_30d": 6.0,
-   "clicks_30d": 2,
-   "impressions_30d": 6,
-   "pos_90d": 6.0,
-   "clicks_90d": 2,
-   "impressions_90d": 6
-  },
-  {
-   "query": "unique hawaiian names",
-   "pos_7d": 11.0,
-   "clicks_7d": 2,
-   "impressions_7d": 12,
-   "pos_30d": 11.0,
-   "clicks_30d": 2,
-   "impressions_30d": 12,
-   "pos_90d": 11.0,
-   "clicks_90d": 2,
-   "impressions_90d": 12
-  },
-  {
-   "query": "what are the rarest names in the world",
-   "pos_7d": 9.4,
-   "clicks_7d": 2,
-   "impressions_7d": 28,
-   "pos_30d": 9.4,
-   "clicks_30d": 2,
-   "impressions_30d": 28,
-   "pos_90d": 9.4,
-   "clicks_90d": 2,
-   "impressions_90d": 28
-  },
-  {
-   "query": "why my 8 month baby not eating food",
-   "pos_7d": 2.8,
-   "clicks_7d": 2,
-   "impressions_7d": 6,
-   "pos_30d": 2.8,
-   "clicks_30d": 2,
-   "impressions_30d": 6,
-   "pos_90d": 2.8,
-   "clicks_90d": 2,
-   "impressions_90d": 6
-  },
-  {
-   "query": "yes",
-   "pos_7d": 3.2,
-   "clicks_7d": 2,
-   "impressions_7d": 32,
-   "pos_30d": 3.2,
-   "clicks_30d": 2,
-   "impressions_30d": 32,
-   "pos_90d": 3.2,
-   "clicks_90d": 2,
-   "impressions_90d": 32
-  },
-  {
-   "query": "zezebaebae",
-   "pos_7d": 1.0,
-   "clicks_7d": 2,
-   "impressions_7d": 8,
-   "pos_30d": 1.0,
-   "clicks_30d": 2,
-   "impressions_30d": 8,
-   "pos_90d": 1.0,
-   "clicks_90d": 2,
-   "impressions_90d": 8
-  }
- ],
+ "kw_positions_summary": [],
  "keyword_volumes": [],
  "brand_analytics": {
   "Grosmimi JP": [
@@ -62755,9 +61701,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 71,
       "ads_sales_30d": 442,
       "ads_acos": 0.06,
-      "google_volume": 116,
-      "google_ads_impressions": 108,
-      "google_ads_clicks": 9
+      "google_volume": 8,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi ppsu straw cup",
@@ -62796,8 +61742,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 53,
       "ads_sales_30d": 358,
       "ads_acos": 0.07,
-      "google_volume": 35,
-      "google_ads_impressions": 29,
+      "google_volume": 6,
+      "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
      {
@@ -62942,23 +61888,23 @@ const FIN_DATA = {
       "ads_clicks_30d": 0,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 76,
-      "google_ads_impressions": 68,
-      "google_ads_clicks": 13
+      "google_volume": 8,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
     "asins": [
+     {
+      "asin": "B07YL2FT96",
+      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
+     },
      {
       "asin": "B0842D5Z17",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
       "asin": "B0842DMZ3H",
-      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
-     },
-     {
-      "asin": "B07YL2FT96",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
@@ -63086,19 +62032,11 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Baby Straw Cup Stage 2, 12M+, Spill-Proof, 6oz (Sugar Bear) | Flip"
      },
      {
-      "asin": "B0F9PY2LBV",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PVZMR1",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
       "asin": "B0F9PZD6QM",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZPMH8",
+      "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -63106,7 +62044,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B07YKJ18D5",
+      "asin": "B0F9PVZMR1",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0F9PZPMH8",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B07YKKWFTN",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -63114,7 +62060,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YKKWFTN",
+      "asin": "B07YKJ18D5",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -63359,9 +62305,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 13,
       "ads_sales_30d": 187,
       "ads_acos": 0.04,
-      "google_volume": 41,
-      "google_ads_impressions": 35,
-      "google_ads_clicks": 2
+      "google_volume": 6,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "stainless steel baby straw cup",
@@ -63382,8 +62328,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 15,
       "ads_sales_30d": 18,
       "ads_acos": 1.02,
-      "google_volume": 1,
-      "google_ads_impressions": 1,
+      "google_volume": 0,
+      "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
      {
@@ -63426,9 +62372,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 24,
       "ads_sales_30d": 323,
       "ads_acos": 0.04,
-      "google_volume": 426,
-      "google_ads_impressions": 390,
-      "google_ads_clicks": 50
+      "google_volume": 36,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "stainless steel weighted straw cup",
@@ -63507,9 +62453,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 120,
       "ads_sales_30d": 670,
       "ads_acos": 0.11,
-      "google_volume": 24,
-      "google_ads_impressions": 24,
-      "google_ads_clicks": 1
+      "google_volume": 0,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi stainless steel plate",
@@ -63526,23 +62472,23 @@ const FIN_DATA = {
       "ads_clicks_30d": 5,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 57,
-      "google_ads_impressions": 55,
-      "google_ads_clicks": 11
+      "google_volume": 2,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
     "asins": [
-     {
-      "asin": "B0H2CQ4LWL",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
      {
       "asin": "B0H2CGC2FB",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
       "asin": "B0H2CS5DLJ",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0H2CQ4LWL",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -63827,9 +62773,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 17,
       "ads_sales_30d": 82,
       "ads_acos": 0.14,
-      "google_volume": 22,
-      "google_ads_impressions": 22,
-      "google_ads_clicks": 1
+      "google_volume": 0,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi sippy cup",
@@ -63850,9 +62796,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 144,
       "ads_sales_30d": 880,
       "ads_acos": 0.09,
-      "google_volume": 104,
-      "google_ads_impressions": 96,
-      "google_ads_clicks": 12
+      "google_volume": 8,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi cup",
@@ -63869,19 +62815,19 @@ const FIN_DATA = {
       "ads_clicks_30d": 145,
       "ads_sales_30d": 775,
       "ads_acos": 0.09,
-      "google_volume": 707,
-      "google_ads_impressions": 647,
-      "google_ads_clicks": 87
+      "google_volume": 60,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H32T8XBS",
+      "asin": "B0H32PSCF9",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0H32PSCF9",
+      "asin": "B0H32T8XBS",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -64136,9 +63082,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 17,
       "ads_sales_30d": 82,
       "ads_acos": 0.14,
-      "google_volume": 22,
-      "google_ads_impressions": 22,
-      "google_ads_clicks": 1
+      "google_volume": 0,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
