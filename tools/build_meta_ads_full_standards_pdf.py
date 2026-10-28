@@ -26,7 +26,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 pdfmetrics.registerFont(TTFont("Malgun", r"C:\Windows\Fonts\malgun.ttf"))
 pdfmetrics.registerFont(TTFont("MalgunBd", r"C:\Windows\Fonts\malgunbd.ttf"))
 
-OUT = Path(r"C:\Users\orbit\Desktop\s\메타\07_meta_ads_full_standards.pdf")
+OUT = Path(r"C:\Users\orbit\Desktop\s\performance marketing\META ADS 관리용\operations\07_meta_ads_full_standards.pdf")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 styles = getSampleStyleSheet()
@@ -60,22 +60,35 @@ doc = SimpleDocTemplate(str(OUT), pagesize=A4,
 story = []
 
 
+CELL_BODY = ParagraphStyle("CellBody", fontName="Malgun", fontSize=9,
+                            leading=13, alignment=TA_LEFT,
+                            textColor=colors.HexColor("#1f2937"))
+CELL_HEAD = ParagraphStyle("CellHead", fontName="MalgunBd", fontSize=9.5,
+                            leading=13, alignment=TA_CENTER,
+                            textColor=colors.white)
+
+
 def make_table(data, col_widths, header_rows=1, body_align="LEFT"):
-    t = Table(data, colWidths=col_widths, repeatRows=header_rows)
+    # 모든 셀을 Paragraph 로 감싸 자동 wrap 활성화 (깨짐 방지)
+    new_data = []
+    for r, row in enumerate(data):
+        new_row = []
+        for cell in row:
+            if isinstance(cell, str):
+                style = CELL_HEAD if r < header_rows else CELL_BODY
+                new_row.append(Paragraph(cell, style))
+            else:
+                new_row.append(cell)
+        new_data.append(new_row)
+    t = Table(new_data, colWidths=col_widths, repeatRows=header_rows)
     style = [
-        ("FONTNAME", (0,0), (-1,header_rows-1), "MalgunBd"),
-        ("FONTNAME", (0,header_rows), (-1,-1), "Malgun"),
-        ("FONTSIZE", (0,0), (-1,-1), 9.5),
         ("BACKGROUND", (0,0), (-1,header_rows-1), colors.HexColor("#1f2937")),
-        ("TEXTCOLOR", (0,0), (-1,header_rows-1), colors.white),
         ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
-        ("ALIGN", (0,0), (-1,header_rows-1), "CENTER"),
-        ("ALIGN", (0,header_rows), (-1,-1), body_align),
         ("GRID", (0,0), (-1,-1), 0.4, colors.HexColor("#d1d5db")),
         ("ROWBACKGROUNDS", (0,header_rows), (-1,-1),
             [colors.HexColor("#ffffff"), colors.HexColor("#f9fafb")]),
-        ("TOPPADDING", (0,0), (-1,-1), 6),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+        ("TOPPADDING", (0,0), (-1,-1), 7),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 7),
         ("LEFTPADDING", (0,0), (-1,-1), 7),
         ("RIGHTPADDING", (0,0), (-1,-1), 7),
     ]

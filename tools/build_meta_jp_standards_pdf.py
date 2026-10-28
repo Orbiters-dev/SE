@@ -29,7 +29,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 pdfmetrics.registerFont(TTFont("Malgun", r"C:\Windows\Fonts\malgun.ttf"))
 pdfmetrics.registerFont(TTFont("MalgunBd", r"C:\Windows\Fonts\malgunbd.ttf"))
 
-OUT = Path(r"C:\Users\orbit\Desktop\s\메타\06_meta_jp_operation_standards.pdf")
+OUT = Path(r"C:\Users\orbit\Desktop\s\performance marketing\META ADS 관리용\operations\06_meta_jp_operation_standards.pdf")
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 styles = getSampleStyleSheet()

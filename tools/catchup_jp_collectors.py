@@ -56,6 +56,15 @@ MONITOR = [
      "아마존 세션 로그인 필요 — br_traffic_login_collect.py 실행(로그인 1회)."),
 ]
 
+# 데일리 체인 통째 재실행 — 10시 정기체인(run_jp_dash_daily.ps1)이 느린 RMS 단계에서
+# kill(^C)되면 traffic/channel/amz-ads/meta-campaigns 가 함께 09-06 식으로 동결된다
+# (2026-09-07~09 사고). rpp/매출만 살리던 AXES 로는 이 축들을 못 되살림 — build_jp_dash 의
+# upstream(RMS·amazon 재풀) 자체가 안 돌아서 rebuild 해도 옛 데이터 재방출.
+# → traffic-daily 를 '체인 완주' 대표 신호로 삼아, stale 이면 full 체인을 재실행한다
+#   (RMS+amazon 재풀 → build_jp_dash → deploy 까지 한 번에). 로그인 필요한 amz-traffic 은 제외.
+DAILY_CHAIN = ROOT / ".tmp" / "ceo_ads_report" / "run_jp_dash_daily.ps1"
+DAILY_CHAIN_SIGNAL = ROOT / "meta-app" / "lib" / "traffic-daily-seed.json"
+
 LOG = ROOT / ".tmp" / "ceo_ads_report" / "logs" / f"catchup_{date.today():%Y%m%d}.log"
 # 경보 dedup 상태 — 같은 정체 상태를 오늘 이미 알렸으면 3시간 사이클마다 재발송 안 함.
 ALERT_STATE = ROOT / ".tmp" / "ceo_ads_report" / "catchup_alert_state.json"
@@ -114,6 +123,27 @@ def run_collector(script: str, timeout: int) -> tuple[bool, str]:
         return r.returncode == 0, tail.strip()
     except subprocess.TimeoutExpired:
         return False, f"타임아웃 {timeout}s 초과 — 수집 도중 지연/중단"
+    except Exception as e:  # noqa: BLE001
+        return False, f"{type(e).__name__}: {e}"
+
+
+def run_full_daily_chain(timeout: int = 1500) -> tuple[bool, str]:
+    """10시 정기체인이 kill 돼 데일리 축(traffic/channel/amz-ads/meta)이 동결됐을 때
+    full 체인(run_jp_dash_daily.ps1)을 통째로 재실행한다.
+    RMS 일별 재수집 → amazon 광고/검색어 재풀 → build_jp_dash → deploy 까지 한 번에 완주.
+    (rebuild_and_deploy 는 upstream 이 안 돌아서 옛 데이터만 재방출 — 이 함수라야 실복구.)"""
+    import os
+    try:
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(DAILY_CHAIN)],
+            cwd=str(ROOT), capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=timeout,
+            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+        )
+        tail = ((r.stdout or "") + (("\n[stderr] " + r.stderr) if r.stderr.strip() else ""))[-300:]
+        return r.returncode == 0, tail.strip()
+    except subprocess.TimeoutExpired:
+        return False, f"타임아웃 {timeout}s — 체인 지연/중단(RMS/amazon 단계 kill 가능성)"
     except Exception as e:  # noqa: BLE001
         return False, f"{type(e).__name__}: {e}"
 
@@ -211,6 +241,24 @@ def main() -> int:
         else:
             heal_failed.append(f"{label}(최신 {new or 'NONE'}, 기대 {yesterday}) — {tail[:180]}")
 
+    # 데일리 체인 자가복구 — traffic-daily(체인 완주 대표 신호)가 stale이면 full 체인을 통째로 재실행.
+    # 10시 정기체인이 RMS 단계에서 kill 돼 traffic/channel/amz-ads/meta 가 함께 동결된 경우를 되살린다.
+    # (build_jp_dash 만 다시 돌리는 rebuild_and_deploy 로는 upstream 이 안 돌아서 옛 데이터 재방출.)
+    chain_ran = False
+    if not args.dry_run:
+        sig = max_day(DAILY_CHAIN_SIGNAL)
+        if sig is None or sig < yesterday:
+            log(f"[데일리체인] traffic 신호 최신일={sig or 'NONE'} < {yesterday} → full 체인 재실행(run_jp_dash_daily)…")
+            ok, tail = run_full_daily_chain()
+            chain_ran = True
+            new = max_day(DAILY_CHAIN_SIGNAL)
+            healed = new is not None and new >= yesterday
+            log(f"[데일리체인] 재실행 {'성공' if ok else '실패'} · traffic 최신일={new or 'NONE'} → {'복구' if healed else '여전히 STALE'}")
+            if not healed:
+                heal_failed.append(
+                    f"데일리체인(traffic 최신 {new or 'NONE'}, 기대 {yesterday}) — "
+                    f"RMS/amazon 세션 점검 필요. {tail[:150]}")
+
     # 감시 전용 축 — 자가복구 불가(체인/로그인 필요). stale이면 '수동조치 필요'로 분류.
     monitor_stale = []
     for label, seed, tol, hint in MONITOR:
@@ -227,7 +275,7 @@ def main() -> int:
 
     # 복구가 실제 일어났으면 화면에 반영 — 시드만 고치고 배포 안 해 화면이 다음
     # 정기체인까지 stale이던 구멍을 메운다. build_jp_dash(html 재생성) → deploy(vercel).
-    if did_heal:
+    if did_heal and not chain_ran:
         ok, msg = rebuild_and_deploy()
         log(f"[배포] {msg}")
 

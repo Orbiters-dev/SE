@@ -41,7 +41,7 @@ from openpyxl.utils import get_column_letter
 TMP_DIR = Path(__file__).parent.parent / ".tmp"
 TRENDS_CACHE = TMP_DIR / "weekly_trends_raw.json"
 INSIGHTS_PATH = TMP_DIR / "competitor_insights.json"
-MODEL = "claude-sonnet-4-20250514"
+MODEL = "claude-sonnet-4-6"
 RATE_LIMIT_DELAY = 3
 
 logging.basicConfig(
@@ -427,7 +427,8 @@ def _call_claude_for_plans(client: anthropic.Anthropic, prompt: str, batch_size:
 
 
 def generate_plans(client: anthropic.Anthropic, trends: list[dict], count: int,
-                   distribution: dict | None = None) -> list[dict]:
+                   distribution: dict | None = None,
+                   avoid_topics: list[str] | None = None) -> list[dict]:
     """Use Claude to generate content plan ideas from trends + competitor insights.
     Splits into batches of 5 to avoid token overflow."""
     # Summarize trends
@@ -469,12 +470,27 @@ def generate_plans(client: anthropic.Anthropic, trends: list[dict], count: int,
         dist_instruction, expected_cat = dist_pair if isinstance(dist_pair, tuple) else (dist_pair, None)
         logger.info(f"Generating batch {batch_idx+1}/{len(batches)} ({batch_count} plans, cat={expected_cat or 'any'})...")
 
+        # 중복 차단: 이전 주 주제(avoid_topics) + 이번 실행에서 이미 생성된 주제 누적
+        used_topics = [t for t in (avoid_topics or []) if t] + \
+                      [p.get("topic", "") for p in all_plans if p.get("topic")]
+        avoid_block = ""
+        if used_topics:
+            avoid_lines = "\n".join(f"- {t}" for t in used_topics)
+            avoid_block = f"""
+## 重複禁止 (必・最優先)
+以下の主題はすでに使用済み。同一主題はもちろん、言い換え・角度違いの部分重複も禁止
+(例: 水分補給ガイドが既出なら「夏のお水タイミング」等の変形も NG)。
+全く新しいテーマ・新しい切り口で作成すること:
+{avoid_lines}
+"""
+
         prompt = f"""以下のトレンドと競合分析を元に、{batch_count}個の Grosmimi Instagram カルーセル企画案を作成してください。
 
 ## トレンドデータ
 {trends_text}
 
 {competitor_text}
+{avoid_block}
 
 ## 競合 출처 활용 룰 (必)
 - 競合 게시물 그대로 베끼기 금지。반드시 厚労省 / 소아과학회 / 학술 논문 / 다른 브랜드(b.box, Combi, Richell 등) / K-육아 인사이트로 보강
@@ -483,6 +499,7 @@ def generate_plans(client: anthropic.Anthropic, trends: list[dict], count: int,
 
 ## 작성 룰
 - {dist_instruction}
+- このバッチ内の企画案同士も主題・角度を重複させないこと
 - 톤: 「동네 언니가 알려주는 육아 정보」. 「必須/推奨/黄金ルール/適切に」 등 교과서 표현 금지. 「〜してね/〜してあげて/♡」 등 과도 친구톤 금지. 「〜のがおすすめ/〜が目安/〜が◎/〜が安心」 채택
 - 漢字 비율 ↓, 히라가나·やわらかい外来語 ↑
 - オノマトペ는 카루셀 전체에서 0〜1個만
@@ -491,7 +508,7 @@ def generate_plans(client: anthropic.Anthropic, trends: list[dict], count: int,
 - S1 표지에는 subtitle_jp/ko (소제목 라벨) + title_jp/ko (대제목, 핵심 키워드 1개 **bold**) 별도 채우기
 - 캡션은 5〜8行: 후크1행 + 팩트1〜2행 + ✔체크 3〜4개 + CTA1행. 200〜400文字 X (행수 기준). 해시태그는 캡션 끝
 - 해시태그 15〜25개. 「#グロミミ」「#grosmimi」「#ストローマグ」「#スマートマグ」 4개 통일 포함
-- CTA 캐치프레이즈 候補 5個 필수: tone={{1=호기심+프로필, 3=저장+팔로우, 4=공감+팔로우/공유}}, 분포는 1톤 2 / 3톤 1〜2 / 4톤 1〜2. 메인액션은 follow/profile (DM/쿠폰 단독 X). 각 JP+KO 병기
+- CTA 캐치프레이즈 候補 5個 필수: tone={{1=호기심+프로필, 3=저장+팔로우, 4=공감+팔로우/공유}}, 분포는 합계 5個 고정 — 「1톤 2 + 3톤 2 + 4톤 1」 또는 「1톤 2 + 3톤 1 + 4톤 2」 중 하나. 메인액션은 follow/profile (DM/쿠폰 단독 X). 각 JP+KO 병기
 - cta_representative 1개 선정: brand→1톤 / tips·knowledge→3톤 / 공감형→4톤
 
 ## 출력 형식 (JSON 만, 余計한 텍스트 X)
@@ -552,6 +569,21 @@ def generate_plans(client: anthropic.Anthropic, trends: list[dict], count: int,
             time.sleep(RATE_LIMIT_DELAY)
 
     logger.info(f"Total plans generated: {len(all_plans)}")
+    if len(all_plans) != count:
+        logger.warning(f"Plan count mismatch: requested {count}, got {len(all_plans)} "
+                       "(API truncation or batch failure — review before delivery)")
+    # Structural sanity warnings (non-fatal): missing fields / slide count / CTA count
+    required_fields = ("topic", "topic_ko", "slides", "caption", "hashtags", "cta_candidates")
+    for i, p in enumerate(all_plans):
+        missing = [f for f in required_fields if not p.get(f)]
+        if missing:
+            logger.warning(f"Plan {i+1} missing fields {missing} (topic={str(p.get('topic', '?'))[:40]})")
+        n_slides = len(p.get("slides", []))
+        if n_slides != 5:
+            logger.warning(f"Plan {i+1} has {n_slides} slides (expected 5)")
+        n_cta = len(p.get("cta_candidates", []))
+        if n_cta != 5:
+            logger.warning(f"Plan {i+1} has {n_cta} CTA candidates (expected 5)")
     return all_plans
 
 
@@ -787,27 +819,40 @@ def main():
     parser.add_argument("--distribution", type=str,
                         default="tips:8,brand:6,k_babyfood:3,knowledge:3",
                         help="Category distribution. Default: tips:8,brand:6,k_babyfood:3,knowledge:3")
+    parser.add_argument("--avoid-xlsx", type=str, default=None,
+                        help="Previous plan xlsx — its topics (column C) are banned to avoid cross-week duplicates")
+    parser.add_argument("--use-cache", action="store_true",
+                        help="Reuse cached trends (.tmp/weekly_trends_raw.json) instead of re-scraping")
     args = parser.parse_args()
 
     TMP_DIR.mkdir(parents=True, exist_ok=True)
 
-    # ── Step 1: Scrape trends ────────────────────────────────────────────
-    fc_key = os.getenv("FIRECRAWL_API_KEY")
-    if not fc_key:
-        raise EnvironmentError("FIRECRAWL_API_KEY not found. Check .env file.")
+    # ── Step 1: Scrape trends (or reuse cache) ───────────────────────────
+    if args.use_cache and TRENDS_CACHE.exists():
+        with open(TRENDS_CACHE, encoding="utf-8") as f:
+            cached = json.load(f)
+        trends = cached.get("items", [])
+        logger.info(f"Reusing {len(trends)} cached trends from {TRENDS_CACHE} "
+                    f"(scraped_at={cached.get('scraped_at', '?')})")
+        if not trends:
+            parser.error(f"Trend cache is empty: {TRENDS_CACHE}. Re-run without --use-cache.")
+    else:
+        fc_key = os.getenv("FIRECRAWL_API_KEY")
+        if not fc_key:
+            raise EnvironmentError("FIRECRAWL_API_KEY not found. Check .env file.")
 
-    app = FirecrawlApp(api_key=fc_key)
-    logger.info("Starting trend collection...")
-    trends = scrape_all_trends(app, max_pages=args.max_pages)
+        app = FirecrawlApp(api_key=fc_key)
+        logger.info("Starting trend collection...")
+        trends = scrape_all_trends(app, max_pages=args.max_pages)
 
-    # Cache trends
-    with open(TRENDS_CACHE, "w", encoding="utf-8") as f:
-        json.dump({
-            "scraped_at": datetime.now().isoformat(),
-            "total_items": len(trends),
-            "items": trends,
-        }, f, ensure_ascii=False, indent=2)
-    logger.info(f"Trends cached: {TRENDS_CACHE}")
+        # Cache trends
+        with open(TRENDS_CACHE, "w", encoding="utf-8") as f:
+            json.dump({
+                "scraped_at": datetime.now().isoformat(),
+                "total_items": len(trends),
+                "items": trends,
+            }, f, ensure_ascii=False, indent=2)
+        logger.info(f"Trends cached: {TRENDS_CACHE}")
 
     if args.dry_run:
         print(f"\n{'='*55}")
@@ -823,17 +868,44 @@ def main():
 
     client = anthropic.Anthropic(api_key=api_key)
     logger.info(f"Generating {args.count} content plans with Claude...")
-    # Parse distribution if provided
+    # Parse distribution if provided (validated: format / known category / positive int)
     distribution = None
     if args.distribution:
         distribution = {}
         for part in args.distribution.split(","):
-            k, v = part.strip().split(":")
-            distribution[k.strip()] = int(v.strip())
+            part = part.strip()
+            if ":" not in part:
+                parser.error(f'Malformed --distribution part "{part}" (expected "category:N")')
+            k, v = part.split(":", 1)
+            k = k.strip()
+            if k not in CATEGORY_LABELS:
+                parser.error(f'Unknown category "{k}" in --distribution (valid: {", ".join(CATEGORY_LABELS)})')
+            try:
+                n = int(v.strip())
+            except ValueError:
+                parser.error(f'Non-integer count "{v.strip()}" for category "{k}" in --distribution')
+            if n <= 0:
+                parser.error(f'Count for category "{k}" must be positive (got {n})')
+            distribution[k] = n
         # Override count to match distribution total
         args.count = sum(distribution.values())
 
-    plans = generate_plans(client, trends, args.count, distribution=distribution)
+    # Load banned topics from previous week's xlsx (cross-week dedup)
+    avoid_topics = []
+    if args.avoid_xlsx:
+        avoid_path = Path(args.avoid_xlsx)
+        if not avoid_path.exists():
+            parser.error(f"--avoid-xlsx file not found: {avoid_path}")
+        wb_prev = openpyxl.load_workbook(avoid_path, read_only=True)
+        ws_prev = wb_prev.active
+        for row in ws_prev.iter_rows(min_row=2, min_col=3, max_col=3, values_only=True):
+            if row[0] and str(row[0]).strip():
+                avoid_topics.append(str(row[0]).strip())
+        wb_prev.close()
+        logger.info(f"Loaded {len(avoid_topics)} banned topics from {avoid_path}")
+
+    plans = generate_plans(client, trends, args.count, distribution=distribution,
+                           avoid_topics=avoid_topics)
 
     # ── Step 3: Write Excel ──────────────────────────────────────────────
     ts = datetime.now().strftime("%Y%m%d")

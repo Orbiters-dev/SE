@@ -10,8 +10,8 @@ Usage:
 CSV columns: order_number, email, name, item_name, shop_name, review_link
 
 ログイン構成:
-  Step1 (glogin.rms.rakuten.co.jp): login_id=lfinger11 / passwd=Orbiters4040
-  Step2 (login.account.rakuten.com SSO): username=mj.lee@orbiters.co.kr / password=Orbiters@1010
+  Step1 (glogin.rms.rakuten.co.jp): RAKUTEN_RMS_LOGIN_ID / RAKUTEN_RMS_LOGIN_PASSWORD (.env)
+  Step2 (login.account.rakuten.com SSO): RAKUTEN_SSO_USERNAME / RAKUTEN_SSO_PASSWORD (.env)
 
 注意:
   - 送信先は @fw.rakuten.ne.jp / @pc.fw.rakuten.ne.jp のみ
@@ -33,11 +33,29 @@ if hasattr(sys.stderr, "reconfigure"):
 
 SENT_LOG_PATH = "logs/sent_orders.json"
 
-# RMS ログイン情報
-RMS_LOGIN_ID = "lfinger11"
-RMS_LOGIN_PASS = "Orbiters4040"
-SSO_USERNAME = "mj.lee@orbiters.co.kr"
-SSO_PASSWORD = "Orbiters@1010"
+# RMS ログイン情報 — .env 단일 소스 (비번 로테이션 시 stale 방지, 하드코딩 fallback 금지)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    from env_loader import load_env
+    load_env()
+except Exception as e:
+    print(f"[warn] env_loader 로드 실패 ({e}) — OS 환경변수만 사용", file=sys.stderr)
+RMS_LOGIN_ID = os.getenv("RAKUTEN_RMS_LOGIN_ID", "")
+RMS_LOGIN_PASS = os.getenv("RAKUTEN_RMS_LOGIN_PASSWORD", "")
+SSO_USERNAME = os.getenv("RAKUTEN_SSO_USERNAME", "") or os.getenv("RAKUTEN_SSO_ID", "")
+SSO_PASSWORD = os.getenv("RAKUTEN_SSO_PASSWORD", "")
+
+
+def require_credentials():
+    missing = [k for k, v in (
+        ("RAKUTEN_RMS_LOGIN_ID", RMS_LOGIN_ID),
+        ("RAKUTEN_RMS_LOGIN_PASSWORD", RMS_LOGIN_PASS),
+        ("RAKUTEN_SSO_USERNAME", SSO_USERNAME),
+        ("RAKUTEN_SSO_PASSWORD", SSO_PASSWORD),
+    ) if not v]
+    if missing:
+        print(f"{' / '.join(missing)} 가 .env에 없습니다", file=sys.stderr)
+        sys.exit(1)
 
 SUBJECT = "【お願い】ご購入商品のご感想をお聞かせください！"
 
@@ -284,6 +302,7 @@ def main():
     p.add_argument("--dry-run", action="store_true", help="メール内容表示のみ（送信しない）")
     p.add_argument("--headless", action="store_true", help="ヘッドレスモード")
     args = p.parse_args()
+    require_credentials()
     run(input_csv=args.input, dry_run=args.dry_run, headless=args.headless)
 
 

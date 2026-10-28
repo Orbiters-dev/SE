@@ -70,6 +70,7 @@ MONITORED_WORKFLOWS = [
     # === Other ===
     ("communicator.yml", "커뮤니케이터", "매일 12h 간격"),
     ("ppc_dashboard_action.yml", "PPC Dashboard", "매일 07:00 KST"),
+    ("monitor_applicants_sync.yml", "모니터 응모자 시트 동기화", "매일 07:55 KST"),
 ]
 
 

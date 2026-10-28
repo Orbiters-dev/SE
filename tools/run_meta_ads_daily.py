@@ -854,7 +854,7 @@ SYSTEM_PROMPT = """당신은 Meta (Facebook/Instagram) 광고 전문 에이전�
 - 전체 ROAS (7d vs 30d 트렌드)
 - 전체 CPM 수준 (이커머스 벤치마크: $12.50, Baby Products: $8-15)
 - 전체 CTR (벤치마크: Traffic 1.71%, CVR 캠페인 1.0%+)
-- Frequency 경고: 7일 평균 >= 3.0이면 오디언스 번아웃 시작, >= 5.0이면 심각
+- Frequency 경고: 7일 평균 >= 2.5이면 오디언스 번아웃 시작 (Off 후보), >= 5.0이면 심각
 
 2단계: Breakdown Effect 원칙 (가장 중요 — 반드시 준수)
 - 세그먼트별 CPA/CPM이 높다고 무조건 나쁜 것이 아님
@@ -1242,7 +1242,7 @@ def _build_yesterday_block(ys: dict, brand_detail: list = None) -> str:
     else:
         # Full brand×period×type table — split CVR / Traffic
         th_style = "padding:5px 6px;font-size:10px;text-align:right;white-space:nowrap;color:white"
-        periods = [("어제", "1d"), ("최근7일", "7d"), ("이전7일", "p7d"), ("30일", "30d")]
+        periods = [("어제(참고)", "1d"), ("최근7일(메인)", "7d"), ("이전7일(보조)", "p7d"), ("30일(안정성)", "30d")]
 
         def _brand_section(ctype, color, label):
             metric_name = "ROAS" if ctype == "cvr" else "CTR"
@@ -1308,7 +1308,8 @@ def _build_yesterday_block(ys: dict, brand_detail: list = None) -> str:
         <div style="margin-left:auto;font-size:11px;color:#aaa">Full Day PST</div>
       </div>
       <div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:4px">{type_pills}</div>
-      <p style="font-size:10px;color:#aaa;margin:0 0 8px">각 셀: 지출 / 핵심지표(ROAS or CTR) + 광고수</p>
+      <p style="font-size:10px;color:#aaa;margin:0 0 4px">각 셀: 지출 / 핵심지표(ROAS or CTR) + 광고수</p>
+      <p style="font-size:10px;color:#8d6e00;margin:0 0 8px;font-weight:600">※ 어제 = 변동성 큼·참고만. 의사결정은 최근7일(메인) / 30일(안정성) 기준.</p>
       {detail_html}
     </div>"""
 
@@ -1476,10 +1477,10 @@ def build_html(payload: dict, analysis: dict) -> str:
           </div>
         </div>"""
 
-    top_cvr_section     = _performer_section(payload["top_performers"],   "cvr",     "#1a5c3a", "CVR 우수 광고 (전환 목적, ROAS 3.0+) — 어제 지출 높은순")
-    top_traffic_section = _performer_section(payload["top_performers"],   "traffic",  "#2c5f8a", "Traffic 우수 광고 (인지/클릭 목적, CTR 1.5%+) — 어제 지출 높은순")
-    worst_cvr_section     = _performer_section(payload.get("worst_performers", []), "cvr",    "#8b1a1a", "CVR 워스트 광고 (ROAS 2.0 미만) — 최악순", sort_worst=True)
-    worst_traffic_section = _performer_section(payload.get("worst_performers", []), "traffic", "#7a4400", "Traffic 워스트 광고 (CTR 1.0% 미만) — 최악순", sort_worst=True)
+    top_cvr_section     = _performer_section(payload["top_performers"],   "cvr",     "#1a5c3a", "CVR 우수 광고 — 기준: 7일 누적 ROAS ≥3.0 (전환 목적) · 어제 지출 높은순")
+    top_traffic_section = _performer_section(payload["top_performers"],   "traffic",  "#2c5f8a", "Traffic 우수 광고 — 기준: 7일 누적 CTR ≥1.5% (인지/클릭 목적) · 어제 지출 높은순")
+    worst_cvr_section     = _performer_section(payload.get("worst_performers", []), "cvr",    "#8b1a1a", "CVR 워스트 광고 — 기준: 7일 누적 ROAS <2.0 · 최악순", sort_worst=True)
+    worst_traffic_section = _performer_section(payload.get("worst_performers", []), "traffic", "#7a4400", "Traffic 워스트 광고 — 기준: 7일 누적 CTR <1.0% · 최악순", sort_worst=True)
 
     # ── Section 3: Brand Comparison (최근 7일 / 이전 7일 / 최근 30일) ───────────────────
     # Build brand rows with CVR/Traffic sub-rows
@@ -1911,27 +1912,27 @@ def build_html(payload: dict, analysis: dict) -> str:
 # Main
 # ===========================================================================
 
-def main():
-    parser = argparse.ArgumentParser(description="Meta Ads 일간 분석 에이전트")
-    parser.add_argument("--days",       type=int, default=60,
-                        help="수집 기간 일수 (기본 60: 최근 30일 + 우수광고 이력)")
-    parser.add_argument("--new-window", type=int, default=7,
-                        help="신규 광고 기준 일수 (기본 7일)")
-    parser.add_argument("--to",         default=os.getenv("META_REPORT_RECIPIENT", "wj.choi@orbiters.co.kr"),
-                        help="수신 이메일")
-    parser.add_argument("--dry-run",    action="store_true",
-                        help="이메일 발송 없이 HTML 저장만")
-    args = parser.parse_args()
+def run_for_region(region: str, args, region_label: str) -> bool:
+    """Region별 (US / JP) 리포트 1본 생성. global token/account 교체 후 실행."""
+    global ACCESS_TOKEN, AD_ACCOUNT_ID
+    if region == "jp":
+        ACCESS_TOKEN  = os.getenv("META_JP_ACCESS_TOKEN")
+        AD_ACCOUNT_ID = os.getenv("META_JP_AD_ACCOUNT_ID")
+    else:
+        ACCESS_TOKEN  = os.getenv("META_ACCESS_TOKEN")
+        AD_ACCOUNT_ID = os.getenv("META_AD_ACCOUNT_ID")
 
     if not ACCESS_TOKEN or not AD_ACCOUNT_ID:
-        print("[ERROR] META_ACCESS_TOKEN / META_AD_ACCOUNT_ID 없음")
-        sys.exit(1)
+        print(f"[ERROR] {region_label} 토큰/계정 env 없음 — 건너뜀")
+        return False
+
+    print(f"\n========== {region_label} 리포트 ==========")
 
     today = date.today()
     until = (today - timedelta(days=1)).strftime("%Y-%m-%d")
     since = (today - timedelta(days=args.days)).strftime("%Y-%m-%d")
 
-    print(f"\n[Meta Agent] 분석일: {today} | 데이터: {since} ~ {until}")
+    print(f"[Meta Agent] 분석일: {today} | 데이터: {since} ~ {until}")
     print(f"[Meta Agent] 신규 광고 기준: 최근 {args.new_window}일\n")
 
     # Step 1: Fetch
@@ -1943,8 +1944,8 @@ def main():
     print(f"  처리된 일별 행: {len(rows)}")
 
     if not rows:
-        print("[ERROR] 수집된 데이터 없음")
-        sys.exit(1)
+        print(f"[ERROR] {region_label} 수집된 데이터 없음")
+        return False
 
     # Step 2: Payload
     payload = build_payload(rows, campaign_types, today, args.new_window, landing_pages)
@@ -1966,8 +1967,8 @@ def main():
     out_dir = ROOT / ".tmp"
     out_dir.mkdir(exist_ok=True)
     date_str  = today.strftime("%Y%m%d")
-    html_path = out_dir / f"meta_ads_report_{date_str}.html"
-    json_path = out_dir / f"meta_ads_payload_{date_str}.json"
+    html_path = out_dir / f"meta_ads_report_{region}_{date_str}.html"
+    json_path = out_dir / f"meta_ads_payload_{region}_{date_str}.json"
 
     html_path.write_text(html, encoding="utf-8")
     json_path.write_text(json.dumps({"payload": payload, "analysis": analysis},
@@ -1979,7 +1980,7 @@ def main():
     cvr_roas = type_30.get("cvr", {}).get("roas", 0)
     traffic_ctr = type_30.get("traffic", {}).get("ctr", 0)
     subject = (
-        f"[Meta Ads] {today.strftime('%Y-%m-%d')} | "
+        f"[Meta Ads {region_label}] {today.strftime('%Y-%m-%d')} | "
         f"신규 {payload['stats']['new_ads_count']}개 | "
         f"CVR ROAS {cvr_roas:.2f}x | Traffic CTR {traffic_ctr:.2f}%"
     )
@@ -1999,12 +2000,40 @@ def main():
         )
         if result.returncode == 0:
             print(result.stdout)
-            print(f"[완료] {args.to} 발송 성공!")
+            print(f"[완료] {args.to} {region_label} 발송 성공!")
         else:
-            print(f"[ERROR] 발송 실패:\n{result.stderr}")
-            sys.exit(1)
+            print(f"[ERROR] {region_label} 발송 실패:\n{result.stderr}")
+            return False
 
-    print(f"\n[완료] 페이로드: {json_path}")
+    print(f"\n[완료 {region_label}] 페이로드: {json_path}")
+    return True
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Meta Ads 일간 분석 에이전트 (US + JP 분리 생성)")
+    parser.add_argument("--days",       type=int, default=60,
+                        help="수집 기간 일수 (기본 60: 최근 30일 + 우수광고 이력)")
+    parser.add_argument("--new-window", type=int, default=7,
+                        help="신규 광고 기준 일수 (기본 7일)")
+    parser.add_argument("--to",         default=os.getenv("META_REPORT_RECIPIENT", "wj.choi@orbiters.co.kr"),
+                        help="수신 이메일")
+    parser.add_argument("--dry-run",    action="store_true",
+                        help="이메일 발송 없이 HTML 저장만")
+    parser.add_argument("--region",     choices=["us", "jp", "all"], default="all",
+                        help="대상 region (default: all → US 1본 + JP 1본 분리 생성)")
+    args = parser.parse_args()
+
+    regions = ["us", "jp"] if args.region == "all" else [args.region]
+    region_labels = {"us": "US", "jp": "JP (Grosmimi)"}
+
+    success = 0
+    for region in regions:
+        if run_for_region(region, args, region_labels[region]):
+            success += 1
+
+    print(f"\n[전체 완료] {success}/{len(regions)} region 성공")
+    if success == 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

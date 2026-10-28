@@ -152,7 +152,7 @@ A. ARITHMETIC — Every subtotal must sum to its parent total.
 
 B. CROSS-TABLE CONSISTENCY — Same metric across multiple tables must match.
    P&L Revenue = Channel Breakdown Total = DataKeeper raw sum.
-   Any $1K+ discrepancy = MAJOR. Any $10K+ = CRITICAL.
+   Discrepancy >= $1K and < $10K = MAJOR. Discrepancy >= $10K = CRITICAL.
 
 C. PERIOD CONSISTENCY — All tables must use the same date_from ~ date_to.
    YoY/MoM base period must be correct.
@@ -162,19 +162,19 @@ D. SIGN CONVENTIONS — Costs always positive or always negative (consistent).
 
 E. ACCOUNTING STANDARDS
    - Revenue Recognition: Gross Revenue before platform fees (ORBI standard)
-   - COGS: landed cost = FOB × 1.15 (NOT retail price)
+   - COGS: landed cost = FOB × 1.15 (ORBI standard landed-cost factor; NOT retail price)
    - Grosmimi Price Cutoff: 2025-03-01 (different prices before/after)
    - Operating vs Non-operating: ad spend = operating, FX = non-operating
 
-F. MATERIALITY & SANITY
+F. MATERIALITY & SANITY (thresholds = ORBI internal operating baselines, not external benchmarks)
    | Metric | Normal | WARN | CRITICAL |
    | Grosmimi Gross Margin | 68-72% | 60-80% | <55% or >85% |
    | Amazon ACOS | 15-25% | 10-35% | <8% or >50% |
    | MER | 10-20% | 8-28% | <5% or >35% |
 
 ## Severity Classification:
-- CRITICAL: Numbers are wrong (arithmetic error, wrong period). MUST fix.
-- MAJOR: Significant inconsistency ($10K+ cross-table diff). Should fix.
+- CRITICAL: Numbers are wrong (arithmetic error, wrong period) or >= $10K cross-table diff. MUST fix.
+- MAJOR: Significant inconsistency (>= $1K and < $10K cross-table diff). Should fix.
 - MINOR: Small inconsistency (<$1K, rounding). CFO discretion.
 - INFO: Benchmark notes, methodology comments. Ignorable.
 
@@ -214,7 +214,7 @@ Systems: Airtable CRM, Shopify (draft orders/customers), PostgreSQL, n8n workflo
 
 ### WEBHOOK/n8n HEALTH (MEDIUM)
 - n8n workflows are active and responding
-- Webhook response times < 15s (WARN if > 30s)
+- Webhook response times: < 15s target, 15-30s acceptable, > 30s WARN
 - No "Task Runner Offer Expired" errors
 - Poll-based workflows (5min/30min/6hr) are on schedule
 
@@ -227,7 +227,7 @@ Systems: Airtable CRM, Shopify (draft orders/customers), PostgreSQL, n8n workflo
 - Test data is cleaned up after run (unless --no-cleanup)
 - No orphaned records left in Airtable/Shopify/PG
 
-## Dual Test Stages to Verify:
+## Dual Test Stages to Verify (automated dual test covers these 4 stages of the 8-stage pipeline):
 | Stage | Executor Creates | Verifier Checks |
 | seed | AT Creator record | AT Creator exists, AT Applicants absent, Shopify absent |
 | gifting | POST webhook → AT Applicant | AT Applicant exists, AT Creator status=Needs Review, Shopify customer, PG row, email match |
@@ -255,7 +255,10 @@ Silent failures (no error but wrong data) are worse than loud failures."""
 # ─── OpenAI API call (chat completions) ─────────────────────────────
 
 def call_openai(system_prompt: str, user_prompt: str, model: str = "gpt-4.1") -> dict:
-    """Call OpenAI Chat Completions API directly via httpx/requests."""
+    """Call OpenAI Chat Completions API directly via httpx/requests.
+
+    Default model "gpt-4.1" is a valid OpenAI GA model id (2025-04 release) — not a typo.
+    """
     import urllib.request
     import urllib.error
 
@@ -348,14 +351,15 @@ def cmd_audit(args):
             content = p.read_text(encoding="utf-8", errors="replace")
             # Truncate very large files
             lines = content.splitlines()
-            if len(lines) > 500:
-                content = "\n".join(lines[:500]) + f"\n\n... ({len(lines) - 500} more lines truncated)"
+            if len(lines) > 1000:
+                content = "\n".join(lines[:1000]) + f"\n\n... ({len(lines) - 1000} more lines truncated)"
             file_contents.append(f"### {fp}\n```python\n{content}\n```")
         else:
             file_contents.append(f"### {fp}\n(FILE NOT FOUND)")
 
     system_prompt = _get_domain_prompt(args)
     domain = getattr(args, "domain", "general") or "general"
+    gate = (getattr(args, "gate", None) or "build").lower()  # build=source audit, test=execution-result audit
 
     # RAG: enrich with past audit context if available
     rag_context = ""
@@ -367,7 +371,7 @@ def cmd_audit(args):
             print(f"[RAG] Enriched with {len(rag_context)} chars of prior context", file=sys.stderr)
 
     user_prompt = (
-        f"[{domain.upper()} AUDIT] Audit the following files. Apply hard thresholds. Be skeptical.\n\n"
+        f"[{domain.upper()} AUDIT / gate={gate}] Audit the following files. Apply hard thresholds. Be skeptical.\n\n"
         + "\n\n".join(file_contents)
         + rag_context
     )
@@ -498,13 +502,16 @@ def main():
     parser = argparse.ArgumentParser(
         description="Codex Evaluator — 제갈량 harness Evaluator agent"
     )
-    parser.add_argument("--model", default="gpt-4.1", help="OpenAI model (default: gpt-4.1)")
+    parser.add_argument("--model", default="gpt-4.1", help="OpenAI model id (default: gpt-4.1, GA model since 2025-04)")
     parser.add_argument("--use-codex", action="store_true", help="Use codex CLI instead of API")
     parser.add_argument("--json", dest="json_output", action="store_true", help="JSON output")
     parser.add_argument("--domain", choices=["general", "cfo", "pipeliner"], default="general",
                         help="Domain-specific audit mode (default: general)")
     parser.add_argument("--no-rag", action="store_true",
                         help="Disable LightRAG context enrichment and auto-indexing")
+    # harness_5stage가 양쪽 evaluator에 --gate를 넘김 (gemini_evaluator와 CLI 파리티)
+    parser.add_argument("--gate", choices=["build", "test"], default="build",
+                        help="Audit gate: build=source/draft, test=execution results")
 
     sub = parser.add_subparsers(dest="command", required=True)
 

@@ -324,11 +324,11 @@ def main():
     parser = argparse.ArgumentParser(description="KSE 팩킹리스트 주문 요약")
     parser.add_argument("--headed", action="store_true", help="브라우저 표시")
     parser.add_argument("--from-file", type=str, help="JSON 파일에서 읽기 (디버그용)")
-    parser.add_argument("--no-teams", action="store_true", help="Teams 전송 안 함")
+    parser.add_argument("--send-teams", action="store_true", help="Teams 자동 발송 (디폴트 OFF — 세은 승인 룰)")
     parser.add_argument(
         "--confirm-before-teams",
         action="store_true",
-        help="Teams 전송 전에 확인을 묻기 (기본: 확인 없이 즉시 전송)",
+        help="--send-teams 와 함께 사용 시 발송 전 [y/N] 확인",
     )
     args = parser.parse_args()
 
@@ -367,8 +367,8 @@ def main():
     with open(out, "w", encoding="utf-8") as f:
         f.write(text)
 
-    # Teams 직접 전송 (기본: 자동 전송)
-    if not args.no_teams and rows:
+    # Teams 발송: 디폴트 OFF (세은 승인 룰). --send-teams 명시 시에만 발송.
+    if args.send_teams and rows:
         if args.confirm_before_teams:
             ans = input("Teams로 전송할까요? [y/N]: ").strip().lower()
             if ans not in ("y", "yes"):
@@ -376,6 +376,8 @@ def main():
                 return
         print("\n[2] Teams 전송...")
         send_to_teams(text)
+    elif rows:
+        print("\n[Teams 발송 OFF] 위 요약은 출력만. 발송하려면 --send-teams 추가.")
 
 
 if __name__ == "__main__":

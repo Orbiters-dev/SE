@@ -50,6 +50,8 @@ def collect_fields(fields, out):
             collect_fields(props["fields"], out)
 
 def classify_field(t):
+    # 悩み 질문 제목에 "お子さま"가 들어가므로 age 규칙("お子")보다 먼저 판정해야 함
+    if "ストローマグ" in t or "お悩み" in t: return "concerns"
     if "Instagram" in t or "ユーザーネーム" in t or "アカウント" in t: return "ig"
     if "名前" in t or "お名前" in t: return "name"
     if "メール" in t or "mail" in t.lower() or "アドレス" in t: return "email"
@@ -59,7 +61,11 @@ def classify_field(t):
 
 def answer_value(a):
     t = a.get("type"); v = a.get(t)
-    if isinstance(v, dict): return v.get("label") or v.get("labels") or ""
+    if isinstance(v, dict):
+        # 복수선택(choices): {"labels": [...], "other": "자유기입"} — その他 포함해 합침
+        parts = list(v.get("labels") or ([] if not v.get("label") else [v["label"]]))
+        if v.get("other"): parts.append(f"その他: {v['other']}")
+        return ", ".join(str(x) for x in parts)
     if isinstance(v, list): return ", ".join(str(x) for x in v)
     return v
 
@@ -77,6 +83,10 @@ def clean_handle(h):
 def fetch_responses():
     form = tf_api(f"/forms/{FORM_ID}")
     fmap = {}; collect_fields(form.get("fields", []), fmap)
+    # 2026-10-08 폼 개편: 普段の投稿 질문 삭제. Typeform은 삭제된 질문의 과거 답변을
+    # responses API에서 반환하지 않음(183건 실측) → 신규 지원자 post_desc는 항상 공란,
+    # 시트 기존 행은 append-only라 영향 없음. 만약 반환이 복구되면 이 매핑이 받는다.
+    fmap.setdefault("V5uRjV3KACCu", "普段どんな投稿をされていますか？")
     items = []; token = None
     while True:
         q = f"/forms/{FORM_ID}/responses?page_size=1000"
@@ -89,7 +99,7 @@ def fetch_responses():
     recs = []
     for it in items:
         rec = {"submitted": it.get("submitted_at", ""), "name": "", "ig": "",
-               "email": "", "age": "", "post_desc": ""}
+               "email": "", "age": "", "post_desc": "", "concerns": ""}
         for a in it.get("answers", []):
             k = classify_field(fmap.get(a.get("field", {}).get("id"), ""))
             if k:
@@ -189,7 +199,11 @@ def main():
         h = r["handle"]
         rows.append([r.get("name", ""), h, f"https://www.instagram.com/{h}/",
                      foll.get(h, ""), r.get("age", ""), r.get("email", ""),
-                     categorize(r.get("post_desc")), top.get(h, "")])
+                     categorize(r.get("post_desc")), top.get(h, ""),
+                     r.get("concerns", "")])
+    # 2026-10-08 폼 개편: 普段の投稿 질문 삭제 → ストローマグの悩み(복수선택) 신설, I열에 기록
+    if len(ws.row_values(1)) < 9:
+        ws.update_cell(1, 9, "ストローマグの悩み")
     ws.append_rows(rows, value_input_option="USER_ENTERED")
     print(f"[OK] {len(rows)}명 append 완료 (응모일시순)")
     for r in rows:

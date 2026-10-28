@@ -95,7 +95,7 @@ def create_submission(data: dict) -> dict:
     # DocuSeal submission payload
     payload = {
         "template_id": DOCUSEAL_TEMPLATE_ID,
-        "send_email": True,
+        "send_email": data.get("send_email", False),
         "submitters": [
             {
                 "name": data["influencer_name"],
@@ -201,6 +201,8 @@ def main():
     parser.add_argument("--status", action="store_true", help="최근 submissions 목록 조회")
     parser.add_argument("--check-submission", type=int, help="특정 submission 상태 확인")
     parser.add_argument("--list-templates", action="store_true", help="템플릿 목록 조회")
+    parser.add_argument("--send-now", action="store_true", dest="send_now",
+                        help="DocuSeal 업로드 후 인플루언서에게 메일 발송 (디폴트: 메일 발송 X)")
     args = parser.parse_args()
 
     if not DOCUSEAL_API_KEY:
@@ -249,6 +251,7 @@ def main():
         "cadence": args.cadence,
         "platforms": args.platforms,
         "whitelisting": args.whitelisting,
+        "send_email": args.send_now,
     }
 
     handle = args.handle if args.handle.startswith("@") else f"@{args.handle}"
@@ -300,7 +303,10 @@ def main():
     if slug:
         print(f"Sign URL     : {DOCUSEAL_BASE_URL}/s/{slug}")
     print()
-    print("The influencer will receive an email to sign the agreement.")
+    if data.get("send_email"):
+        print("The influencer will receive an email to sign the agreement.")
+    else:
+        print("[NO EMAIL] Submission created without sending email to influencer. Use --send-now to send.")
     print(f"Check status: python tools/send_influencer_contract_docuseal.py --check-submission {submission_id}")
 
     # Output for n8n / automation parsing

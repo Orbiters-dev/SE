@@ -62,6 +62,13 @@ API_HEADERS = {
     "Content-Type": "application/json",
 }
 
+
+def _require_api_key():
+    """API 호출 전 키 존재 검증 — main() 밖에서 함수 직접 호출돼도 조기 실패."""
+    if not DOCUSEAL_API_KEY:
+        print("[FATAL] DOCUSEAL_API_KEY 미설정 (.env 확인)")
+        sys.exit(1)
+
 # ── 서명 요청 이메일 (일본어) ──────────────────────────────────────────────
 # ⚠️ CRITICAL: 이메일 본문에 {{submitter.link}} 필수.
 #    이게 없으면 수신자에게 서명 링크가 안 간다. 절대 제거 금지.
@@ -285,9 +292,11 @@ def main():
     parser.add_argument("--cleanup", action="store_true", help="테스트 데이터 정리")
     args = parser.parse_args()
 
-    if not DOCUSEAL_API_KEY:
-        print("[ERROR] DOCUSEAL_API_KEY가 .env에 설정되지 않았습니다.")
-        sys.exit(1)
+    _require_api_key()
+
+    # 모드 혼용 경고: 조회/재발송 플래그가 있으면 발송용 인자는 무시됨
+    if any([args.status, args.check, args.cleanup, args.resend]) and any([args.name, args.email, args.pdf]):
+        print("[WARN] --status/--check/--cleanup/--resend 모드에서는 --name/--email/--pdf 인자가 무시됩니다.")
 
     # ── 상태 조회 ──────────────────────────────────────────────────────
     if args.status:
@@ -346,6 +355,16 @@ def main():
     if not doc_path.exists():
         print(f"[ERROR] 파일 없음: {doc_path}")
         sys.exit(1)
+
+    # 2026-09-01 가드: .pdf가 들어와도 동명 .docx가 있으면 DOCX 루트로 자동 전환.
+    # PDF 레거시 루트는 {{태그}} 글자가 문서에 그대로 남음 (Submission 208 사고).
+    if doc_path.suffix.lower() == ".pdf":
+        sibling = doc_path.with_suffix(".docx")
+        if sibling.exists() and sibling.stat().st_size > 0:
+            print("[GUARD] .pdf 입력이지만 동명 .docx 발견 → DOCX 루트로 자동 전환 (태그 노출 방지)")
+            doc_path = sibling
+        else:
+            print("[WARN] PDF 레거시 루트 — 문서에 {{태그}} 글자가 남을 수 있음. 가능하면 .docx 경로 사용.")
 
     is_docx = doc_path.suffix.lower() == ".docx"
     collab_type = args.type
