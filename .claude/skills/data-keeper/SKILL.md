@@ -5,6 +5,8 @@ description: "Centralized data collection gateway for all advertising and sales 
 
 # Data Keeper - Unified Data Gateway
 
+> **🔒 접근 권한 정책 (2026-04-22~)**: 데이터 키퍼는 SSH/API 키 분리 운영. 5단계 권한 (1=읽기 / 2=행추가 / 3=상태변경 / 4=삭제 / 5=어드민SSH). 읽기 호출은 `DK_READ_TOKEN` (env) 사용, 쓰기/스키마 변경은 권한 부족 시 즉시 세은에게 발급 요청. **무단 우회/EC2 SSH 직접 수정 금지**. 상세: [memory/reference_datakeeper_access_policy.md](../../../memory/reference_datakeeper_access_policy.md)
+
 ## When to Use This Skill
 
 - Run daily data collection (all channels or specific ones)

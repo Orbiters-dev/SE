@@ -175,6 +175,21 @@
 ### 5. 외부 발송 승인 필수
 - Teams/Slack/Email 자동 발송 X. dry-run으로 결과 보여주고 세은 OK 후 발송.
 
+### 6. 광고 on/off 인식 = Graph 실시간만 (2026-07-09 세은 절대 지시)
+- 졸업/OFF/증액/delivery 후보·"집행 중" 카운트 등 **모든 on/off 판정은 Graph effective_status 실시간 조회로만**. DK `raw_meta_ad_creative` 등 적재 테이블·캐시는 Graph 실패 시 fallback 전용 — push 파이프라인이 죽으면 stale ACTIVE 로 남아 이미 졸업/OFF 한 광고가 후보에 재등장한다 (7/9 RHYTHMICAL_MAMA 사고).
+- 코드 앵커 (여기만 사용, 새 로직도 이 경로 경유):
+  - meta-app: `lib/dk-meta.ts fetchAdStatuses()` (Graph 계정 edge 우선) — `scripts/check-status-source.mjs` prebuild 가드가 위반 시 **빌드 실패**시킴.
+  - 9시 메일: `tools/meta_jp_daily.py _is_live_active()` — 후보 빌더 4종(graduation/off/delivery/budget) 내부에 내장, 호출자가 깜빡해도 강제.
+- 성과·spend 이력 표시는 이력 그대로 (OFF 광고도 과거 spend 는 표시) — 후보/집행중 판정만 ACTIVE 한정.
+
+### 7. モニター募集 광고 = 효율 무관 절대 OFF 금지 (2026-10-12 세은 지시)
+- IH 캠페인의 `モニター募集` 광고(260918_モニター募集 등 이름에 モニター募集 포함 전부)는
+  **모니터 모집용 목적성 광고 — 상시 운영**. 효율(CPLPV/CTR)이 어떻게 나와도 OFF 후보·OFF 제안·실행 전부 금지.
+- IHV D3~9 CPLPV 판정(10/8 정본)의 **판정 대상 자체에서 제외** — 증액 판정도 안 탐.
+- 코드 앵커: `tools/jp_perf_actions.py` `IHV_JUDGMENT_EXEMPT` (판정 보드 「오늘의 액션」은 "판정 제외 (모집 목적)" info 로만 표시).
+  새 IHV 판정/OFF 로직을 만들 때도 이 예외 리스트를 반드시 경유할 것.
+- 10/8 IHV 백테스트 OFF 5건 목록에 モニター가 포함돼 있었으나 이 지시로 제외 — **실제 OFF 트랙 대상은 4건**.
+
 ---
 
 ## 보고 양식

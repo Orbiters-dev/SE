@@ -1,10 +1,77 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Bash(*)",
       "Edit",
-      "Write"
+      "Write",
+      "PowerShell($envFile = \"C:\\\\Users\\\\orbit\\\\Desktop\\\\SE\\\\meta-app\\\\.env.local\"; $token = \\(Get-Content $envFile | Where-Object { $_ -match \"^DK_SE_READ_TOKEN=\" } | Select-Object -First 1\\) -replace \"^DK_SE_READ_TOKEN=\", \"\" -replace '\"', \"\" -replace \"'\", \"\"; $headers = @{ Authorization = \"Bearer $token\" }; $r = Invoke-RestMethod -Uri \"https://orbitools.orbiters.co.kr/api/datakeeper/query/?table=content_posts&brand=grosmimi&limit=5\" -Headers $headers; $rows = if \\($r -is [array]\\) { $r } else { $r.rows }; Write-Output \"count: $\\($rows.Count\\)\"; Write-Output \"keys:\"; if \\($rows.Count -gt 0\\) { $rows[0].PSObject.Properties.Name | ForEach-Object { Write-Output \"  $_\" } })",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue)",
+      "PowerShell($sheetUrl = \"https://docs.google.com/spreadsheets/d/1wkue4G7FP_fiVeqSmMp7Z6IsIMmvOIc93TBb0NwcAmU/export?format=csv&gid=386147805\"; $csv = \\(Invoke-WebRequest -Uri $sheetUrl -UseBasicParsing\\).Content; Write-Output \"=== coni/nopi/ichikuru 검색 ===\"; \\($csv -split \"`n\"\\) | Where-Object { $_ -match \"coni|nopi|ichikuru\" } | Select-Object -First 20 | ForEach-Object { Write-Output $_.Substring\\(0, [Math]::Min\\(250, $_.Length\\)\\) })",
+      "PowerShell($session = New-Object Microsoft.PowerShell.Commands.WebRequestSession; $body = @{ password = \"1111\"; next = \"/\" } | ConvertTo-Json -Compress; Invoke-WebRequest -Uri \"http://localhost:3000/api/login\" -Method POST -Body $body -ContentType \"application/json\" -WebSession $session -UseBasicParsing | Out-Null; $h = Invoke-WebRequest -Uri \"http://localhost:3000/influencers\" -WebSession $session -TimeoutSec 240 -UseBasicParsing; $html = $h.Content; $wlBadges = \\([regex]::Matches\\($html, \">WL<\"\\)\\).Count; Write-Output \"WL 배지 count: $wlBadges\"; $block = [regex]::Match\\($html, '\\(?s\\)grid-cols-5.+?\\(?=section|</div></div></section>\\)'\\); $nums = [regex]::Matches\\($block.Value, '>\\(\\\\d+\\)<\\\\/div>'\\); $labels = @\\(\"S\",\"A\",\"B\",\"C\",\"NA\"\\); for \\($i = 0; $i -lt 5; $i++\\) { Write-Output \"  $\\($labels[$i]\\): $\\($nums[$i].Groups[1].Value\\)\" })",
+      "PowerShell($proc = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($proc\\) { Stop-Process -Id $proc.OwningProcess -Force; Write-Output \"killed PID $\\($proc.OwningProcess\\)\"; Start-Sleep -Seconds 2 } else { Write-Output \"no listener on 3000\" })",
+      "PowerShell($session = New-Object Microsoft.PowerShell.Commands.WebRequestSession; $body = @{ password = \"1111\"; next = \"/\" } | ConvertTo-Json -Compress; Invoke-WebRequest -Uri \"http://localhost:3000/api/login\" -Method POST -Body $body -ContentType \"application/json\" -WebSession $session -UseBasicParsing | Out-Null; $r = Invoke-WebRequest -Uri \"http://localhost:3000/api/debug-pool\" -WebSession $session -TimeoutSec 240 -UseBasicParsing; $j = $r.Content | ConvertFrom-Json; Write-Output \"total contents: $\\($j.totalContents\\)\"; Write-Output \"hasWl: $\\($j.hasWlCount\\)\"; Write-Output \"wlSpend sum: $\\($j.wlSpendSum\\)\"; Write-Output \"wlImp sum: $\\($j.wlImpSum\\)\"; Write-Output \"samples:\"; $j.samples | ForEach-Object { Write-Output \\(\"  @\" + $_.handle + \" \" + $_.shortcode + \" spend=\" + $_.wlSpend + \" imp=\" + $_.wlImp + \" grade=\" + $_.grade\\) })"
     ],
     "deny": []
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/session_start_briefing.py",
+            "timeout": 15,
+            "statusMessage": "ORBI session briefing - LightRAG health check"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/harness_runner.py",
+            "timeout": 320,
+            "statusMessage": "Harness verifying tools/migrations/n8n_workflows ..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/n8n_put_guard.py",
+            "timeout": 30,
+            "statusMessage": "n8n production PUT/DELETE guard"
+          },
+          {
+            "type": "command",
+            "command": "python .claude/hooks/contract_workflow_guard.py",
+            "timeout": 15,
+            "statusMessage": "Contract/DocuSeal external send guard"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/dm_checklist.py",
+            "timeout": 10,
+            "statusMessage": "DM/contract rule checklist + influencer auto-lookup"
+          }
+        ]
+      }
+    ]
   }
 }
