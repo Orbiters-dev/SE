@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Grosmimi 크리에이터 가이드라인 — 1-B 물어뜯기 시작했다면, Stage 2로 (한국어 보고용)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F1EA; --card:#FFFFFF; --ink:#22304A; --ink2:#51607A;
+    --accent:#E05C43; --accent-soft:#FBEAE5; --line:#E6DFD3; --label:#9A8F7C;
+    --ok:#2E7D5B; --ng:#B3432F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:'Noto Sans KR','Inter',sans-serif;color:var(--ink);line-height:1.6}
+
+  /* ── toolbar ── */
+  .bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;
+    padding:10px 20px;background:rgba(245,241,234,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  .bar .t{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--ink2)}
+  .bar .sp{flex:1}
+  .btn{font-family:inherit;font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;
+    border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn.primary.on{background:var(--accent);border-color:var(--accent)}
+  .hint{font-size:11px;color:var(--label)}
+  body.editing [data-e]{outline:1.5px dashed rgba(224,92,67,.55);outline-offset:3px;border-radius:2px;cursor:text}
+  body.editing [data-e]:hover{background:rgba(224,92,67,.06)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;
+    background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:9px 18px;border-radius:999px;
+    opacity:0;transition:opacity .25s;pointer-events:none}
+  .toast.show{opacity:1}
+
+  /* ── スマホ表示 프리뷰 ── */
+  .phoneov{display:none;position:fixed;inset:0;z-index:90;background:rgba(34,48,74,.55);
+    align-items:center;justify-content:center}
+  .phoneov.show{display:flex}
+  .phoneframe{position:relative;width:392px;height:min(844px,92vh);background:#111;border-radius:44px;
+    padding:14px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  .phoneframe iframe{width:100%;height:100%;border:none;border-radius:32px;background:#fff}
+  .phoneclose{position:absolute;top:-44px;right:0;font-family:inherit;font-size:13px;font-weight:700;
+    background:#fff;color:var(--ink);border:none;border-radius:999px;padding:8px 18px;cursor:pointer}
+
+  /* ── deck layout ── */
+  .deck{max-width:1150px;margin:0 auto;padding:28px 20px 80px;display:flex;flex-direction:column;gap:36px}
+  .slide{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 10px 30px rgba(34,48,74,.06);padding:56px 64px;position:relative;min-height:620px;
+    display:flex;flex-direction:column}
+  .pageno{position:absolute;bottom:20px;right:26px;font-size:11px;color:var(--label);font-weight:600}
+  .foot{position:absolute;bottom:20px;left:64px;font-size:10.5px;letter-spacing:.08em;color:var(--label)}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.22em;color:var(--accent);margin-bottom:14px}
+  h2.sl{font-size:34px;font-weight:900;letter-spacing:.01em;line-height:1.3;margin-bottom:30px}
+
+  /* slide 1 cover */
+  .cover{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;min-height:620px}
+  .cover .brand{font-size:12px;font-weight:700;letter-spacing:.3em;color:var(--label);margin-bottom:28px}
+  .cover h1{font-size:54px;font-weight:900;line-height:1.25;margin-bottom:26px}
+  .cover .theme{display:inline-block;font-size:13px;font-weight:700;color:var(--ink2);
+    border:1px solid var(--line);border-radius:999px;padding:7px 18px}
+  .cover .ph{text-align:center;position:relative}
+  .stage{position:relative;height:520px;max-width:500px;margin:0 auto}
+  .stage .halo{position:absolute;right:-16px;bottom:-8px;width:300px;height:300px;border-radius:50%;background:var(--accent-soft)}
+  .stage .pw{position:absolute;text-align:center}
+  .stage .pw img{width:100%;display:block}
+  .stage .pw1{top:0;left:0;width:40%}
+  .stage .pw2{right:0;bottom:0;width:64%}
+  .stage .slab{margin-top:8px;font-size:13.5px;font-weight:900;color:var(--ink)}
+  .stage .slab b{color:#E6585B;margin-right:8px}
+  .stage .diag{position:absolute;left:38%;top:30%;font-size:68px;color:#E6585B;font-weight:900;transform:rotate(45deg);line-height:1}
+  .cap{font-size:12px;color:var(--label);margin-top:36px;text-align:center;position:relative;z-index:1}
+
+  /* slide 2 voices */
+  .quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:30px}
+  .q{background:var(--accent-soft);border-radius:12px;padding:24px 22px;font-size:15.5px;font-weight:500;line-height:1.8}
+  .q .src{display:block;margin-top:12px;font-size:11px;color:var(--label);font-weight:600;letter-spacing:.05em}
+  .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:auto}
+  .trio .cell{border-top:2px solid var(--ink);padding-top:14px}
+  .trio .cell .lb{font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--accent);margin-bottom:8px}
+  .trio .cell p{font-size:13.5px;color:var(--ink2)}
+
+  /* slide 3 key message */
+  .bigmsg{font-size:26px;font-weight:700;line-height:2;max-width:920px;margin-bottom:46px}
+  .flow{display:flex;align-items:stretch;gap:0;margin-top:auto;margin-bottom:30px}
+  .flow .node{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:22px 16px;text-align:center}
+  .flow .node.hot{background:var(--accent-soft);border-color:var(--accent)}
+  .flow .node b{display:block;font-size:16px;font-weight:900;margin-bottom:6px}
+  .flow .node span{font-size:12px;color:var(--ink2)}
+  .flow .arr{display:flex;align-items:center;padding:0 10px;font-size:20px;color:var(--accent);font-weight:900}
+
+  /* slide 4 stage compare */
+  .cmp{width:100%;max-width:820px;margin:0 auto 28px;border-collapse:collapse}
+  .cmp td{border-top:1px solid var(--line);padding:13px 18px;font-size:15px;font-weight:500;text-align:center;width:44%}
+  .cmp tr:last-child td{border-bottom:1px solid var(--line)}
+  .cmp td.lb2{color:var(--accent);font-weight:700;font-size:12.5px;letter-spacing:.08em;width:12%;white-space:nowrap;border-right:1px solid var(--line);text-align:left}
+  .cmp tr.split td:nth-child(2){border-right:1px solid var(--line)}
+  .cmp tr.imgrow td,.cmp tr.hdr td{border:none}
+  .cmp tr.imgrow td{padding:0 5px}
+  .cmp tr.imgrow img{width:100%;height:216px;object-fit:contain;display:block}
+  .cmp tr.hdr td{font-weight:900;font-size:16.5px;padding:16px 18px 12px}
+  .cmp tr.hdr td small{display:block;font-weight:700;font-size:12.5px;color:var(--ink2);margin-top:2px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+  .opt{border:1px solid var(--line);border-radius:12px;padding:24px}
+  .opt.hot{background:var(--accent-soft);border-color:var(--accent)}
+  .opt .lb{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent);margin-bottom:12px}
+  .opt .line{font-size:16.5px;font-weight:700;line-height:1.9;margin-bottom:12px}
+  .opt .shot{font-size:12.5px;color:var(--label)}
+  .opt .age{display:inline-block;font-size:12px;font-weight:900;color:var(--accent);
+    border:1px solid var(--accent);border-radius:999px;padding:3px 12px;margin-bottom:12px}
+  .opt p{font-size:14px;color:var(--ink2);line-height:1.9}
+  .worry{background:var(--bg);border-radius:12px;padding:22px 26px;margin-top:auto}
+  .worry .lb{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ink2);margin-bottom:14px}
+  .worry ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}
+  .worry li{font-size:14.5px;font-weight:500;padding-left:16px;position:relative}
+  .worry li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .worry p.note-line{font-size:14px;font-weight:500;margin-bottom:12px}
+
+  /* slide 5 beats */
+  .beats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:6px}
+  .beat{border:1px solid var(--line);border-radius:12px;padding:26px 24px;display:flex;flex-direction:column;min-height:300px}
+  .beat .num{width:38px;height:38px;border-radius:50%;background:var(--ink);color:#fff;font-weight:900;
+    display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:16px}
+  .beat h3{font-size:19px;font-weight:900;margin-bottom:10px}
+  .beat p{font-size:14px;color:var(--ink2);flex:1}
+  .beat .tag{margin-top:14px;font-size:11px;font-weight:700;letter-spacing:.15em;color:var(--accent)}
+
+  /* slide 7 explain */
+  .experts{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:4px}
+  .exp{border-left:3px solid var(--accent);background:var(--bg);border-radius:0 12px 12px 0;padding:22px 24px}
+  .exp .who{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--accent);margin-bottom:10px}
+  .exp p{font-size:14.5px;line-height:1.95}
+  .note{margin-top:22px;font-size:12.5px;color:var(--label)}
+
+  /* slide 8 filming */
+  .film{display:grid;grid-template-columns:2fr 1fr;gap:28px;margin-top:4px}
+  .dos{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .do{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg)}
+  .do img{width:100%;aspect-ratio:14/15;object-fit:cover;display:block}
+  .do p{font-size:13px;font-weight:700;padding:12px 14px}
+  .colhead{font-size:14px;font-weight:900;margin-bottom:14px}
+  .colhead.ok{color:var(--ok)} .colhead.ng{color:var(--ng)}
+  .donts{border:1px solid var(--line);border-radius:12px;padding:22px}
+  .donts ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+  .donts li{font-size:14px;font-weight:500;padding-left:24px;position:relative}
+  .donts li::before{content:"✕";position:absolute;left:0;color:var(--ng);font-weight:900}
+  .gifduo{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:860px;margin:2px auto 24px}
+  .gifduo figure{margin:0;text-align:center}
+  .gifduo img{width:100%;border-radius:14px;display:block;
+    filter:drop-shadow(0 12px 22px rgba(34,48,74,.12))}
+  .gifduo figcaption{font-size:13px;font-weight:700;color:var(--ink2);margin-top:10px}
+  .ngline{font-size:13px;font-weight:700;color:var(--ng);text-align:center;margin-top:auto;padding-bottom:28px}
+
+  /* slide 9 references */
+  .refs{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:4px;max-width:760px;margin-left:auto;margin-right:auto}
+  .ref{border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .ref img{width:100%;aspect-ratio:9/14;object-fit:cover;display:block}
+  .ref .body{padding:16px 18px}
+  .ref .pf{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--label)}
+  .ref .hd{font-size:15px;font-weight:900;margin:4px 0 10px}
+  .ref ul{list-style:none}
+  .ref li{font-size:12.5px;color:var(--ink2);padding-left:14px;position:relative;margin-bottom:5px}
+  .ref li::before{content:"";position:absolute;left:0;top:.6em;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .watch{display:inline-block;margin-top:12px;font-size:12.5px;font-weight:700;color:#fff;
+    background:var(--accent);border-radius:999px;padding:8px 18px;text-decoration:none}
+  .watch:hover{background:var(--ink)}
+  .pcard .watch{margin:0 8px 8px 0}
+  .worry .watch{margin-top:4px}
+
+  /* slide 10 posting */
+  .post{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:4px}
+  .pcard{border:1px solid var(--line);border-radius:12px;padding:26px}
+  .pcard h3{font-size:17px;font-weight:900;margin-bottom:18px}
+  .pline{margin-bottom:18px}
+  .pline .lb{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--accent);margin-bottom:5px}
+  .pline p{font-size:14px;line-height:1.85}
+  .pline code{font-family:inherit;background:var(--bg);border-radius:6px;padding:2px 8px;font-size:13.5px;font-weight:700}
+  .tags{background:var(--bg);border-radius:10px;padding:14px 16px;font-size:13.5px;font-weight:700;line-height:2;margin-bottom:14px}
+  .tags .lb{display:block;font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--accent);margin-bottom:4px}
+
+  @media(max-width:900px){
+    /* ── 스마호판: 배포 확인용 — 편집계 버튼 숨김 ── */
+    .hint,#editBtn,#exportBtn,#resetBtn,#phoneBtn{display:none}
+    .bar{padding:8px 14px}
+    .deck{padding:14px 10px 40px;gap:16px}
+    .slide{padding:22px 18px 16px;min-height:0}
+    .foot{position:static;margin-top:16px;font-size:9.5px}
+    .pageno{position:static;text-align:right;margin-top:2px}
+    /* 표지: 제목 2줄 고정 + 원형 컷 일자(좌小·우大) */
+    .cover{grid-template-columns:1fr;min-height:0;gap:14px;align-content:center}
+    .cover .brand{margin-bottom:10px;font-size:10.5px}
+    .cover h1{font-size:28px;white-space:nowrap;margin-bottom:12px}
+    .cover .theme{font-size:11.5px;padding:5px 14px}
+    .stage{display:flex;align-items:center;justify-content:center;height:auto;max-width:none;margin-top:4px}
+    .stage .pw{position:static}
+    .stage .pw1{width:36%}
+    .stage .pw2{width:56%}
+    .stage .diag{position:static;transform:none;font-size:34px;margin:0 4px;flex-shrink:0}
+    /* 그리드 1열 */
+    .quotes,.trio,.beats,.opts,.experts,.refs,.post,.dos,.gifduo{grid-template-columns:1fr}
+    .film{grid-template-columns:1fr}
+    .quotes{gap:10px;margin-bottom:16px}
+    .trio{gap:12px}
+    .beats,.opts,.experts,.refs,.gifduo{gap:10px}
+    .post{gap:12px}
+    .flow{flex-direction:column}
+    .flow .arr{justify-content:center;transform:rotate(90deg);padding:2px 0;font-size:16px}
+    .flow .node{padding:12px 12px}
+    .flow .node b{font-size:14px;margin-bottom:3px}
+    .flow .node span{font-size:11px}
+    .worry ul{grid-template-columns:1fr;gap:7px}
+    /* 타이포·카드 압축 */
+    h2.sl{font-size:19px;margin-bottom:14px;line-height:1.45}
+    .kicker{font-size:10.5px;margin-bottom:6px}
+    .bigmsg{font-size:14.5px;line-height:1.8;margin-bottom:18px}
+    .q{font-size:13px;line-height:1.65;padding:13px 14px}
+    .q .src{margin-top:7px;font-size:10px}
+    .trio .cell{padding-top:9px}
+    .trio .cell .lb{margin-bottom:4px;font-size:10px}
+    .trio .cell p{font-size:12.5px}
+    .opt{padding:13px 14px}
+    .opt .lb{margin-bottom:7px;font-size:10px}
+    .opt .line{font-size:13.5px;line-height:1.7;margin-bottom:7px}
+    .opt .shot{font-size:11px}
+    .worry{padding:13px 15px}
+    .worry .lb{margin-bottom:8px;font-size:10px}
+    .worry li{font-size:12.5px;padding-left:13px}
+    .worry p.note-line{font-size:12.5px}
+    .beat{padding:13px 14px;min-height:0}
+    .beat .num{width:28px;height:28px;font-size:13px;margin-bottom:9px}
+    .beat h3{font-size:15px;margin-bottom:5px}
+    .beat p{font-size:12.5px}
+    .beat .tag{margin-top:8px;font-size:10px}
+    .exp{padding:12px 14px}
+    .exp .who{margin-bottom:5px;font-size:10.5px}
+    .exp p{font-size:12.5px;line-height:1.75}
+    .note{margin-top:12px;font-size:11px}
+    .colhead{font-size:12.5px;margin-bottom:8px}
+    .ngline{font-size:11.5px;padding-bottom:0}
+    .ref .body{padding:11px 13px}
+    .ref li{font-size:11.5px}
+    .ref .hd{font-size:13.5px}
+    .watch{font-size:11.5px;padding:6px 14px;margin-top:8px}
+    .pcard{padding:14px 15px}
+    .pcard h3{font-size:14.5px;margin-bottom:10px}
+    .pline{margin-bottom:11px}
+    .pline p{font-size:12.5px}
+    .tags{padding:10px 12px;font-size:12px;line-height:1.8;margin-bottom:9px}
+  }
+  @media print{
+    .bar,.toast{display:none}
+    body{background:#fff}
+    .deck{max-width:none;padding:0;gap:0}
+    .slide{border:none;box-shadow:none;border-radius:0;page-break-after:always;min-height:100vh}
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <span class="t">GROSMIMI JAPAN · 크리에이터 가이드라인 1-B — 한국어 보고용</span>
+  <span class="sp"></span>
+  <span class="hint">원문(일본어·배포판): <a href="https://jpcreatorguideline.vercel.app/guide-1b.html" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none">guide-1b</a></span>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="deck">
+
+<!-- ════ SLIDE 1 · COVER ════ -->
+<section class="slide" id="s1">
+  <div class="cover">
+    <div>
+      <div class="brand" data-e="s1-brand">GROSMIMI · CREATOR GUIDELINE</div>
+      <h1 data-e="s1-title">물어뜯기 시작했으면,<br>다음 스테이지로.</h1>
+      <span class="theme" data-e="s1-theme">테마 · 빨대 교체 (Stage 1 → Stage 2)</span>
+    </div>
+    <div class="ph">
+      <div class="stage">
+        <div class="pw pw1">
+          <img src="img/stage1_straw_v3.png" alt="Stage 1 스트로 (부드러움·6~12개월)">
+        </div>
+        <span class="diag">→</span>
+        <div class="pw pw2">
+          <img src="img/stage2_straw_v3.png" alt="Stage 2 스트로 (단단함·12개월~)">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pageno">01</div>
+</section>
+
+<!-- ════ SLIDE 2 · PARENT CONCERN ════ -->
+<section class="slide" id="s2">
+  <div class="kicker" data-e="s2-kick">엄마들의 고민</div>
+  <h2 class="sl" data-e="s2-h">엄마들이 실제로 하고 있는 이야기</h2>
+  <div class="quotes">
+    <div class="q" data-e="s2-q1">「스트로머그 빨대 물어뜯는 걸 멈추질 않아요… 벌써 5~6번 다시 샀어요. 집에 재고도 없고요. 또 사러 가야 하나 한숨이 나옵니다」<span class="src">— 마마리 (일본 육아 Q&amp;A 커뮤니티)</span></div>
+    <div class="q" data-e="s2-q2">「문득 보니 딸이 뭔가 오물오물… 빨대 끝이 물어뜯겨 있었어요… 삼키기 전이라 정말 다행 💦」<span class="src">— X (구 트위터)</span></div>
+    <div class="q" data-e="s2-q3">「빨대를 엄청 물어뜯으니까 몇 번치 묶음으로 사세요. 진짜로. 두 살 첫째는 한 달에 2개를 물어뜯었어요」<span class="src">— 라쿠텐 리뷰 (스트로머그 구매자)</span></div>
+  </div>
+  <div class="trio">
+    <div class="cell">
+      <div class="lb">언제</div>
+      <p data-e="s2-when">이가 나기 시작할 무렵부터. 1~2세에 피크, 세 돌 가까이까지 이어지기도.</p>
+    </div>
+    <div class="cell">
+      <div class="lb">걸림돌</div>
+      <p data-e="s2-strug">새 빨대로 갈아줘도 금방 또 물어뜯기는 끝없는 재구매. 뜯긴 조각을 삼키지 않을까 하는 아찔한 불안까지.</p>
+    </div>
+    <div class="cell">
+      <div class="lb">안도의 순간</div>
+      <p data-e="s2-win">단단한 빨대로 바꾸고 나서, 씹어도 더는 안 뜯긴다는 걸 알아차린 순간.</p>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · 크리에이터 가이드라인 · 1-B 물어뜯기 시작했다면, Stage 2로</div>
+  <div class="pageno">02</div>
+</section>
+
+<!-- ════ SLIDE 3 · KEY MESSAGE ════ -->
+<section class="slide" id="s3">
+  <div class="kicker" data-e="s3-kick">키 메시지</div>
+  <h2 class="sl" data-e="s3-h">어떤 영상에서든, 이것만은 전달해 주세요.</h2>
+  <p class="bigmsg" data-e="s3-msg">빨대를 물어뜯는 건 씹는 힘이 자랐다는 신호. 그로미미는 빨대가 Stage 1·Stage 2 2단계라서, 머그를 통째로 바꾸지 않아도 <b>단단한 Stage 2 빨대로 갈아끼우기만 하면 됩니다</b>.</p>
+  <div class="flow">
+    <div class="node"><b data-e="s3-n1">Stage 1 (부드러움)</b><span data-e="s3-n1s">생후 6개월~ · 빨대 연습기</span></div>
+    <div class="arr">→</div>
+    <div class="node hot"><b data-e="s3-n2">물어뜯기 신호</b><span data-e="s3-n2s">씹는 힘이 자랐다는 뜻</span></div>
+    <div class="arr">→</div>
+    <div class="node hot"><b data-e="s3-n3">Stage 2 (단단함)로 교체</b><span data-e="s3-n3s">12개월 이상 · 씹어도 잘 안 뜯김</span></div>
+  </div>
+  <div class="foot">Grosmimi · 크리에이터 가이드라인 · 1-B 물어뜯기 시작했다면, Stage 2로</div>
+  <div class="pageno">03</div>
+</section>
+
+<!-- ════ SLIDE 5 · CONTENT GUIDELINE ════ -->
+<section class="slide" id="s5">
+  <div class="kicker" data-e="s5-kick">콘텐츠 가이드라인</div>
+  <h2 class="sl" data-e="s5-h">영상은 3개 파트로</h2>
+  <div class="beats">
+    <div class="beat">
+      <div class="num">1</div>
+      <h3 data-e="s5-b1h">훅</h3>
+      <p data-e="s5-b1p">"또 물어뜯겼네…" 하는 공감 장면으로 시작. 물어뜯긴 빨대나, 빨대를 씹고 있는 아기 모습 등.</p>
+      <div class="tag" data-e="s5-b1t">첫 3초</div>
+    </div>
+    <div class="beat">
+      <div class="num">2</div>
+      <h3 data-e="s5-b2h">해결까지의 흐름</h3>
+      <p data-e="s5-b2p">먼저 "왜 씹는지"를 한마디로. 이어서 Stage 1에서 Stage 2로 빨대를 갈아끼우는 모습을 카메라 앞에서 그대로 보여준다.</p>
+      <div class="tag" data-e="s5-b2t">영상의 핵심</div>
+    </div>
+    <div class="beat">
+      <div class="num">3</div>
+      <h3 data-e="s5-b3h">리얼한 순간과 CTA</h3>
+      <p data-e="s5-b3p">아기가 Stage 2 빨대로 실제로 마시는 모습을 보여준다.</p>
+      <div class="tag" data-e="s5-b3t">마무리 (마지막 한 번 더)</div>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · 크리에이터 가이드라인 · 1-B 물어뜯기 시작했다면, Stage 2로</div>
+  <div class="pageno">04</div>
+</section>
+
+<!-- ════ SLIDE 6 · HOOK ════ -->
+<section class="slide" id="s6">
+  <div class="kicker" data-e="s6-kick">파트 1 · 훅</div>
+  <h2 class="sl" data-e="s6-h">도입은 이 2가지로</h2>
+  <div class="opts">
+    <div class="opt">
+      <div class="lb" data-e="s6-o1l">OPTION 1 · 공감형</div>
+      <div class="line" data-e="s6-o1q">「어, 또 빨대가 물어뜯겼네…. 우리 애만 그런가 했더니 엄마 친구들도 다 똑같더라고요 😂 근데 그로미미는 빨대가 2단계라서, 깨물깨물 시기엔 단단한 Stage 2로 갈아주기만 하면 된대요」</div>
+      <div class="shot" data-e="s6-o1s">샷: 물어뜯긴 빨대를 보여주며 카메라를 보고 "다들 그렇죠?" 하고 공감을 끌어낸다 (타사 제품은 로고·브랜드명이 안 보이는 각도로)</div>
+    </div>
+    <div class="opt">
+      <div class="lb" data-e="s6-o2l">OPTION 2 · 안심(정보제공)형</div>
+      <div class="line" data-e="s6-o2q">「빨대를 물어뜯길 때마다 머그째 다시 사서, 집에 머그만 자꾸 늘어나요…. 그거 이제 안 그래도 돼요. 그로미미는 본체는 그대로, 빨대만 Stage 2로 갈아끼우면 끝. 우리 집은 그 뒤로 하나도 다시 안 샀어요」</div>
+      <div class="shot" data-e="s6-o2s">샷: 본체는 그대로 두고 빨대만 갈아끼우는 손동작을 보여주며 설명한다</div>
+    </div>
+  </div>
+  <div class="worry">
+    <div class="lb" data-e="s6-wl">훅은 이 "공감 포인트" 중 하나에서 시작 — 엄마들의 실제 목소리에서</div>
+    <ul>
+      <li data-e="s6-w1">벌써 5~6번 다시 샀다. 집에 재고도 없다.</li>
+      <li data-e="s6-w2">뜯긴 조각을 삼킬 뻔해서 아찔했다.</li>
+      <li data-e="s6-w3">씹는 힘이 세져서 살짝 무서울 정도.</li>
+      <li data-e="s6-w4">새걸로 갈아줘도 그날 안에 또.</li>
+    </ul>
+  </div>
+  <div class="foot">Grosmimi · 크리에이터 가이드라인 · 1-B 물어뜯기 시작했다면, Stage 2로</div>
+  <div class="pageno">05</div>
+</section>
+
+<!-- ════ SLIDE 7 · EXPLAIN & SHOW ════ -->
+<section class="slide" id="s7">
+  <div class="kicker" data-e="s7-kick">파트 2 · 설명하고, 보여주기</div>
+  <h2 class="sl" data-e="s7-h">갈아끼우는 장면을 그대로 보여준다</h2>
+  <div class="experts">
+    <div class="exp">
+      <div class="who" data-e="s7-e1w">① 왜 씹는지, 한마디로</div>
+      <p data-e="s7-e1p">이가 나면서 씹는 힘이 자라고 있다는 신호. 많은 엄마가 같은 시기에 겪는 일이고, 아기가 잘못한 것도, 머그를 잘못 고른 것도 아니다.</p>
+    </div>
+    <div class="exp">
+      <div class="who" data-e="s7-e2w">② 그로미미의 답을 전한다</div>
+      <p data-e="s7-e2p">그로미미 빨대는 Stage 1(부드러움)과 Stage 2(단단함) 2단계. 물어뜯기 시작하면 머그를 새로 사지 말고, 빨대만 Stage 2로 갈아끼우면 된다.</p>
+    </div>
+    <div class="exp">
+      <div class="who" data-e="s7-e3w">③ 카메라 앞에서 갈아끼운다</div>
+      <p data-e="s7-e3p">Stage 1과 Stage 2를 동시에 집어 단단함 차이를 보여준다. 그대로 빨대를 갈아끼우고, 아기에게 마시게 하는 장면까지 원컷으로.</p>
+    </div>
+    <div class="exp">
+      <div class="who" data-e="s7-e4w">④ 자기 말로 마무리</div>
+      <p data-e="s7-e4p">"바꾸고 나서는 씹어도 안 뜯겨요"처럼, 본인 경험으로 변화를 전한다.</p>
+    </div>
+  </div>
+  <p class="note" data-e="s7-note">※ "절대 안 뜯긴다", "삼킴 사고를 방지한다" 같은 단정 표현은 피하고, 본인의 경험으로 말해 주세요.</p>
+  <div class="foot">Grosmimi · 크리에이터 가이드라인 · 1-B 물어뜯기 시작했다면, Stage 2로</div>
+  <div class="pageno">06</div>
+</section>
+
+<!-- ════ SLIDE 8 · FILMING ════ -->
+<section class="slide" id="s8">
+  <div class="kicker" data-e="s8-kick">촬영</div>
+  <h2 class="sl" data-e="s8-h">촬영의 OK · NG</h2>
+  <div class="colhead ok" style="text-align:center" data-e="s8-okh">OK ✓ 스테이지1과 스테이지2를 손가락으로 눌러, 단단함 차이를 보여주기</div>
+  <div class="gifduo">
+    <figure>
+      <img src="img/ppsu_jp07.gif" alt="스테이지1(부드러움)과 스테이지2(단단함)를 손가락으로 눌러 비교">
+    </figure>
+    <figure>
+      <img src="img/swap_straw.gif" alt="빨대 단단함을 손가락으로 눌러 확인">
+    </figure>
+  </div>
+  <p class="ngline" data-e="s8-ng">NG ✕ 타사 로고·브랜드명 노출 금지</p>
+  <div class="foot">Grosmimi · 크리에이터 가이드라인 · 1-B 물어뜯기 시작했다면, Stage 2로</div>
+  <div class="pageno">07</div>
+</section>
+
+<!-- ════ SLIDE 9 · REFERENCES ════ -->
+<section class="slide" id="s9">
+  <div class="kicker" data-e="s9-kick">참고 영상</div>
+  <h2 class="sl" data-e="s9-h">이런 분위기의 영상이 이상적입니다</h2>
+  <div class="refs">
+    <div class="ref">
+      <img src="img/ref1b_1.jpg" alt="@nopi_ikuji 릴 커버">
+      <div class="body">
+        <div class="pf" data-e="s9-r1pf">INSTAGRAM</div>
+        <div class="hd" data-e="s9-r1h">@nopi_ikuji</div>
+        <ul>
+          <li data-e="s9-r1a">"부드러운 빨대를 씹어서 조각이 걱정"이라는 실제 경험에서 시작</li>
+          <li data-e="s9-r1b">Stage 2로 바꾼 뒤엔 씹어도 안 뜯겨 안심, 까지 보여줌</li>
+          <li data-e="s9-r1c">"육아용품 판매원인 나도 몰랐다"는 발견형 접근</li>
+        </ul>
+        <a class="watch" href="https://www.instagram.com/reel/DafHBVHPzCm/" target="_blank" rel="noopener">▶ 영상 보기</a>
+      </div>
+    </div>
+    <div class="ref">
+      <img src="img/ref1b_2.jpg" alt="@onzenna.official 릴 커버">
+      <div class="body">
+        <div class="pf" data-e="s9-r2pf">INSTAGRAM</div>
+        <div class="hd" data-e="s9-r2h">@onzenna.official</div>
+        <ul>
+          <li data-e="s9-r2a">첫 화면에서 "Stage 1 vs Stage 2" 선언</li>
+          <li data-e="s9-r2b">두 빨대의 차이를 나란히 보여줌</li>
+          <li data-e="s9-r2c">"잘 씹는 아이는 Stage 2로"라는 교체 기준을 명확히 제시</li>
+        </ul>
+        <a class="watch" href="https://www.instagram.com/reel/DLZ7ciZpNck/" target="_blank" rel="noopener">▶ 영상 보기</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · 크리에이터 가이드라인 · 1-B 물어뜯기 시작했다면, Stage 2로</div>
+  <div class="pageno">08</div>
+</section>
+
+<!-- ════ SLIDE 10 · POSTING ════ -->
+<section class="slide" id="s10">
+  <div class="kicker" data-e="s10-kick">포스팅</div>
+  <h2 class="sl" data-e="s10-h">캡션과 해시태그</h2>
+  <div class="post">
+    <div class="pcard">
+      <h3 data-e="s10-c1h">캡션</h3>
+      <div class="pline">
+        <div class="lb" data-e="s10-l1">공동 게시</div>
+        <p data-e="s10-p1"><code>@grosmimi_japan</code> 과의 공동 게시(콜라보 게시)로 설정해 주세요 ("공동 작성자 초대"에서)</p>
+      </div>
+      <div class="pline">
+        <div class="lb" data-e="s10-l2">상품 페이지 (라쿠텐)</div>
+        <a class="watch" href="https://item.rakuten.co.jp/littlefingerusa/grosmimi_ppsu_strawcup300/" target="_blank" rel="noopener">PPSU 스트로머그 ▶</a>
+        <a class="watch" href="https://item.rakuten.co.jp/littlefingerusa/stainless_steel_strawcup_300/" target="_blank" rel="noopener">스테인리스 스트로머그 ▶</a>
+        <a class="watch" href="https://item.rakuten.co.jp/littlefingerusa/grosmimi_srawnipple_2-2/" target="_blank" rel="noopener">교체용 스트로&amp;니플 Stage 2 ▶</a>
+      </div>
+      <div class="pline">
+        <div class="lb" data-e="s10-l3">브랜드명 표기</div>
+        <p data-e="s10-p3">그로미미(GROSMIMI), Stage 1·Stage 2 스트로</p>
+      </div>
+    </div>
+    <div class="pcard">
+      <h3 data-e="s10-c2h">해시태그</h3>
+      <div class="tags"><span class="lb" data-e="s10-t1l">PPSU 스트로머그 / 원터치식 스트로머그</span><span data-e="s10-t1">#グロミミ #grosmimi #ストローマグ #スマートマグ #PPSU</span></div>
+      <div class="tags"><span class="lb" data-e="s10-t2l">스테인리스 스트로머그</span><span data-e="s10-t2">#グロミミ #grosmimi #ストローマグ #スマートマグ</span></div>
+      <p style="font-size:12px;color:var(--label)" data-e="s10-t3">※ 유상·무상 불문 공통. 해시태그는 실제 투고용이라 일본어 원문 그대로입니다.</p>
+    </div>
+  </div>
+  <div class="foot">Grosmimi · 크리에이터 가이드라인 · 1-B 물어뜯기 시작했다면, Stage 2로</div>
+  <div class="pageno">09</div>
+</section>
+
+</div>
+
+</body>
+</html>
