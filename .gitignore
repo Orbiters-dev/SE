@@ -27,7 +27,14 @@ Thumbs.db
 *.swp
 *.swo
 
+# === Sub-app (separate git repo) ===
+meta-app/
+
 # === Per-user Claude Code settings (NEVER commit) ===
 .claude/settings.local.json
 .claude/.cache/
 .claude/projects/
+
+# === 로컬 상태 파일 (세션별 생성물 — 커밋 불필요) ===
+.claude/.harness_state.json
+.claude/skills/reflect/.state/

@@ -6,6 +6,10 @@
       "headers": {
         "x-api-key": "${POLAR_API_KEY}"
       }
+    },
+    "miro": {
+      "type": "http",
+      "url": "https://mcp.miro.com/"
     }
   }
 }
