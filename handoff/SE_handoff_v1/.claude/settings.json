@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": ["Bash(*)", "Edit", "Write"],
+    "deny": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/harness_runner.py",
+            "timeout": 320,
+            "statusMessage": "Harness verifying edited file ..."
+          }
+        ]
+      }
+    ]
+  }
+}

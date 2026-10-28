@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>RPP 일별 광고비 수집 (downloadPerfFile periodType=2) -&gt; data/rpp_daily.json</Description>
+    <URI>\RakutenRPP_Daily_Spend</URI>
+  </RegistrationInfo>
+  <Principals>
+    <Principal id="Author">
+      <UserId>S-1-5-21-1927445275-2163468221-3895906776-1001</UserId>
+      <LogonType>InteractiveToken</LogonType>
+    </Principal>
+  </Principals>
+  <Settings>
+    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <IdleSettings>
+      <Duration>PT10M</Duration>
+      <WaitTimeout>PT1H</WaitTimeout>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+  </Settings>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2026-07-21T09:20:00+09:00</StartBoundary>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Actions Context="Author">
+    <Exec>
+      <Command>cmd.exe</Command>
+      <Arguments>/c set PYTHONIOENCODING=utf-8 &amp;&amp; ("C:\Users\orbit\AppData\Local\Programs\Python\Python314\python.exe" tools\collect_rakuten_sales_daily.py --update-app &amp; "C:\Users\orbit\AppData\Local\Programs\Python\Python314\python.exe" tools\collect_rpp_daily.py --update-app)</Arguments>
+      <WorkingDirectory>C:\Users\orbit\Desktop\SE</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

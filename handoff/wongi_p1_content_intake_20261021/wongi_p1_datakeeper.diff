@@ -1,0 +1,614 @@
+diff --git a/apps/datakeeper/domains/content_intake/models.py b/apps/datakeeper/domains/content_intake/models.py
+index c30a970..63288a1 100644
+--- a/apps/datakeeper/domains/content_intake/models.py
++++ b/apps/datakeeper/domains/content_intake/models.py
+@@ -177,6 +177,12 @@ class ContentIntakeSubmission(models.Model):
+     confirmation = models.TextField(blank=True, default="")  # 동의 문구(법적, 감사 보존)
+ 
+     entry_source = models.CharField(max_length=10, default="sheet")  # sheet/manual
++    # 어느 폼(시트)에서 들어온 제출인가 — ""(빈 값) = 기존 US 폼(primary).
++    #   ⚠️ 멱등키(`_KEY_CONTENT_FIELDS`)에는 **넣지 않는다** — 넣으면 기존 전 행의 키가
++    #   바뀌어 write-once 가 뚫린다(`row_uid` 와 같은 계약). 수집기가 비-primary 폼의
++    #   INSERT 에만 찍고, 고아 판정(mark_orphaned_absent_submissions)·키 드리프트
++    #   기준선(_last_mapped_key_fields)이 이 칸으로 폼별 스코프를 가른다.
++    form_slug = models.CharField(max_length=40, blank=True, default="", db_index=True)
+     match_status = models.CharField(max_length=16, default="pending", db_index=True)
+     # 운영자 정정 시 True → collector UPDATE 제외(15분 재read 되돌림 차단).
+     operator_locked = models.BooleanField(default=False)
+@@ -317,8 +323,13 @@ class ContentIntakeConfig(models.Model):
+     (read_only_tables 등록 → generic gateway write 차단).
+     """
+ 
+-    version = models.IntegerField(unique=True)  # append-only 버전 번호
++    version = models.IntegerField(unique=True)  # append-only 버전 번호(전 폼 공용 시퀀스)
+     is_active = models.BooleanField(default=True)
++    # 설정 파티션 키 — ""(빈 값) = 기존 US 폼(primary). 폼마다 "활성 1건" 이 따로 돈다
++    #   (POST 가 **같은 form_slug 안에서만** 직전 활성을 플립 — 교차 플립 금지).
++    form_slug = models.CharField(max_length=40, blank=True, default="")
++    # 이 폼으로 들어온 제출에 찍을 기본 brand_slug(수집기 ⑤ 스탬프) — 빈 값 = 스탬프 없음.
++    default_brand_slug = models.CharField(max_length=100, blank=True, default="")
+ 
+     sheet_url = models.URLField(max_length=1000, blank=True, default="")
+     sheet_range = models.CharField(max_length=100, blank=True, default="")
+diff --git a/apps/datakeeper/domains/content_intake/refresh.py b/apps/datakeeper/domains/content_intake/refresh.py
+index ae44164..55000a3 100644
+--- a/apps/datakeeper/domains/content_intake/refresh.py
++++ b/apps/datakeeper/domains/content_intake/refresh.py
+@@ -143,13 +143,19 @@ def refresh_submissions(
+     if not ids:
+         return RefreshSummary(status="ok", reason="대상 없음", counts=counts)
+ 
+-    rows_by_drive, err = _read_sheet_rows()
+-    if err:
+-        return RefreshSummary(status="sheet_error", reason=err, counts=counts)
+-    if rows_by_drive is None:
+-        return RefreshSummary(status="dormant", reason="시트 설정/자격 없음", counts=counts)
+-
++    # ⚠️ 폼별 시트 — 대상 제출을 먼저 뽑아 어느 폼(form_slug)의 시트를 읽을지 가린 뒤,
++    #   폼마다 한 번씩 읽는다. primary 시트에서 비-primary 제출을 찾으면 그 행은 다른
++    #   시트에 있으므로 전부 not_in_sheet 로 오보된다.
+     targets = list(m.ContentIntakeSubmission.objects.filter(id__in=ids))
++    slugs = sorted({(getattr(s, "form_slug", "") or "").strip() for s in targets})
++    rows_by_slug: dict = {}
++    for slug in slugs:
++        rows_by_drive, err = _read_sheet_rows(slug)
++        if err:
++            return RefreshSummary(status="sheet_error", reason=err, counts=counts)
++        if rows_by_drive is None:
++            return RefreshSummary(status="dormant", reason="시트 설정/자격 없음", counts=counts)
++        rows_by_slug[slug] = rows_by_drive
+ 
+     # 링크별로 **그 링크를 쓰는 제출들의 (id → 저장된 멱등키)** 를 모은다. 두 가지에 쓴다:
+     #   ① `has_siblings`(제출 수 > 1) — 형제가 있으면 후보 1개를 그냥 믿지 않는다.
+@@ -189,7 +195,8 @@ def refresh_submissions(
+     for sub in targets:
+         item = _refresh_one(
+             sub,
+-            rows_by_drive,
++            # 그 제출이 들어온 폼의 시트에서만 찾는다(폼별 read 결과).
++            rows_by_slug.get((getattr(sub, "form_slug", "") or "").strip(), {}),
+             apply=apply,
+             actor=actor,
+             row_hint=int(hints.get(sub.id, 0) or 0),
+@@ -221,8 +228,8 @@ def refresh_submissions(
+     return RefreshSummary(status="ok", items=items, counts=counts)
+ 
+ 
+-def _read_sheet_rows():
+-    """시트 전체를 읽어 `drive_file_id -> 파싱된 rec` 로 만든다.
++def _read_sheet_rows(form_slug: str = ""):
++    """그 폼(form_slug, 빈 값 = primary)의 시트 전체를 읽어 `drive_file_id -> rec` 로 만든다.
+ 
+     ⚠️ **전체를 읽는다**. 범위를 좁히면 읽는 양은 줄지만 "지금 시트에 없다"는 판정이 거짓이
+     되어, 멀쩡한 행을 `not_in_sheet` 로 보고하게 된다. 비용은 시트 GET 한 번이라 작다.
+@@ -240,7 +247,7 @@ def _read_sheet_rows():
+         #   매번 `sheet_error` 로 즉시 반환하고 **한 번도 동작하지 않았다**(2026-08-04 실측).
+         from . import services as _svc
+ 
+-        cfg = _svc.load_active_config()
++        cfg = _svc.load_active_config_for(form_slug or "")
+     except Exception as e:  # noqa: BLE001
+         return None, f"시트 설정을 읽지 못했습니다: {e}"
+     if not cfg:
+diff --git a/apps/datakeeper/domains/content_intake/register.py b/apps/datakeeper/domains/content_intake/register.py
+index efde15d..823ae0b 100644
+--- a/apps/datakeeper/domains/content_intake/register.py
++++ b/apps/datakeeper/domains/content_intake/register.py
+@@ -33,6 +33,7 @@ SPEC = DomainSpec(
+             "match_status",
+             "brand_slug",
+             "entry_source",
++            "form_slug",
+             "submitted_at",
+             "submitted_at__gte",
+             "submitted_at__lte",
+@@ -46,6 +47,7 @@ SPEC = DomainSpec(
+             "match_status",
+             "brand_slug",
+             "entry_source",
++            "form_slug",
+             "submitted_at",
+         ],
+         "content_intake_original_media": [
+diff --git a/apps/datakeeper/domains/content_intake/services.py b/apps/datakeeper/domains/content_intake/services.py
+index 31d8b43..3496d2f 100644
+--- a/apps/datakeeper/domains/content_intake/services.py
++++ b/apps/datakeeper/domains/content_intake/services.py
+@@ -4,7 +4,8 @@
+ 모델 접근만 담당(HTTP gateway 우회 X — 읽기 + media get_or_create 는 in-process
+ 직접 ORM 이 더 단순·원자적, 설계 S4 line 407 in-process 결합 endorse).
+ 
+-- load_active_config: 활성 ContentIntakeConfig(최신 version, 없으면 None)
++- load_active_config / load_active_config_for / load_active_configs: 활성
++  ContentIntakeConfig — 폼 파티션(form_slug, 빈 값 = 기존 US 폼 primary)
+ - existing_source_row_keys: write-once 필터용 기존 submission 키 조회
+ - ensure_media_for_drive_ids: drive_file_id 별 ContentOriginalMedia(queued)
+   get_or_create (멱등·self-healing — F8 submission-무media orphan 치유)
+@@ -120,9 +121,45 @@ def is_placeholder(raw: str) -> bool:
+     return (raw or "").strip().lower() in PLACEHOLDER_VALUES or not (raw or "").strip()
+ 
+ 
++# primary(기존 US 폼)의 form_slug — 빈 문자열이 곧 primary 다(기존 행 전부가 "" 라 데이터
++# 이동 없이 하위호환). ⚠️ 수집기 `content_intake_sheet.PRIMARY_FORM_SLUG` 와 같은 값이어야
++# 한다 — datakeeper→ingestion import 는 금지 방향이라 상수를 양쪽에 두고 테스트로 정합을 잰다.
++PRIMARY_FORM_SLUG = ""
++
++
+ def load_active_config() -> Optional[m.ContentIntakeConfig]:
+-    """활성 설정 1건(최신 version). 없으면 None → 수집기 graceful skip."""
+-    return m.ContentIntakeConfig.objects.filter(is_active=True).order_by("-version").first()
++    """primary 폼(form_slug="")의 활성 설정 1건(최신 version). 없으면 None → graceful skip.
++
++    ⚠️ 멀티 폼 도입 후에도 시그니처·의미를 **primary 고정**으로 유지한다 — 기존 호출부
++    (다운로드 워커·relocate·erasure·수동업로드 등)는 전부 primary 시트 하나를 전제로 짜여
++    있어, 여기가 "아무 폼의 최신 활성" 을 돌려주는 순간 그 경로들이 조용히 다른 시트를 본다.
++    """
++    return load_active_config_for(PRIMARY_FORM_SLUG)
++
++
++def load_active_config_for(form_slug: str) -> Optional[m.ContentIntakeConfig]:
++    """해당 폼(form_slug, 빈 값 = primary)의 활성 설정 1건(최신 version). 없으면 None."""
++    return (
++        m.ContentIntakeConfig.objects.filter(is_active=True, form_slug=form_slug or "")
++        .order_by("-version")
++        .first()
++    )
++
++
++def load_active_configs() -> list:
++    """활성 설정 전부 — **폼별 최신 1개**, primary 선두(나머지는 form_slug 순).
++
++    수집기(fetch_v2)·번호찍기(stamp_intake_row_uids)가 폼을 순회할 때 쓴다. 한 폼에 활성
++    행이 여럿이면(정상은 1개 — 설정 POST 가 같은 폼만 플립) 최신 version 이 이긴다.
++    """
++    best: dict = {}
++    for row in m.ContentIntakeConfig.objects.filter(is_active=True).order_by("-version"):
++        best.setdefault(row.form_slug or "", row)
++    ordered = []
++    if PRIMARY_FORM_SLUG in best:
++        ordered.append(best.pop(PRIMARY_FORM_SLUG))
++    ordered.extend(best[slug] for slug in sorted(best))
++    return ordered
+ 
+ 
+ # 수동 업로드(운영자가 화면에서 파일을 직접 올리는 경로) 전용 상한 = 500MB.
+@@ -408,7 +445,7 @@ def extract_drive_file_id(url: str) -> str:
+     return ""
+ 
+ 
+-def mark_orphaned_absent_submissions(current_keys, current_drive_ids=None) -> int:
++def mark_orphaned_absent_submissions(current_keys, current_drive_ids=None, form_slug="") -> int:
+     """현재 시트에 없는 sheet-유래 submission 을 match_status='orphaned_source' 로 마킹 (G12/요구3).
+ 
+     시트행이 삭제되면 그 source_row_key 가 현재 read 에서 사라진다. collector 가 **전체 시트**를
+@@ -416,6 +453,11 @@ def mark_orphaned_absent_submissions(current_keys, current_drive_ids=None) -> in
+     기존 sheet submission = 시트에서 삭제됨 → orphaned_source(감사 보존·재매칭 대상 아님·이미
+     적용된 WL/MediaLink 는 되돌리지 않음 — 정직 "출처 삭제" 표기).
+ 
++    ⚠️ **폼 스코프(form_slug)** — 이 판정은 "그 폼의 시트 전체를 읽었다" 위에서만 옳다.
++    primary 런의 current_keys 에 다른 폼 제출의 키가 없는 것은 당연하므로, 스코프 없이
++    돌리면 비-primary 행 전부가 primary 런마다 고아로 찍힌다(반대 방향도 같다). 재등장
++    복귀(revived)도 같은 스코프다 — 다른 폼 런이 남의 고아를 되살리면 안 된다.
++
+     안전: entry_source='sheet' 만(manual 은 시트에 없어도 정상 → 제외) · redacted 제외(erasure
+     보존) · 이미 orphaned 제외(멱등). ⚠️ **current_keys 빈 집합이면 아무것도 안 함**(빈 시트/
+     read 실패 시 전체 orphan 폭주 차단 — collector 가 rows 있을 때만 호출하지만 방어적 guard).
+@@ -441,6 +483,7 @@ def mark_orphaned_absent_submissions(current_keys, current_drive_ids=None) -> in
+     #   (전수 조사 2026-08-05). 상태가 terminal 을 벗어나는 순간 마커도 의미를 잃는다.
+     revived = m.ContentIntakeSubmission.objects.filter(
+         entry_source="sheet",
++        form_slug=form_slug or "",
+         redacted_at__isnull=True,
+         match_status="orphaned_source",
+         source_row_key__in=keys,
+@@ -448,7 +491,7 @@ def mark_orphaned_absent_submissions(current_keys, current_drive_ids=None) -> in
+     if revived:
+         logger.info("content_intake orphan: %d건 시트 재등장 → pending 복귀(재매칭)", revived)
+     active = m.ContentIntakeSubmission.objects.filter(
+-        entry_source="sheet", redacted_at__isnull=True
++        entry_source="sheet", redacted_at__isnull=True, form_slug=form_slug or ""
+     ).exclude(match_status="orphaned_source")
+     candidates = active.exclude(source_row_key__in=keys)
+     n = candidates.count()
+diff --git a/apps/datakeeper/domains/content_intake/sheet_edit.py b/apps/datakeeper/domains/content_intake/sheet_edit.py
+index 164211d..b5267fd 100644
+--- a/apps/datakeeper/domains/content_intake/sheet_edit.py
++++ b/apps/datakeeper/domains/content_intake/sheet_edit.py
+@@ -141,7 +141,8 @@ def edit_submission(submission_id: int, updates: dict, *, actor: str) -> dict:
+     if not payload:
+         return {"status": "noop", "reason": "되쓸 수 있는 필드가 없다", "dropped_fields": dropped}
+ 
+-    cfg = services.load_active_config()
++    # 폼별 시트 — 이 제출이 들어온 폼의 설정을 읽는다(primary 제출 = form_slug "").
++    cfg = services.load_active_config_for(getattr(sub, "form_slug", "") or "")
+     if cfg is None or not cfg.sheet_url:
+         return {"status": "dormant", "reason": "시트 설정이 없다", "dropped_fields": dropped}
+ 
+diff --git a/apps/datakeeper/management/commands/stamp_intake_row_uids.py b/apps/datakeeper/management/commands/stamp_intake_row_uids.py
+index 0fd8dea..457fc6b 100644
+--- a/apps/datakeeper/management/commands/stamp_intake_row_uids.py
++++ b/apps/datakeeper/management/commands/stamp_intake_row_uids.py
+@@ -130,23 +130,29 @@ class Command(BaseCommand):
+         return filled, conflicts
+ 
+     def handle(self, *args, **opts):
+-        from datakeeper.domains.content_intake.services import load_active_config
++        from datakeeper.domains.content_intake.services import load_active_configs
+ 
+         limit = opts["limit"]
+         if limit < 1:
+             raise CommandError("--limit 는 1 이상이어야 합니다.")
+ 
+-        config = load_active_config()
+-        if config is None or not getattr(config, "enabled", False):
++        # 폼별 활성 설정 전부(primary 선두) — 폼마다 시트가 따로라 번호도 폼마다 찍는다.
++        configs = [cfg for cfg in load_active_configs() if getattr(cfg, "enabled", False)]
++        if not configs:
+             self.stdout.write("content_intake config 없음/disabled → skip (dormant).")
+             return
++        for config in configs:
++            self._stamp_one(config, apply=opts["apply"], limit=limit)
+ 
++    def _stamp_one(self, config, *, apply: bool, limit: int):
++        """폼(config) 하나의 시트에 번호를 찍는다 — 옛 handle 본문 그대로(폼 태그 출력 추가)."""
++        form_slug = (getattr(config, "form_slug", "") or "").strip()
++        tag = f"[{form_slug or 'primary'}] "
+         try:
+             from ingestion.collectors import content_intake_sheet as sheet
+         except Exception as e:  # noqa: BLE001 — 수집기 모듈 부재/의존 결손
+             raise CommandError(f"수집기 모듈을 불러오지 못했습니다: {e}") from e
+ 
+-        apply = opts["apply"]
+         try:
+             out = sheet.stamp_row_uids(config, apply=apply, limit=limit)
+         except Exception as e:  # noqa: BLE001 — 어떤 실패든 운영자에게 상태를 먼저 보여준다
+@@ -170,8 +176,8 @@ class Command(BaseCommand):
+             out["db_filled"], out["db_conflicts"] = self._fill_db(out.get("assignments") or {})
+ 
+         line = json.dumps(out, ensure_ascii=False, sort_keys=True)
+-        logger.info("stamp_intake_row_uids%s %s", "" if apply else " (dry-run)", line)
+-        self.stdout.write(("[dry-run] " if not apply else "") + line)
++        logger.info("stamp_intake_row_uids%s %s%s", "" if apply else " (dry-run)", tag, line)
++        self.stdout.write(("[dry-run] " if not apply else "") + tag + line)
+ 
+         # ⚠️ **거부는 성공이 아니다.** 이 함수는 "쓸 수 없는 상태"(수집 범위가 A1 에서 안
+         #   시작 / 읽는 사이 번호 열이 옮겨짐)를 `status="rejected"` 로 알리는데, 그걸 안
+@@ -180,10 +186,10 @@ class Command(BaseCommand):
+         status = out.get("status")
+         if status == "rejected":
+             raise CommandError(
+-                out.get("reason") or "시트에 쓸 수 없는 상태입니다(아무것도 안 썼습니다)."
++                tag + (out.get("reason") or "시트에 쓸 수 없는 상태입니다(아무것도 안 썼습니다).")
+             )
+         if status == "dormant":
+-            self.stdout.write(out.get("reason") or "시트가 비어 있어 할 일이 없습니다.")
++            self.stdout.write(tag + (out.get("reason") or "시트가 비어 있어 할 일이 없습니다."))
+             return
+ 
+         dupes = out.get("duplicate_uids") or {}
+diff --git a/apps/datakeeper/migrations/0461_content_intake_multi_form_2026_10_21.py b/apps/datakeeper/migrations/0461_content_intake_multi_form_2026_10_21.py
+new file mode 100644
+index 0000000..2bcad84
+--- /dev/null
++++ b/apps/datakeeper/migrations/0461_content_intake_multi_form_2026_10_21.py
+@@ -0,0 +1,41 @@
++"""content_intake 멀티 폼 확장 — 제출·설정에 form_slug, 설정에 default_brand_slug (2026-10-21).
++
++JP 투고 폼(두 번째 구글 폼) 적재를 위해 폼 파티션 키를 깐다. 셋 다 **빈 값 default 로만
++추가**된다 — 기존 행은 전부 ""(= 기존 US 폼, primary)가 되고 어떤 값도 바뀌지 않으므로
++배포 전후 수집·판정 동작이 달라지지 않는다(멱등키 basis 에도 안 들어가므로 키도 불변).
++
++  · ContentIntakeSubmission.form_slug — 어느 폼에서 들어온 제출인가(수집기가 비-primary
++    폼의 INSERT 에만 스탬프). 고아 판정(mark_orphaned_absent_submissions)·키 드리프트
++    기준선(_last_mapped_key_fields)·대시보드 필터가 이 칸으로 폼 스코프를 가른다.
++  · ContentIntakeConfig.form_slug — 설정 파티션 키. 폼마다 "활성 1건" 이 따로 돌고,
++    설정 POST 는 같은 form_slug 안에서만 직전 활성을 플립한다(교차 플립 금지).
++  · ContentIntakeConfig.default_brand_slug — 그 폼으로 들어온 제출에 찍을 기본 brand_slug.
++    브랜드 질문이 없는 폼의 P4 라우팅 공백을 메운다(빈 값 = 스탬프 없음).
++"""
++
++from django.db import migrations, models
++
++
++class Migration(migrations.Migration):
++
++    dependencies = [
++        ("datakeeper", "0460_collab_link_force_pass_2026_10_15"),
++    ]
++
++    operations = [
++        migrations.AddField(
++            model_name="contentintakesubmission",
++            name="form_slug",
++            field=models.CharField(blank=True, db_index=True, default="", max_length=40),
++        ),
++        migrations.AddField(
++            model_name="contentintakeconfig",
++            name="form_slug",
++            field=models.CharField(blank=True, default="", max_length=40),
++        ),
++        migrations.AddField(
++            model_name="contentintakeconfig",
++            name="default_brand_slug",
++            field=models.CharField(blank=True, default="", max_length=100),
++        ),
++    ]
+diff --git a/apps/datakeeper/tests/test_content_intake_endpoints.py b/apps/datakeeper/tests/test_content_intake_endpoints.py
+index 0c9595c..c506e4d 100644
+--- a/apps/datakeeper/tests/test_content_intake_endpoints.py
++++ b/apps/datakeeper/tests/test_content_intake_endpoints.py
+@@ -359,6 +359,68 @@ class ConfigEndpointTests(_EndpointBase):
+         self.assertEqual(cfg.folder_path_template, "{brand}/{CT}/{yyyy}")
+         self.assertEqual(cfg.filename_template, "{drive_id}.{ext}")
+ 
++    def test_post_with_form_slug_partitions_and_never_flips_the_primary(self):
++        """★ 교차 플립 금지 — 비-primary POST 가 primary 활성을 끄면 US 수집이 조용히 멈춘다."""
++        from datakeeper.domains.content_intake import models as m
++
++        v = self._view()
++        base = "/api/datakeeper/admin/content-intake/config/"
++        self._post(
++            v,
++            base,
++            {"sheet_url": "https://docs.google.com/spreadsheets/d/US/edit", "enabled": True},
++        )
++        resp = self._post(
++            v,
++            base,
++            {
++                "sheet_url": "https://docs.google.com/spreadsheets/d/JP/edit",
++                "form_slug": "jp_posting",
++                "default_brand_slug": "grosmimi-jp",
++            },
++        )
++        self.assertEqual(resp.status_code, 201, resp.content)
++        active = json.loads(resp.content)["active"]
++        self.assertEqual(active["form_slug"], "jp_posting")
++        self.assertEqual(active["default_brand_slug"], "grosmimi-jp")
++        self.assertEqual(active["version"], 2, "version 은 전역 시퀀스(Max+1)")
++        self.assertTrue(
++            m.ContentIntakeConfig.objects.get(version=1).is_active,
++            "비-primary POST 가 primary 활성을 껐다(교차 플립)",
++        )
++
++        # GET 기본 = primary / form_slug 지정 = 그 폼 / 폼 목록 노출.
++        data = json.loads(self._get(v, base).content)
++        self.assertEqual(data["active"]["version"], 1)
++        self.assertEqual(data["form_slugs"], ["", "jp_posting"])
++        jp = json.loads(self._get(v, base, {"form_slug": "jp_posting"}).content)
++        self.assertEqual(jp["active"]["version"], 2)
++        self.assertEqual(
++            [h["version"] for h in jp["history"]], [2], "history 에 남의 폼이 섞였다"
++        )
++
++        # 같은 폼 재-POST = 그 폼 안에서만 플립 + base 보존(RESET 가드가 폼별로 돈다).
++        resp2 = self._post(v, base, {"enabled": True, "form_slug": "jp_posting"})
++        self.assertEqual(resp2.status_code, 201)
++        active2 = json.loads(resp2.content)["active"]
++        self.assertEqual(active2["version"], 3)
++        self.assertEqual(
++            active2["sheet_url"],
++            "https://docs.google.com/spreadsheets/d/JP/edit",
++            "비-primary 부분 POST 가 자기 폼의 base 를 못 봤다",
++        )
++        self.assertFalse(m.ContentIntakeConfig.objects.get(version=2).is_active)
++        self.assertTrue(m.ContentIntakeConfig.objects.get(version=1).is_active)
++
++    def test_post_invalid_form_slug_400(self):
++        """form_slug 는 [a-z0-9_] 40자 이하 — 대문자·하이픈·비문자열은 400(버전 생성 0)."""
++        v = self._view()
++        base = "/api/datakeeper/admin/content-intake/config/"
++        for bad in ("JP", "jp-posting", "a" * 41, 7):
++            resp = self._post(v, base, {"enabled": True, "form_slug": bad})
++            self.assertEqual(resp.status_code, 400, bad)
++        self.assertEqual(self._cfg_count(), 0)
++
+     def test_invalid_fields_400(self):
+         v = self._view()
+         base = "/api/datakeeper/admin/content-intake/config/"
+diff --git a/apps/datakeeper/tests/test_content_intake_services.py b/apps/datakeeper/tests/test_content_intake_services.py
+index b751e0c..fd48dbd 100644
+--- a/apps/datakeeper/tests/test_content_intake_services.py
++++ b/apps/datakeeper/tests/test_content_intake_services.py
+@@ -295,3 +295,60 @@ def test_orphan_hold_is_logged_loud_with_counts(caplog):
+     msg = "\n".join(r.getMessage() for r in caplog.records)
+     assert "twin-sib" in msg, "어느 행을 보류했는지 로그에 없다"
+     assert "skip" in msg
++
++
++# ─── 멀티 폼 (form_slug — primary="" 하위호환) ─────────────────────────────
++
++
++@pytest.mark.django_db
++def test_load_active_configs_partitions_by_form():
++    """폼별 최신 활성 1개 + primary 선두. `load_active_config` 는 **primary 고정**이라
++    다른 폼에 더 새 버전이 생겨도 기존 경로(워커·erasure·수동업로드)가 흔들리지 않는다."""
++    m.ContentIntakeConfig.objects.create(version=1, is_active=True)
++    m.ContentIntakeConfig.objects.create(version=2, is_active=True, form_slug="jp_posting")
++    m.ContentIntakeConfig.objects.create(version=3, is_active=True, form_slug="jp_posting")
++    m.ContentIntakeConfig.objects.create(version=4, is_active=False, form_slug="jp_posting")
++
++    assert [(r.form_slug, r.version) for r in s.load_active_configs()] == [
++        ("", 1),
++        ("jp_posting", 3),
++    ]
++    assert s.load_active_config().version == 1, "primary 로더가 다른 폼 설정을 집었다"
++    assert s.load_active_config_for("jp_posting").version == 3
++    assert s.load_active_config_for("").version == 1
++    assert s.PRIMARY_FORM_SLUG == ""
++
++
++@pytest.mark.django_db
++def test_orphan_marking_is_scoped_to_the_form():
++    """★ 폼 스코프 — primary 런의 current_keys 에 다른 폼의 키가 없는 것은 당연하다.
++    스코프가 없으면 비-primary 행 전부가 primary 런마다 고아로 찍힌다(반대 방향도 같다)."""
++    _osub("us-gone", "D-US")
++    jp = m.ContentIntakeSubmission.objects.create(
++        source_row_key="jp-live",
++        drive_file_id="D-JP",
++        entry_source="sheet",
++        match_status="matched",
++        form_slug="jp_posting",
++    )
++
++    # primary 런 — jp 행은 후보에서 아예 빠진다(us-gone 만 진짜 삭제).
++    assert s.mark_orphaned_absent_submissions({"us-live"}, {"D-LIVE"}) == 1
++    jp.refresh_from_db()
++    assert jp.match_status == "matched", "다른 폼 행이 primary 런에 고아로 찍혔다"
++    assert (
++        m.ContentIntakeSubmission.objects.get(source_row_key="us-gone").match_status
++        == "orphaned_source"
++    )
++
++    # jp 런 — us 고아를 다시 세지도, 되살리지도(revive) 않는다.
++    assert (
++        s.mark_orphaned_absent_submissions(
++            {"us-gone", "jp-live"}, {"D-JP"}, form_slug="jp_posting"
++        )
++        == 0
++    )
++    assert (
++        m.ContentIntakeSubmission.objects.get(source_row_key="us-gone").match_status
++        == "orphaned_source"
++    ), "jp 런이 us 고아를 되살렸다"
+diff --git a/apps/datakeeper/tests/test_content_intake_sheet_edit.py b/apps/datakeeper/tests/test_content_intake_sheet_edit.py
+index a8de205..fc2942f 100644
+--- a/apps/datakeeper/tests/test_content_intake_sheet_edit.py
++++ b/apps/datakeeper/tests/test_content_intake_sheet_edit.py
+@@ -510,7 +510,8 @@ def domain(monkeypatch):
+ 
+     fake_model = type("ContentIntakeSubmission", (), {"objects": _Manager()})
+     monkeypatch.setattr(m, "ContentIntakeSubmission", fake_model)
+-    monkeypatch.setattr(services, "load_active_config", lambda: _Config())
++    # 멀티 폼: 편집은 그 제출의 폼 설정을 읽는다(primary 제출 = form_slug "").
++    monkeypatch.setattr(services, "load_active_config_for", lambda form_slug="": _Config())
+ 
+     def _write(
+         config,
+diff --git a/apps/datakeeper/tests/test_stamp_intake_row_uids_cmd.py b/apps/datakeeper/tests/test_stamp_intake_row_uids_cmd.py
+index e09ebe4..457eba2 100644
+--- a/apps/datakeeper/tests/test_stamp_intake_row_uids_cmd.py
++++ b/apps/datakeeper/tests/test_stamp_intake_row_uids_cmd.py
+@@ -25,6 +25,8 @@ def _patch(cfg, spy):
+ 
+     svc = types.ModuleType("datakeeper.domains.content_intake.services")
+     svc.load_active_config = lambda: cfg
++    # 멀티 폼: 명령은 폼별 활성 설정 목록을 순회한다(None = 설정 자체가 없음 → 빈 목록).
++    svc.load_active_configs = lambda: [] if cfg is None else [cfg]
+     sheet = types.ModuleType("ingestion.collectors.content_intake_sheet")
+     sheet.stamp_row_uids = spy
+     pkg = types.ModuleType("ingestion.collectors")
+diff --git a/apps/datakeeper/views/admin/content_intake/config.py b/apps/datakeeper/views/admin/content_intake/config.py
+index 4d7d5ee..d920a07 100644
+--- a/apps/datakeeper/views/admin/content_intake/config.py
++++ b/apps/datakeeper/views/admin/content_intake/config.py
+@@ -42,6 +42,7 @@ _CONFIG_FIELDS = (
+     "folder_template",
+     "folder_path_template",
+     "filename_template",
++    "default_brand_slug",
+     "shared_original_policy",
+     "max_video_bytes",
+     "disk_watermark_pct",
+@@ -69,9 +70,11 @@ def _serialize(row: m.ContentIntakeConfig) -> dict:
+     return {
+         "version": row.version,
+         "is_active": row.is_active,
++        "form_slug": row.form_slug,
+         "sheet_url": row.sheet_url,
+         "sheet_range": row.sheet_range,
+         "header_aliases": row.header_aliases,
++        "default_brand_slug": row.default_brand_slug,
+         "nas_share_path": row.nas_share_path,
+         "folder_template": row.folder_template,
+         "folder_path_template": row.folder_path_template,
+@@ -102,13 +105,22 @@ def _get_config(request):
+         return secure_error(
+             "forbidden", "admin tier or report/content-ingestion tab access required", status=403
+         )
+-    active = m.ContentIntakeConfig.objects.filter(is_active=True).order_by("-version").first()
+-    history = m.ContentIntakeConfig.objects.order_by("-version")[:_HISTORY_LIMIT]
++    # 폼 파티션 — 기본("") = 기존 US 폼(primary). history 도 같은 폼만 — 폼끼리 섞이면
++    # 화면의 "직전 버전" 이 남의 폼 설정이 된다.
++    form_slug = (request.GET.get("form_slug") or "").strip()
++    scoped = m.ContentIntakeConfig.objects.filter(form_slug=form_slug)
++    active = scoped.filter(is_active=True).order_by("-version").first()
++    history = scoped.order_by("-version")[:_HISTORY_LIMIT]
++    form_slugs = sorted(
++        set(m.ContentIntakeConfig.objects.values_list("form_slug", flat=True)) | {""}
++    )
+     return JsonResponse(
+         {
+             "status": "ok",
+             "active": _serialize(active) if active else None,
+             "history": [_serialize(r) for r in history],
++            # 존재하는 폼 목록("" = primary) — 화면이 폼 선택 탭을 그릴 재료.
++            "form_slugs": form_slugs,
+             "allowed_folder_tokens": sorted(ALLOWED_TOKENS),
+             "shared_original_policies": list(m.SHARED_ORIGINAL_POLICY_VALUES),
+             # 수동 업로드 화면이 "몇 MB 까지 되는지" 를 **묻지 않고 지어내지 않게** 서버가
+@@ -130,6 +142,7 @@ def _validate_field(name: str, value):
+         "folder_template",
+         "folder_path_template",
+         "filename_template",
++        "default_brand_slug",
+     ):
+         if not isinstance(value, str):
+             return None, secure_error("invalid_field", f"{name} 는 문자열", status=400)
+@@ -140,6 +153,7 @@ def _validate_field(name: str, value):
+             "folder_template": 500,
+             "folder_path_template": 500,
+             "filename_template": 500,
++            "default_brand_slug": 100,
+         }
+         if len(value) > limits[name]:
+             return None, secure_error(
+@@ -298,6 +312,17 @@ def _post_config(request):
+     if not isinstance(body, dict):
+         return secure_error("invalid_body", "request body must be a JSON object", status=400)
+ 
++    # 폼 파티션 키 — 편집 필드가 아니라 "어느 폼의 설정인가"(top-level). 빈 값 = primary.
++    import re
++
++    form_slug = body.get("form_slug", "")
++    if not isinstance(form_slug, str) or not re.fullmatch(r"[a-z0-9_]{0,40}", form_slug):
++        return secure_error(
++            "invalid_field",
++            "form_slug 는 소문자·숫자·밑줄 40자 이하(빈 값 = 기존 US 폼)",
++            status=400,
++        )
++
+     provided = {k: body[k] for k in _CONFIG_FIELDS if k in body}
+     if not provided:
+         return secure_error(
+@@ -329,7 +354,13 @@ def _post_config(request):
+         if connection.vendor == "postgresql":
+             with connection.cursor() as cur:
+                 cur.execute("SELECT pg_advisory_xact_lock(%s)", [_CONFIG_ADVISORY_KEY])
+-        active = m.ContentIntakeConfig.objects.filter(is_active=True).order_by("-version").first()
++        # ⚠️ base·플립 모두 **같은 폼 스코프** — 다른 폼의 활성을 끄면(교차 플립) 그 폼
++        #   수집이 조용히 멈춘다. version 은 전역 시퀀스 그대로(Max+1, unique 유지).
++        active = (
++            m.ContentIntakeConfig.objects.filter(is_active=True, form_slug=form_slug)
++            .order_by("-version")
++            .first()
++        )
+         base = {f: getattr(active, f) for f in _CONFIG_FIELDS} if active else {}
+         merged = {f: coerced.get(f, base.get(f)) for f in _CONFIG_FIELDS}
+         # M1/M2: **merged**(base 보존 반영)로 템플릿 검증 — 실제 저장될 config 를 판정(provided-only
+@@ -347,11 +378,14 @@ def _post_config(request):
+                 return err
+         # base 미존재 필드(초기 저장)는 None → 모델 default 위임(생략).
+         create_kwargs = {f: v for f, v in merged.items() if v is not None}
+-        m.ContentIntakeConfig.objects.filter(is_active=True).update(is_active=False)
++        m.ContentIntakeConfig.objects.filter(is_active=True, form_slug=form_slug).update(
++            is_active=False
++        )
+         next_ver = (m.ContentIntakeConfig.objects.aggregate(mx=Max("version"))["mx"] or 0) + 1
+         row = m.ContentIntakeConfig.objects.create(
+             version=next_ver,
+             is_active=True,
++            form_slug=form_slug,
+             updated_by=handle,
+             **create_kwargs,
+         )

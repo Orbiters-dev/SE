@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>JP 신규 콘텐츠 KM/Hook 자동 태깅 + Content Tags (JP) 탭 편입 (tag_jp_content.py --incremental). 2026-07-10</Description>
+    <URI>\MetaJP_ContentTag_Auto</URI>
+  </RegistrationInfo>
+  <Principals>
+    <Principal id="Author">
+      <UserId>S-1-5-21-1927445275-2163468221-3895906776-1001</UserId>
+      <LogonType>InteractiveToken</LogonType>
+    </Principal>
+  </Principals>
+  <Settings>
+    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <IdleSettings>
+      <Duration>PT10M</Duration>
+      <WaitTimeout>PT1H</WaitTimeout>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+  </Settings>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2026-07-13T09:25:00+09:00</StartBoundary>
+      <Repetition>
+        <Interval>PT3H</Interval>
+        <Duration>PT14H</Duration>
+        <StopAtDurationEnd>true</StopAtDurationEnd>
+      </Repetition>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Actions Context="Author">
+    <Exec>
+      <Command>cmd.exe</Command>
+      <Arguments>/c set PYTHONIOENCODING=utf-8 &amp;&amp; "C:\Users\orbit\AppData\Local\Programs\Python\Python314\python.exe" tools\tag_jp_content.py --incremental --write-sheet --sync-jp</Arguments>
+      <WorkingDirectory>C:\Users\orbit\Desktop\SE</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

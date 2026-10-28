@@ -1,0 +1,2433 @@
+"""
+Meta JP (Grosmimi) 광고 자동 분석 + Gmail 리포트.
+
+Modes:
+  1d  : 어제 1일 스냅샷 (캠페인별 + 광고 TOP5 + 알림)
+  7d  : 최근 7일 트렌드 (일별 차트 + WoW + 광고 ranking)
+  14d : 14일 진단 (학습단계 + 크리에이티브 분류 + Freq 매트릭스)
+
+Usage:
+  python tools/meta_jp_daily.py --mode 1d
+  python tools/meta_jp_daily.py --mode 7d --no-send
+  python tools/meta_jp_daily.py --mode 14d --to se.heo@orbiters.co.kr
+"""
+
+import argparse
+import base64
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import urllib.parse
+import urllib.request
+from collections import defaultdict
+from datetime import date, datetime, timedelta
+from pathlib import Path
+
+from data_keeper_client import DataKeeper
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # cp949 방지 (Python 3.7+)
+except AttributeError:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+ROOT = Path(__file__).resolve().parent.parent
+TOOLS = ROOT / "tools"
+sys.path.insert(0, str(TOOLS))
+from env_loader import load_env  # noqa: E402
+
+load_env()
+
+TOKEN = os.getenv("META_JP_ACCESS_TOKEN")
+ACCT = os.getenv("META_JP_AD_ACCOUNT_ID")
+BASE = "https://graph.facebook.com/v21.0"
+
+DEFAULT_TO = "se.heo@orbiters.co.kr"
+TMP_DIR = ROOT / ".tmp" / "meta_jp_daily"
+TMP_DIR.mkdir(parents=True, exist_ok=True)
+
+CTR_BENCH = 1.71  # JP 6-24m mom benchmark
+CTR_LOW = 1.0
+FREQ_HIGH = 2.5
+CPC_SPIKE_PCT = 30.0
+
+# 6/4 추가 — 슈퍼세일 증액 모니터링 종료일 (이 날짜 이후 섹션 자동 hide)
+SUPERSALE_END = date(2026, 6, 11)
+
+# 5/15 KPI = 북극성 (고정). Off Rule 과 분리.
+KPI_WL_CTR = 8.0    # 인플루언서 화이트리스팅 (PAID/GIFT) CTR 목표
+KPI_IMG_CTR = 4.0   # 이미지 광고 (UNKNOWN) CTR 목표
+KPI_CPC = 100       # CPC 목표 (₩)
+
+# WL Testing 운영 게이트 (2026-06-16 확정 — 1:1 분리 운영 절대 지표).
+# memory/reference_meta_wl_testing_gate_criteria.md. meta-app/lib/meta-constants.ts 와 동기화.
+# 졸업(D+3): CPC≤₩95 AND CTR≥8% AND CPLPV≤₩130. 1:1 분리라 share 무의미 → 개별 절대 지표.
+# CPLPV 135→130 (2026-07-09 세은 확정, PPSU/Stainless 공통).
+GRAD_CPC_MAX = 95       # 졸업 CPC ≤ ₩95
+GRAD_CTR_MIN = 8.0      # 졸업 CTR ≥ 8%
+GRAD_CPLPV_MAX = 130    # 졸업 CPLPV ≤ ₩130 (2026-07-09 세은: 135→130)
+GRAD_MIN_DAYS = 3       # 졸업 판정 시점 D+3 (2026-07-06 세은: OFF·졸업 모두 D+3)
+# OFF(D+3): CPC>₩150 OR CTR<5% → CPLPV≥₩190 시 OFF / 정상 시 D+5 유예. 양호해도 CPLPV≥₩190 = 이탈형 OFF.
+OFF_D3_CPC_MAX = 150    # D+3 CPC 나쁨선
+OFF_D3_CTR_MIN = 5.0    # D+3 CTR 나쁨선
+OFF_D3_CPLPV_OFF = 190  # D+3 CPLPV OFF 트리거 (이탈형 돈샘)
+OFF_MIN_DAYS = 3        # OFF 판정 시점 D+3
+
+
+def api_get(path, params=None):
+    params = dict(params or {})
+    params["access_token"] = TOKEN
+    url = f"{BASE}/{path}?{urllib.parse.urlencode(params)}"
+    req = urllib.request.Request(url)
+    out = []
+    while True:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = json.loads(r.read())
+        out.extend(data.get("data", []))
+        nxt = data.get("paging", {}).get("next")
+        if not nxt:
+            break
+        req = urllib.request.Request(nxt)
+    return out
+
+
+# ── 절대 룰 (2026-07-09 세은): OFF/졸업/증액/delivery 후보 판정 = Graph 실시간 status 만 ──
+# DK raw_meta_ad_creative 등 적재 테이블은 push 파이프라인이 죽으면 stale ACTIVE 로 남아
+# 이미 졸업/OFF 한 광고가 후보에 재등장한다 (7/9 RHYTHMICAL_MAMA 사고).
+# 후보 빌더(graduation/off/delivery/budget) 내부에서 _is_live_active() 로 강제 —
+# 호출자가 필터를 깜빡해도 비ACTIVE 는 후보에 못 들어온다. meta-app dk-meta.ts 와 동일 룰.
+_LIVE_STATUS_CACHE = None
+
+
+def live_ad_statuses():
+    """전 광고 effective_status 실시간 맵 (계정 edge — per-id 배치는 한 id 오류로 전체 400)."""
+    global _LIVE_STATUS_CACHE
+    if _LIVE_STATUS_CACHE is None:
+        try:
+            rows = api_get(f"{ACCT}/ads", {"fields": "id,effective_status", "limit": 500})
+            _LIVE_STATUS_CACHE = {r["id"]: r.get("effective_status", "") for r in rows if r.get("id")}
+            print(f"[live-status] {len(_LIVE_STATUS_CACHE)} ads fetched")
+        except Exception as e:
+            print(f"[live-status] WARN fetch failed ({e}) — 후보 status 필터 생략 (fail-open)")
+            _LIVE_STATUS_CACHE = {}
+    return _LIVE_STATUS_CACHE
+
+
+def _is_live_active(ad_id):
+    """후보 자격 게이트. status 전체 조회 실패 시에만 fail-open (빈 표 방지, 앱과 동일)."""
+    st = live_ad_statuses()
+    if not st:
+        return True
+    return st.get(ad_id or "") == "ACTIVE"
+
+
+_DK = DataKeeper()
+DK_META_BRAND = "Grosmimi JP"   # gk_meta_ads_daily.brand 값 (JP 계정)
+_PRESET_DAYS = {"yesterday": 1, "last_7d": 7, "last_14d": 14, "last_30d": 30, "last_90d": 90}
+
+
+def _dk_norm(r):
+    """DK meta_ads_daily row → Graph insights 형식 정규화.
+
+    DK 스키마엔 ctr/cpc/cpm/actions 없음 → spend/impr/clicks 로 계산.
+    LPV(landing_page_view)는 DK 에 컬럼 생기면 사용, 없으면 0 → CPLPV 0.
+    """
+    spend = to_float(r.get("spend"))
+    impr = to_float(r.get("impressions"))
+    clicks = to_float(r.get("clicks"))
+    lpv = to_float(r.get("landing_page_view") or r.get("lpv") or 0)
+    actions = [{"action_type": "landing_page_view", "value": str(lpv)}] if lpv else []
+    return {
+        "campaign_id": r.get("campaign_id", ""), "campaign_name": r.get("campaign_name", ""),
+        "adset_id": r.get("adset_id", ""), "adset_name": r.get("adset_name", ""),
+        "ad_id": r.get("ad_id", ""), "ad_name": r.get("ad_name", ""),
+        "spend": spend, "impressions": impr, "clicks": clicks,
+        "ctr": (clicks / impr * 100) if impr else 0.0,
+        "cpc": (spend / clicks) if clicks else 0.0,
+        "cpm": (spend / impr * 1000) if impr else 0.0,
+        "frequency": to_float(r.get("frequency")),
+        "reach": to_float(r.get("reach")),
+        "actions": actions,
+        "date_start": r.get("date", ""), "date_stop": r.get("date", ""),
+    }
+
+
+def _dk_aggregate(norm_rows, key_fields):
+    """기간 합산 (with_daily=False). key_fields 단위 spend/impr/clicks/reach/lpv 합산 후 비율 재계산."""
+    groups = defaultdict(list)
+    for r in norm_rows:
+        groups[tuple(r.get(k, "") for k in key_fields)].append(r)
+    out = []
+    for rs in groups.values():
+        spend = sum(x["spend"] for x in rs)
+        impr = sum(x["impressions"] for x in rs)
+        clicks = sum(x["clicks"] for x in rs)
+        reach = sum(x["reach"] for x in rs)
+        lpv = sum(extract_lpv(x["actions"]) for x in rs)
+        actions = [{"action_type": "landing_page_view", "value": str(lpv)}] if lpv else []
+        base = dict(rs[-1])
+        base.update({
+            "spend": spend, "impressions": impr, "clicks": clicks, "reach": reach,
+            "ctr": (clicks / impr * 100) if impr else 0.0,
+            "cpc": (spend / clicks) if clicks else 0.0,
+            "cpm": (spend / impr * 1000) if impr else 0.0,
+            "frequency": (impr / reach) if reach else 0.0,
+            "actions": actions,
+        })
+        out.append(base)
+    return out
+
+
+def fetch(level, time_range=None, date_preset=None, with_daily=False):
+    """DataKeeper meta_ads_daily 단일 소스에서 가져온다 (Graph 직접 호출 폐기).
+
+    CLAUDE.md 룰: 광고 데이터는 MUST DataKeeper. DK 는 ad-level daily 라
+    campaign level 은 roll-up, 기간 합산(with_daily=False)도 코드에서 처리.
+    """
+    if time_range:
+        date_from, date_to = time_range["since"], time_range["until"]
+    elif date_preset:
+        ref = date.today() - timedelta(days=1)
+        n = _PRESET_DAYS.get(date_preset, 7)
+        date_from = (ref - timedelta(days=n - 1)).isoformat()
+        date_to = ref.isoformat()
+    else:
+        date_from = date_to = None
+
+    raw = _DK.get("meta_ads_daily", date_from=date_from, date_to=date_to, brand=DK_META_BRAND)
+    norm = [_dk_norm(r) for r in raw]
+
+    if level == "campaign":
+        agg = _dk_aggregate(norm, ["campaign_id", "date_start"] if with_daily else ["campaign_id"])
+        for r in agg:                       # campaign level 은 ad/adset 식별자 비움 (Graph 와 동일)
+            r["ad_id"] = r["adset_id"] = r["ad_name"] = r["adset_name"] = ""
+        return agg
+
+    if with_daily:                          # level == "ad", 일별
+        return norm
+    return _dk_aggregate(norm, ["ad_id"])   # level == "ad", 기간 합산
+
+
+def extract_lpv(actions):
+    """actions 리스트에서 landing_page_view 카운트 추출."""
+    if not actions:
+        return 0
+    for a in actions:
+        if a.get("action_type") == "landing_page_view":
+            return to_float(a.get("value"))
+    return 0
+
+
+def build_post_url_map(ad_ids):
+    """ad_id 리스트 → IG/FB 게시물 URL 매핑. Graph API batch."""
+    if not ad_ids:
+        return {}
+    url_map = {}
+    ids = list(set(ad_ids))
+    for i in range(0, len(ids), 50):
+        batch = ids[i:i+50]
+        params = {
+            "ids": ",".join(batch),
+            "fields": "id,creative{instagram_permalink_url,effective_instagram_media_id}",
+            "access_token": TOKEN,
+        }
+        try:
+            qs = urllib.parse.urlencode(params)
+            with urllib.request.urlopen(f"{BASE}/?{qs}", timeout=30) as resp:
+                d = json.loads(resp.read().decode("utf-8"))
+            for ad_id, ad in d.items():
+                cr = (ad or {}).get("creative") or {}
+                perma = cr.get("instagram_permalink_url")
+                if perma:
+                    url_map[ad_id] = perma
+                elif cr.get("effective_instagram_media_id"):
+                    url_map[ad_id] = f"https://www.instagram.com/p/?media_id={cr['effective_instagram_media_id']}"
+        except Exception as e:
+            print(f"  [warn] post_url fetch failed: {e}", file=sys.stderr)
+    return url_map
+
+
+def to_float(v, default=0.0):
+    try:
+        return float(v) if v not in (None, "") else default
+    except (TypeError, ValueError):
+        return default
+
+
+def fmt_won(v):
+    return f"₩{int(round(to_float(v))):,}"
+
+
+def fmt_pct(v):
+    return f"{to_float(v):.2f}%"
+
+
+def fmt_num(v, decimals=0):
+    f = to_float(v)
+    if decimals == 0:
+        return f"{int(round(f)):,}"
+    return f"{f:,.{decimals}f}"
+
+
+def adset_stage(adset_name, campaign_name=""):
+    """운영 stage 추출 (Testing / Proven / Other).
+
+    신 구조 (2026-06-19~): Testing 여부가 campaign_name (…_Testing_2026) 에 있고
+    adset_name 엔 없음 → campaign_name 도 함께 본다.
+    """
+    n = (adset_name or "").lower()
+    c = (campaign_name or "").lower()
+    if "proven" in n or "proven" in c:
+        return "proven"
+    if "test" in n or "test" in c:
+        return "testing"
+    return "other"
+
+
+def parse_paid_flag(ad_name):
+    """ad_name에서 PAID/GIFT 라벨 추출. 끝 yymmdd 바로 앞에 박힌 형식.
+
+    예: 'AD N | Stainless 300ml | komugiko | PAID | 20260424' → 'PAID'
+        'AD D | PPSU 300ml | ichikuru_fufu | GIFT | 20260320' → 'GIFT'
+        라벨 없으면 'UNKNOWN' (이미지 광고 등).
+    """
+    n = ad_name or ""
+    if "| PAID |" in n:
+        return "PAID"
+    if "| GIFT |" in n:
+        return "GIFT"
+    # 신 명명 (2026-06~): RKT_WL-P_ (Paid) / RKT_WL-G_ (Gift).
+    if "WL-P" in n:
+        return "PAID"
+    if "WL-G" in n:
+        return "GIFT"
+    return "UNKNOWN"
+
+
+def calc_days_live(ad_name, ref_date):
+    """ad_name 에서 게시일 → D+N 계산. 파싱 실패 시 None.
+
+    신 명명 (2026-06~): 앞쪽 'Y26M06D19' (= 2026-06-19).
+    구 명명: 끝 8자리 'AD G | ... | 20260303'.
+    """
+    if not ad_name:
+        return None
+    m = re.search(r"Y(\d{2})M(\d{2})D(\d{2})", ad_name)
+    if m:
+        yy, mo, dd = m.groups()
+        try:
+            launch = date(2000 + int(yy), int(mo), int(dd))
+        except ValueError:
+            return None
+        return (ref_date - launch).days
+    tail = ad_name.strip().split("|")[-1].strip() if "|" in ad_name else ad_name.strip()[-8:]
+    digits = "".join(c for c in tail if c.isdigit())[-8:]
+    if len(digits) != 8:
+        return None
+    try:
+        launch = datetime.strptime(digits, "%Y%m%d").date()
+    except ValueError:
+        return None
+    return (ref_date - launch).days
+
+
+def lifecycle_stage(days_live):
+    """D+N → lifecycle stage. 신생 / Testing / Proven 분류 (PDF 5장 룰)."""
+    if days_live is None:
+        return "unknown"
+    if days_live < 7:
+        return "newborn"
+    if days_live < 15:
+        return "testing"
+    return "proven"
+
+
+def calc_percentiles(values, ascending_is_better=False):
+    """리스트의 P10/P20/P50/P80/P90 산출. 빈 리스트면 None 반환.
+
+    ascending_is_better=True → CPC (낮을수록 좋음, P10이 best)
+    ascending_is_better=False → CTR (높을수록 좋음, P90이 best)
+    리턴은 항상 정렬 후 percentile 값.
+    """
+    vals = sorted([v for v in values if v is not None and v > 0])
+    n = len(vals)
+    if n == 0:
+        return None
+    def pct(p):
+        idx = max(0, min(n - 1, int(round(p / 100 * (n - 1)))))
+        return vals[idx]
+    return {
+        "p10": pct(10), "p20": pct(20), "p50": pct(50),
+        "p80": pct(80), "p90": pct(90),
+        "n": n,
+    }
+
+
+def off_rule_check(ad, ref_date=None):
+    """WL Testing OFF 게이트 (2026-06-16 확정, D+3 판정).
+
+    memory/reference_meta_wl_testing_gate_criteria.md 게이트 1.
+    ① CPC ≤ ₩150 AND CTR ≥ 5%        → 생존
+    ② CPC·CTR 중 하나라도 나쁨        → CPLPV ≥ ₩190 시 OFF / 정상 시 D+5 유예(모니터링)
+    ③ CPC·CTR 양호한데 CPLPV ≥ ₩190   → OFF (이탈형 돈샘)
+
+    Testing 1:1 광고 D+3+ 대상 (호출측에서 Testing·D+3 필터). Proven Off 는
+    delivery_failure_candidates 별도. meta-app/lib/meta-constants.ts 와 기준 동기화.
+
+    리턴: off_recommend / monitoring(D+5 유예) / reason / monitoring_reason.
+    """
+    ctr = ad.get("ctr", 0)
+    cpc = ad.get("cpc", 0)
+    cplpv = ad.get("cplpv", 0)
+
+    cpc_bad = cpc > OFF_D3_CPC_MAX
+    ctr_bad = ctr < OFF_D3_CTR_MIN
+    cplpv_bad = cplpv >= OFF_D3_CPLPV_OFF and cplpv > 0
+
+    triggers = []
+    grace = []
+    if not cpc_bad and not ctr_bad:
+        # ③ CPC/CTR 양호 — CPLPV 이탈형만 체크
+        if cplpv_bad:
+            triggers.append(f"CPC ₩{cpc:.0f}·CTR {ctr:.1f}% 양호하나 CPLPV ₩{cplpv:.0f} ≥ ₩190 (이탈형)")
+    else:
+        # ② CPC/CTR 중 하나 나쁨 → CPLPV 로 OFF/유예 판정
+        bad = []
+        if cpc_bad:
+            bad.append(f"CPC ₩{cpc:.0f} > ₩150")
+        if ctr_bad:
+            bad.append(f"CTR {ctr:.1f}% < 5%")
+        if cplpv_bad:
+            triggers.append(" · ".join(bad) + f" + CPLPV ₩{cplpv:.0f} ≥ ₩190")
+        else:
+            grace.append(" · ".join(bad) + f" but CPLPV ₩{cplpv:.0f} 정상 — D+5 유예")
+
+    return {
+        "off_recommend": len(triggers) > 0,
+        "monitoring": len(triggers) == 0 and len(grace) > 0,
+        "triggers": triggers,
+        "monitoring_reason": " · ".join(grace),
+        "reason": " · ".join(triggers) if triggers else "",
+    }
+
+
+def best_worst_from_rows(ad_rows, min_impr=200, ref_date=None):
+    """광고 단위 BEST/WORST TOP3 by CTR/CPC.
+
+    추가 (5/15): paid_flag + days_live + lifecycle_stage 파싱.
+    PAID/GIFT × Testing/Proven 4-way pool split + percentile 산출도 함께.
+    """
+    if ref_date is None:
+        ref_date = date.today()
+    ads = []
+    for row in ad_rows:
+        impr = to_float(row.get("impressions"))
+        spend = to_float(row.get("spend"))
+        ad_name = row.get("ad_name", "")
+        days_live = calc_days_live(ad_name, ref_date)
+        # delivery 실패 평가 위해 D+90+ + spend<₩5K 광고는 imp<200 이어도 풀에 포함
+        delivery_fail_candidate = (days_live is not None and days_live >= 90 and spend < 5000)
+        if impr < min_impr and not delivery_fail_candidate:
+            continue
+        lpv = extract_lpv(row.get("actions"))
+        ads.append({
+            "ad_id": row.get("ad_id", ""),
+            "ad_name": ad_name,
+            "campaign_name": row.get("campaign_name", ""),
+            "adset_name": row.get("adset_name", ""),
+            "stage": adset_stage(row.get("adset_name", ""), row.get("campaign_name", "")),
+            "paid_flag": parse_paid_flag(ad_name),
+            "days_live": days_live,
+            "lifecycle": lifecycle_stage(days_live),
+            "spend": spend,
+            "impressions": impr,
+            "clicks": to_float(row.get("clicks")),
+            "ctr": to_float(row.get("ctr")),
+            "cpc": to_float(row.get("cpc")),
+            "freq": to_float(row.get("frequency")),
+            "lpv": lpv,
+            "cplpv": (spend / lpv) if lpv > 0 else 0,
+        })
+    ctr_pool = [a for a in ads if a["ctr"] > 0]
+    cpc_pool = [a for a in ads if a["cpc"] > 0]
+
+    # 4-way pool split: PAID/GIFT × Testing/Proven (newborn/unknown 제외)
+    pools = {}
+    for paid in ("PAID", "GIFT"):
+        for lc in ("testing", "proven"):
+            key = f"{paid}_{lc}"
+            members = [a for a in ads if a["paid_flag"] == paid and a["lifecycle"] == lc]
+            pools[key] = {
+                "members": members,
+                "ctr_pct": calc_percentiles([a["ctr"] for a in members]),
+                "cpc_pct": calc_percentiles([a["cpc"] for a in members], ascending_is_better=True),
+                "cplpv_pct": calc_percentiles([a["cplpv"] for a in members], ascending_is_better=True),
+            }
+
+    # 풀이 작을 때(≤6) BEST·WORST 겹침 방지 — BEST 먼저 뽑고 WORST는 BEST 제외 후 N개.
+    # 풀 크기에 따라 N 동적 조정 (6→3, 5→2, 4→2, 3→1, ≤2→0).
+    def _split(pool, key, reverse_best):
+        n = min(3, len(pool) // 2)
+        if n == 0:
+            return [], []
+        best = sorted(pool, key=lambda x: x[key], reverse=reverse_best)[:n]
+        best_ids = {id(a) for a in best}
+        worst = [a for a in sorted(pool, key=lambda x: x[key], reverse=not reverse_best) if id(a) not in best_ids][:n]
+        return best, worst
+
+    ctr_best, ctr_worst = _split(ctr_pool, "ctr", reverse_best=True)
+    cpc_best, cpc_worst = _split(cpc_pool, "cpc", reverse_best=False)
+
+    return {
+        "ctr_best": ctr_best,
+        "ctr_worst": ctr_worst,
+        "cpc_best": cpc_best,
+        "cpc_worst": cpc_worst,
+        "all_ads": ads,
+        "pools": pools,
+    }
+
+
+def graduation_candidates(ad_rows_7d, ref_date, off_ad_ids=None, min_impr=200):
+    """Testing → Proven 졸업 후보 (2026-06-16 확정 — WL 1:1 분리 운영 절대 지표).
+
+    memory/reference_meta_wl_testing_gate_criteria.md 게이트 2.
+    조건: Testing adset 소속 · D+3+ · 노출 ≥ min_impr(200) ·
+          CPC ≤ ₩95 AND CTR ≥ 8% AND CPLPV ≤ ₩130 모두 통과 · Off 트리거 미해당.
+    1:1 분리(소재1=adset1)라 풀 share 무의미 → 개별 절대 지표로 판정.
+    meta-app/lib/meta-aggregations.ts graduationCandidates 와 동기화.
+    clicks 0→cpc 0, lpv 0→cplpv 0 이 게이트를 거짓 통과하므로 양수 가드 필수.
+
+    리턴: [{ad_name, adset_name, days_live, paid_flag, ctr, cpc, cplpv, freq, spend, clicks, lpv, reason}, ...]
+    """
+    off_ad_ids = off_ad_ids or set()
+    out = []
+    for row in ad_rows_7d:
+        ad_id = row.get("ad_id", "")
+        if ad_id in off_ad_ids:
+            continue
+        if not _is_live_active(ad_id):      # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지
+            continue
+        asname = row.get("adset_name", "")
+        if adset_stage(asname, row.get("campaign_name", "")) != "testing":
+            continue
+        impr = to_float(row.get("impressions"))
+        if impr < min_impr:
+            continue
+        ad_name = row.get("ad_name", "")
+        days = calc_days_live(ad_name, ref_date)
+        if days is None or days < GRAD_MIN_DAYS:        # D+3+
+            continue
+        spend = to_float(row.get("spend"))
+        clicks = to_float(row.get("clicks"))
+        lpv = extract_lpv(row.get("actions"))
+        ctr = to_float(row.get("ctr"))
+        cpc = to_float(row.get("cpc"))
+        freq = to_float(row.get("frequency"))
+        cplpv = (spend / lpv) if lpv > 0 else 0
+        if cpc <= 0 or cplpv <= 0:                       # 데이터 부족 거짓통과 차단
+            continue
+        if cpc > GRAD_CPC_MAX:                            # CPC ≤ ₩95
+            continue
+        if ctr < GRAD_CTR_MIN:                           # CTR ≥ 8%
+            continue
+        if cplpv > GRAD_CPLPV_MAX:                       # CPLPV ≤ ₩130
+            continue
+        out.append({
+            "ad_name": ad_name,
+            "adset_name": asname,
+            "days_live": days,
+            "paid_flag": parse_paid_flag(ad_name),
+            "ctr": ctr,
+            "cpc": cpc,
+            "cplpv": cplpv,
+            "freq": freq,
+            "spend": spend,
+            "clicks": clicks,
+            "lpv": lpv,
+            "reason": f"D+{days} · CPC ₩{cpc:.0f}≤95 · CTR {ctr:.1f}%≥8% · CPLPV ₩{cplpv:.0f}≤130",
+        })
+    return sorted(out, key=lambda x: x["cplpv"])         # CPLPV 좋은 순
+
+
+def delivery_failure_candidates(ad_rows_14d, ad_rows_14d_daily, ref_date,
+                                share_threshold=0.01, min_zero_days=7,
+                                window_days=14, min_age_days=14):
+    """5/28: Delivery 실패 Off 후보 — algorithm dormant ad 자동 식별.
+
+    트리거 (둘 다 hit):
+      (a) 14d adset 내 spend share < share_threshold (default 1%)
+      (b) 14d 윈도우에서 zero delivery days ≥ min_zero_days (default 7)
+    조건: D+min_age_days+ (학습 단계 통과, default 14).
+
+    배경 (memory: reference_meta_wl_lifecycle_3to6months.md + 5/28 nopi 진단):
+      WL Proven 풀 algorithm 분배 몰빵으로 dormant 되는 광고 정량화. Ad 단위 예산 X
+      구조라 풀 winner Off 전엔 살아날 path 없음. 시간 단독 sunset(D+60/D+90) 폐지.
+    """
+    adset_totals = defaultdict(float)
+    for r in ad_rows_14d:
+        adset_totals[r.get("adset_id", "")] += to_float(r.get("spend"))
+
+    days_with_spend = defaultdict(set)
+    for r in ad_rows_14d_daily:
+        if to_float(r.get("spend")) > 0:
+            days_with_spend[r.get("ad_id", "")].add(r.get("date_start", ""))
+
+    out = []
+    for r in ad_rows_14d:
+        ad_id = r.get("ad_id", "")
+        if not _is_live_active(ad_id):      # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지 (2026-07-09)
+            continue
+        ad_name = r.get("ad_name", "")
+        days_live = calc_days_live(ad_name, ref_date)
+        if days_live is None or days_live < min_age_days:
+            continue
+        adset_id = r.get("adset_id", "")
+        ad_spend = to_float(r.get("spend"))
+        adset_spend = adset_totals.get(adset_id, 0)
+        share = (ad_spend / adset_spend) if adset_spend > 0 else 0
+        zero_days = window_days - len(days_with_spend.get(ad_id, set()))
+        if share < share_threshold and zero_days >= min_zero_days:
+            out.append({
+                "ad_id": ad_id,
+                "ad_name": ad_name,
+                "adset_name": r.get("adset_name", ""),
+                "paid_flag": parse_paid_flag(ad_name),
+                "lifecycle": lifecycle_stage(days_live),
+                "days_live": days_live,
+                "share": share,
+                "zero_days": zero_days,
+                "spend": ad_spend,
+                "adset_spend": adset_spend,
+                "impressions": to_float(r.get("impressions")),
+                "lpv": extract_lpv(r.get("actions")),
+                "ctr": to_float(r.get("ctr")),
+            })
+    return sorted(out, key=lambda x: x["share"])
+
+
+def budget_increase_candidates(ads, min_spend=30000):
+    """예산 증액 후보: 계정 평균 대비 효율 좋고 학습단계 통과한 ad."""
+    if not ads:
+        return []
+    # 5/15: 신생(D+7 미만) + sunset(D+60+) 광고는 증액 후보에서 제외 (Off Rule 일관성)
+    def _stage_ok(a):
+        dl = a.get("days_live")
+        if dl is None:
+            return True  # 라벨 없는 이미지 광고는 통과
+        return 7 <= dl < 60
+    # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지 (2026-07-09)
+    qualified = [a for a in ads if _is_live_active(a.get("ad_id")) and a["spend"] >= min_spend and a["lpv"] > 0 and a["ctr"] > 0 and a["freq"] <= 2.5 and _stage_ok(a)]
+    if not qualified:
+        return []
+    avg_cplpv = sum(a["cplpv"] for a in qualified) / len(qualified)
+    avg_ctr   = sum(a["ctr"] for a in qualified) / len(qualified)
+    candidates = []
+    for a in qualified:
+        cplpv_ratio = a["cplpv"] / avg_cplpv if avg_cplpv > 0 else 1
+        ctr_ratio = a["ctr"] / avg_ctr if avg_ctr > 0 else 1
+        if cplpv_ratio <= 0.85 and ctr_ratio >= 1.1:
+            improvement = (1 - cplpv_ratio) * 100
+            if improvement >= 50: bump = 30
+            elif improvement >= 20: bump = 20
+            elif improvement >= 15: bump = 10
+            else: bump = 10
+            candidates.append({**a,
+                "cplpv_ratio": cplpv_ratio, "ctr_ratio": ctr_ratio,
+                "bump_pct": bump, "avg_cplpv": avg_cplpv, "avg_ctr": avg_ctr})
+    return sorted(candidates, key=lambda x: x["cplpv_ratio"])[:5]
+
+
+def build_advice_1d(d):
+    """1d 운용 조언 — 판단·근거·배경 3축."""
+    tips = []
+    t = d["total"]
+    ctr = t["ctr"]
+    if ctr >= CTR_BENCH * 1.5:
+        tips.append({
+            "action": "현재 운용 유지 + 예산 점진 증액 (20% 이내)",
+            "evidence": f"전체 CTR {ctr:.2f}% (벤치 {CTR_BENCH}% × 1.5 이상)",
+            "context": "벤치는 전 산업 평균. 1.5배 이상은 소재·타겟 정합성 우수 신호. 단 1회 ≤20% 증액이 Meta 학습 단계 보호 가이드.",
+        })
+    elif ctr < CTR_LOW:
+        tips.append({
+            "action": "WORST 광고 즉시 일시정지 + BEST 광고 변형 추가",
+            "evidence": f"전체 CTR {ctr:.2f}% (임계 {CTR_LOW}% 미달)",
+            "context": "CTR 저조 = 소재 매력도 부족. 같은 소재로 예산 늘려도 효율 X. WORST 정지 + BEST 변형으로 신규 학습 진입.",
+        })
+    if d["delta"]["cpc_pct"] > 30:
+        tips.append({
+            "action": "예산·타겟 변경 24h 동결",
+            "evidence": f"CPC 전일 +{d['delta']['cpc_pct']:.1f}% 급등",
+            "context": "학습 재진입 진행 중일 때 변경 시 학습 reset → 효율 추가 하락. 24h 안정화 후 재진단 안전.",
+        })
+    if d["delta"]["spend_pct"] > 50:
+        tips.append({
+            "action": "일별 cap 재설정 검토",
+            "evidence": f"Spend 전일 +{d['delta']['spend_pct']:.1f}% 급증",
+            "context": "캠페인 cap 도달 또는 입찰 자동 조정. cap 미설정 시 야간 trafic 폭주로 단가 무너질 수 있음.",
+        })
+    bw = d.get("best_worst", {})
+    if bw.get("ctr_best") and bw.get("ctr_worst"):
+        b = bw["ctr_best"][0]["ctr"]
+        w = bw["ctr_worst"][0]["ctr"]
+        if b > 0 and w > 0 and b > w * 3:
+            tips.append({
+                "action": "WORST 3개 즉시 정지 + BEST 소재 카피·앵글 변형 3개 투입",
+                "evidence": f"BEST/WORST CTR 격차 3배 이상 ({b:.2f}% vs {w:.2f}%)",
+                "context": "ad 단위 격차는 학습 알고리즘이 자동 정리 X (CBO도 ad set까지만 재분배). 직접 정리 + BEST 변형으로 학습 풀 확대.",
+            })
+    if not tips:
+        tips.append({
+            "action": "현재 운용 유지, 7일 추세 누적 후 재평가",
+            "evidence": "모든 지표 임계 통과 (CTR/CPC/Freq/격차 정상)",
+            "context": "데이터 부족 상태에서 변경은 Meta 학습 재진입 유발 → 효율 일시 하락. 변경 X가 안전.",
+        })
+    return tips
+
+
+def build_advice_7d(d):
+    tips = []
+    w = d["wow"]
+    if w["spend_pct"] > 30 and w["ctr_pct"] < -10:
+        tips.append({
+            "action": "예산 원복 + 새 콜라보 발주",
+            "evidence": f"Spend WoW +{w['spend_pct']:.0f}% / CTR WoW {w['ctr_pct']:.0f}%",
+            "context": "예산 늘렸는데 CTR 하락 = 신규 도달층이 기존 소재에 반응 X. 예산만 늘리면 더 넓은 비관심층에 노출 → 효율 추가 악화. 새 콜라보 (다른 인플루언서) 발주가 정답 — 같은 영상 재의뢰 X.",
+        })
+    elif w["spend_pct"] > 30 and w["ctr_pct"] >= 0:
+        tips.append({
+            "action": "추가 +20% 증액 실행",
+            "evidence": f"Spend WoW +{w['spend_pct']:.0f}% / CTR {w['ctr_pct']:+.0f}% (안정)",
+            "context": "증액 후 CTR 유지 = 신규 도달층도 기존 소재 매력 인정. 학습 알고리즘 안정 → 1회 ≤20% 범위 내 추가 증액 (Meta 학습 보호선).",
+        })
+    if w["cpc_pct"] > 20:
+        tips.append({
+            "action": "오디언스 만료 후 신규 LAL/Interest 추가",
+            "evidence": f"CPC WoW +{w['cpc_pct']:.0f}% 상승",
+            "context": "동일 오디언스 반복 노출 → 경매 경쟁 ↑ + 소재 피로 → CPC 상승. 신규 오디언스 풀로 입찰 경쟁 분산.",
+        })
+
+    spends = [x["spend"] for x in d["daily_trend"]]
+    if spends and sum(spends) > 0:
+        avg = sum(spends) / len(spends)
+        std_pct = ((max(spends) - min(spends)) / avg * 100) if avg else 0
+        if std_pct > 80:
+            tips.append({
+                "action": "CBO 권장 + 일별 cap 균등화",
+                "evidence": f"일별 spend 변동폭 ±{std_pct:.0f}%",
+                "context": "변동폭 80%+ = 학습 algorithm이 매일 다른 데이터로 학습 → 학습 단계 못 빠져나감. CBO + cap으로 균등 분배 시 학습 안정.",
+            })
+
+    bw = d.get("best_worst", {})
+    if bw.get("ctr_worst"):
+        worst = bw["ctr_worst"]
+        spend_loss = sum(a["spend"] for a in worst)
+        if spend_loss > 0 and worst:
+            ctr_lo = min(a["ctr"] for a in worst)
+            ctr_hi = max(a["ctr"] for a in worst)
+            tips.append({
+                "action": "WORST 광고 즉시 정지 + BEST 컨셉 변형 3종 투입",
+                "evidence": f"WORST 3 CTR {ctr_lo:.2f}~{ctr_hi:.2f}% / 7일 누적 spend {fmt_won(spend_loss)}",
+                "context": "7일 누적해도 효율 회복 X = 소재 자체 한계. 잔존 예산도 비효율 누적되니 즉시 정지가 ROI 보호.",
+            })
+
+    camps = d.get("campaigns", [])
+    if len(camps) >= 2:
+        camps_sorted = sorted(camps, key=lambda x: x["ctr"], reverse=True)
+        top, bot = camps_sorted[0], camps_sorted[-1]
+        if top["ctr"] > 0 and bot["ctr"] > 0 and top["ctr"] > bot["ctr"] * 2:
+            tips.append({
+                "action": f"저성과 캠페인 ({bot['name'][:30]}) 예산 30% 삭감 → 고성과 ({top['name'][:30]})로 이전",
+                "evidence": f"캠페인 CTR 격차 2배+ ({top['ctr']:.2f}% vs {bot['ctr']:.2f}%)",
+                "context": "캠페인 단위 격차는 CBO도 자동 분배 X (캠페인 간은 수동). 예산 이동 시 고성과 캠페인 학습 풀 확대 효과.",
+            })
+
+    if not tips:
+        tips.append({
+            "action": "현재 운용 유지, 14일 진단까지 변경 X",
+            "evidence": "WoW 변동폭 정상 + 캠페인/광고 격차 임계 미만",
+            "context": "주간 안정 = 학습 단계 통과. 변경은 학습 재진입 유발 → 안정성 손실. 14일 누적 후 종합 진단이 안전.",
+        })
+    return tips
+
+
+def build_advice_14d(d):
+    tips = []
+    learning = d.get("learning", [])
+    stable = [x for x in learning if x["stability"] == "안정"]
+    learning_only = [x for x in learning if x["stability"] == "학습중"]
+    if learning_only and not stable:
+        tips.append({
+            "action": "예산·소재·타겟 변경 7일간 동결",
+            "evidence": "전 캠페인 학습 단계 (안정 0개)",
+            "context": "Meta 학습 종료 조건: 주 50건 전환 또는 CPC 변동 ±30% 이내. 학습중 변경 시 reset → 효율 일시 추락. 인내가 정답.",
+        })
+    elif stable and learning_only:
+        tips.append({
+            "action": "학습중 캠페인 변경 X / 안정 캠페인부터 점진 증액",
+            "evidence": f"안정 {len(stable)}개 / 학습중 {len(learning_only)}개",
+            "context": "안정 = 학습 통과 → 증액 안전 윈도우. 학습중 = 데이터 부족 → 변경 시 학습 리셋 발생. 둘 분리 운영이 알고리즘 친화적.",
+        })
+
+    cc = d.get("creative_class", {})
+    img = cc.get("image")
+    vid = cc.get("video")
+    wl = cc.get("wl")
+    if img and vid:
+        if vid["ctr"] > img["ctr"] * 1.3:
+            tips.append({
+                "action": "영상 슬롯 비중 60%+ 확대 + 이미지는 hook 컷 위주로 재구성",
+                "evidence": f"영상 CTR {vid['ctr']:.2f}% vs 이미지 {img['ctr']:.2f}% (1.3배+)",
+                "context": "영상은 정보량·감정 환기 ↑ → 클릭 의지 자극. Meta 알고리즘도 영상 노출 가중치 부여. 이미지는 hook (첫 1초) 강화로 보완.",
+            })
+        elif img["ctr"] > vid["ctr"] * 1.3:
+            tips.append({
+                "action": "이미지 변형 5종 추가 + 영상은 컷 길이·썸네일 재테스트",
+                "evidence": f"이미지 CTR {img['ctr']:.2f}% vs 영상 {vid['ctr']:.2f}% (1.3배+)",
+                "context": "이미지가 영상보다 효율 = 모바일 피드에서 빠른 메시지 전달이 통함. 영상은 첫 3초·썸네일이 약점.",
+            })
+    if wl and (img or vid):
+        ref_ctr = max((cc[k]["ctr"] for k in ("image", "video") if cc.get(k)), default=0)
+        if ref_ctr > 0 and wl["ctr"] > ref_ctr * 1.2:
+            tips.append({
+                "action": "WL 광고 비중 확대 + Use existing post 추가 협업 발굴",
+                "evidence": f"WL CTR {wl['ctr']:.2f}% / 자체 소재 대비 +{(wl['ctr']/ref_ctr-1)*100:.0f}%",
+                "context": "WL = 인플루언서 신뢰도 + 자연스러운 톤 → 광고 인식 ↓ + 클릭 ↑. 단 WL 풀이 좁으면 fatigue 빠르게 옴 (피로도 모니터 필요).",
+            })
+
+    fatigue = d.get("fatigue", [])
+    if len(fatigue) >= 3:
+        spend = sum(f["spend"] for f in fatigue)
+        tips.append({
+            "action": "피로도 광고 즉시 정지 + 신규 소재 동수 투입",
+            "evidence": f"피로도 경고 {len(fatigue)}개 (14일 누적 spend {fmt_won(spend)})",
+            "context": "Freq>2.5 또는 Freq>2.0+CTR<1% = 같은 사람한테 반복 노출되어 클릭 안 함. 잔존 예산은 비효율 누적만 야기. 새 콜라보 발주로 학습 풀 갱신 필수 (같은 인플루언서에 동일 영상 재의뢰 X).",
+        })
+
+    bw = d.get("best_worst", {})
+    if bw.get("ctr_best") and bw.get("ctr_worst"):
+        b = bw["ctr_best"][0]
+        w = bw["ctr_worst"][0]
+        if b["ctr"] > 0 and w["ctr"] > 0 and b["ctr"] > w["ctr"] * 4:
+            tips.append({
+                "action": f"BEST '{b['ad_name'][:30]}' 컨셉 변형 5종 추가 + WORST 3개 영구 폐기",
+                "evidence": f"광고 CTR 격차 4배+ ({b['ctr']:.2f}% vs {w['ctr']:.2f}%)",
+                "context": "14일 누적 4배 격차 = WORST 회복 불가 (단순 학습 미통과 X). BEST 컨셉이 명확한 winner → 변형으로 풀 확대가 효율 정답.",
+            })
+
+    if not tips:
+        tips.append({
+            "action": "현재 운용 유지 + 신규 소재 정기 투입 (주 3개)",
+            "evidence": "14일 진단상 즉시 액션 항목 없음",
+            "context": "안정기 진입 = 효율 양호. 그러나 같은 소재 장기 운영 시 fatigue 누적 → 주 3개 신규 소재 투입으로 풀 회전 필요.",
+        })
+    return tips
+
+
+def render_advice_section(tips, header="메타몽 운용 조언"):
+    cards = []
+    for i, t in enumerate(tips, 1):
+        if isinstance(t, str):
+            cards.append(f'<div style="margin:10px 0;padding:10px 14px;background:#fff;border-left:3px solid #2563eb;border-radius:3px;">{t}</div>')
+            continue
+        cards.append(
+            f'<div style="margin:12px 0;padding:12px 16px;background:#fff;border-left:3px solid #2563eb;border-radius:3px;">'
+            f'<p style="margin:0 0 6px;"><b>판단 {i}.</b> {t.get("action","")}</p>'
+            f'<p class=meta style="margin:4px 0;"><b>근거</b> · {t.get("evidence","")}</p>'
+            f'<p class=meta style="margin:4px 0;"><b>배경</b> · {t.get("context","")}</p>'
+            f'</div>'
+        )
+    return f"""
+<h2>{header}</h2>
+<div style="background:#eff6ff;padding:14px 18px;border-radius:4px;">
+  {''.join(cards)}
+  <p class=meta style="margin:10px 0 0;">룰 기반 자동 생성. 최종 의사결정은 세은 직접.</p>
+</div>
+"""
+
+
+def build_findings(d, ref_date=None):
+    """오늘의 발견 — S 후보 + velocity + 신생 동결 + delta (Off 는 D+3 박스로 분리).
+
+    축:
+      1) S 후보 (Top 10%, Proven 풀만): 풀 P90 이상 → 증액 우선
+      2) velocity 하락 (7d CTR 급락): 신규 변형 검토
+      3) 신생 동결 (D+7 미만): 변경·증액 금지 안내
+      4) delta 알림 (전체 CTR/CPC 급변)
+    Off 권장은 render_off_recommend_box(D+3 게이트)가 전담 — 여기선 다루지 않음 (옛 풀 P20 로직 제거 2026-06-30).
+    상위 3개만 반환.
+    """
+    if ref_date is None:
+        ref_date = date.today()
+    findings = []
+    # 6/4 — Off Recommend 표와 같은 7d 풀 사용 (1d spend ≠ 7d spend audit mismatch fix)
+    bw = d.get("best_worst_7d") or d.get("best_worst", {})
+    all_ads = bw.get("all_ads", [])
+    pools = bw.get("pools", {})
+    if not all_ads:
+        return findings
+
+    s_cards = []
+
+    for paid in ("PAID", "GIFT"):
+        for lc in ("testing", "proven"):
+            key = f"{paid}_{lc}"
+            pool = pools.get(key, {})
+            members = pool.get("members", [])
+            if not members:
+                continue
+            ctr_pct = pool.get("ctr_pct")
+            pool_label = f"{paid}×{lc.capitalize()}"
+            paid_strict = (paid == "PAID")  # PAID는 더 strict 해석
+
+            # S 후보 — Proven 풀 P90 이상 (Top 10%) + spend ≥ ₩30K + 풀 n ≥ 6 (percentile 의미 보장)
+            if lc == "proven" and ctr_pct and ctr_pct.get("p90") and ctr_pct.get("n", 0) >= 6:
+                p90 = ctr_pct["p90"]
+                for a in members:
+                    if a["ctr"] >= p90 and a.get("spend", 0) >= 30000:
+                        ad_short = a["ad_name"][:40]
+                        ctx = (
+                            "PAID Proven 풀 Top 10% — 회수 검증된 winner. 증액 1회 ≤30% (Meta 학습 보호선)."
+                            if paid_strict else
+                            "GIFT Proven 풀 Top 10% — 무료 수급 winner. 증액 대신 PAID 풀로 캐스팅 우선 검토."
+                        )
+                        s_cards.append({
+                            "_sort_spend": a.get("spend", 0),
+                            "finding": f"<b>{ad_short}</b> <span style=\"color:#6b7280;font-size:13px;\">[{pool_label} P90+]</span> S 후보 — 증액 우선순위",
+                            "evidence": f"CTR {a['ctr']:.2f}% (풀 P90 {p90:.2f}% 이상) · spend {fmt_won(a['spend'])} · D+{a.get('days_live','?')}",
+                            "context": ctx,
+                        })
+
+    # velocity 하락 (B-6) — 7d 모드에서 채워짐.
+    vel_cards = []
+    for v in bw.get("velocity_decay", []):
+        ad_short = v["ad_name"][:40]
+        paid = v.get("paid_flag", "")
+        ctx = (
+            "PAID Proven 풀 7d CTR 하락 = 소재 피로 자연 진행. 즉시 Off 보단 신규 변형 투입 우선."
+            if paid == "PAID" else
+            "GIFT Proven 풀 7d CTR 하락 = 자연 진행. 신규 변형 의뢰 or 다음 협업 우선순위 조정."
+        )
+        vel_cards.append({
+            "_sort_spend": v.get("spend", 0),
+            "finding": f"<b>{ad_short}</b> <span style=\"color:#6b7280;font-size:13px;\">[{paid}×Proven velocity]</span> CTR 하락 — 신규 변형 검토",
+            "evidence": f"CTR 이전7d {v['prev_ctr']:.2f}% → 최근7d {v['cur_ctr']:.2f}% ({v['delta_pct']:+.1f}%) · D+{v.get('days_live','?')} · spend {fmt_won(v.get('spend',0))}",
+            "context": ctx,
+        })
+
+    s_cards.sort(key=lambda x: -x["_sort_spend"])
+    vel_cards.sort(key=lambda x: -x["_sort_spend"])
+    for c in s_cards + vel_cards:
+        c.pop("_sort_spend", None)
+        findings.append(c)
+
+    # 4) 신생 (D+7 미만) — 변경·증액 동결 안내. spend 있고 노출 ≥1,000 미달인 광고만.
+    newborn_ads = [a for a in all_ads if a.get("lifecycle") == "newborn" and a.get("spend", 0) > 0 and a.get("impressions", 0) < 1000]
+    if newborn_ads:
+        names = ", ".join(a["ad_name"][:25] for a in newborn_ads[:3])
+        more = f" 외 {len(newborn_ads)-3}건" if len(newborn_ads) > 3 else ""
+        findings.append({
+            "finding": f"신생 풀 {len(newborn_ads)}건 동결 안내 — D+7까지 변경·증액 금지",
+            "evidence": f"{names}{more}",
+            "context": "D+7 미만 = Meta 학습 초기. 노출 누적 전 변경·증액·OFF 시 학습 리셋 → 단가 폭증. 노출 ≥1,000 + D+7 도달 후 재진단.",
+        })
+
+    # 5) delta 알림 (전체 CTR/CPC 급변) — 기존 유지
+    if d.get("delta"):
+        delta = d["delta"]
+        if delta.get("ctr_pct", 0) <= -15 and abs(delta.get("spend_pct", 0)) < 20:
+            findings.append({
+                "finding": "전체 CTR 급락, spend는 안정 — 오디언스/소재 피로 신호",
+                "evidence": f"CTR 전일 {delta['ctr_pct']:.1f}% / spend ±{abs(delta['spend_pct']):.0f}%",
+                "context": "spend 안정 + CTR만 하락 = 입찰·예산 변경 X = 오디언스 피로 또는 소재 피로. 캠페인 단위 점검 필요.",
+            })
+        elif delta.get("cpc_pct", 0) >= 30:
+            findings.append({
+                "finding": "전체 CPC 급등 — 학습 재진입 또는 경매 경쟁",
+                "evidence": f"CPC 전일 +{delta['cpc_pct']:.1f}%",
+                "context": "단발적 변동은 경매 경쟁(다른 광고주 입찰 ↑)에서 발생. 변경 시 학습 리셋 → 24h 동결 후 재관찰.",
+            })
+
+    return findings[:3]
+
+
+def render_findings_section(findings):
+    if not findings:
+        return """
+<h2>오늘의 발견</h2>
+<div style="background:#fefce8;padding:14px 18px;border-radius:4px;">
+  <p class=meta style="margin:6px 0;">특이 신호 없음. peer 격차·피로도·트렌드 변화 모두 정상 범위.</p>
+</div>
+"""
+    cards = []
+    for i, f in enumerate(findings, 1):
+        if isinstance(f, str):
+            cards.append(f'<div style="margin:10px 0;padding:10px 14px;background:#fff;border-left:3px solid #eab308;border-radius:3px;">{f}</div>')
+            continue
+        cards.append(
+            f'<div style="margin:12px 0;padding:12px 16px;background:#fff;border-left:3px solid #eab308;border-radius:3px;">'
+            f'<p style="margin:0 0 6px;"><b>발견 {i}.</b> {f.get("finding","")}</p>'
+            f'<p class=meta style="margin:4px 0;"><b>근거</b> · {f.get("evidence","")}</p>'
+            f'<p class=meta style="margin:4px 0;"><b>배경</b> · {f.get("context","")}</p>'
+            f'</div>'
+        )
+    return f"""
+<h2>오늘의 발견</h2>
+<div style="background:#fefce8;padding:14px 18px;border-radius:4px;">
+  {''.join(cards)}
+  <p class=meta style="margin:10px 0 0;">peer 격차 / 학습 단계 / 트렌드 변화. 매일 1~3개. 누적되면 세은 기준 후보 발굴 재료.</p>
+</div>
+"""
+
+
+def post_link_cell(post_url):
+    if post_url and post_url.startswith("https://www.instagram.com/") and "?media_id=" not in post_url:
+        return f'<td class=c><a href="{post_url}">view</a></td>'
+    return '<td class=c>—</td>'
+
+
+def render_kpi_counter(all_ads):
+    """KPI 북극성 카운터 (5/15) — 달성/미달 카운트만. 평균 X (Off Rule과 분리)."""
+    if not all_ads:
+        return ""
+    wl_ads = [a for a in all_ads if a.get("paid_flag") in ("PAID", "GIFT") and a.get("ctr", 0) > 0]
+    img_ads = [a for a in all_ads if a.get("paid_flag") == "UNKNOWN" and a.get("ctr", 0) > 0]
+    cpc_ads = [a for a in all_ads if a.get("cpc", 0) > 0]
+
+    wl_hit = sum(1 for a in wl_ads if a["ctr"] >= KPI_WL_CTR)
+    img_hit = sum(1 for a in img_ads if a["ctr"] >= KPI_IMG_CTR)
+    cpc_hit = sum(1 for a in cpc_ads if a["cpc"] <= KPI_CPC)
+
+    def row(label, hit, total):
+        miss = total - hit
+        if total == 0:
+            return f"<tr><td class=l>{label}</td><td colspan=3 class=meta>해당 광고 없음</td></tr>"
+        rate = hit / total * 100
+        return (
+            f"<tr><td class=l>{label}</td>"
+            f"<td><b style='color:#16a34a'>{hit}</b></td>"
+            f"<td><b style='color:#dc2626'>{miss}</b></td>"
+            f"<td>{hit}/{total} ({rate:.0f}%)</td></tr>"
+        )
+
+    return f"""
+<h2>KPI 달성 카운터 (북극성)</h2>
+<table>
+  <tr><th>KPI</th><th>달성</th><th>미달</th><th>비율</th></tr>
+  {row(f"WL CTR ≥ {KPI_WL_CTR}% (PAID + GIFT)", wl_hit, len(wl_ads))}
+  {row(f"이미지 CTR ≥ {KPI_IMG_CTR}% (이미지 광고)", img_hit, len(img_ads))}
+  {row(f"CPC ≤ ₩{KPI_CPC}", cpc_hit, len(cpc_ads))}
+</table>
+<p class=meta>KPI = 북극성 목표 (고정). Off Rule (작동 임계) 과 분리. 평균값 비교 X.</p>
+"""
+
+
+def render_graduation_box(grads):
+    """Testing → Proven 졸업 후보 박스 (2026-06-16 — WL 1:1 분리 운영 절대 지표)."""
+    if not grads:
+        return """
+<h2>Testing → Proven 졸업 후보</h2>
+<div style="background:#f9fafb;padding:10px 14px;border-radius:3px;">
+  <p class=meta style="margin:4px 0;">현재 졸업 기준 통과 광고 없음.</p>
+</div>
+"""
+    rows = "".join(
+        f"<tr><td class=l>{g['ad_name'][:55]}</td>"
+        f"<td>{g['paid_flag']}</td>"
+        f"<td>{fmt_pct(g['ctr'])}</td>"
+        f"<td>{fmt_won(g['cpc'])}</td>"
+        f"<td><b>{fmt_won(g['cplpv'])}</b></td>"
+        f"<td>{g['freq']:.2f}</td>"
+        f"<td>D+{g['days_live']}</td>"
+        f"<td class=l style='font-size:11px'>{g['adset_name'][:35]}</td></tr>"
+        for g in grads
+    )
+    return f"""
+<h2 style="color:#065f46">Testing → Proven 졸업 후보 ({len(grads)}건)</h2>
+<table>
+  <tr><th>광고</th><th>PAID</th><th>CTR</th><th>CPC</th><th>CPLPV</th><th>Freq</th><th>D+N</th><th>현 adset</th></tr>
+  {rows}
+</table>
+<p class=meta>기준 (2026-06-16 확정 · 2026-07-09 CPLPV 130 갱신 · WL 1:1 분리 운영): Testing adset · D+3+ · <b>CPC ≤ ₩95 AND CTR ≥ 8% AND CPLPV ≤ ₩130</b> 모두 통과 · Off 트리거 미해당.<br/>
+1:1 분리(소재1=adset1)라 풀 share 무의미 → 개별 절대 지표. 액션: Proven 승급 (Testing PAUSE → Proven 새 ad_id).</p>
+"""
+
+
+def render_delivery_failure_box(candidates):
+    """5/28: Delivery 실패 Off 후보 박스 (algorithm dormant 정량 식별)."""
+    if not candidates:
+        return ""
+    rows = "".join(
+        f"<tr><td class=l>{c['ad_name'][:55]}</td>"
+        f"<td>{c['paid_flag']}×{c['lifecycle'].capitalize()}</td>"
+        f"<td>{c['share']*100:.2f}%</td>"
+        f"<td>{c['zero_days']}/14일</td>"
+        f"<td>{fmt_won(c['spend'])}</td>"
+        f"<td>D+{c['days_live']}</td>"
+        f"<td class=l style='font-size:13px'>adset 14d {fmt_won(c['adset_spend'])} 중 {c['share']*100:.2f}% 점유 · impr {int(c['impressions'])} · LPV {int(c['lpv'])}</td></tr>"
+        for c in candidates
+    )
+    return f"""
+<h2 style="color:#9a3412">Off 후보 — Delivery 실패 (algorithm dormant {len(candidates)}건)</h2>
+<table>
+  <tr><th>광고</th><th>풀</th><th>14d share</th><th>zero days</th><th>14d spend</th><th>D+N</th><th>상태</th></tr>
+  {rows}
+</table>
+<p class=meta>트리거: 14d adset 내 spend share &lt; 1% AND 14d 윈도우 zero delivery days ≥ 7. WL Proven 풀 algorithm 몰빵 분배로 dormant 된 광고 정량 식별.<br/>
+ad 단위 예산 X 구조 — 풀 winner 살아있는 한 부진 광고 살아날 path 없음. Off 액션은 세은 직접 (Ads Manager). 자동 Off X — false positive 회복 비용 큼.</p>
+"""
+
+
+def render_off_recommend_box(bw, ref_date=None):
+    """WL Testing OFF 권장 박스 (2026-06-16 — D+3 게이트).
+
+    Testing 1:1 광고만 대상 (Proven Off 는 render_delivery_failure_box 별도).
+    off_recommend = 즉시 OFF / monitoring = D+5 유예.
+    """
+    if ref_date is None:
+        ref_date = date.today()
+    pools = bw.get("pools", {})
+    if not pools:
+        return ""
+    candidates = []
+    monitoring = []
+    for pool_key, pool in pools.items():
+        if "testing" not in pool_key:        # Testing 풀만 D+3 OFF (Proven 은 delivery_failure 별도)
+            continue
+        for a in pool.get("members", []):
+            if not _is_live_active(a.get("ad_id")):   # 절대 룰: 이미 OFF/졸업(PAUSE)한 광고 후보 금지
+                continue
+            dl = a.get("days_live")
+            if dl is None or dl < OFF_MIN_DAYS:   # D+3+ 만 판정
+                continue
+            check = off_rule_check(a, ref_date)
+            base = {
+                "ad_name": a["ad_name"],
+                "pool": pool_key.replace("_", "×"),
+                "ctr": a["ctr"], "cpc": a["cpc"], "cplpv": a.get("cplpv", 0),
+                "spend": a.get("spend", 0), "days_live": dl,
+            }
+            if check["off_recommend"]:
+                candidates.append({**base, "reason": check["reason"]})
+            elif check["monitoring"]:
+                monitoring.append({**base, "reason": check["monitoring_reason"]})
+
+    out = []
+
+    if candidates:
+        candidates.sort(key=lambda x: -x["spend"])
+        rows = "".join(
+            f"<tr><td class=l>{c['ad_name'][:55]}</td><td>{c['pool']}</td>"
+            f"<td>{fmt_pct(c['ctr'])}</td><td>{fmt_won(c['cpc'])}</td>"
+            f"<td>{fmt_won(c['cplpv'])}</td><td>{fmt_won(c['spend'])}</td>"
+            f"<td>D+{c['days_live']}</td>"
+            f"<td class=l style='font-size:13px'>{c['reason']}</td></tr>"
+            for c in candidates
+        )
+        out.append(f"""
+<h2>WL Testing OFF 권장 (D+3 · {len(candidates)}건)</h2>
+<table>
+  <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>CPLPV</th><th>Spend</th><th>D+N</th><th>트리거</th></tr>
+  {rows}
+</table>
+<p class=meta>2026-06-16 확정 D+3 게이트: CPC ≤ ₩150 AND CTR ≥ 5% → 생존. CPC·CTR 중 하나라도 나쁘면 CPLPV ≥ ₩190 시 OFF (정상이면 D+5 유예). CPC·CTR 양호해도 CPLPV ≥ ₩190 = 이탈형 OFF.<br/>
+Testing 1:1 광고만 (Proven 은 Delivery 실패 박스 별도). PAID 즉시 OFF / GIFT 새 콜라보 우선.</p>
+""")
+    else:
+        out.append("""
+<h2>WL Testing OFF 권장 (D+3)</h2>
+<div style="background:#ecfdf5;padding:14px 18px;border-radius:4px;">
+  <p class=meta style="margin:6px 0;">D+3 OFF 트리거 광고 없음.</p>
+</div>
+""")
+
+    if monitoring:
+        monitoring.sort(key=lambda x: -x["spend"])
+        rows = "".join(
+            f"<tr><td class=l>{c['ad_name'][:55]}</td><td>{c['pool']}</td>"
+            f"<td>{fmt_pct(c['ctr'])}</td><td>{fmt_won(c['cpc'])}</td>"
+            f"<td>{fmt_won(c['cplpv'])}</td><td>{fmt_won(c['spend'])}</td>"
+            f"<td>D+{c['days_live']}</td>"
+            f"<td class=l style='font-size:13px'>{c['reason']}</td></tr>"
+            for c in monitoring
+        )
+        out.append(f"""
+<h2 style="color:#92400e">D+5 유예 모니터링 ({len(monitoring)}건)</h2>
+<table>
+  <tr><th>광고</th><th>풀</th><th>CTR</th><th>CPC</th><th>CPLPV</th><th>Spend</th><th>D+N</th><th>상태</th></tr>
+  {rows}
+</table>
+<p class=meta>CPC/CTR 경계지만 CPLPV 정상 — 즉시 OFF X, D+5 재판정. 경계선 회복 케이스 보호.</p>
+""")
+
+    return "\n".join(out)
+
+
+def render_best_worst_table(bw, post_url_map=None):
+    post_url_map = post_url_map or {}
+    def rows(items):
+        if not items:
+            return f"<tr><td colspan=7 class=meta>데이터 부족</td></tr>"
+        out = []
+        for a in items:
+            url = post_url_map.get(a.get("ad_id", ""), "")
+            out.append(
+                f"<tr><td class=l>{a['ad_name'][:55]}</td><td>{fmt_pct(a['ctr'])}</td>"
+                f"<td>{fmt_won(a['cpc'])}</td><td>{a.get('freq', 0):.2f}</td>"
+                f"<td>{fmt_won(a['spend'])}</td><td>{fmt_num(a['impressions'])}</td>"
+                f"{post_link_cell(url)}</tr>"
+            )
+        return "".join(out)
+    head = "<tr><th>광고</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Spend</th><th>Impr</th><th>게시물</th></tr>"
+    n_ctr = len(bw.get('ctr_best', []))
+    n_cpc = len(bw.get('cpc_best', []))
+    return f"""
+<h2>광고 BEST / WORST</h2>
+<table>
+  <tr><th colspan=7 style="background:#dcfce7;color:#065f46">▲ CTR BEST {n_ctr} (높은 순)</th></tr>
+  {head}
+  {rows(bw['ctr_best'])}
+  <tr><th colspan=7 style="background:#fee2e2;color:#991b1b">▼ CTR WORST {n_ctr} (낮은 순)</th></tr>
+  {head}
+  {rows(bw['ctr_worst'])}
+  <tr><th colspan=7 style="background:#dcfce7;color:#065f46">▲ CPC BEST {n_cpc} (낮은 순 = 효율)</th></tr>
+  {head}
+  {rows(bw['cpc_best'])}
+  <tr><th colspan=7 style="background:#fee2e2;color:#991b1b">▼ CPC WORST {n_cpc} (높은 순)</th></tr>
+  {head}
+  {rows(bw['cpc_worst'])}
+</table>
+<p class=meta>풀 크기 따라 N 동적 조정 (최대 3). 최소 노출수 필터: 1d≥100 / 7d≥500 / 14d≥500</p>
+"""
+
+
+def render_budget_increase_table(candidates, post_url_map=None):
+    """5/18 룰: 매출 매칭 도구 완성 전 예산 증액 권고 X. 보류 박스로 대체."""
+    cnt = len(candidates) if candidates else 0
+    extra = f" (참고: 효율 기준만 통과한 광고 {cnt}건 있음 — 매출 검증 후 재판단)" if cnt else ""
+    return f"""
+<h2>예산 증액 권고 — 보류</h2>
+<div style="background:#fef3c7;padding:14px 18px;border-radius:4px;border-left:3px solid #f59e0b;">
+  <p style="margin:6px 0;"><b>현재 예산 증액 권고는 중단 상태입니다.</b>{extra}</p>
+  <p class=meta style="margin:6px 0;">이유 1 — ABO 구조라 ad 단위 증액 불가. adset 증액 시 학습 재분배로 winning ad 비중 보장 X.</p>
+  <p class=meta style="margin:6px 0;">이유 2 — Rakuten Pixel Purchase 미작동으로 매출 attribution 불가. 광고비 늘려도 진짜 매출 증가 미검증.</p>
+  <p class=meta style="margin:6px 0;"><b>해제 조건:</b> Meta × Rakuten 매출 매칭 도구 완성 (시계열 상관 분석 → 광고 effect 가시화).</p>
+  <p class=meta style="margin:6px 0;"><b>현재 권장 lever:</b> 예산 X / Creative 변형 의뢰 O (아래 Off 권장 광고를 신규 변형 의뢰 대상으로 활용).</p>
+</div>
+"""
+
+
+# ============================================================
+# 6/4 — 슈퍼세일 증액 모니터링 (~6/11 자동 hide)
+# ============================================================
+
+SUPERSALE_START = date(2026, 6, 4)
+BUDGET_RAISE_START = date(2026, 6, 2)  # budget 상승 시작일 (Before 끝 = BUDGET_RAISE_START - 1)
+
+
+def fetch_pool_daily_trend(ref_date, days_back=7):
+    """직전 days_back일 + ref_date 일별 풀 합계 (account level, time_increment=1)."""
+    start = ref_date - timedelta(days=days_back)
+    rows = api_get(f"{ACCT}/insights", {
+        "fields": "spend,impressions,clicks,reach,frequency,ctr,cpc,actions",
+        "level": "account",
+        "time_range": json.dumps({"since": start.isoformat(), "until": ref_date.isoformat()}),
+        "time_increment": 1,
+        "limit": 500,
+    })
+    trend = []
+    for r in sorted(rows, key=lambda x: x.get("date_start", "")):
+        spend = to_float(r.get("spend"))
+        impr = to_float(r.get("impressions"))
+        clicks = to_float(r.get("clicks"))
+        reach = to_float(r.get("reach"))
+        freq = to_float(r.get("frequency"))
+        lpv = extract_lpv(r.get("actions"))
+        ctr = (clicks / impr * 100) if impr else 0
+        cplpv = (spend / lpv) if lpv else 0
+        trend.append({
+            "date": r.get("date_start"),
+            "spend": spend, "impr": impr, "clicks": clicks,
+            "reach": reach, "freq": freq, "lpv": lpv,
+            "ctr": ctr, "cplpv": cplpv,
+        })
+    return trend
+
+
+def build_baseline_compare(trend, ref_date):
+    """직전 7일 avg(baseline) vs ref_date 비교."""
+    ref_iso = ref_date.isoformat()
+    after = next((d for d in trend if d["date"] == ref_iso), None)
+    baseline = [d for d in trend if d["date"] != ref_iso]
+    if not baseline or not after:
+        return None
+    n = len(baseline)
+    b = {k: sum(d[k] for d in baseline) / n for k in ("spend", "impr", "clicks", "reach", "freq", "lpv")}
+    b["ctr"] = (b["clicks"] / b["impr"] * 100) if b["impr"] else 0
+    b["cplpv"] = (b["spend"] / b["lpv"]) if b["lpv"] else 0
+    # display round 기준 pct (audit display-value 정합성 — 특히 freq 1.13/1.06)
+    DISPLAY_ROUND = {"freq": 2, "ctr": 2}
+    def pct(a, c, key=None):
+        if key in DISPLAY_ROUND:
+            a, c = round(a, DISPLAY_ROUND[key]), round(c, DISPLAY_ROUND[key])
+        return (a / c - 1) * 100 if c else 0
+    return {
+        "baseline": b, "after": after,
+        "baseline_label": f"직전 {n}일 avg",
+        "delta": {k: pct(after[k], b[k], k) for k in ("spend", "lpv", "cplpv", "ctr", "freq", "reach")},
+    }
+
+
+def fetch_supersale_period_compare(ref_date):
+    """슈퍼세일 누적 (6/4 ~ ref_date) vs 동기간 (budget 상승 직전, 6/1로 끝)."""
+    if ref_date < SUPERSALE_START:
+        return None
+    after_start = SUPERSALE_START
+    after_end = min(ref_date, SUPERSALE_END)
+    n_days = (after_end - after_start).days + 1
+    before_end = BUDGET_RAISE_START - timedelta(days=1)  # 6/1
+    before_start = before_end - timedelta(days=n_days - 1)
+
+    def _fetch_sum(since, until):
+        rows = api_get(f"{ACCT}/insights", {
+            "fields": "spend,impressions,clicks,reach,actions",
+            "level": "account",
+            "time_range": json.dumps({"since": since.isoformat(), "until": until.isoformat()}),
+            "limit": 500,
+        })
+        spend = sum(to_float(r.get("spend")) for r in rows)
+        impr = sum(to_float(r.get("impressions")) for r in rows)
+        clicks = sum(to_float(r.get("clicks")) for r in rows)
+        reach = sum(to_float(r.get("reach")) for r in rows)
+        lpv = sum(extract_lpv(r.get("actions")) for r in rows)
+        ctr = (clicks / impr * 100) if impr else 0
+        cplpv = (spend / lpv) if lpv else 0
+        freq = (impr / reach) if reach else 0
+        return {"spend": spend, "impr": impr, "clicks": clicks, "reach": reach,
+                "lpv": lpv, "ctr": ctr, "cplpv": cplpv, "freq": freq}
+
+    after = _fetch_sum(after_start, after_end)
+    before = _fetch_sum(before_start, before_end)
+    DISPLAY_ROUND = {"freq": 2, "ctr": 2}
+    def pct(a, c, key=None):
+        if key in DISPLAY_ROUND:
+            a, c = round(a, DISPLAY_ROUND[key]), round(c, DISPLAY_ROUND[key])
+        return (a / c - 1) * 100 if c else 0
+    return {
+        "after_window": f"{after_start} ~ {after_end} ({n_days}일)",
+        "before_window": f"{before_start} ~ {before_end} ({n_days}일, 증액 전)",
+        "after": after, "before": before,
+        "delta": {k: pct(after[k], before[k], k) for k in ("spend", "lpv", "cplpv", "ctr", "freq", "reach")},
+    }
+
+
+def categorize_ad_changes(ref_date, before_days=7, after_days=2):
+    """ad 단위 Before/After 분류 — 신규/활성화/효율개선/악화."""
+    after_start = ref_date - timedelta(days=after_days - 1)
+    before_end = after_start - timedelta(days=1)
+    before_start = before_end - timedelta(days=before_days - 1)
+    rows = api_get(f"{ACCT}/insights", {
+        "fields": "ad_id,ad_name,adset_name,spend,impressions,clicks,actions",
+        "level": "ad",
+        "time_range": json.dumps({"since": before_start.isoformat(), "until": ref_date.isoformat()}),
+        "time_increment": 1,
+        "limit": 500,
+    })
+    BEFORE = set((before_start + timedelta(days=i)).isoformat() for i in range(before_days))
+    AFTER = set((after_start + timedelta(days=i)).isoformat() for i in range(after_days))
+    agg = defaultdict(lambda: {"name": "", "adset": "", "b_spend": 0, "b_lpv": 0,
+                                "a_spend": 0, "a_lpv": 0})
+    for r in rows:
+        d = r.get("date_start")
+        bucket = "b_" if d in BEFORE else ("a_" if d in AFTER else None)
+        if not bucket:
+            continue
+        aid = r.get("ad_id")
+        agg[aid]["name"] = r.get("ad_name", "")
+        agg[aid]["adset"] = r.get("adset_name", "")
+        agg[aid][f"{bucket}spend"] += to_float(r.get("spend"))
+        agg[aid][f"{bucket}lpv"] += extract_lpv(r.get("actions"))
+    new_ads, activated, improved, degraded = [], [], [], []
+    for aid, v in agg.items():
+        b_daily = v["b_spend"] / before_days
+        a_daily = v["a_spend"] / after_days
+        b_cplpv = v["b_spend"] / v["b_lpv"] if v["b_lpv"] else 0
+        a_cplpv = v["a_spend"] / v["a_lpv"] if v["a_lpv"] else 0
+        rec = {"ad_id": aid, "name": v["name"], "adset": v["adset"],
+               "b_daily": b_daily, "a_daily": a_daily,
+               "b_cplpv": b_cplpv, "a_cplpv": a_cplpv, "a_lpv": v["a_lpv"]}
+        if v["b_spend"] == 0 and v["a_spend"] > 100:
+            new_ads.append(rec)
+        elif b_daily > 0 and a_daily > b_daily * 1.5 and v["a_spend"] > 500:
+            rec["ratio"] = a_daily / b_daily
+            rec["cplpv_delta"] = (a_cplpv / b_cplpv - 1) * 100 if b_cplpv else None
+            activated.append(rec)
+        elif b_cplpv > 0 and a_cplpv > 0 and a_cplpv < b_cplpv * 0.8:
+            rec["cplpv_delta"] = (a_cplpv / b_cplpv - 1) * 100
+            improved.append(rec)
+        elif b_cplpv > 0 and a_cplpv > 0 and a_cplpv > b_cplpv * 1.3 and v["a_spend"] > 500:
+            rec["cplpv_delta"] = (a_cplpv / b_cplpv - 1) * 100
+            degraded.append(rec)
+    return {
+        "new": new_ads, "activated": activated, "improved": improved, "degraded": degraded,
+        "before_window": f"{before_start} ~ {before_end}",
+        "after_window": f"{after_start} ~ {ref_date}",
+    }
+
+
+def render_definitions_footer(d):
+    """벤치 · 임계 · 풀 percentile 정의 표 (audit '출처 미명시' 류 fix)."""
+    bw_7d = d.get("best_worst_7d") or d.get("best_worst", {})
+    pools = bw_7d.get("pools", {})
+    POOL_LABELS = {
+        "PAID_proven": "PAID×Proven",
+        "PAID_testing": "PAID×Testing",
+        "GIFT_proven": "GIFT×Proven",
+        "GIFT_testing": "GIFT×Testing",
+    }
+    pool_rows = []
+    for key, label in POOL_LABELS.items():
+        pool = pools.get(key, {})
+        pct = pool.get("ctr_pct") or {}
+        n = pct.get("n", 0)
+        if n == 0:
+            pool_rows.append(f"<tr><td class=l>{label}</td><td>{n}</td><td colspan=3 class=meta>n=0 (풀 비어있음)</td></tr>")
+            continue
+        def _f(v):
+            return f"{v:.2f}%" if v is not None else "—"
+        pool_rows.append(
+            f"<tr><td class=l>{label}</td><td>{n}</td>"
+            f"<td>{_f(pct.get('p20'))}</td><td>{_f(pct.get('p50'))}</td><td>{_f(pct.get('p90'))}</td></tr>"
+        )
+    pool_tbl = "".join(pool_rows)
+    return f"""
+<h2>📐 벤치마크 · 임계값 · 풀 percentile 정의 (출처)</h2>
+<table>
+  <tr><th>지표</th><th>값</th><th>출처/의미</th></tr>
+  <tr><td class=l>CTR_BENCH</td><td>{CTR_BENCH}%</td><td class=l>JP 6-24m mom Meta 산업 벤치 (외부)</td></tr>
+  <tr><td class=l>CTR_LOW</td><td>{CTR_LOW}%</td><td class=l>전체 CTR 알림 임계</td></tr>
+  <tr><td class=l>FREQ_HIGH</td><td>{FREQ_HIGH}</td><td class=l>피로도 트리거 임계 (5/22 메모리 룰)</td></tr>
+  <tr><td class=l>CPC_SPIKE_PCT</td><td>{CPC_SPIKE_PCT}%</td><td class=l>전일 대비 급등 알림</td></tr>
+  <tr><td class=l>KPI_WL_CTR</td><td>{KPI_WL_CTR}%</td><td class=l>WL (PAID/GIFT) CTR 목표 (5/15 KPI)</td></tr>
+  <tr><td class=l>KPI_IMG_CTR</td><td>{KPI_IMG_CTR}%</td><td class=l>이미지 광고 CTR 목표 (5/15 KPI)</td></tr>
+</table>
+<h3>풀 CTR percentile (7d 누적 — findings·Off Rule·S 후보 입력)</h3>
+<table>
+  <tr><th>풀</th><th>n</th><th>P20</th><th>P50</th><th>P90</th></tr>
+  {pool_tbl}
+</table>
+<p class=meta>※ findings 섹션의 광고별 spend / CTR / Freq 인용은 모두 7d 누적. Off Recommend 표와 동일 데이터셋. S 후보 (P90+) 광고의 spend는 위 풀 통계로 검증 가능.</p>
+"""
+
+
+def render_supersale_section(trend, compare, period_compare, changes, ref_date):
+    """슈퍼세일 증액 모니터링 섹션 (ref_date <= SUPERSALE_END 만)."""
+    if ref_date > SUPERSALE_END:
+        return ""
+    if not trend and not compare and not period_compare and not changes:
+        return ""
+
+    def cls_delta(pct, lower_is_better=False):
+        if abs(pct) < 1.0:
+            return "meta"
+        good = (pct < 0) if lower_is_better else (pct > 0)
+        return "delta-good" if good else "delta-bad"
+
+    out = [f'<h2>🎌 슈퍼세일 증액 모니터링 (~{SUPERSALE_END.isoformat()})</h2>']
+
+    # A. 일별 추이
+    if trend:
+        trend_rows = "".join(
+            f"<tr><td>{d['date']}</td><td>{fmt_won(d['spend'])}</td><td>{fmt_num(d['lpv'])}</td>"
+            f"<td>{fmt_won(d['cplpv'])}</td><td>{fmt_pct(d['ctr'])}</td>"
+            f"<td>{d['freq']:.2f}</td><td>{fmt_num(d['reach'])}</td></tr>"
+            for d in trend
+        )
+        out.append(f"""<h3>A. 풀 합계 일별 추이</h3>
+<table>
+  <tr><th>날짜</th><th>Spend</th><th>LPV</th><th>CPLPV</th><th>CTR</th><th>Freq</th><th>Reach</th></tr>
+  {trend_rows}
+</table>""")
+
+    # B. Before(직전 7일 avg) vs After(당일)
+    if compare:
+        b, a, dl = compare["baseline"], compare["after"], compare["delta"]
+        def cell(va, vb, pct, fmt_fn, lower_is_better=False):
+            return (f"<td>{fmt_fn(va)} <span class='{cls_delta(pct, lower_is_better)}'>"
+                    f"({pct:+.1f}%)</span><br><span class=meta>baseline {fmt_fn(vb)}</span></td>")
+        out.append(f"""<h3>B. Before({compare['baseline_label']}) vs After({ref_date.isoformat()})</h3>
+<table>
+  <tr><th>Spend</th><th>LPV</th><th>CPLPV</th><th>CTR</th><th>Freq</th><th>Reach</th></tr>
+  <tr>
+    {cell(a['spend'], b['spend'], dl['spend'], fmt_won)}
+    {cell(a['lpv'], b['lpv'], dl['lpv'], fmt_num)}
+    {cell(a['cplpv'], b['cplpv'], dl['cplpv'], fmt_won, lower_is_better=True)}
+    {cell(a['ctr'], b['ctr'], dl['ctr'], fmt_pct)}
+    {cell(a['freq'], b['freq'], dl['freq'], lambda x: f"{x:.2f}", lower_is_better=True)}
+    {cell(a['reach'], b['reach'], dl['reach'], fmt_num)}
+  </tr>
+</table>""")
+
+    # E. 슈퍼세일 누적 vs 이전 동기간
+    if period_compare:
+        pa, pb, pd = period_compare["after"], period_compare["before"], period_compare["delta"]
+        def cell2(va, vb, pct, fmt_fn, lower_is_better=False):
+            return (f"<td>{fmt_fn(va)} <span class='{cls_delta(pct, lower_is_better)}'>"
+                    f"({pct:+.1f}%)</span><br><span class=meta>before {fmt_fn(vb)}</span></td>")
+        out.append(f"""<h3>E. 슈퍼세일 누적 vs 이전 동기간 (증액 효과)</h3>
+<p class=meta>after: {period_compare['after_window']} · before: {period_compare['before_window']}</p>
+<table>
+  <tr><th>Spend</th><th>LPV</th><th>CPLPV</th><th>CTR</th><th>Freq</th><th>Reach</th></tr>
+  <tr>
+    {cell2(pa['spend'], pb['spend'], pd['spend'], fmt_won)}
+    {cell2(pa['lpv'], pb['lpv'], pd['lpv'], fmt_num)}
+    {cell2(pa['cplpv'], pb['cplpv'], pd['cplpv'], fmt_won, lower_is_better=True)}
+    {cell2(pa['ctr'], pb['ctr'], pd['ctr'], fmt_pct)}
+    {cell2(pa['freq'], pb['freq'], pd['freq'], lambda x: f"{x:.2f}", lower_is_better=True)}
+    {cell2(pa['reach'], pb['reach'], pd['reach'], fmt_num)}
+  </tr>
+</table>""")
+
+    # C+D. ad 재분배 4분류
+    if changes:
+        def ad_tbl(items, cols, formatter):
+            if not items:
+                return "<p class=meta>없음</p>"
+            head = "".join(f"<th>{c}</th>" for c in cols)
+            body = "".join(formatter(x) for x in items[:10])
+            return f"<table><tr>{head}</tr>{body}</table>"
+
+        new_tbl = ad_tbl(
+            sorted(changes["new"], key=lambda x: -x["a_daily"]),
+            ["광고", "spend/d", "CPLPV", "LPV"],
+            lambda x: f"<tr><td class=l>{x['name'][:55]}</td><td>{fmt_won(x['a_daily'])}</td>"
+                      f"<td>{fmt_won(x['a_cplpv'])}</td><td>{fmt_num(x['a_lpv'])}</td></tr>"
+        )
+        def _act_cplpv_cell(x):
+            if x["cplpv_delta"] is None:
+                return "<td><span class=meta>신규 LPV 발화</span></td>"
+            return (f"<td><span class='{cls_delta(x['cplpv_delta'], lower_is_better=True)}'>"
+                    f"{x['cplpv_delta']:+.0f}%</span></td>")
+
+        act_tbl = ad_tbl(
+            sorted(changes["activated"], key=lambda x: -x["a_daily"]),
+            ["광고", "spend/d B→A", "x배", "CPLPV B→A", "Δ%"],
+            lambda x: f"<tr><td class=l>{x['name'][:55]}</td>"
+                      f"<td>{fmt_won(x['b_daily'])}→{fmt_won(x['a_daily'])}</td>"
+                      f"<td>{x['ratio']:.1f}x</td>"
+                      f"<td>{fmt_won(x['b_cplpv'])}→{fmt_won(x['a_cplpv'])}</td>"
+                      f"{_act_cplpv_cell(x)}</tr>"
+        )
+        imp_tbl = ad_tbl(
+            sorted(changes["improved"], key=lambda x: x["cplpv_delta"]),
+            ["광고", "CPLPV B→A", "Δ%", "spend/d"],
+            lambda x: f"<tr><td class=l>{x['name'][:55]}</td>"
+                      f"<td>{fmt_won(x['b_cplpv'])}→{fmt_won(x['a_cplpv'])}</td>"
+                      f"<td><span class=delta-good>{x['cplpv_delta']:+.0f}%</span></td>"
+                      f"<td>{fmt_won(x['a_daily'])}</td></tr>"
+        )
+        deg_tbl = ad_tbl(
+            sorted(changes["degraded"], key=lambda x: -x["cplpv_delta"]),
+            ["광고", "CPLPV B→A", "Δ%", "spend/d"],
+            lambda x: f"<tr><td class=l>{x['name'][:55]}</td>"
+                      f"<td>{fmt_won(x['b_cplpv'])}→{fmt_won(x['a_cplpv'])}</td>"
+                      f"<td><span class=delta-bad>{x['cplpv_delta']:+.0f}%</span></td>"
+                      f"<td>{fmt_won(x['a_daily'])}</td></tr>"
+        )
+        out.append(f"""<h3>C. ad 재분배 ({changes['before_window']} → {changes['after_window']})</h3>
+<p><b>신규 ad — {len(changes['new'])}개</b></p>
+{new_tbl}
+<p><b>활성화 ad (allocate 1.5x↑) — {len(changes['activated'])}개</b></p>
+{act_tbl}
+<p><b>효율 개선 ad (CPLPV -20%↓) — {len(changes['improved'])}개</b></p>
+{imp_tbl}
+<p><b>효율 악화 ad (CPLPV +30%↑, spend≥500) — {len(changes['degraded'])}개</b></p>
+{deg_tbl}""")
+
+    return "\n".join(out)
+
+
+# ============================================================
+# 1d Analysis
+# ============================================================
+def analyze_1d(target_date):
+    yday = target_date
+    dby = target_date - timedelta(days=1)
+    cur = fetch("ad", time_range={"since": yday.isoformat(), "until": yday.isoformat()})
+    prev = fetch("ad", time_range={"since": dby.isoformat(), "until": dby.isoformat()})
+
+    by_camp = defaultdict(lambda: {"spend": 0, "impressions": 0, "clicks": 0, "reach": 0, "freq_sum": 0, "n": 0})
+    for row in cur:
+        c = by_camp[row.get("campaign_name", "(unknown)")]
+        c["spend"] += to_float(row.get("spend"))
+        c["impressions"] += to_float(row.get("impressions"))
+        c["clicks"] += to_float(row.get("clicks"))
+        c["reach"] += to_float(row.get("reach"))
+        c["freq_sum"] += to_float(row.get("frequency"))
+        c["n"] += 1
+
+    camp_rows = []
+    for name, v in by_camp.items():
+        ctr = (v["clicks"] / v["impressions"] * 100) if v["impressions"] else 0
+        cpc = (v["spend"] / v["clicks"]) if v["clicks"] else 0
+        freq = (v["impressions"] / v["reach"]) if v["reach"] else 0   # 합산 freq = Σimpr/Σreach (AVG(freq) 오류 수리 2026-07-09)
+        camp_rows.append({
+            "name": name, "spend": v["spend"], "impressions": v["impressions"],
+            "clicks": v["clicks"], "ctr": ctr, "cpc": cpc, "freq": freq, "reach": v["reach"],
+        })
+    camp_rows.sort(key=lambda x: x["spend"], reverse=True)
+
+    ad_rows = []
+    for row in cur:
+        impr = to_float(row.get("impressions"))
+        clicks = to_float(row.get("clicks"))
+        if impr < 100:
+            continue
+        ad_rows.append({
+            "ad_name": row.get("ad_name", ""),
+            "campaign_name": row.get("campaign_name", ""),
+            "spend": to_float(row.get("spend")),
+            "impressions": impr,
+            "clicks": clicks,
+            "ctr": to_float(row.get("ctr")),
+            "cpc": to_float(row.get("cpc")),
+            "freq": to_float(row.get("frequency")),
+        })
+    top5 = sorted(ad_rows, key=lambda x: x["ctr"], reverse=True)[:5]
+
+    prev_by_camp = defaultdict(lambda: {"spend": 0, "impressions": 0, "clicks": 0})
+    for row in prev:
+        p = prev_by_camp[row.get("campaign_name", "(unknown)")]
+        p["spend"] += to_float(row.get("spend"))
+        p["impressions"] += to_float(row.get("impressions"))
+        p["clicks"] += to_float(row.get("clicks"))
+    cur_total = {
+        "spend": sum(c["spend"] for c in camp_rows),
+        "impressions": sum(c["impressions"] for c in camp_rows),
+        "clicks": sum(c["clicks"] for c in camp_rows),
+    }
+    prev_total = {
+        "spend": sum(p["spend"] for p in prev_by_camp.values()),
+        "impressions": sum(p["impressions"] for p in prev_by_camp.values()),
+        "clicks": sum(p["clicks"] for p in prev_by_camp.values()),
+    }
+    cur_ctr = (cur_total["clicks"] / cur_total["impressions"] * 100) if cur_total["impressions"] else 0
+    cur_cpc = (cur_total["spend"] / cur_total["clicks"]) if cur_total["clicks"] else 0
+    prev_ctr = (prev_total["clicks"] / prev_total["impressions"] * 100) if prev_total["impressions"] else 0
+    prev_cpc = (prev_total["spend"] / prev_total["clicks"]) if prev_total["clicks"] else 0
+
+    delta = {
+        "spend_pct": ((cur_total["spend"] - prev_total["spend"]) / prev_total["spend"] * 100) if prev_total["spend"] else 0,
+        "ctr_pct": ((cur_ctr - prev_ctr) / prev_ctr * 100) if prev_ctr else 0,
+        "cpc_pct": ((cur_cpc - prev_cpc) / prev_cpc * 100) if prev_cpc else 0,
+    }
+
+    alerts = []
+    for c in camp_rows:
+        if c["impressions"] >= 1000 and 0 < c["ctr"] < CTR_LOW:
+            alerts.append(f"CTR 낮음: {c['name']} ({fmt_pct(c['ctr'])})")
+        if c["freq"] > FREQ_HIGH:
+            alerts.append(f"Freq 피로: {c['name']} ({c['freq']:.2f})")
+    if delta["cpc_pct"] > CPC_SPIKE_PCT and prev_cpc > 0:
+        alerts.append(f"CPC 급등: 전일 대비 +{delta['cpc_pct']:.1f}%")
+
+    bw = best_worst_from_rows(cur, min_impr=100, ref_date=yday)
+    ad_ids = [a.get("ad_id") for a in bw.get("all_ads", []) if a.get("ad_id")]
+    post_url_map = build_post_url_map(ad_ids)
+    candidates = budget_increase_candidates(bw.get("all_ads", []), min_spend=30000)
+
+    # 5/20: Testing → Proven 졸업 후보 — 7d trailing 데이터로 판정
+    week_start = yday - timedelta(days=6)
+    rows_7d = fetch("ad", time_range={"since": week_start.isoformat(), "until": yday.isoformat()})
+    # 5/26: Off 평가 입력 7d 풀로 분리 (성과 합계는 1d 유지). 임계는 7d 누적 가정이라 1d 데이터로 평가하면 hit X.
+    bw_7d = best_worst_from_rows(rows_7d, min_impr=200, ref_date=yday)
+    off_ad_ids = set()
+    for pool_key, pool in bw_7d.get("pools", {}).items():
+        if "testing" not in pool_key:        # Testing 풀만 D+3 OFF 대상 (Proven 은 delivery_failure 별도)
+            continue
+        for a in pool.get("members", []):
+            dl = a.get("days_live")
+            if dl is None or dl < OFF_MIN_DAYS:   # D+3+ 만 판정
+                continue
+            check = off_rule_check(a, yday)
+            if check["off_recommend"] and a.get("ad_id"):
+                off_ad_ids.add(a["ad_id"])
+    grads = graduation_candidates(rows_7d, yday, off_ad_ids=off_ad_ids)
+
+    # 5/28: Delivery 실패 Off 후보 (algorithm dormant) — 14d 윈도우 평가
+    fortnight_start = yday - timedelta(days=13)
+    rows_14d = fetch("ad", time_range={"since": fortnight_start.isoformat(), "until": yday.isoformat()})
+    rows_14d_daily = fetch("ad", time_range={"since": fortnight_start.isoformat(), "until": yday.isoformat()}, with_daily=True)
+    delivery_fail = delivery_failure_candidates(rows_14d, rows_14d_daily, yday)
+
+    # 6/4 — 슈퍼세일 증액 모니터링 (~6/11 자동 hide)
+    supersale_trend = None
+    supersale_compare = None
+    supersale_period = None
+    supersale_changes = None
+    if yday <= SUPERSALE_END:
+        try:
+            supersale_trend = fetch_pool_daily_trend(yday, days_back=7)
+            supersale_compare = build_baseline_compare(supersale_trend, yday)
+            supersale_period = fetch_supersale_period_compare(yday)
+            supersale_changes = categorize_ad_changes(yday, before_days=7, after_days=2)
+        except Exception as e:
+            print(f"[WARN] supersale section fetch failed: {e}")
+
+    return {
+        "date": yday, "prev_date": dby,
+        "ref_date": yday,
+        "total": {**cur_total, "ctr": cur_ctr, "cpc": cur_cpc},
+        "campaigns": camp_rows, "top5": top5, "alerts": alerts, "delta": delta,
+        "best_worst": bw,
+        "best_worst_7d": bw_7d,
+        "post_url_map": post_url_map,
+        "budget_candidates": candidates,
+        "graduation_candidates": grads,
+        "delivery_failure_candidates": delivery_fail,
+        "supersale_trend": supersale_trend,
+        "supersale_compare": supersale_compare,
+        "supersale_period": supersale_period,
+        "supersale_changes": supersale_changes,
+    }
+
+
+# ============================================================
+# 7d Analysis
+# ============================================================
+def analyze_7d(end_date):
+    start = end_date - timedelta(days=6)
+    prev_start = end_date - timedelta(days=13)
+    prev_end = end_date - timedelta(days=7)
+
+    cur_daily = fetch("campaign",
+                      time_range={"since": start.isoformat(), "until": end_date.isoformat()},
+                      with_daily=True)
+    prev_daily = fetch("campaign",
+                       time_range={"since": prev_start.isoformat(), "until": prev_end.isoformat()},
+                       with_daily=True)
+    ad_rows = fetch("ad", time_range={"since": start.isoformat(), "until": end_date.isoformat()})
+
+    daily_agg = defaultdict(lambda: {"spend": 0, "impressions": 0, "clicks": 0})
+    for row in cur_daily:
+        d = row.get("date_start", "")
+        daily_agg[d]["spend"] += to_float(row.get("spend"))
+        daily_agg[d]["impressions"] += to_float(row.get("impressions"))
+        daily_agg[d]["clicks"] += to_float(row.get("clicks"))
+    daily_trend = []
+    cur_d = start
+    while cur_d <= end_date:
+        ds = cur_d.isoformat()
+        v = daily_agg.get(ds, {"spend": 0, "impressions": 0, "clicks": 0})
+        ctr = (v["clicks"] / v["impressions"] * 100) if v["impressions"] else 0
+        cpc = (v["spend"] / v["clicks"]) if v["clicks"] else 0
+        daily_trend.append({"date": ds, "spend": v["spend"], "ctr": ctr, "cpc": cpc, "impressions": v["impressions"]})
+        cur_d += timedelta(days=1)
+
+    by_camp = defaultdict(lambda: {"spend": 0, "impressions": 0, "clicks": 0, "reach": 0, "freq_sum": 0, "n": 0})
+    for row in cur_daily:
+        c = by_camp[row.get("campaign_name", "(unknown)")]
+        c["spend"] += to_float(row.get("spend"))
+        c["impressions"] += to_float(row.get("impressions"))
+        c["clicks"] += to_float(row.get("clicks"))
+        c["reach"] += to_float(row.get("reach"))
+        c["freq_sum"] += to_float(row.get("frequency"))
+        c["n"] += 1
+    camp_rows = []
+    for name, v in by_camp.items():
+        ctr = (v["clicks"] / v["impressions"] * 100) if v["impressions"] else 0
+        cpc = (v["spend"] / v["clicks"]) if v["clicks"] else 0
+        freq = (v["impressions"] / v["reach"]) if v["reach"] else 0   # 합산 freq = Σimpr/Σreach (AVG(freq) 오류 수리 2026-07-09)
+        camp_rows.append({"name": name, "spend": v["spend"], "impressions": v["impressions"],
+                          "clicks": v["clicks"], "ctr": ctr, "cpc": cpc, "freq": freq})
+    camp_rows.sort(key=lambda x: x["spend"], reverse=True)
+
+    ads = []
+    for row in ad_rows:
+        impr = to_float(row.get("impressions"))
+        if impr < 200:
+            continue
+        ads.append({
+            "ad_name": row.get("ad_name", ""),
+            "spend": to_float(row.get("spend")),
+            "impressions": impr,
+            "reach": to_float(row.get("reach")),
+            "ctr": to_float(row.get("ctr")),
+            "cpc": to_float(row.get("cpc")),
+            "freq": to_float(row.get("frequency")),
+        })
+    top10 = sorted(ads, key=lambda x: x["spend"], reverse=True)[:10]
+
+    cur_sum = {"spend": 0, "impressions": 0, "clicks": 0}
+    prev_sum = {"spend": 0, "impressions": 0, "clicks": 0}
+    for row in cur_daily:
+        for k in cur_sum:
+            cur_sum[k] += to_float(row.get(k))
+    for row in prev_daily:
+        for k in prev_sum:
+            prev_sum[k] += to_float(row.get(k))
+    cur_ctr = (cur_sum["clicks"] / cur_sum["impressions"] * 100) if cur_sum["impressions"] else 0
+    cur_cpc = (cur_sum["spend"] / cur_sum["clicks"]) if cur_sum["clicks"] else 0
+    prev_ctr = (prev_sum["clicks"] / prev_sum["impressions"] * 100) if prev_sum["impressions"] else 0
+    prev_cpc = (prev_sum["spend"] / prev_sum["clicks"]) if prev_sum["clicks"] else 0
+    wow = {
+        "spend": cur_sum["spend"], "spend_prev": prev_sum["spend"],
+        "spend_pct": ((cur_sum["spend"] - prev_sum["spend"]) / prev_sum["spend"] * 100) if prev_sum["spend"] else 0,
+        "ctr": cur_ctr, "ctr_prev": prev_ctr,
+        "ctr_pct": ((cur_ctr - prev_ctr) / prev_ctr * 100) if prev_ctr else 0,
+        "cpc": cur_cpc, "cpc_prev": prev_cpc,
+        "cpc_pct": ((cur_cpc - prev_cpc) / prev_cpc * 100) if prev_cpc else 0,
+    }
+
+    bw7 = best_worst_from_rows(ad_rows, min_impr=500, ref_date=end_date)  # 5/15: 풀 percentile 신뢰 위한 최소 노출 상향
+    ad_ids7 = [a.get("ad_id") for a in bw7.get("all_ads", []) if a.get("ad_id")]
+    post_url_map7 = build_post_url_map(ad_ids7)
+    candidates7 = budget_increase_candidates(bw7.get("all_ads", []), min_spend=30000)
+
+    # B-6: velocity 추적 — Proven D+15+ ad 의 trailing 7d CTR delta < -15%
+    prev_ad_rows = fetch("ad", time_range={"since": prev_start.isoformat(), "until": prev_end.isoformat()})
+    prev_ad_map = {row.get("ad_id"): row for row in prev_ad_rows if row.get("ad_id")}
+    velocity_decay = []
+    for a in bw7.get("all_ads", []):
+        if a.get("lifecycle") != "proven" or (a.get("days_live") or 0) < 15:
+            continue
+        prev_row = prev_ad_map.get(a.get("ad_id"))
+        if not prev_row:
+            continue
+        prev_impr = to_float(prev_row.get("impressions"))
+        if prev_impr < 200:
+            continue
+        prev_ctr_val = to_float(prev_row.get("ctr"))
+        cur_ctr_val = a.get("ctr", 0)
+        if prev_ctr_val <= 0 or cur_ctr_val <= 0:
+            continue
+        delta_pct = (cur_ctr_val - prev_ctr_val) / prev_ctr_val * 100
+        if delta_pct < -15:
+            velocity_decay.append({
+                "ad_id": a.get("ad_id"),
+                "ad_name": a["ad_name"],
+                "paid_flag": a.get("paid_flag"),
+                "days_live": a.get("days_live"),
+                "cur_ctr": cur_ctr_val,
+                "prev_ctr": prev_ctr_val,
+                "delta_pct": delta_pct,
+                "spend": a.get("spend", 0),
+            })
+    bw7["velocity_decay"] = velocity_decay
+
+    return {
+        "start": start, "end": end_date,
+        "total": {**cur_sum, "ctr": cur_ctr, "cpc": cur_cpc},
+        "daily_trend": daily_trend, "campaigns": camp_rows, "top10": top10, "wow": wow,
+        "best_worst": bw7,
+        "post_url_map": post_url_map7,
+        "budget_candidates": candidates7,
+    }
+
+
+# ============================================================
+# 14d Analysis
+# ============================================================
+def analyze_14d(end_date):
+    start = end_date - timedelta(days=13)
+    cur_daily = fetch("campaign",
+                      time_range={"since": start.isoformat(), "until": end_date.isoformat()},
+                      with_daily=True)
+    ad_rows = fetch("ad", time_range={"since": start.isoformat(), "until": end_date.isoformat()})
+
+    by_camp_day = defaultdict(lambda: defaultdict(lambda: {"spend": 0, "impressions": 0, "clicks": 0}))
+    for row in cur_daily:
+        c = row.get("campaign_name", "(unknown)")
+        d = row.get("date_start", "")
+        by_camp_day[c][d]["spend"] += to_float(row.get("spend"))
+        by_camp_day[c][d]["impressions"] += to_float(row.get("impressions"))
+        by_camp_day[c][d]["clicks"] += to_float(row.get("clicks"))
+    learning = []
+    for camp, days in by_camp_day.items():
+        ds = sorted(days.keys())
+        if len(ds) < 5:
+            continue
+        recent5 = ds[-5:]
+        cpc_recent = []
+        for d in recent5:
+            v = days[d]
+            cpc = (v["spend"] / v["clicks"]) if v["clicks"] else 0
+            cpc_recent.append(cpc)
+        cpc_avg = sum(cpc_recent) / len(cpc_recent) if cpc_recent else 0
+        cpc_var = max(cpc_recent) - min(cpc_recent) if cpc_recent else 0
+        stability = "안정" if cpc_avg > 0 and cpc_var / cpc_avg < 0.3 else "학습중"
+        learning.append({"campaign": camp, "cpc_avg": cpc_avg, "stability": stability,
+                         "days_active": len(ds)})
+    learning.sort(key=lambda x: x["days_active"], reverse=True)
+
+    creative_groups = {"image": [], "video": [], "wl": []}
+    for row in ad_rows:
+        impr = to_float(row.get("impressions"))
+        if impr < 100:
+            continue
+        ad_name = row.get("ad_name", "").lower()
+        if "wl" in ad_name or "partner" in ad_name or "@" in row.get("ad_name", ""):
+            grp = "wl"
+        elif "video" in ad_name or "reel" in ad_name or "动画" in ad_name or "動画" in ad_name:
+            grp = "video"
+        else:
+            grp = "image"
+        creative_groups[grp].append({
+            "spend": to_float(row.get("spend")),
+            "impressions": impr,
+            "clicks": to_float(row.get("clicks")),
+            "ctr": to_float(row.get("ctr")),
+            "cpc": to_float(row.get("cpc")),
+            "freq": to_float(row.get("frequency")),
+        })
+    creative_class = {}
+    for grp, rows in creative_groups.items():
+        if not rows:
+            creative_class[grp] = None
+            continue
+        spend = sum(r["spend"] for r in rows)
+        impr = sum(r["impressions"] for r in rows)
+        clicks = sum(r["clicks"] for r in rows)
+        reach = sum(r.get("reach", 0) for r in rows)
+        creative_class[grp] = {
+            "n": len(rows), "spend": spend, "impressions": impr,
+            "ctr": (clicks / impr * 100) if impr else 0,
+            "cpc": (spend / clicks) if clicks else 0,
+            # 합산 freq = Σimpr/Σreach (AVG(freq) 오류 수리 2026-07-09)
+            "freq": (impr / reach) if reach else 0,
+        }
+
+    fatigue = []
+    for row in ad_rows:
+        impr = to_float(row.get("impressions"))
+        if impr < 500:
+            continue
+        freq = to_float(row.get("frequency"))
+        ctr = to_float(row.get("ctr"))
+        if freq > FREQ_HIGH or (freq > 2.0 and ctr < CTR_LOW):
+            fatigue.append({
+                "ad_name": row.get("ad_name", ""),
+                "campaign_name": row.get("campaign_name", ""),
+                "freq": freq, "ctr": ctr, "spend": to_float(row.get("spend")),
+            })
+    fatigue.sort(key=lambda x: x["freq"], reverse=True)
+
+    actions = []
+    if fatigue:
+        actions.append(f"폐기 검토: Freq>2.5 광고 {len(fatigue)}개 (총 spend {fmt_won(sum(f['spend'] for f in fatigue))})")
+    if creative_class.get("image") and creative_class.get("video"):
+        ic = creative_class["image"]["ctr"]
+        vc = creative_class["video"]["ctr"]
+        if vc > ic * 1.3:
+            actions.append(f"영상 우세: video CTR {vc:.2f}% vs image {ic:.2f}% — 영상 비중 증액 검토")
+        elif ic > vc * 1.3:
+            actions.append(f"이미지 우세: image CTR {ic:.2f}% vs video {vc:.2f}% — 이미지 슬롯 확대")
+
+    bw14 = best_worst_from_rows(ad_rows, min_impr=500, ref_date=end_date)
+    ad_ids14 = [a.get("ad_id") for a in bw14.get("all_ads", []) if a.get("ad_id")]
+    post_url_map14 = build_post_url_map(ad_ids14)
+    candidates14 = budget_increase_candidates(bw14.get("all_ads", []), min_spend=50000)
+    return {
+        "start": start, "end": end_date,
+        "learning": learning, "creative_class": creative_class,
+        "fatigue": fatigue[:10], "actions": actions,
+        "best_worst": bw14,
+        "post_url_map": post_url_map14,
+        "budget_candidates": candidates14,
+    }
+
+
+# ============================================================
+# Charts (matplotlib, base64-inline PNG)
+# ============================================================
+def chart_daily_trend(daily_trend):
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+    dates = [d["date"][5:] for d in daily_trend]
+    spend = [d["spend"] for d in daily_trend]
+    ctr = [d["ctr"] for d in daily_trend]
+    cpc = [d["cpc"] for d in daily_trend]
+    fig, ax1 = plt.subplots(figsize=(10, 4))
+    color1 = "#2563eb"
+    ax1.bar(dates, spend, color=color1, alpha=0.4, label="Spend (₩)")
+    ax1.set_ylabel("Spend (₩)", color=color1)
+    ax1.tick_params(axis="y", labelcolor=color1)
+    ax2 = ax1.twinx()
+    ax2.plot(dates, ctr, color="#dc2626", marker="o", label="CTR (%)")
+    ax2.plot(dates, cpc, color="#059669", marker="s", label="CPC (₩)", linestyle="--")
+    ax2.set_ylabel("CTR (%) / CPC (₩)")
+    fig.legend(loc="upper right", bbox_to_anchor=(0.95, 0.95))
+    plt.title("Daily Trend (Spend / CTR / CPC)")
+    plt.tight_layout()
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", dpi=100)
+    plt.close(fig)
+    return base64.b64encode(buf.getvalue()).decode()
+
+
+# ============================================================
+# HTML Render
+# ============================================================
+CSS = """
+<style>
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; max-width: 680px; margin: 0 auto; padding: 12px; line-height: 1.4; font-size: 13px; }
+  h1 { font-size: 16px; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin: 0 0 8px; }
+  h2 { font-size: 13px; margin: 16px 0 6px; color: #1f2937; padding-top: 4px; border-top: 1px solid #f3f4f6; }
+  h2:first-of-type { border-top: none; margin-top: 10px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 14px; font-size: 12px; }
+  th, td { border: 1px solid #e5e7eb; padding: 4px 6px; text-align: right; }
+  th { background: #f3f4f6; text-align: center; font-weight: 600; }
+  td.l { text-align: left; }
+  td.c { text-align: center; }
+  .alert { background: #fef2f2; border-left: 3px solid #dc2626; padding: 6px 10px; margin: 8px 0; border-radius: 3px; }
+  .ok { background: #f0fdf4; border-left: 3px solid #059669; padding: 6px 10px; margin: 8px 0; border-radius: 3px; }
+  .alert ul, .ok ul { margin: 4px 0 0 18px; padding: 0; }
+  .delta-up { color: #dc2626; font-weight: 600; }
+  .delta-down { color: #059669; font-weight: 600; }
+  .delta-bad { color: #dc2626; font-weight: 600; }
+  .delta-good { color: #059669; font-weight: 600; }
+  .meta { color: #6b7280; font-size: 11px; }
+  p { margin: 4px 0; }
+</style>
+"""
+
+
+def delta_span(pct, lower_is_better=False, neutral=False):
+    # |pct| < 1.0 = 반올림 표시(₩80→₩80)와 충돌 가능. 변화 미미 처리.
+    if pct == 0 or abs(pct) < 1.0:
+        return '<span class="meta">±0%</span>'
+    arrow = "▲" if pct > 0 else "▼"
+    if neutral:
+        return f'<span style="color:#6b7280">{arrow} {abs(pct):.1f}%</span>'
+    is_bad = (pct > 0) if lower_is_better else (pct < 0)
+    # 의미 명확화: delta-bad/delta-good (방향 ▲▼ ≠ 좋고나쁨)
+    cls = "delta-bad" if is_bad else "delta-good"
+    return f'<span class="{cls}">{arrow} {abs(pct):.1f}%</span>'
+
+
+def render_1d(d):
+    t = d["total"]
+    rows = "".join(
+        f"<tr><td class=l>{c['name']}</td><td>{fmt_won(c['spend'])}</td>"
+        f"<td>{fmt_num(c['impressions'])}</td><td>{fmt_pct(c['ctr'])}</td>"
+        f"<td>{fmt_won(c['cpc'])}</td><td>{c['freq']:.2f}</td>"
+        f"<td>{fmt_num(c['reach'])}</td></tr>"
+        for c in d["campaigns"]
+    )
+    top5 = "".join(
+        f"<tr><td class=l>{a['ad_name'][:50]}</td><td>{fmt_pct(a['ctr'])}</td>"
+        f"<td>{fmt_won(a['cpc'])}</td><td>{fmt_won(a['spend'])}</td>"
+        f"<td>{fmt_num(a['impressions'])}</td></tr>"
+        for a in d["top5"]
+    )
+    alerts_html = (
+        '<div class="alert"><b>⚠ 알림</b><ul>' +
+        "".join(f"<li>{a}</li>" for a in d["alerts"]) + "</ul></div>"
+    ) if d["alerts"] else '<div class="ok">알림 없음 (모든 지표 정상 범위)</div>'
+
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8">{CSS}</head><body>
+<h1>Meta JP Daily — {d['date']}</h1>
+<p class=meta>비교: 전일 ({d['prev_date']}) · 계정: act_{ACCT.replace('act_', '')}</p>
+
+<h2>전체 요약</h2>
+<table>
+  <tr><th>Spend</th><th>Impressions</th><th>Clicks</th><th>CTR</th><th>CPC</th></tr>
+  <tr><td>{fmt_won(t['spend'])} {delta_span(d['delta']['spend_pct'], neutral=True)}</td>
+      <td>{fmt_num(t['impressions'])}</td>
+      <td>{fmt_num(t['clicks'])}</td>
+      <td>{fmt_pct(t['ctr'])} {delta_span(d['delta']['ctr_pct'])}</td>
+      <td>{fmt_won(t['cpc'])} {delta_span(d['delta']['cpc_pct'], lower_is_better=True)}</td></tr>
+</table>
+
+{alerts_html}
+
+{render_supersale_section(d.get('supersale_trend'), d.get('supersale_compare'), d.get('supersale_period'), d.get('supersale_changes'), d.get('ref_date'))}
+
+<h2>캠페인별</h2>
+<table>
+  <tr><th>캠페인</th><th>Spend</th><th>Impr</th><th>CTR</th><th>CPC</th><th>Freq</th><th>Reach</th></tr>
+  {rows}
+</table>
+
+<h2>광고 TOP 5 (CTR 순)</h2>
+<table>
+  <tr><th>광고</th><th>CTR</th><th>CPC</th><th>Spend</th><th>Impr</th></tr>
+  {top5}
+</table>
+
+<p class=meta>알림 임계값: CTR&lt;{CTR_LOW}% / Freq&gt;{FREQ_HIGH} / CPC 전일 +{CPC_SPIKE_PCT}% (정의 표는 보고서 최하단 참조)</p>
+
+{render_kpi_counter(d['best_worst'].get('all_ads', []))}
+
+{render_off_recommend_box(d.get('best_worst_7d') or d['best_worst'], ref_date=d.get('ref_date'))}
+
+{render_delivery_failure_box(d.get('delivery_failure_candidates', []))}
+
+{render_graduation_box(d.get('graduation_candidates', []))}
+
+{render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
+
+{render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
+
+{render_findings_section(build_findings(d, ref_date=d.get('ref_date')))}
+
+{render_advice_section(build_advice_1d(d))}
+
+{render_definitions_footer(d)}
+</body></html>"""
+
+
+def render_7d(d):
+    t = d["total"]
+    w = d["wow"]
+    img_b64 = chart_daily_trend(d["daily_trend"])
+    chart_html = f'<img src="data:image/png;base64,{img_b64}" style="max-width:100%;"/>' if img_b64 else "<p class=meta>(matplotlib 미설치)</p>"
+
+    daily_rows = "".join(
+        f"<tr><td class=l>{x['date']}</td><td>{fmt_won(x['spend'])}</td>"
+        f"<td>{fmt_num(x['impressions'])}</td><td>{fmt_pct(x['ctr'])}</td>"
+        f"<td>{fmt_won(x['cpc'])}</td></tr>"
+        for x in d["daily_trend"]
+    )
+    camp_rows = "".join(
+        f"<tr><td class=l>{c['name']}</td><td>{fmt_won(c['spend'])}</td>"
+        f"<td>{fmt_num(c['impressions'])}</td><td>{fmt_pct(c['ctr'])}</td>"
+        f"<td>{fmt_won(c['cpc'])}</td><td>{c['freq']:.2f}</td></tr>"
+        for c in d["campaigns"]
+    )
+    top10 = "".join(
+        f"<tr><td class=l>{a['ad_name'][:50]}</td><td>{fmt_won(a['spend'])}</td>"
+        f"<td>{fmt_num(a['impressions'])}</td><td>{fmt_pct(a['ctr'])}</td>"
+        f"<td>{fmt_won(a['cpc'])}</td><td>{a['freq']:.2f}</td></tr>"
+        for a in d["top10"]
+    )
+
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8">{CSS}</head><body>
+<h1>Meta JP Weekly — {d['start']} ~ {d['end']}</h1>
+<p class=meta>WoW 비교: 전주 ({d['end'] - timedelta(days=13)} ~ {d['end'] - timedelta(days=7)})</p>
+
+<h2>주간 요약 (WoW)</h2>
+<table>
+  <tr><th>지표</th><th>이번주</th><th>전주</th><th>변화</th></tr>
+  <tr><td class=l>Spend</td><td>{fmt_won(w['spend'])}</td><td>{fmt_won(w['spend_prev'])}</td><td>{delta_span(w['spend_pct'], neutral=True)}</td></tr>
+  <tr><td class=l>CTR</td><td>{fmt_pct(w['ctr'])}</td><td>{fmt_pct(w['ctr_prev'])}</td><td>{delta_span(w['ctr_pct'])}</td></tr>
+  <tr><td class=l>CPC</td><td>{fmt_won(w['cpc'])}</td><td>{fmt_won(w['cpc_prev'])}</td><td>{delta_span(w['cpc_pct'], lower_is_better=True)}</td></tr>
+</table>
+
+<h2>일별 추이</h2>
+{chart_html}
+<table>
+  <tr><th>날짜</th><th>Spend</th><th>Impr</th><th>CTR</th><th>CPC</th></tr>
+  {daily_rows}
+</table>
+
+<h2>캠페인 7일 합계</h2>
+<table>
+  <tr><th>캠페인</th><th>Spend</th><th>Impr</th><th>CTR</th><th>CPC</th><th>Freq</th></tr>
+  {camp_rows}
+</table>
+
+<h2>광고 TOP 10 (Spend 순)</h2>
+<table>
+  <tr><th>광고</th><th>Spend</th><th>Impr</th><th>CTR</th><th>CPC</th><th>Freq</th></tr>
+  {top10}
+</table>
+
+{render_kpi_counter(d['best_worst'].get('all_ads', []))}
+
+{render_off_recommend_box(d['best_worst'], ref_date=d.get('end'))}
+
+{render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
+
+{render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
+
+{render_findings_section(build_findings(d, ref_date=d.get('end')))}
+
+{render_advice_section(build_advice_7d(d))}
+</body></html>"""
+
+
+def render_14d(d):
+    learning_rows = "".join(
+        f"<tr><td class=l>{x['campaign']}</td><td>{x['days_active']}일</td>"
+        f"<td>{fmt_won(x['cpc_avg'])}</td><td>{x['stability']}</td></tr>"
+        for x in d["learning"]
+    ) or "<tr><td colspan=4>데이터 부족</td></tr>"
+
+    cc_rows = ""
+    for grp, label in [("image", "이미지"), ("video", "영상"), ("wl", "WL(인플루언서)")]:
+        v = d["creative_class"].get(grp)
+        if v:
+            cc_rows += (f"<tr><td class=l>{label} ({v['n']}개)</td><td>{fmt_won(v['spend'])}</td>"
+                        f"<td>{fmt_num(v['impressions'])}</td><td>{fmt_pct(v['ctr'])}</td>"
+                        f"<td>{fmt_won(v['cpc'])}</td><td>{v['freq']:.2f}</td></tr>")
+        else:
+            cc_rows += f"<tr><td class=l>{label}</td><td colspan=5>없음</td></tr>"
+
+    fatigue_rows = "".join(
+        f"<tr><td class=l>{x['ad_name'][:50]}</td><td>{x['freq']:.2f}</td>"
+        f"<td>{fmt_pct(x['ctr'])}</td><td>{fmt_won(x['spend'])}</td></tr>"
+        for x in d["fatigue"]
+    ) or "<tr><td colspan=4>피로도 경고 광고 없음</td></tr>"
+
+    actions_html = (
+        '<div class="alert"><b>Action Items</b><ul>' +
+        "".join(f"<li>{a}</li>" for a in d["actions"]) + "</ul></div>"
+    ) if d["actions"] else '<div class="ok">즉시 액션 항목 없음</div>'
+
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8">{CSS}</head><body>
+<h1>Meta JP Bi-weekly Audit — {d['start']} ~ {d['end']}</h1>
+
+<h2>학습 단계 진단</h2>
+<table>
+  <tr><th>캠페인</th><th>활성 일수</th><th>최근 5일 CPC 평균</th><th>안정성</th></tr>
+  {learning_rows}
+</table>
+<p class=meta>최근 5일 CPC 변동폭이 평균의 30% 미만이면 "안정" 판정</p>
+
+<h2>크리에이티브 분류</h2>
+<table>
+  <tr><th>유형</th><th>Spend</th><th>Impr</th><th>CTR</th><th>CPC</th><th>Freq</th></tr>
+  {cc_rows}
+</table>
+
+<h2>피로도 경고 (Freq&gt;2.5 또는 Freq&gt;2.0+CTR&lt;1%)</h2>
+<table>
+  <tr><th>광고</th><th>Freq</th><th>CTR</th><th>Spend</th></tr>
+  {fatigue_rows}
+</table>
+
+{actions_html}
+
+{render_kpi_counter(d['best_worst'].get('all_ads', []))}
+
+{render_off_recommend_box(d['best_worst'], ref_date=d.get('end'))}
+
+{render_best_worst_table(d['best_worst'], d.get('post_url_map'))}
+
+{render_budget_increase_table(d.get('budget_candidates', []), d.get('post_url_map'))}
+
+{render_findings_section(build_findings(d, ref_date=d.get('end')))}
+
+{render_advice_section(build_advice_14d(d))}
+</body></html>"""
+
+
+# ============================================================
+# Auditor (rule-based + Gemini)
+# ============================================================
+REQUIRED_SECTIONS = {
+    "1d": ["전체 요약", "캠페인별", "광고 TOP 5", "광고 BEST / WORST", "예산 증액 권고", "오늘의 발견", "메타몽 운용 조언"],
+    "7d": ["주간 요약", "일별 추이", "캠페인 7일 합계", "광고 BEST / WORST", "예산 증액 권고", "오늘의 발견", "메타몽 운용 조언"],
+    "14d": ["학습 단계", "크리에이티브 분류", "광고 BEST / WORST", "예산 증액 권고", "오늘의 발견", "메타몽 운용 조언"],
+}
+
+
+def audit_rule_based(analysis, html, mode):
+    """Code-level integrity checks. Returns list of violations."""
+    v = []
+    total = analysis.get("total", {})
+
+    if mode == "1d":
+        camp_sum = sum(c["spend"] for c in analysis.get("campaigns", []))
+        if total.get("spend") and camp_sum > 0:
+            diff = abs(camp_sum - total["spend"]) / total["spend"]
+            if diff > 0.02:
+                v.append(f"SPEND_INCONSISTENT: camp_sum={camp_sum:.0f} vs total={total['spend']:.0f} ({diff*100:.1f}% off)")
+
+    if total.get("impressions", 0) == 0 and mode != "14d":
+        v.append("EMPTY_DATA: 0 impressions — Meta API fetch failure suspected")
+
+    bw = analysis.get("best_worst", {})
+    if bw.get("ctr_best") and len(bw["ctr_best"]) >= 2:
+        ctrs = [a["ctr"] for a in bw["ctr_best"]]
+        if ctrs != sorted(ctrs, reverse=True):
+            v.append("CTR_BEST_NOT_DESC: BEST 정렬 오류")
+    if bw.get("ctr_worst") and len(bw["ctr_worst"]) >= 2:
+        ctrs = [a["ctr"] for a in bw["ctr_worst"]]
+        if ctrs != sorted(ctrs):
+            v.append("CTR_WORST_NOT_ASC: WORST 정렬 오류")
+    if bw.get("cpc_best") and len(bw["cpc_best"]) >= 2:
+        cpcs = [a["cpc"] for a in bw["cpc_best"]]
+        if cpcs != sorted(cpcs):
+            v.append("CPC_BEST_NOT_ASC: CPC BEST 정렬 오류")
+    if bw.get("cpc_worst") and len(bw["cpc_worst"]) >= 2:
+        cpcs = [a["cpc"] for a in bw["cpc_worst"]]
+        if cpcs != sorted(cpcs, reverse=True):
+            v.append("CPC_WORST_NOT_DESC: CPC WORST 정렬 오류")
+
+    if bw.get("ctr_best") and bw.get("ctr_worst"):
+        if bw["ctr_best"][0]["ctr"] < bw["ctr_worst"][0]["ctr"]:
+            v.append("BEST_LT_WORST: CTR BEST가 WORST보다 낮음 (논리 오류)")
+
+    for sec in REQUIRED_SECTIONS.get(mode, []):
+        if sec not in html:
+            v.append(f"MISSING_SECTION: '{sec}' 누락")
+
+    forbidden = ["가능성", "추정", "추측", "아마도"]
+    for word in forbidden:
+        if word in html:
+            v.append(f"SPECULATION_WORD: '{word}' 추측 표현 포함")
+            break
+
+    return v
+
+
+def audit_gemini(html, mode):
+    """Semantic audit via Gemini. Returns dict {pass, score, violations}."""
+    try:
+        from google import genai
+        from google.genai import types
+    except ImportError:
+        return {"pass": True, "skip": True, "reason": "genai not installed"}
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return {"pass": True, "skip": True, "reason": "GEMINI_API_KEY missing"}
+
+    client = genai.Client(api_key=api_key)
+    rules = """
+[감사 규칙 — Meta JP 광고 리포트]
+1. 본문 숫자(spend/CTR/CPC/Freq)와 조언 텍스트의 진단이 일치할 것
+2. BEST/WORST 격차에 비례하는 액션 제안일 것 (격차 작은데 "즉시 폐기" 등 과잉 금지)
+3. 표/테이블 형식 깨짐 없음 (빈 td, 잘못된 colspan 등)
+4. 한국어 비즈니스 톤. "가능성/추정/추측" 등 추측 표현 금지
+5. 단위 일관성: 금액은 ₩, 비율은 %, Freq는 소수점
+6. 조언 섹션이 데이터 부족 시 "데이터 부족" 명시 (가짜 인사이트 금지)
+
+JSON 응답 (mime=application/json):
+{"pass": bool, "score": 0-100, "violations": [{"rule": "string", "fix": "string"}]}
+score >= 80 일 때만 pass=true.
+"""
+    import re
+    # base64 차트 데이터 제거 (감사 텍스트 분량 확보)
+    audit_html = re.sub(r'data:image/png;base64,[^"]+', '[CHART_PNG]', html)
+    prompt = f"다음 Meta JP {mode} 리포트 HTML을 감사하세요.\n\n{rules}\n\n[HTML]\n{audit_html[:50000]}"
+
+    try:
+        resp = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.1,
+                response_mime_type="application/json",
+            ),
+        )
+        text = (resp.text or "").strip()
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0].strip()
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0].strip()
+        result = json.loads(text)
+        return result
+    except Exception as e:
+        return {"pass": False, "score": 0,
+                "violations": [{"rule": "AUDITOR_ERROR", "fix": str(e)}],
+                "error": str(e)}
+
+
+def run_auditor(analysis, html, mode):
+    """Combined: rule + Gemini. Returns (passed, report_str)."""
+    rule_v = audit_rule_based(analysis, html, mode)
+    gemini = audit_gemini(html, mode)
+
+    lines = []
+    lines.append(f"[AUDIT] mode={mode}")
+    lines.append(f"  Rule violations: {len(rule_v)}")
+    for x in rule_v:
+        lines.append(f"    - {x}")
+    if gemini.get("skip"):
+        lines.append(f"  Gemini: SKIPPED ({gemini.get('reason')})")
+    else:
+        score = gemini.get("score", 0)
+        lines.append(f"  Gemini score: {score}")
+        for vv in gemini.get("violations", []):
+            lines.append(f"    - {vv.get('rule')}: {vv.get('fix', '')[:120]}")
+
+    rule_pass = len(rule_v) == 0
+    gemini_pass = gemini.get("pass", False) or gemini.get("skip", False)
+    passed = rule_pass and gemini_pass
+    lines.append(f"  → {'PASS' if passed else 'FAIL'}")
+    return passed, "\n".join(lines)
+
+
+# ============================================================
+# Send
+# ============================================================
+def send(to, subject, html_path):
+    cmd = [sys.executable, str(TOOLS / "send_gmail.py"),
+           "--to", to, "--subject", subject, "--body-file", str(html_path)]
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
+    if r.returncode != 0:
+        print(f"[FAIL] send_gmail: {r.stderr}")
+        return False
+    print(f"[OK] sent to {to}")
+    return True
+
+
+# ============================================================
+# Main
+# ============================================================
+def main():
+    if not TOKEN or not ACCT:
+        print("[ERROR] META_JP_ACCESS_TOKEN / META_JP_AD_ACCOUNT_ID missing in .env")
+        sys.exit(1)
+
+    p = argparse.ArgumentParser()
+    p.add_argument("--mode", choices=["1d", "7d", "14d"], default="1d")
+    p.add_argument("--to", default=DEFAULT_TO)
+    p.add_argument("--no-send", action="store_true")
+    p.add_argument("--skip-audit", action="store_true",
+                   help="EMERGENCY ONLY — bypass auditor (logs warning)")
+    p.add_argument("--date", help="reference date YYYY-MM-DD (default: yesterday)")
+    args = p.parse_args()
+
+    ref = date.fromisoformat(args.date) if args.date else date.today() - timedelta(days=1)
+    print(f"[INFO] mode={args.mode} ref_date={ref}")
+
+    if args.mode == "1d":
+        analysis = analyze_1d(ref)
+        html = render_1d(analysis)
+        subject = f"[Meta JP] Daily {ref}"
+    elif args.mode == "7d":
+        analysis = analyze_7d(ref)
+        html = render_7d(analysis)
+        subject = f"[Meta JP] Weekly {analysis['start']} ~ {analysis['end']}"
+    else:
+        analysis = analyze_14d(ref)
+        html = render_14d(analysis)
+        subject = f"[Meta JP] Bi-weekly Audit {analysis['start']} ~ {analysis['end']}"
+
+    out_path = TMP_DIR / f"meta_jp_{args.mode}_{ref.isoformat()}.html"
+    out_path.write_text(html, encoding="utf-8")
+    print(f"[OK] saved {out_path} ({len(html):,} bytes)")
+
+    # Auditor gate
+    if args.skip_audit:
+        print("[WARN] --skip-audit: 감사 우회 (긴급 모드)")
+    else:
+        passed, audit_report = run_auditor(analysis, html, args.mode)
+        print(audit_report)
+        audit_log = TMP_DIR / f"meta_jp_{args.mode}_{ref.isoformat()}.audit.log"
+        audit_log.write_text(audit_report, encoding="utf-8")
+        if not passed:
+            print(f"[BLOCKED] auditor FAIL — 발송 차단. 로그: {audit_log}")
+            if not args.no_send:
+                sys.exit(2)
+
+    if args.no_send:
+        print("[SKIP] --no-send")
+        return
+
+    send(args.to, subject, out_path)
+
+
+if __name__ == "__main__":
+    main()

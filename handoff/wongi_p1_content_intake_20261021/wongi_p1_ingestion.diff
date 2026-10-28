@@ -1,0 +1,455 @@
+diff --git a/apps/ingestion/collectors/content_intake_sheet.py b/apps/ingestion/collectors/content_intake_sheet.py
+index c23cfe0..a8306ed 100644
+--- a/apps/ingestion/collectors/content_intake_sheet.py
++++ b/apps/ingestion/collectors/content_intake_sheet.py
+@@ -28,6 +28,7 @@ from ..core.base import (
+     BaseCollector,
+     DateRange,
+     FetchResult,
++    PartialFailure,
+     register,
+ )
+ from ..core.ratelimit import NonRetryableError, RateLimitPolicy
+@@ -87,6 +88,40 @@ ROW_UID_HEADER = "Row ID"
+ # drive_url = 원본영상(핵심 목적) / email = 매칭·연락 anchor / featured_brand = 브랜드 라우팅.
+ REQUIRED_FIELDS = frozenset({"drive_url", "email", "featured_brand_raw"})
+ 
++# primary(기존 US 폼)의 form_slug — ⚠️ `services.PRIMARY_FORM_SLUG` 와 같은 값이어야 한다
++# (datakeeper→ingestion import 는 금지 방향이라 상수를 양쪽에 두고 테스트로 정합을 잰다).
++PRIMARY_FORM_SLUG = ""
++
++# 폼별 필수 헤더(필드) — 목록에 없는 폼은 primary 기준(REQUIRED_FIELDS) 그대로.
++#   jp_posting(JP 투고 폼) = 원본영상 + 게시 릴 URL 이 식별 축(이메일 질문이 없는 폼이라
++#   email 을 필수로 걸면 영원히 loud fail 로 멈춘다).
++REQUIRED_FIELDS_BY_FORM = {
++    PRIMARY_FORM_SLUG: REQUIRED_FIELDS,
++    "jp_posting": frozenset({"drive_url", "ig_reel_url"}),
++}
++
++# collab_type 정규화 — 폼마다 표기가 다르다(JP 폼 有償/無償, US 폼 paid/gifted 등).
++# 원장·대시보드 운영 표기(Paid/Gifted)로 저장 표현을 접는다.
++# ⚠️ 적용은 `_source_row_key` 계산 **뒤**(핸들 정규화와 같은 계약 — 키 basis 에
++#   collab_type 이 들어 있어, 정규화 값으로 키를 만들면 기존 행의 키가 전부 바뀐다).
++#   원문은 raw_payload 에 그대로 남고, 모르는 값은 **건드리지 않는다**(날조 0).
++_COLLAB_TYPE_CANON = {
++    "paid": "Paid",
++    "gifted": "Gifted",
++    "gifting": "Gifted",
++    "有償": "Paid",
++    "有料": "Paid",
++    "無償": "Gifted",
++    "ギフティング": "Gifted",
++}
++# 괄호 부연이 붙는 폼 표기("有償(報酬あり)" 류) — 정확일치가 먼저, 전방일치는 그 폴백.
++_COLLAB_TYPE_PREFIXES = (
++    ("有償", "Paid"),
++    ("有料", "Paid"),
++    ("無償", "Gifted"),
++    ("ギフティング", "Gifted"),
++)
++
+ # 저장 시 소문자 정규화 필드(핸들·이메일 매칭 안정).
+ _LOWER_FIELDS = frozenset({"ig_handle", "tt_handle", "email"})
+ # 핸들 필드 — 소문자 위에 SoT `normalize_handle_cell` 을 한 번 더 적용(F16). ⚠️ 적용은
+@@ -280,6 +315,7 @@ _KEY_BASIS_FIELDS = frozenset(_KEY_CONTENT_FIELDS) | {"email"}
+ # 키 매핑 변화를 **의도했다**고 운영자가 확인해 주는 환경변수. 값 = 새 매핑의 서명(아래
+ # `_key_mapping_signature`). 서명을 값으로 요구하므로 한 번 넣어 둔 확인이 **다음 변화까지
+ # 자동으로 유효해지지 않는다**(그러면 가드가 영구히 꺼진 것과 같다).
++# 폼이 여럿이면 서명을 **쉼표로 나열**한다 — 폼별 서명이라 하나의 확인이 다른 폼을 못 연다.
+ _KEY_MAPPING_ACK_ENV = "CONTENT_INTAKE_ACK_KEY_MAPPING"
+ # 기준선을 찾을 때 훑는 최근 행 수. 맨 위 몇 행의 원문이 비어 있어도 다음 행으로 넘어간다.
+ _KEY_MAPPING_BASELINE_SCAN = 5
+@@ -302,8 +338,8 @@ def _key_mapping_signature(fields) -> str:
+     return hashlib.sha256("\x1f".join(sorted(fields)).encode("utf-8")).hexdigest()[:12]
+ 
+ 
+-def _last_mapped_key_fields() -> Optional[frozenset]:
+-    """직전 적재가 **실제로 매핑했던** 키 basis 칸 집합. 기준선이 없으면 None.
++def _last_mapped_key_fields(form_slug: str = PRIMARY_FORM_SLUG) -> Optional[frozenset]:
++    """직전 적재가 **실제로 매핑했던** 키 basis 칸 집합(그 폼만). 기준선이 없으면 None.
+ 
+     어디서 오는가: `_row_to_submission` 이 `raw_payload[field] = val` 을 **매핑된 칸마다
+     빠짐없이** 넣는다(값이 비어 있어도 넣는다). 그래서 저장된 행의 `raw_payload` 최상위 키는
+@@ -318,6 +354,9 @@ def _last_mapped_key_fields() -> Optional[frozenset]:
+     제외: `entry_source='manual'`(폼이 아니라 손입력 — 시트 매핑과 무관) · redacted(삭제
+     처리가 `raw_payload` 를 통째로 비우므로 칸 목록이 거짓이 된다).
+ 
++    ⚠️ **폼별 기준선(form_slug)** — 폼마다 시트·질문·매핑이 다르다. 스코프 없이 "가장
++    최근 행" 을 쓰면 다른 폼의 적재가 기준선을 갈아치워 멀쩡한 폼이 드리프트로 오판된다.
++
+     ⚠️ **이 기준선이 구조적으로 못 보는 것**(§3.11a): '선택 새로고침'은 고른 제출 하나의
+     `raw_payload` 를 현재 매핑으로 다시 쓴다(`refresh.py`). 하필 그 제출이 가장 최근 행이고
+     드리프트 직후에 새로고침되면 기준선이 새 매핑으로 덮여 이 가드가 침묵한다. 창이 좁고
+@@ -326,7 +365,9 @@ def _last_mapped_key_fields() -> Optional[frozenset]:
+     from datakeeper.domains.content_intake import models as _m
+ 
+     rows = (
+-        _m.ContentIntakeSubmission.objects.filter(entry_source="sheet", redacted_at__isnull=True)
++        _m.ContentIntakeSubmission.objects.filter(
++            entry_source="sheet", redacted_at__isnull=True, form_slug=form_slug or ""
++        )
+         .order_by("-id")
+         .values_list("raw_payload", flat=True)[:_KEY_MAPPING_BASELINE_SCAN]
+     )
+@@ -383,7 +424,7 @@ def _assert_not_mass_reingest(new_rows: list, known_ids_fn) -> None:
+     )
+ 
+ 
+-def _assert_key_mapping_stable(col_to_field: dict) -> None:
++def _assert_key_mapping_stable(col_to_field: dict, form_slug: str = PRIMARY_FORM_SLUG) -> None:
+     """키 basis 칸의 매핑이 직전 적재와 달라졌으면 **런을 멈춘다**(중복 재적재 차단).
+ 
+     막는 사고: 구글 폼 질문 하나의 문구를 고치면 그 칸이 alias 표와 안 맞아 매핑에서 빠진다.
+@@ -414,7 +455,7 @@ def _assert_key_mapping_stable(col_to_field: dict) -> None:
+     import os
+ 
+     now = _mapped_key_fields(col_to_field)
+-    before = _last_mapped_key_fields()
++    before = _last_mapped_key_fields(form_slug)
+     if before is None or before == now:
+         return
+     lost = sorted(before - now)
+@@ -424,7 +465,12 @@ def _assert_key_mapping_stable(col_to_field: dict) -> None:
+         f"사라진 칸={lost or '없음'} 새로 잡힌 칸={gained or '없음'} "
+         f"(직전 적재 기준 {sorted(before)})"
+     )
+-    if (os.environ.get(_KEY_MAPPING_ACK_ENV) or "").strip() == signature:
++    # 쉼표로 **여러 서명**을 받는다 — 폼이 여럿이라 같은 배포 창에 의도된 변경이 겹칠 수
++    # 있다. 서명제는 그대로다(폼 A 의 확인이 폼 B 의 드리프트를 통과시키지 못한다).
++    acked = {
++        s.strip() for s in (os.environ.get(_KEY_MAPPING_ACK_ENV) or "").split(",") if s.strip()
++    }
++    if signature in acked:
+         # 확인을 받았어도 **조용히 넘기지는 않는다** — 이 런이 기존 제출을 다시 넣는다.
+         logger.warning(
+             "content_intake_sheet: 키 매핑 변화를 운영자가 확인(%s=%s) → 진행한다. "
+@@ -672,6 +718,20 @@ def _row_to_submission(
+     for f in _HANDLE_FIELDS:
+         if f in rec:
+             rec[f] = normalize_handle_cell(rec[f])
++    # ⚠️ **collab_type 정규화 — 반드시 `_source_row_key` 뒤**(키 basis 포함 칸이라 핸들과
++    #   같은 계약). 폼별 표기(有償/無償 등)를 운영 표기(Paid/Gifted)로 접는다 — 정확일치
++    #   (소문자 포함) → 전방일치(괄호 부연) 순. 모르는 값은 그대로 둔다(날조 0 — 원문은
++    #   raw_payload 에 이미 보존돼 있다).
++    _ct = (rec.get("collab_type") or "").strip()
++    if _ct:
++        _canon = _COLLAB_TYPE_CANON.get(_ct) or _COLLAB_TYPE_CANON.get(_ct.lower())
++        if _canon is None:
++            for _prefix, _mapped in _COLLAB_TYPE_PREFIXES:
++                if _ct.startswith(_prefix):
++                    _canon = _mapped
++                    break
++        if _canon:
++            rec["collab_type"] = _canon
+     # ⚠️ **컬럼 폭 초과 방어 — 반드시 `_source_row_key` 뒤**(위 핸들 정규화와 같은 이유).
+     #   2026-08-03 실서버: 폼 응답 2건의 WL 코드가 120자를 넘어 DB 가 저장을 거부했고,
+     #   15분 타이머가 **하루 종일 같은 2건을 재시도하며 실패**했다(written=0 failed=2).
+@@ -864,21 +924,59 @@ class ContentIntakeSheetCollector(BaseCollector):
+ 
+     def fetch_v2(self, range: DateRange, brand: Optional[str] = None) -> Iterator[FetchResult]:
+         # datakeeper 서비스 = 함수-레벨 lazy import(collector import 시점 AppRegistry 안전).
++        from datakeeper.domains.content_intake.services import load_active_configs
++
++        # 폼(설정) 순회 — primary(form_slug="") 선두, 폼마다 시트가 따로다.
++        configs = [cfg for cfg in load_active_configs() if getattr(cfg, "enabled", False)]
++        if not configs:
++            logger.info("content_intake_sheet: 활성 config 없음/disabled → skip(정상 0)")
++            return
++        for config in configs:
++            form_slug = (getattr(config, "form_slug", "") or "").strip()
++            if form_slug == PRIMARY_FORM_SLUG:
++                # primary 실패 = run 전체 실패(기존 단일 폼 동작 그대로 — cursor freeze).
++                yield from self._collect_config(config, form_slug)
++                continue
++            try:
++                yield from self._collect_config(config, form_slug)
++            except Exception as e:  # noqa: BLE001 — 비-primary 1개가 나머지 폼을 못 막는다
++                # ⚠️ 조용히 접지 않는다 — PartialFailure 로 run 장부에 남겨 운영자가 본다.
++                #    primary 와 달리 raise 하지 않는 이유: 신설 폼의 설정 오류·권한 문제가
++                #    기존 US 수집까지 세우면 폼 추가가 곧 전체 장애 벡터가 된다.
++                logger.exception(
++                    "content_intake_sheet: 폼 %r 수집 실패 → 이 폼만 skip(다음 run 재시도)",
++                    form_slug,
++                )
++                yield FetchResult(
++                    rows=[],
++                    partial_failures=[
++                        PartialFailure(
++                            source=f"content_intake_sheet:{form_slug}",
++                            error=str(e),
++                            error_type="data_quality",
++                        )
++                    ],
++                )
++
++    def _collect_config(self, config, form_slug: str) -> Iterator[FetchResult]:
++        """폼(config) 하나의 시트를 읽어 신규 행을 yield — 옛 fetch_v2 본문 그대로.
++
++        폼별로 갈리는 지점은 다섯뿐이다: ① 필수 헤더(REQUIRED_FIELDS_BY_FORM) ② 키 드리프트
++        기준선(form_slug 스코프) ③ 식별 불가 판정(비-primary 폼엔 이메일 질문이 없을 수
++        있어 게시 URL 도 식별자로 인정) ④ 고아 판정 스코프 ⑤ INSERT payload 에
++        form_slug(비-primary만)·default_brand_slug 스탬프. 나머지 파싱·가드는 전부
++        공유한다 — 여기서 갈리면 같은 행이 폼에 따라 다른 값으로 저장된다.
++        """
+         from datakeeper.domains.content_intake.services import (
+             backfill_missing_submitted_at,
+             backfill_normalized_handles,
+             existing_source_row_keys,
+             known_drive_file_ids,
+-            load_active_config,
+             mark_orphaned_absent_submissions,
+             redacted_drive_file_ids,
+             redacted_row_uids,
+         )
+ 
+-        config = load_active_config()
+-        if config is None or not getattr(config, "enabled", False):
+-            logger.info("content_intake_sheet: 활성 config 없음/disabled → skip(정상 0)")
+-            return
+         if not config.sheet_url:
+             raise NonRetryableError("content_intake config.sheet_url 미설정 (탭 설정에서 지정)")
+ 
+@@ -889,7 +987,9 @@ class ContentIntakeSheetCollector(BaseCollector):
+         headers = values[0]
+         aliases = self._resolve_aliases(config)
+         col_to_field = _build_header_map(headers, aliases)
+-        missing = REQUIRED_FIELDS - set(col_to_field.values())
++        # ① 폼별 필수 헤더 — 폼마다 질문 구성이 달라 필수 축도 다르다.
++        required = REQUIRED_FIELDS_BY_FORM.get(form_slug, REQUIRED_FIELDS)
++        missing = required - set(col_to_field.values())
+         if missing:
+             # O8: 헤더 드리프트 loud fail → BaseCollector 가 cursor freeze(status=error).
+             raise NonRetryableError(
+@@ -899,7 +999,7 @@ class ContentIntakeSheetCollector(BaseCollector):
+         # ⚠️ 위 검사는 3칸(`REQUIRED_FIELDS`)만 본다. 멱등키를 만드는 칸은 13개고, 나머지 10개는
+         #    빠져도 여기까지 조용히 통과한 뒤 **키만 바뀌어 전 행이 중복 INSERT** 됐다. 그래서
+         #    매핑 자체가 직전 적재와 같은지를 여기서 한 번 더 묻는다(적재 **전**에 멈춰야 한다).
+-        _assert_key_mapping_stable(col_to_field)
++        _assert_key_mapping_stable(col_to_field, form_slug)
+         fingerprint = _header_fingerprint(headers)
+ 
+         rows: list[dict] = []
+@@ -927,7 +1027,11 @@ class ContentIntakeSheetCollector(BaseCollector):
+                 skip_error += 1
+                 logger.exception("content_intake_sheet: 행 파싱 실패 → 이 행만 skip")
+                 continue
+-            if not rec.get("drive_url") and not rec.get("email"):
++            identified = rec.get("drive_url") or rec.get("email")
++            if not identified and form_slug != PRIMARY_FORM_SLUG:
++                # ③ 비-primary 폼엔 이메일 질문이 없을 수 있다 — 게시 URL 도 식별자로 인정.
++                identified = rec.get("ig_reel_url") or rec.get("tt_url")
++            if not identified:
+                 skip_unidentified += 1
+                 continue  # 식별 불가 응답(빈 제출)
+             if rec.get("drive_url") and not rec.get("drive_file_id"):
+@@ -995,7 +1099,7 @@ class ContentIntakeSheetCollector(BaseCollector):
+                 for r in rows
+                 if (r.get("drive_file_id") or "").strip()
+             }
+-            orphaned = mark_orphaned_absent_submissions(set(keys), _live_drives)
++            orphaned = mark_orphaned_absent_submissions(set(keys), _live_drives, form_slug=form_slug)
+             if orphaned:
+                 logger.info("content_intake_sheet: %d orphaned(시트행 삭제 감지)", orphaned)
+         except Exception:
+@@ -1053,6 +1157,16 @@ class ContentIntakeSheetCollector(BaseCollector):
+         #   채운다" 가드가 이미 있다. 원문은 `raw_payload` 에 그대로 남는다.
+         for r in new_rows:
+             r.pop("row_uid", None)
++        # ⑤ 폼 식별·기본 브랜드 스탬프. primary 는 form_slug 를 **싣지 않는다**(모델 default
++        #   "" — 기존 행과 byte-identical payload 유지). default_brand_slug 는 "이 폼 전용
++        #   시트" 라는 운영자 설정에서 오는 값 — 브랜드 질문이 없는 폼(JP 투고 폼)의 P4
++        #   브랜드 라우팅 공백을 메운다(빈 값이면 아무것도 안 찍는다).
++        default_brand = (getattr(config, "default_brand_slug", "") or "").strip()
++        for r in new_rows:
++            if form_slug != PRIMARY_FORM_SLUG:
++                r["form_slug"] = form_slug
++            if default_brand and not (r.get("brand_slug") or "").strip():
++                r["brand_slug"] = default_brand
+ 
+         # 🔴 **대량 재적재를 결과로 잡는다**(전수 조사 2026-08-05 적발).
+         #   위 `_assert_key_mapping_stable` 은 "어느 필드가 잡혔나"(집합)만 비교한다. 그런데
+diff --git a/apps/ingestion/tests/test_content_intake_sheet_collector.py b/apps/ingestion/tests/test_content_intake_sheet_collector.py
+index d7ab43d..cde63f8 100644
+--- a/apps/ingestion/tests/test_content_intake_sheet_collector.py
++++ b/apps/ingestion/tests/test_content_intake_sheet_collector.py
+@@ -358,17 +358,15 @@ _HEADERS = ["Timestamp", "Full name", "Email", "Featured Brand", "Posted content
+ _ROW = ["2026-07-20 10:00:00", "Jane", "jane@x.com", "Grosmimi", "https://d/file/d/FID/view"]
+ 
+ 
+-def _run_fetch(collector, existing=None, redacted=None, last_mapped=None, redacted_uids=None):
+-    """fetch_v2 를 datakeeper 서비스 mock 하에 실행 → 반환 rows(펼침).
++def _run_fetch_results(collector, existing=None, redacted=None, last_mapped=None, redacted_uids=None):
++    """fetch_v2 를 datakeeper 서비스 mock 하에 실행 → FetchResult 목록(partial_failures 포함).
+ 
+-    `last_mapped` = 직전 적재가 매핑했던 키 basis 칸 집합(키 드리프트 가드의 기준선).
+-    기본 None = "기준선 없음"(첫 적재) 이라 가드가 안 발화한다 — 이 파일의 다른 테스트는
+-    가드가 아니라 다른 축을 재기 때문이다. 가드 자체는 `KeyMappingDriftGuardTests` 가 잰다.
++    `_test_config` 는 단일 config 또는 **목록**(멀티 폼 테스트) — 목록이면 그대로 쓴다.
+     """
+     existing = existing or set()
+     with (
+         mock.patch.object(c, "_last_mapped_key_fields", return_value=last_mapped),
+-        mock.patch("datakeeper.domains.content_intake.services.load_active_config") as m_cfg,
++        mock.patch("datakeeper.domains.content_intake.services.load_active_configs") as m_cfg,
+         mock.patch(
+             "datakeeper.domains.content_intake.services.existing_source_row_keys",
+             return_value=existing,
+@@ -385,10 +383,20 @@ def _run_fetch(collector, existing=None, redacted=None, last_mapped=None, redact
+             return_value=redacted_uids or set(),
+         ),
+     ):
+-        m_cfg.return_value = collector._test_config
+-        results = list(collector.fetch_v2(range=None))
++        cfg = collector._test_config
++        m_cfg.return_value = cfg if isinstance(cfg, list) else [cfg]
++        return list(collector.fetch_v2(range=None))
++
++
++def _run_fetch(collector, existing=None, redacted=None, last_mapped=None, redacted_uids=None):
++    """fetch_v2 를 datakeeper 서비스 mock 하에 실행 → 반환 rows(펼침).
++
++    `last_mapped` = 직전 적재가 매핑했던 키 basis 칸 집합(키 드리프트 가드의 기준선).
++    기본 None = "기준선 없음"(첫 적재) 이라 가드가 안 발화한다 — 이 파일의 다른 테스트는
++    가드가 아니라 다른 축을 재기 때문이다. 가드 자체는 `KeyMappingDriftGuardTests` 가 잰다.
++    """
+     rows = []
+-    for fr in results:
++    for fr in _run_fetch_results(collector, existing, redacted, last_mapped, redacted_uids):
+         rows.extend(fr.rows)
+     return rows
+ 
+@@ -459,6 +467,134 @@ def test_fetch_v2_skips_blank_rows():
+     assert len(rows) == 1, "빈 행 skip, 실 응답 1"
+ 
+ 
++# ─── 멀티 폼 (form_slug — primary="" 하위호환) ─────────────────────────────
++
++
++def test_us_fixture_source_row_key_is_frozen():
++    """★ 멱등키 불변 스냅샷 — 멀티 폼 확장이 기존 US 행의 키를 1비트도 못 움직인다.
++
++    빨개지는 입력: `_KEY_CONTENT_FIELDS` 에 form_slug 를 넣거나, collab_type 정규화를
++    `_source_row_key` **앞**으로 옮기면 이 해시가 달라진다 — write-once 가 기존 행을
++    하나도 못 찾아 전 행이 중복 재적재된다(2026-08-02 사고 재현).
++    """
++    rows = _run_fetch(_make_collector(_fake_config(), [_HEADERS, _ROW]))
++    assert rows[0]["source_row_key"] == (
++        "v1:14112056b114e5091ec1b75e1162fadd00684415c5b3e23ef2c01f1a7ff1e6f4"
++    )
++
++
++def test_primary_form_slug_matches_the_services_constant():
++    """수집기·도메인 서비스가 각자 든 primary 상수가 갈리면 폼 스코프 판정이 전부 뒤틀린다
++    (datakeeper→ingestion import 는 금지 방향이라 상수를 양쪽에 두고 여기서 정합을 잰다)."""
++    from datakeeper.domains.content_intake import services
++
++    assert c.PRIMARY_FORM_SLUG == services.PRIMARY_FORM_SLUG == ""
++
++
++def test_primary_rows_do_not_carry_form_slug():
++    """primary payload 는 기존과 **byte-identical** — form_slug 키 자체가 없어야 한다."""
++    rows = _run_fetch(_make_collector(_fake_config(), [_HEADERS, _ROW]))
++    assert "form_slug" not in rows[0]
++    assert "brand_slug" not in rows[0], "default_brand_slug 미설정인데 브랜드를 날조했다"
++
++
++_JP_HEADERS = ["Timestamp", "Posted content", "IG Reel URL", "Collaboration type"]
++_JP_ROW = ["2026-10-20 10:00:00", "https://d/file/d/JPFID/view", "https://ig/reel/1", "有償"]
++
++
++def test_non_primary_rows_are_stamped_with_form_slug_and_default_brand():
++    """비-primary 폼 행은 form_slug 와(설정 시) default_brand_slug 가 찍혀 들어간다(⑤)."""
++    cfg = _fake_config(form_slug="jp_posting", default_brand_slug="grosmimi-jp")
++    rows = _run_fetch(_make_collector(cfg, [_JP_HEADERS, _JP_ROW]))
++    assert len(rows) == 1
++    assert rows[0]["form_slug"] == "jp_posting"
++    assert rows[0]["brand_slug"] == "grosmimi-jp"
++    assert rows[0]["collab_type"] == "Paid", "폼 표기(有償)가 운영 표기로 안 접혔다"
++
++
++def test_non_primary_required_headers_follow_the_form():
++    """jp_posting 필수 = drive_url + ig_reel_url(이메일 질문이 없는 폼). 릴 URL 열이 빠지면
++    그 폼만 PartialFailure 로 멈추고(비-primary 는 raise 하지 않는다) 행은 0."""
++    cfg = _fake_config(form_slug="jp_posting")
++    col = _make_collector(cfg, [["Timestamp", "Posted content"], ["2026-10-20", "https://d/x"]])
++    results = _run_fetch_results(col)
++    assert [r for fr in results for r in fr.rows] == []
++    failures = [p for fr in results for p in fr.partial_failures]
++    assert len(failures) == 1
++    assert "ig_reel_url" in failures[0].error, "무엇이 빠졌는지 말하지 않으면 운영자가 못 고친다"
++
++
++def test_a_failing_secondary_form_does_not_kill_the_primary_run():
++    """비-primary 1개의 시트 장애가 기존 US 수집을 세우면 폼 추가가 곧 전체 장애 벡터다 —
++    그 폼만 PartialFailure 로 남기고 primary 행은 정상 yield 돼야 한다."""
++    col = c.ContentIntakeSheetCollector()
++    col._test_config = [_fake_config(), _fake_config(form_slug="jp_posting")]
++
++    def _read(cfg):
++        if getattr(cfg, "form_slug", "") or "":
++            raise RuntimeError("jp sheet down")
++        return ([_HEADERS, _ROW], [], "Asia/Seoul")
++
++    col._read_sheet = _read
++    results = _run_fetch_results(col)
++    rows = [r for fr in results for r in fr.rows]
++    failures = [p for fr in results for p in fr.partial_failures]
++    assert len(rows) == 1, "primary 행이 비-primary 실패에 휩쓸렸다"
++    assert len(failures) == 1
++    assert "jp_posting" in failures[0].source
++
++
++def test_a_failing_primary_form_still_fails_the_run():
++    """primary 는 기존 단일 폼 동작 그대로 — 실패가 run 을 세운다(cursor freeze 경로)."""
++    col = c.ContentIntakeSheetCollector()
++    col._test_config = [_fake_config()]
++
++    def _read(cfg):
++        raise RuntimeError("primary sheet down")
++
++    col._read_sheet = _read
++    with pytest.raises(RuntimeError):
++        _run_fetch_results(col)
++
++
++def _collab_rec(value: str) -> dict:
++    headers = ["Email", "Featured Brand", "Posted content", "Collaboration type"]
++    col_map = c._build_header_map(headers, c.DEFAULT_HEADER_ALIASES)
++    return c._row_to_submission(
++        ["a@b.com", "G", "https://d/file/d/FID/view", value], col_map, "FP"
++    )
++
++
++def test_collab_type_is_canonicalized_after_the_key():
++    """collab_type 정규화(有償→Paid)는 **키 계산 뒤** — 키는 원문 기준으로 불변이어야 한다.
++
++    빨개지는 입력: 정규화를 `_source_row_key` 앞으로 옮기면 기대 키(원문 有償 basis)와
++    달라진다 — 기존 행이 전부 새 키로 재적재되는 사고 축이다.
++    """
++    rec = _collab_rec("有償")
++    assert rec["collab_type"] == "Paid"
++    expected = c._source_row_key(
++        {
++            "drive_file_id": "FID",
++            "drive_url": "https://d/file/d/FID/view",
++            "featured_brand_raw": "G",
++            "collab_type": "有償",
++            "email": "a@b.com",
++        }
++    )
++    assert rec["source_row_key"] == expected
++    assert rec["raw_payload"]["collab_type"] == "有償", "원문이 raw_payload 에 안 남았다"
++
++
++def test_collab_type_prefix_case_and_unknown_values():
++    assert _collab_rec("有償(報酬あり)")["collab_type"] == "Paid"  # 괄호 부연 = 전방일치
++    assert _collab_rec("無償")["collab_type"] == "Gifted"
++    assert _collab_rec("Gifted")["collab_type"] == "Gifted"  # 대소문자 무관 정확일치
++    assert _collab_rec("paid")["collab_type"] == "Paid"
++    assert _collab_rec("협의")["collab_type"] == "협의", "모르는 값을 날조했다"
++    assert _collab_rec("")["collab_type"] == ""
++
++
+ # ─── save() → ensure_media 배선 ───────────────────────────────────────────
+ 
+ 

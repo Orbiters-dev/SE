@@ -1,0 +1,52 @@
+name: Meta JP Weekly Report
+
+on:
+  schedule:
+    # KST 월요일 09:00 (UTC 일요일 24:00 = 월요일 00:00, 5분 일찍 발동)
+    - cron: '55 23 * * 0'
+  workflow_dispatch:
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet \
+            requests \
+            python-dotenv \
+            google-genai \
+            google-auth \
+            google-auth-oauthlib \
+            google-api-python-client \
+            matplotlib
+
+      - name: Write .env
+        run: |
+          cat > .env << 'ENVEOF'
+          META_JP_ACCESS_TOKEN=${{ secrets.META_JP_ACCESS_TOKEN }}
+          META_JP_AD_ACCOUNT_ID=${{ secrets.META_JP_AD_ACCOUNT_ID }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          GMAIL_OAUTH_CREDENTIALS_PATH=credentials/gmail_oauth_credentials.json
+          GMAIL_TOKEN_PATH=credentials/gmail_token.json
+          GMAIL_SENDER=orbiters11@gmail.com
+          ENVEOF
+
+      - name: Write Gmail credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GMAIL_OAUTH_CREDENTIALS_JSON }}' > credentials/gmail_oauth_credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}'             > credentials/gmail_token.json
+
+      - name: Run Meta JP Weekly (7d)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python -u tools/meta_jp_daily.py --mode 7d

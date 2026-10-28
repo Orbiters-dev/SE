@@ -1,0 +1,18 @@
+# ↓↓ 사수 repo 의 CLAUDE.md 에 append. 한 번만 하면 매 세션 자동 로딩.
+
+---
+
+## Meta-Validation Harness (SE_handoff_v1)
+
+`SE_handoff_v1/` 패키지가 본 repo 에 있음. 자세한 사용은 `SE_handoff_v1/README.md` 참조.
+
+**스킬 트리거**: `/감사관` (AICPA 6-axis 감사) / `/CFO야` (Generator→Auditor 루프) / `/제갈량` (Planner→Generator→Evaluator) / `/아인슈타인` (효율·창의성 감사)
+
+**자동 참조 (작업 도메인별)**
+- 일본 거래·계약·견적·메일 → `SE_handoff_v1/references/japan_business_jp.md` + `japan_accounting.md` + `japan_contract_basics.md`
+- 벤더 평가·거래선 churn·해외 통화 → `SE_handoff_v1/references/operating_patterns_from_b2c.md`
+- 재무 모델·P&L·DCF 검증 → `SE_handoff_v1/references/cfo_financial_review.md` (Generator→Auditor 분리 + 6-axis 체크)
+
+**자동 검증 hook**: Write/Edit 가 `.claude/hooks/harness_runner.py` 의 `HARNESS_PATTERNS` 매치 → 3-LLM 하네스 자동 실행. FAIL = 다음 액션 block.
+
+**CLI**: `python SE_handoff_v1/tools/harness.py --status` 로 상태 확인.
