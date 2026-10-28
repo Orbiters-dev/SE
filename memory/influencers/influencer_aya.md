@@ -30,7 +30,9 @@ type: project
 | 2026-04-28 | STEP 6.5 (no-send) | DocuSeal Submission #51 (DOCX 업로드, https://docuseal.orbiters.co.kr/s/gyCNjubg8KGPHV) — 세은 승인 대기. 폐기: #49(PDF, placeholder 노출), #50(PPSU) |
 | 2026-04-2X | STEP 6.5 발송·서명 완료 | DocuSeal #51 발송 → 인플루언서 서명 완료 + 메일 사본 송부 통지 |
 | 2026-04-29 | STEP 7 진행 | 서명 확인 + ステンレス 300ml チェリーピーチ 확정 + 배송지 정보 수집 DM |
+| 2026-06-09 | STEP 12 DM① | 투고 완료 → 광고코드 + 字幕なし元データ 요청 (무상 — 입금 안내 X) |
+| 2026-06-11 | STEP 12 DM③ 全完了 | 광고코드 + 元データ 모두 수령 (세은 「완료」 확인) → 마무리 DM (무상 — 입금 줄 X). Harness PASS, **발송 승인 대기** (.tmp/dm_nagao_step12_complete.txt) |
 
 ## 다음 액션
 
-- 배송지 정보(주소·이름·전화·희망 일시) 회신 대기 → STEP 8 발송 의뢰
+- 全完了 마무리 DM 발송 승인 대기 → 발송하면 종결

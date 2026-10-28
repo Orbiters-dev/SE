@@ -63,13 +63,18 @@ type: reference
 - `C:\Users\orbit\Desktop\s\인플루언서 계약서(서명 없는 ver)\{name}_{date}.docx`
 - `.pdf` (참고용 프리뷰)
 
-## [2] 세은 검토
+## [2] 세은 검토 — **DocuSeal URL로 검수받는다 (로컬 PDF X)**
 
-DOCX/PDF 생성만 끝난 상태. **절대 자동 발송 금지.**
+**검수는 반드시 DocuSeal `--no-send` 업로드 후 서명 URL을 세은에게 줘서 받는다.**
+로컬 DOCX/PDF 파일 경로만 보여주고 "확인해주세요" = 강한 교정 대상 (2026-06-12 「발송 전에 url로 주고 검사받으라고 진짜 몇 번 말해」).
 
-세은이 파일 내용 확인 후 "발송해" 승인.
+올바른 순서:
+1. `--no-send` 로 DocuSeal 업로드 → 서명 URL 반환
+2. URL을 세은에게 전달 → 실제 렌더링된 계약서로 검수
+3. 세은 OK → `--resend SUBMITTER_ID` 본 발송
+4. NG → submission 삭제 후 재생성
 
-거부 시: 파일 덮어쓰기 재생성 or 수정.
+즉 [3] DocuSeal 업로드(--no-send)는 [2] 검수의 일부다. 「로컬 파일 검수 → 그 다음 업로드」 순서 X. **절대 자동 본 발송 금지.**
 
 ## [3] DocuSeal 발송
 
