@@ -1,0 +1,1811 @@
+{
+ "updated_at": "2026-10-28T09:20:10",
+ "source": "RMS searchOrder/getOrder priceTaxIncl*units",
+ "days": {
+  "2025-11-01": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-02": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-03": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-04": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-05": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-06": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-07": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-08": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-09": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-10": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-11": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-12": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-13": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-14": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-15": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-16": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-17": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-11-18": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-19": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-11-20": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-21": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-11-22": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-23": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-24": {
+   "sales_jpy": 4200,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-11-25": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-11-26": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-27": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-11-28": {
+   "sales_jpy": 4200,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-11-29": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-11-30": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-01": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-02": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-03": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-12-04": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-05": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-06": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-07": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-08": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-09": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-10": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-11": {
+   "sales_jpy": 4200,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-12-12": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-13": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-14": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-15": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-16": {
+   "sales_jpy": 3190,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-12-17": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-18": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-19": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-20": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-21": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-22": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-23": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-24": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-25": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-26": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-27": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-28": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-29": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2025-12-30": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2025-12-31": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-01": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-02": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-03": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-04": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-05": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-06": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-07": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-08": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-01-09": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-10": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-11": {
+   "sales_jpy": 16600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-01-12": {
+   "sales_jpy": 1980,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-01-13": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-14": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-15": {
+   "sales_jpy": 4200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-01-16": {
+   "sales_jpy": 12400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-01-17": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-18": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-19": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-01-20": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-01-21": {
+   "sales_jpy": 3190,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-01-22": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-01-23": {
+   "sales_jpy": 6790,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-01-24": {
+   "sales_jpy": 40350,
+   "orders": 7,
+   "units": 10
+  },
+  "2026-01-25": {
+   "sales_jpy": 74450,
+   "orders": 21,
+   "units": 22
+  },
+  "2026-01-26": {
+   "sales_jpy": 44140,
+   "orders": 8,
+   "units": 11
+  },
+  "2026-01-27": {
+   "sales_jpy": 10390,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-01-28": {
+   "sales_jpy": 10990,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-01-29": {
+   "sales_jpy": 3190,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-01-30": {
+   "sales_jpy": 25350,
+   "orders": 5,
+   "units": 7
+  },
+  "2026-01-31": {
+   "sales_jpy": 15190,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-02-01": {
+   "sales_jpy": 6400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-02-02": {
+   "sales_jpy": 7200,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-02-03": {
+   "sales_jpy": 8990,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-02-04": {
+   "sales_jpy": 7200,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-02-05": {
+   "sales_jpy": 22580,
+   "orders": 6,
+   "units": 6
+  },
+  "2026-02-06": {
+   "sales_jpy": 14760,
+   "orders": 2,
+   "units": 5
+  },
+  "2026-02-07": {
+   "sales_jpy": 12990,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-02-08": {
+   "sales_jpy": 19600,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-02-09": {
+   "sales_jpy": 18750,
+   "orders": 5,
+   "units": 6
+  },
+  "2026-02-10": {
+   "sales_jpy": 15590,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-02-11": {
+   "sales_jpy": 7390,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-02-12": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-02-13": {
+   "sales_jpy": 18570,
+   "orders": 3,
+   "units": 5
+  },
+  "2026-02-14": {
+   "sales_jpy": 7200,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-02-15": {
+   "sales_jpy": 13990,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-02-16": {
+   "sales_jpy": 16160,
+   "orders": 4,
+   "units": 5
+  },
+  "2026-02-17": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-02-18": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-02-19": {
+   "sales_jpy": 16780,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-02-20": {
+   "sales_jpy": 14200,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-02-21": {
+   "sales_jpy": 5800,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-02-22": {
+   "sales_jpy": 10580,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-02-23": {
+   "sales_jpy": 11380,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-02-24": {
+   "sales_jpy": 16180,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-02-25": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-02-26": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-02-27": {
+   "sales_jpy": 3190,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-02-28": {
+   "sales_jpy": 23390,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-03-01": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-03-02": {
+   "sales_jpy": 18000,
+   "orders": 3,
+   "units": 5
+  },
+  "2026-03-03": {
+   "sales_jpy": 3190,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-03-04": {
+   "sales_jpy": 62930,
+   "orders": 12,
+   "units": 15
+  },
+  "2026-03-05": {
+   "sales_jpy": 49250,
+   "orders": 10,
+   "units": 13
+  },
+  "2026-03-06": {
+   "sales_jpy": 17980,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-03-07": {
+   "sales_jpy": 11320,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-03-08": {
+   "sales_jpy": 8450,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-03-09": {
+   "sales_jpy": 21390,
+   "orders": 4,
+   "units": 5
+  },
+  "2026-03-10": {
+   "sales_jpy": 35240,
+   "orders": 10,
+   "units": 10
+  },
+  "2026-03-11": {
+   "sales_jpy": 19960,
+   "orders": 1,
+   "units": 5
+  },
+  "2026-03-12": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-03-13": {
+   "sales_jpy": 13380,
+   "orders": 2,
+   "units": 4
+  },
+  "2026-03-14": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-03-15": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-03-16": {
+   "sales_jpy": 16180,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-03-17": {
+   "sales_jpy": 13590,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-03-18": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-03-19": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-03-20": {
+   "sales_jpy": 12180,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-03-21": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-03-22": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-03-23": {
+   "sales_jpy": 9370,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-03-24": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-03-25": {
+   "sales_jpy": 15590,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-03-26": {
+   "sales_jpy": 15190,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-03-27": {
+   "sales_jpy": 4200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-03-28": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-03-29": {
+   "sales_jpy": 8990,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-03-30": {
+   "sales_jpy": 12400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-03-31": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-04-01": {
+   "sales_jpy": 18780,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-04-02": {
+   "sales_jpy": 18390,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-04-03": {
+   "sales_jpy": 16976,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-04-04": {
+   "sales_jpy": 4200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-04-05": {
+   "sales_jpy": 25400,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-04-06": {
+   "sales_jpy": 3190,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-04-07": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-04-08": {
+   "sales_jpy": 9000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-04-09": {
+   "sales_jpy": 14380,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-04-10": {
+   "sales_jpy": 21790,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-04-11": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-04-12": {
+   "sales_jpy": 23780,
+   "orders": 4,
+   "units": 5
+  },
+  "2026-04-13": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-04-14": {
+   "sales_jpy": 12400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-04-15": {
+   "sales_jpy": 26380,
+   "orders": 4,
+   "units": 5
+  },
+  "2026-04-16": {
+   "sales_jpy": 9180,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-04-17": {
+   "sales_jpy": 14790,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-04-18": {
+   "sales_jpy": 21350,
+   "orders": 5,
+   "units": 6
+  },
+  "2026-04-19": {
+   "sales_jpy": 36800,
+   "orders": 5,
+   "units": 6
+  },
+  "2026-04-20": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-04-21": {
+   "sales_jpy": 24400,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-04-22": {
+   "sales_jpy": 5800,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-04-23": {
+   "sales_jpy": 3190,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-04-24": {
+   "sales_jpy": 37200,
+   "orders": 6,
+   "units": 6
+  },
+  "2026-04-25": {
+   "sales_jpy": 33790,
+   "orders": 6,
+   "units": 6
+  },
+  "2026-04-26": {
+   "sales_jpy": 18600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-04-27": {
+   "sales_jpy": 14380,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-04-28": {
+   "sales_jpy": 24400,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-04-29": {
+   "sales_jpy": 18200,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-04-30": {
+   "sales_jpy": 18600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-05-01": {
+   "sales_jpy": 21000,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-05-02": {
+   "sales_jpy": 29580,
+   "orders": 4,
+   "units": 6
+  },
+  "2026-05-03": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-05-04": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-05-05": {
+   "sales_jpy": 8180,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-05-06": {
+   "sales_jpy": 22200,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-05-07": {
+   "sales_jpy": 14380,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-05-08": {
+   "sales_jpy": 22200,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-05-09": {
+   "sales_jpy": 23770,
+   "orders": 4,
+   "units": 5
+  },
+  "2026-05-10": {
+   "sales_jpy": 129540,
+   "orders": 23,
+   "units": 25
+  },
+  "2026-05-11": {
+   "sales_jpy": 24800,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-05-12": {
+   "sales_jpy": 39990,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-05-13": {
+   "sales_jpy": 44980,
+   "orders": 8,
+   "units": 8
+  },
+  "2026-05-14": {
+   "sales_jpy": 48580,
+   "orders": 7,
+   "units": 9
+  },
+  "2026-05-15": {
+   "sales_jpy": 163370,
+   "orders": 28,
+   "units": 28
+  },
+  "2026-05-16": {
+   "sales_jpy": 52390,
+   "orders": 9,
+   "units": 9
+  },
+  "2026-05-17": {
+   "sales_jpy": 44150,
+   "orders": 8,
+   "units": 10
+  },
+  "2026-05-18": {
+   "sales_jpy": 64380,
+   "orders": 12,
+   "units": 12
+  },
+  "2026-05-19": {
+   "sales_jpy": 10400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-05-20": {
+   "sales_jpy": 74000,
+   "orders": 12,
+   "units": 12
+  },
+  "2026-05-21": {
+   "sales_jpy": 18200,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-05-22": {
+   "sales_jpy": 16600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-05-23": {
+   "sales_jpy": 12400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-05-24": {
+   "sales_jpy": 28360,
+   "orders": 6,
+   "units": 6
+  },
+  "2026-05-25": {
+   "sales_jpy": 57980,
+   "orders": 11,
+   "units": 11
+  },
+  "2026-05-26": {
+   "sales_jpy": 12380,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-05-27": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-05-28": {
+   "sales_jpy": 18600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-05-29": {
+   "sales_jpy": 11780,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-05-30": {
+   "sales_jpy": 24580,
+   "orders": 3,
+   "units": 5
+  },
+  "2026-05-31": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-06-01": {
+   "sales_jpy": 35780,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-06-02": {
+   "sales_jpy": 12400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-06-03": {
+   "sales_jpy": 12990,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-06-04": {
+   "sales_jpy": 150540,
+   "orders": 26,
+   "units": 32
+  },
+  "2026-06-05": {
+   "sales_jpy": 126460,
+   "orders": 23,
+   "units": 26
+  },
+  "2026-06-06": {
+   "sales_jpy": 38340,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-06-07": {
+   "sales_jpy": 14720,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-06-08": {
+   "sales_jpy": 38290,
+   "orders": 9,
+   "units": 9
+  },
+  "2026-06-09": {
+   "sales_jpy": 21960,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-06-10": {
+   "sales_jpy": 224910,
+   "orders": 41,
+   "units": 44
+  },
+  "2026-06-11": {
+   "sales_jpy": 31710,
+   "orders": 5,
+   "units": 6
+  },
+  "2026-06-12": {
+   "sales_jpy": 4200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-06-13": {
+   "sales_jpy": 16600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-06-14": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-06-15": {
+   "sales_jpy": 38780,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-06-16": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-06-17": {
+   "sales_jpy": 24400,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-06-18": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-06-19": {
+   "sales_jpy": 21390,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-06-20": {
+   "sales_jpy": 44760,
+   "orders": 9,
+   "units": 9
+  },
+  "2026-06-21": {
+   "sales_jpy": 26380,
+   "orders": 4,
+   "units": 5
+  },
+  "2026-06-22": {
+   "sales_jpy": 16600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-06-23": {
+   "sales_jpy": 9800,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-06-24": {
+   "sales_jpy": 16780,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-06-25": {
+   "sales_jpy": 18580,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-06-26": {
+   "sales_jpy": 12140,
+   "orders": 2,
+   "units": 4
+  },
+  "2026-06-27": {
+   "sales_jpy": 3600,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-06-28": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-06-29": {
+   "sales_jpy": 12400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-06-30": {
+   "sales_jpy": 15190,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-07-01": {
+   "sales_jpy": 55550,
+   "orders": 9,
+   "units": 11
+  },
+  "2026-07-02": {
+   "sales_jpy": 3190,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-07-03": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-07-04": {
+   "sales_jpy": 18600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-07-05": {
+   "sales_jpy": 86950,
+   "orders": 16,
+   "units": 16
+  },
+  "2026-07-06": {
+   "sales_jpy": 20180,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-07-07": {
+   "sales_jpy": 26160,
+   "orders": 6,
+   "units": 6
+  },
+  "2026-07-08": {
+   "sales_jpy": 24400,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-07-09": {
+   "sales_jpy": 36380,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-07-10": {
+   "sales_jpy": 67550,
+   "orders": 12,
+   "units": 13
+  },
+  "2026-07-11": {
+   "sales_jpy": 18200,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-07-12": {
+   "sales_jpy": 38780,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-07-13": {
+   "sales_jpy": 16200,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-07-14": {
+   "sales_jpy": 34580,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-07-15": {
+   "sales_jpy": 62780,
+   "orders": 11,
+   "units": 11
+  },
+  "2026-07-16": {
+   "sales_jpy": 53970,
+   "orders": 10,
+   "units": 10
+  },
+  "2026-07-17": {
+   "sales_jpy": 43190,
+   "orders": 8,
+   "units": 8
+  },
+  "2026-07-18": {
+   "sales_jpy": 20180,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-07-19": {
+   "sales_jpy": 27600,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-07-20": {
+   "sales_jpy": 69160,
+   "orders": 13,
+   "units": 13
+  },
+  "2026-07-21": {
+   "sales_jpy": 28400,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-07-22": {
+   "sales_jpy": 17580,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-07-23": {
+   "sales_jpy": 27190,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-07-24": {
+   "sales_jpy": 18780,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-07-25": {
+   "sales_jpy": 84400,
+   "orders": 14,
+   "units": 15
+  },
+  "2026-07-26": {
+   "sales_jpy": 24400,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-07-27": {
+   "sales_jpy": 15190,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-07-28": {
+   "sales_jpy": 10580,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-07-29": {
+   "sales_jpy": 19780,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-07-30": {
+   "sales_jpy": 56380,
+   "orders": 11,
+   "units": 11
+  },
+  "2026-07-31": {
+   "sales_jpy": 20760,
+   "orders": 3,
+   "units": 5
+  },
+  "2026-08-01": {
+   "sales_jpy": 33160,
+   "orders": 6,
+   "units": 7
+  },
+  "2026-08-02": {
+   "sales_jpy": 29800,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-08-03": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-08-04": {
+   "sales_jpy": 10980,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-08-05": {
+   "sales_jpy": 90720,
+   "orders": 17,
+   "units": 19
+  },
+  "2026-08-06": {
+   "sales_jpy": 12400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-08-07": {
+   "sales_jpy": 13760,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-08-08": {
+   "sales_jpy": 20180,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-08-09": {
+   "sales_jpy": 19960,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-08-10": {
+   "sales_jpy": 29560,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-08-11": {
+   "sales_jpy": 16200,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-08-12": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-08-13": {
+   "sales_jpy": 27370,
+   "orders": 5,
+   "units": 6
+  },
+  "2026-08-14": {
+   "sales_jpy": 8360,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-08-15": {
+   "sales_jpy": 4780,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-08-16": {
+   "sales_jpy": 16600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-08-17": {
+   "sales_jpy": 20400,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-08-18": {
+   "sales_jpy": 12400,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-08-19": {
+   "sales_jpy": 11380,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-08-20": {
+   "sales_jpy": 14380,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-08-21": {
+   "sales_jpy": 3960,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-08-22": {
+   "sales_jpy": 17350,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-08-23": {
+   "sales_jpy": 14380,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-08-24": {
+   "sales_jpy": 13980,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-08-25": {
+   "sales_jpy": 49180,
+   "orders": 9,
+   "units": 9
+  },
+  "2026-08-26": {
+   "sales_jpy": 12380,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-08-27": {
+   "sales_jpy": 3960,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-08-28": {
+   "sales_jpy": 8180,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-08-29": {
+   "sales_jpy": 6200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-08-30": {
+   "sales_jpy": 22400,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-08-31": {
+   "sales_jpy": 10000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-09-01": {
+   "sales_jpy": 30780,
+   "orders": 6,
+   "units": 6
+  },
+  "2026-09-02": {
+   "sales_jpy": 15590,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-09-03": {
+   "sales_jpy": 3960,
+   "orders": 1,
+   "units": 2
+  },
+  "2026-09-04": {
+   "sales_jpy": 42220,
+   "orders": 9,
+   "units": 9
+  },
+  "2026-09-05": {
+   "sales_jpy": 87600,
+   "orders": 22,
+   "units": 24
+  },
+  "2026-09-06": {
+   "sales_jpy": 21360,
+   "orders": 7,
+   "units": 7
+  },
+  "2026-09-07": {
+   "sales_jpy": 12410,
+   "orders": 2,
+   "units": 3
+  },
+  "2026-09-08": {
+   "sales_jpy": 10500,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-09-09": {
+   "sales_jpy": 9640,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-09-10": {
+   "sales_jpy": 25790,
+   "orders": 8,
+   "units": 8
+  },
+  "2026-09-11": {
+   "sales_jpy": 20290,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-09-12": {
+   "sales_jpy": 9390,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-09-13": {
+   "sales_jpy": 12000,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-09-14": {
+   "sales_jpy": 5800,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-09-15": {
+   "sales_jpy": 8360,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-09-16": {
+   "sales_jpy": 13770,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-09-17": {
+   "sales_jpy": 11370,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-09-18": {
+   "sales_jpy": 11370,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-09-19": {
+   "sales_jpy": 12580,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-09-20": {
+   "sales_jpy": 45550,
+   "orders": 7,
+   "units": 10
+  },
+  "2026-09-21": {
+   "sales_jpy": 15770,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-09-22": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-09-23": {
+   "sales_jpy": 9390,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-09-24": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-09-25": {
+   "sales_jpy": 34120,
+   "orders": 9,
+   "units": 9
+  },
+  "2026-09-26": {
+   "sales_jpy": 13980,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-09-27": {
+   "sales_jpy": 23780,
+   "orders": 4,
+   "units": 5
+  },
+  "2026-09-28": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-09-29": {
+   "sales_jpy": 7970,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-09-30": {
+   "sales_jpy": 12370,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-10-01": {
+   "sales_jpy": 21130,
+   "orders": 6,
+   "units": 6
+  },
+  "2026-10-02": {
+   "sales_jpy": 4200,
+   "orders": 1,
+   "units": 1
+  },
+  "2026-10-03": {
+   "sales_jpy": 18600,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-10-04": {
+   "sales_jpy": 12200,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-10-05": {
+   "sales_jpy": 42940,
+   "orders": 8,
+   "units": 10
+  },
+  "2026-10-06": {
+   "sales_jpy": 47930,
+   "orders": 12,
+   "units": 13
+  },
+  "2026-10-07": {
+   "sales_jpy": 12180,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-10-08": {
+   "sales_jpy": 8180,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-10-09": {
+   "sales_jpy": 7200,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-10-10": {
+   "sales_jpy": 20580,
+   "orders": 4,
+   "units": 4
+  },
+  "2026-10-11": {
+   "sales_jpy": 7150,
+   "orders": 3,
+   "units": 3
+  },
+  "2026-10-12": {
+   "sales_jpy": 0,
+   "orders": 0,
+   "units": 0
+  },
+  "2026-10-13": {
+   "sales_jpy": 19190,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-10-14": {
+   "sales_jpy": 6180,
+   "orders": 2,
+   "units": 2
+  },
+  "2026-10-15": {
+   "sales_jpy": 46330,
+   "orders": 12,
+   "units": 12
+  },
+  "2026-10-16": {
+   "sales_jpy": 21530,
+   "orders": 5,
+   "units": 6
+  },
+  "2026-10-17": {
+   "sales_jpy": 17570,
+   "orders": 3,
+   "units": 4
+  },
+  "2026-10-18": {
+   "sales_jpy": 27520,
+   "orders": 7,
+   "units": 8
+  },
+  "2026-10-19": {
+   "sales_jpy": 19170,
+   "orders": 4,
+   "units": 5
+  },
+  "2026-10-20": {
+   "sales_jpy": 22150,
+   "orders": 5,
+   "units": 6
+  },
+  "2026-10-21": {
+   "sales_jpy": 13940,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-10-22": {
+   "sales_jpy": 19520,
+   "orders": 5,
+   "units": 7
+  },
+  "2026-10-23": {
+   "sales_jpy": 29570,
+   "orders": 5,
+   "units": 6
+  },
+  "2026-10-24": {
+   "sales_jpy": 41340,
+   "orders": 10,
+   "units": 10
+  },
+  "2026-10-25": {
+   "sales_jpy": 44140,
+   "orders": 10,
+   "units": 10
+  },
+  "2026-10-26": {
+   "sales_jpy": 16950,
+   "orders": 5,
+   "units": 5
+  },
+  "2026-10-27": {
+   "sales_jpy": 18760,
+   "orders": 5,
+   "units": 5
+  }
+ }
+}

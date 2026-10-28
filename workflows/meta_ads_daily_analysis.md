@@ -24,7 +24,7 @@ Meta Graph API에서 Facebook/Instagram 광고 성과 데이터를 가져와
 2. ROAS 기준: 3.0 이상 우수 / 2.0~3.0 보통 / 2.0 미만 위험
 3. CTR 기준: 1.5% 이상 우수 / 0.8~1.5% 보통 / 0.8% 미만 위험 (크리에이티브 피로 신호)
 4. CPM 기준: 높을수록 오디언스 포화 또는 경쟁 심화 — 전주 대비 20% 이상 상승 시 주목
-5. Frequency 기준: 3.0 이상이면 오디언스 번아웃 위험 — 새 크리에이티브 또는 오디언스 확장 필요
+5. Frequency 기준: 2.5 이상이면 오디언스 번아웃 위험 — 새 콜라보 발주 (다른 인플루언서) 또는 오디언스 확장 필요. 같은 영상 재의뢰 X.
 6. 전날 대비, 지난주 동요일 대비, 지난달 대비 3가지 맥락에서 판단한다
 7. 브랜드별(Grosmimi, CHA&MOM, Alpremio 등)로 구분하여 분석한다
 8. 크리에이티브 레벨(Ad)에서 이상 징후를 포착하고 교체/스케일 여부를 판단한다
@@ -102,7 +102,7 @@ python tools/no_polar/fetch_meta_ads_daily.py --level ad --days 30
 
 #### C. Ad Set 레벨 — 오디언스 분석
 
-- **Frequency 위험 Ad Set**: Frequency ≥ 3.0 → 오디언스 번아웃 경고
+- **Frequency 위험 Ad Set**: Frequency ≥ 2.5 → 오디언스 번아웃 경고
 - **CPM 급등 Ad Set**: 전주 대비 CPM 20% 이상 상승 → 오디언스 포화 또는 경쟁 심화
 - **ROAS 상위 5개 Ad Set**: 예산 증액 후보
 - **ROAS 하위 5개 Ad Set**: 일시 중단 또는 타겟 재설정 후보

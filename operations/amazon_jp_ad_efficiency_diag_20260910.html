@@ -1,0 +1,59 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>아마존 JP 광고 저효율 진단 · 9/3~9/9</title><style>*{box-sizing:border-box}body{font-family:'Segoe UI','Malgun Gothic',system-ui,sans-serif;background:#fff9f2;color:#5a4650;line-height:1.55;margin:0;padding:24px}
+.wrap{max-width:1040px;margin:0 auto}
+.slide{background:#fffdfb;border-radius:24px;box-shadow:0 8px 30px rgba(224,106,106,.10);margin:24px 0;overflow:hidden;border:1px solid #f4dede}
+.cover{background:linear-gradient(135deg,#ffe3e3 0%,#ffe8d6 100%);color:#8a4763;padding:52px;text-align:center}
+.cover h1{font-size:38px;margin:8px 0;font-weight:800;color:#c0392b}.cover .sub{font-size:16px;opacity:.9}.cover .bunny{font-size:44px}
+.cover .kick{font-size:12px;letter-spacing:4px;text-transform:uppercase;opacity:.7}.cover .meta{margin-top:20px;font-size:14px;background:#fff6f2;display:inline-flex;gap:18px;padding:10px 20px;border-radius:999px;flex-wrap:wrap}
+.band{background:linear-gradient(90deg,#e0806a,#e8a06a);color:#fff;padding:14px 28px;font-size:20px;font-weight:800}
+.body{padding:20px 28px 24px}
+.lead{font-size:15.5px;background:#fff3ef;border-left:5px solid #e0806a;padding:13px 16px;border-radius:12px;margin-bottom:16px}
+.grid{display:grid;gap:13px;grid-template-columns:repeat(4,1fr)}
+.card{background:linear-gradient(180deg,#fffafa,#fff4f0);border:1px solid #f4dede;border-radius:16px;padding:15px 12px;text-align:center}
+.card .lab{font-size:12px;color:#9b8790;font-weight:700}.card .val{font-size:25px;font-weight:800;margin:5px 0;color:#c0392b}.card .dl{font-size:12px;color:#9b8790}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}th,td{padding:8px 9px;text-align:left;border-bottom:1px solid #f4dede}
+th{background:#fff0ec;color:#c0392b;font-weight:800;font-size:11.5px}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.leak{background:#fdeeee;border:1px solid #f4c4c4;border-radius:14px;padding:12px 15px;margin:12px 0;font-size:14px}
+.diag{background:#fff6ef;border:1px solid #f4d9c4;border-radius:14px;padding:12px 15px;margin:12px 0;font-size:14px}
+.hi{background:#fff7ea;border:1px solid #ffe0ad;border-radius:14px;padding:12px 15px;margin:12px 0;font-size:14px}
+h3{margin:16px 0 6px;font-size:15px;color:#b34a2a}.note{font-size:12px;color:#9b8790;margin-top:6px}</style></head><body><div class="wrap">
+<div class="slide"><div class="cover"><div class="bunny">🩸</div><div class="kick">Amazon JP Ads · Why So Inefficient</div>
+<h1>아마존 JP 광고 저효율 진단</h1><div class="sub">그로미미 재팬 · SP + SBV · 세일 무관, 구조적 저효율 원인 규명</div>
+<div class="meta"><span>📅 9/3~9/9 (7일)</span><span>💴 JPY · 14d 귀속</span><span>🔍 검색어 실측</span></div></div></div>
+
+<div class="slide"><div class="band">🩸 한눈에 — 왜 새는가</div><div class="body">
+<div class="lead">아마존은 라쿠텐 슈퍼세일과 <b>무관</b>. 그런데도 광고비 <b>¥134,183</b> 태워 매출 <b>¥33,780</b>뿐 — <b>ROAS 25% (ACOS ~397%)</b>. 원인은 <b>① 제네릭 검색어에 광범위 노출(세팅) + ② 클릭돼도 전환 안 됨</b>. 세일 안 해서가 아니라 원래 이 광고 세팅이 적자.</div>
+<div class="grid">
+<div class="card"><div class="lab">ROAS</div><div class="val">25%</div><div class="dl">손익선 한참 아래</div></div>
+<div class="card"><div class="lab">ACOS</div><div class="val">397%</div><div class="dl">100% = 본전</div></div>
+<div class="card"><div class="lab">전환0 검색어 지출</div><div class="val">76%</div><div class="dl">¥70,861 낭비</div></div>
+<div class="card"><div class="lab">평균 CTR</div><div class="val">0.19%</div><div class="dl">노출 470,737/클릭 891</div></div>
+</div>
+<div class="leak">⚠ 광고비의 <b>76%(¥70,861)가 "전환 0" 검색어</b>에 소진. 노출은 폭발하는데(CTR 0.19%) 클릭·구매로 안 이어짐 = 상품이 그 검색 의도에 안 맞는데 뿌려지고 있음.</div>
+</div></div>
+
+<div class="slide"><div class="band">📊 지표로 본 문제 — 캠페인별 (9/3~9/9)</div><div class="body">
+<div class="lead">CTR 0.1~0.3%대(비정상 낮음) + CVR ~1% + CPC ¥90~190 = ACOS 폭등. SBV 3캠 중 2캠은 전환 0.</div>
+<table><tr><th>캠페인</th><th>유형</th><th class="n">노출</th><th class="n">클릭</th><th class="n">CTR</th><th class="n">CPC</th><th class="n">주문</th><th class="n">CVR</th><th class="n">ROAS</th><th class="n">ACOS</th></tr><tr><td>Stainless_Manual_20260820</td><td>SP</td><td class="n">251,745</td><td class="n">368</td><td class="n">0.15%</td><td class="n">¥190</td><td class="n">4</td><td class="n">1.09%</td><td class="n">27%</td><td class="n">375%</td></tr><tr><td>PPSU_Manual_20260828</td><td>SP</td><td class="n">103,108</td><td class="n">200</td><td class="n">0.19%</td><td class="n">¥175</td><td class="n">3</td><td class="n">1.5%</td><td class="n">27%</td><td class="n">371%</td></tr><tr><td>SBV · お手入れたんたん (손질간편) (…4189)</td><td>SBV</td><td class="n">34,242</td><td class="n">116</td><td class="n">0.34%</td><td class="n">¥92</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td><td class="n">–</td></tr><tr><td>SBV · 目盛り (눈금) (…4997)</td><td>SBV</td><td class="n">48,756</td><td class="n">114</td><td class="n">0.23%</td><td class="n">¥86</td><td class="n">1</td><td class="n">0.88%</td><td class="n">57%</td><td class="n">175%</td></tr><tr><td>SBV · 消毒 (소독) (…2420)</td><td>SBV</td><td class="n">32,886</td><td class="n">93</td><td class="n">0.28%</td><td class="n">¥92</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td><td class="n">–</td></tr></table>
+<div class="diag">💡 <b>CTR 0.15%</b>(스텐, 노출 25만/클릭 368)는 Amazon SP 정상치(0.3~0.5%+)의 절반 이하 — 검색 의도 불일치. <b>CVR ~1%</b>는 클릭한 소수도 대부분 이탈. 둘 다 "제네릭 검색어 광범위 매칭"의 전형적 증상.</div>
+</div></div>
+
+<div class="slide"><div class="band">🔎 돈이 새는 검색어 — 지출 TOP (9/3~9/9)</div><div class="body">
+<div class="lead">지출 상위 검색어가 전부 <b>제네릭 카테고리어</b>(ストローマグ·赤ちゃんマグ·水筒 등). 경쟁 극심 + 그로미미가 거기서 안 팔림 → 붉은 행 = 전환 0.</div>
+<table><tr><th>검색어</th><th class="n">지출</th><th class="n">노출</th><th class="n">클릭</th><th class="n">주문</th><th class="n">CVR</th><th class="n">ROAS</th></tr><tr><td>ストローマグ</td><td class="n">¥20,292</td><td class="n">45,755</td><td class="n">89</td><td class="n">2</td><td class="n">2.25%</td><td class="n">47%</td></tr><tr style="background:#fdeeee"><td>赤ちゃん マグ</td><td class="n">¥5,106</td><td class="n">14,910</td><td class="n">21</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr style="background:#fdeeee"><td>ストローマグ 保冷</td><td class="n">¥4,699</td><td class="n">7,944</td><td class="n">24</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr style="background:#fdeeee"><td>保冷マグ ストロー</td><td class="n">¥4,048</td><td class="n">12,100</td><td class="n">17</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr style="background:#fdeeee"><td>ストローマグ 赤ちゃん</td><td class="n">¥3,195</td><td class="n">8,108</td><td class="n">13</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr style="background:#fdeeee"><td>子供 水筒 ストロー</td><td class="n">¥2,687</td><td class="n">11,926</td><td class="n">20</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr style="background:#fdeeee"><td>水筒 ストロー 子供</td><td class="n">¥2,368</td><td class="n">10,571</td><td class="n">22</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr><td>マグ ストロー</td><td class="n">¥2,285</td><td class="n">6,080</td><td class="n">12</td><td class="n">1</td><td class="n">8.33%</td><td class="n">247%</td></tr><tr style="background:#fdeeee"><td>ベビーマグ</td><td class="n">¥2,096</td><td class="n">2,784</td><td class="n">12</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr style="background:#fdeeee"><td>赤ちゃん マグ ストロー</td><td class="n">¥1,998</td><td class="n">3,470</td><td class="n">7</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr style="background:#fdeeee"><td>ステンレスマグ 赤ちゃん</td><td class="n">¥1,504</td><td class="n">2,654</td><td class="n">9</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr><tr style="background:#fdeeee"><td>赤ちゃん 水筒</td><td class="n">¥1,349</td><td class="n">1,181</td><td class="n">11</td><td class="n">0</td><td class="n">0.0%</td><td class="n">0%</td></tr></table>
+<div class="leak">⚠ 최대 지출 「ストローマグ」(¥20,292)조차 ROAS 47%로 적자. 그 아래 「赤ちゃん マグ·保冷マグ·水筒 ストロー」 등은 전환 0. <b>브랜드어(グロミミ) 지출은 거의 없음</b> — 라쿠텐에선 브랜드어가 ROAS 1,500% 효자였는데 아마존은 제네릭에만 태움.</div>
+</div></div>
+
+<div class="slide"><div class="band">✅ 원인 & 처방 (제안)</div><div class="body">
+<div class="lead">삐삐 진단 — 아래는 <b>제안</b>이며 콘솔 실행은 세은 매뉴얼.</div>
+<h3>원인 (실측)</h3>
+<div class="leak">① <b>제네릭·카테고리 검색어에 광범위 노출</b> — 지출 76%가 전환0 검색어. 경쟁 극심한 일반어에서 그로미미가 밀림.<br>② <b>CTR·CVR 동시 저조</b> — 노출은 많은데 안 눌리고(CTR 0.15%), 눌러도 안 삼(CVR ~1%).<br>③ <b>브랜드어 방어 부재 + SBV 2캠 전환0</b>(お手入れたんたん·消毒) 순수 낭비.</div>
+<h3>처방 후보</h3>
+<div class="diag">· 전환0 제네릭 검색어(赤ちゃんマグ·水筒 ストロー·保冷マグ 등) <b>부정 키워드 등록 또는 입찰 인하</b><br>· 브랜드어(グロミミ·grosmimi) 캠페인 신설/강화 — 라쿠텐 실증대로 저비용 고ROAS 기대<br>· SBV 전환0 2캠(お手入れ·消毒) 크리에이티브/타겟 점검 또는 정지<br>· ACOS 목표 세워 SP 입찰 하향 (현 CPC ¥175~190 → 타겟 ACOS 역산)</div>
+<h3>확인 필요 (미검증)</h3>
+<div class="hi">클릭해도 전환 안 되는 근본 원인(<b>가격·리뷰 수·리스팅 경쟁력·BSR</b>)은 이 광고 데이터만으론 확정 불가 — 리스팅 레벨 별도 조사 필요. 추정으로 단정하지 않음.</div>
+</div></div>
+
+<div class="slide"><div class="body" style="text-align:center;color:#9b8790;font-size:12px;padding:16px">
+데이터: DK amazon_ads_daily + amazon_ads_search_terms (profile JP 3736142261021843 · JPY · 14d 귀속) · 9/3~9/9 · DataKeeper · 콘솔 조작 없음(read-only)
+</div></div>
+</div></body></html>

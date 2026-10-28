@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>グロミミ JP — TikTok Ads 셋업 설계 초안 (US 미러링)</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI","Malgun Gothic","Noto Sans JP",sans-serif;background:#0f1115;color:#e7e9ee;line-height:1.65;padding:32px 18px 70px}
+  .wrap{max-width:1000px;margin:0 auto}
+  h1{font-size:23px;color:#25f4ee;margin-bottom:4px}
+  .sub{color:#8b90a0;font-size:13px;margin-bottom:8px}
+  .tag{display:inline-block;background:#fe2c55;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-bottom:18px}
+  h2{font-size:17px;color:#25f4ee;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid #262a35}
+  h3{font-size:14px;color:#ffd48a;margin:16px 0 6px}
+  p,li{font-size:13.5px;color:#d3d7e0}
+  ul{margin:4px 0 4px 18px}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+  th,td{border:1px solid #2a2f3a;padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#1a1e27;color:#9fe8e4}
+  td.b{color:#ffd48a;font-weight:700}
+  .pill{font-size:11px;padding:2px 7px;border-radius:5px;font-weight:700}
+  .on{background:#0d3b2e;color:#3ee6a0}.off{background:#3a2530;color:#ff8fa3}
+  .box{background:#161a22;border:1px solid #262a35;border-radius:12px;padding:16px 18px;margin:12px 0}
+  .warn{border-left:4px solid #fe2c55}
+  .ok{border-left:4px solid #25f4ee}
+  .k{color:#25f4ee;font-weight:700}
+  .muted{color:#8b90a0;font-size:12px}
+  code{background:#0b0d12;padding:1px 6px;border-radius:4px;color:#9fe8e4;font-size:12px}
+  .decision{background:#1c1420;border:1px solid #3a2530;border-radius:12px;padding:16px 18px;margin:12px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="tag">DRAFT · 2026-09-14 · 조회 기반 · 실행 전 승인 필요</span>
+  <h1>グロミミ JP — TikTok Ads 셋업 설계 초안</h1>
+  <div class="sub">US 계정 <b>Fleeters INC0614</b> (BC: Shopify Zezebaebae) 구조를 읽고 JP용으로 미러링. 게재·예산·입찰 실행은 세은 승인 후.</div>
+
+  <h2>1. US 계정 구조 (실측)</h2>
+  <ul>
+    <li><span class="k">광고계정</span>: Fleeters INC0614 (ID <code>7380222280540110864</code>) · 통화 USD · Business Center <b>Shopify Zezebaebae</b> 산하</li>
+    <li><span class="k">캠페인 수</span>: 총 37개 (초안 20 포함) · 현재 활성 지출은 <b>VIEW 캠페인</b>만</li>
+    <li><span class="k">네이밍 규칙</span>: <code>DATE_TT_ONZ_OBJECTIVE_PRODUCT</code> (예: <code>AUG13_TT_ONZ_VIEW_GROSMIMI</code>)</li>
+    <li><span class="k">목표(OBJECTIVE) 사다리</span>: <b>VIEW</b>(트래픽·활성) · <b>LPV</b> Landing Page View · <b>PDP</b> Product Detail Page · <b>ASC</b>(Smart+/자동화 추정) · <b>WL</b> Whitelisting=Spark Ads(크리에이터 게시물 부스팅, 예 <code>WL_BABYRABBIT</code>)</li>
+    <li><span class="k">제품 라인</span>: GROSMIMI · CHAMOM · NAEIAE · (WL) BABYRABBIT</li>
+    <li><span class="k">예산</span>: 캠페인 <b>Daily $50~80</b> (CBO성 데일리)</li>
+    <li><span class="k">풀퍼널 도구 보유</span>: Events Manager(픽셀) · Catalog Manager · Search Center(Keyword planner=검색광고) · GMV Max · Instant Page(틱톡 네이티브 랜딩)</li>
+  </ul>
+
+  <h3>7일 벤치마크 (계정 집계 · 시점 2026-09-08~14)</h3>
+  <table>
+    <tr><th>캠페인</th><th>상태</th><th>예산</th><th>지출</th><th>CPC(dest)</th><th>CPM</th><th>CTR(dest)</th><th>Conv</th><th>CPA</th><th>CVR</th></tr>
+    <tr><td class="b">계정 전체</td><td>—</td><td>—</td><td>$808</td><td>$0.24</td><td>$6.39</td><td>2.66%</td><td>1,778</td><td>$0.45</td><td>1.41%</td></tr>
+    <tr><td>VIEW_GROSMIMI</td><td><span class="pill on">Active</span></td><td>$80/d</td><td>$568.6</td><td>$0.23</td><td>$6.07</td><td>2.66%</td><td>1,289</td><td>$0.44</td><td>1.38%</td></tr>
+    <tr><td>VIEW_NAEIAE</td><td><span class="pill off">Paused</span></td><td>$50/d</td><td>$115.2</td><td>$0.34</td><td>$8.86</td><td>2.62%</td><td>256</td><td>$0.45</td><td><b>1.97%</b></td></tr>
+    <tr><td>VIEW_CHAMOM</td><td><span class="pill on">Active</span></td><td>$50/d</td><td>$124.5</td><td>$0.24</td><td>$6.29</td><td>2.66%</td><td>233</td><td>$0.53</td><td>1.18%</td></tr>
+  </table>
+  <p class="muted">지표 컬럼이 전부 <b>"destination"</b> 기준(외부 랜딩 클릭) + Conversions/CPA/CVR 존재 → <b>외부 자사몰(Shopify) 랜딩 + 픽셀 전환추적</b> 모델. VIEW 활성 3캠 다 <span class="pill off" style="margin:0">Review issue</span> 플래그(소재 심사) 있음.</p>
+
+  <h2>2. ★ 핵심 설계 결정 — 랜딩 & 전환추적 (JP의 갈림길)</h2>
+  <div class="decision">
+    <p><b>US 모델:</b> 자사 Shopify 랜딩 → 페이지에 TikTok Pixel → <b>전환 최적화</b> 가능 (CVR 1.41%·CPA $0.45 실측).</p>
+    <p style="margin-top:8px"><b>JP 계획:</b> 랜딩 = <b>Rakuten 각 상품 URL</b> (세은 지정). 문제는 <b>Rakuten 상품페이지에 TikTok Pixel/Events API를 심을 수 있느냐</b> — RMS(店舗)는 외부 JS 삽입이 제한적일 가능성. <span class="k">이게 되냐 안 되냐로 JP 캠페인 목표가 갈린다.</span> <b>현재 확인 못 함 → 검증 필요.</b></p>
+  </div>
+  <div class="box ok">
+    <h3>분기 A — Rakuten 픽셀 삽입 가능</h3>
+    <p>US를 거의 그대로 미러: <b>VIEW(트래픽) → LPV → PDP/전환</b> 상향. CPA 입찰 가능. 가장 이상적.</p>
+  </div>
+  <div class="box warn">
+    <h3>분기 B — Rakuten 픽셀 불가 (가능성 높음)</h3>
+    <p>전환 신호가 없으니 <b>Traffic(클릭)·랜딩뷰까지만</b>. 대안 3종:</p>
+    <ul>
+      <li><b>① Traffic 최적화 + UTM</b> — Rakuten RMS 유입 리포트로 클릭→구매를 사후 귀속(간접). 입찰은 클릭 기준.</li>
+      <li><b>② WL / Spark Ads</b> — 그로미미 JP 인플루언서 게시물 부스팅(픽셀 불요). <b>기존 DM 파이프라인·WL 노하우 직이식</b> = 가장 강한 레버.</li>
+      <li><b>③ Instant Page(틱톡 네이티브 랜딩)</b> — 틱톡 내부 랜딩이라 픽셀/이벤트 완전 작동. "상세→Rakuten 이동" CTA로 브리지. 단 2스텝이라 이탈↑.</li>
+    </ul>
+  </div>
+
+  <h2>3. JP 캠페인 구조 초안 (미러)</h2>
+  <p><span class="k">네이밍</span>: <code>YYMMDD_TT_GRJP_OBJ_PRODUCT</code> (GRJP = Grosmimi JP). 예: <code>260920_TT_GRJP_VIEW_PPSU</code></p>
+  <p class="muted">랜딩 3제품(리뷰 정리한 그 3종): <b>PPSU</b> <code>grosmimi_ppsu_strawcup300</code> · <b>Stainless</b> <code>stainless_steel_strawcup_300</code> · <b>Fliptop</b> <code>grosmimi_ppsu_onetouch_srawcup</code></p>
+  <table>
+    <tr><th>단계</th><th>캠페인(목표)</th><th>제품</th><th>랜딩</th><th>예산(초안)</th><th>입찰/최적화</th><th>비고</th></tr>
+    <tr><td class="b">콜드스타트</td><td>VIEW(Traffic)</td><td>PPSU·Stainless·Fliptop 각1</td><td>Rakuten 상품 URL</td><td>¥1,500~2,500/day·캠페인</td><td>Lowest cost(클릭)</td><td>승자 소재 탐색·타석 늘리기</td></tr>
+    <tr><td class="b">증폭</td><td>WL/Spark</td><td>승자 크리에이터</td><td>Rakuten URL</td><td>승자별 소액→상향</td><td>클릭/도달</td><td>JP 인플루언서 풀 이식</td></tr>
+    <tr><td class="b">전환(분기 A만)</td><td>LPV→PDP→Conversion</td><td>승자 제품</td><td>Rakuten(픽셀 필요)</td><td>승인 후</td><td>CPA 목표 입찰</td><td>픽셀 확인 후 개방</td></tr>
+    <tr><td class="b">검색(옵션)</td><td>Search Ads</td><td>전 제품</td><td>Rakuten URL</td><td>소액 테스트</td><td>키워드</td><td>일본 "리뷰·안심" 의도 포착</td></tr>
+  </table>
+
+  <h2>4. JP 현지화 보정 (US와 다르게 갈 것)</h2>
+  <ul>
+    <li><b>언어/소재</b>: JP 자막·리뷰 소구(방금 정리한 4테마 — 漏れない/太いストロー/持ちやすい/かわいい 그대로 훅으로).</li>
+    <li><b>배치</b>: 숏폼 + 검색 비중↑, <b>LIVE는 낮게 시작</b> — 일본 충동구매 전환율이 US 대비 낮음(틱톡샵 JP 도메인 지식).</li>
+    <li><b>벤치마크 이식 주의</b>: US CPC $0.24·CPM $6.4는 <b>JP에 그대로 적용 금지</b>. JP는 오픈 1년차라 CPM 구조가 다름 → 초기엔 목표 낮게(볼륨 확보) 후 상향. <span class="muted">(JP 실측 CPM은 첫 소액 집행 후 확정)</span></li>
+    <li><b>카니발 체크</b>: 틱톡 광고가로 Rakuten 최저가 위반·Amazon JP 가격 정합 훼손 없게.</li>
+  </ul>
+
+  <h2>5. 미확정 / 세은 필요</h2>
+  <table>
+    <tr><th>#</th><th>항목</th><th>왜</th><th>필요 액션</th></tr>
+    <tr><td>1</td><td class="b">Events Manager 픽셀 상세</td><td>US 픽셀 이벤트 구조 확인 = JP 미러 정확도</td><td>Events Manager가 <b>SMS 모바일 인증</b>에 막힘 → 세은 OTP 1회</td></tr>
+    <tr><td>2</td><td class="b">Rakuten 픽셀 삽입 가능 여부</td><td>§2 분기 A/B를 가르는 핵심</td><td>RMS 외부태그 삽입 가부 검증(내가 조사 가능)</td></tr>
+    <tr><td>3</td><td class="b">캠페인 목표 정확 타입</td><td>VIEW=Traffic인지 확정(모달/로딩에 막힘)</td><td>다음 로그인 시 캠페인 Edit 열기</td></tr>
+    <tr><td>4</td><td class="b">JP 광고계정/엔티티</td><td>현 계정은 US(USD). JP 타겟 트래픽 광고는 현 계정서도 가능(Shop 불요), Shop 광고면 JP 엔티티 필요</td><td>운영 방식 결정(트래픽만 vs Shop)</td></tr>
+  </table>
+  <p class="muted" style="margin-top:10px">근거: US 계정 실측(2026-09-14 로그인) · 틱톡샵 도메인 지식(GMV Max·Spark·Instant Page 메커니즘) · Rakuten 상품 slug 실측. 리스크: Rakuten 픽셀 불가 시 §3 전환단계 보류(분기 B로 운영).</p>
+</div>
+</body>
+</html>

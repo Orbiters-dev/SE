@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JP 위클리 종합 보고 · 8/27~9/2</title>
+<style>
+:root{
+--pink:#f48ab0;--pink2:#ef6b9c;--rose:#ffd9e6;--peach:#ffe8d6;--ivory:#fff9f2;--cream:#fffdf9;
+--ink:#5a4650;--mut:#9b8790;--line:#f3e2e8;--card:#fffdfb;
+--good:#ff7fb0;--mid:#f7b955;--bad:#e06a6a;--goodt:#d94f88;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Malgun Gothic',system-ui,sans-serif;background:var(--ivory);color:var(--ink);line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+.slide{background:var(--card);border-radius:24px;box-shadow:0 8px 30px rgba(239,107,156,.10);margin:26px 0;overflow:hidden;border:1px solid #fbe9ef}
+.cover{background:linear-gradient(135deg,#ffe3ee 0%,#ffd9e6 45%,#ffe8d6 100%);color:#8a4763;padding:60px 54px;text-align:center}
+.cover .bunny{font-size:52px}
+.cover .kick{font-size:13px;letter-spacing:4px;opacity:.75;text-transform:uppercase;margin-top:4px}
+.cover h1{font-size:44px;line-height:1.15;margin:10px 0 8px;font-weight:800;color:#c6437a}
+.cover .sub{font-size:18px;opacity:.9}
+.cover .meta{margin-top:26px;font-size:15px;display:inline-flex;gap:22px;flex-wrap:wrap;background:#fff6fa;padding:12px 22px;border-radius:999px}
+.band{background:linear-gradient(90deg,var(--pink2),var(--pink));color:#fff;padding:16px 30px;font-size:22px;font-weight:800;display:flex;align-items:center;gap:12px}
+.band .em{font-size:24px}
+.body{padding:26px 30px 32px}
+.lead{font-size:16px;background:#fff3f8;border-left:5px solid var(--pink);padding:13px 16px;border-radius:12px;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:6px 0 20px}
+.card{background:linear-gradient(180deg,#fffafc,#fff4f8);border:1px solid var(--line);border-radius:18px;padding:16px 14px 14px;text-align:center}
+.card .lab{font-size:12.5px;color:var(--mut);font-weight:700;letter-spacing:.2px}
+.card .val{font-size:28px;font-weight:800;margin:6px 0 2px;color:var(--goodt)}
+.card .dl{font-size:12.5px;font-weight:700}
+.up{color:var(--goodt)} .down{color:var(--bad)} .flat{color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 6px}
+th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:#fff0f6;color:var(--goodt);font-weight:800;font-size:12.5px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff}
+.p-good{background:var(--good)} .p-mid{background:var(--mid)} .p-bad{background:var(--bad)} .p-mut{background:#c8b3bd}
+.hi{background:#fff7ea;border:1px solid #ffe0ad;border-radius:14px;padding:12px 15px;margin:14px 0;font-size:14.5px}
+.hi b{color:#c98a12}
+.diag{background:#fff2f7;border:1px solid #ffcfe0;border-radius:14px;padding:12px 15px;margin:14px 0;font-size:14.5px}
+.diag b{color:var(--goodt)}
+.win{background:#f1fbf5;border:1.5px solid #b6e5c8;border-radius:16px;padding:14px 16px;font-size:14.5px}
+.win .h{font-weight:800;color:#28a05e;font-size:15px;display:block;margin-bottom:4px}
+.waste{background:#fff0f1;border:1.5px solid #ffc4c4;border-radius:16px;padding:14px 16px;font-size:14.5px}
+.waste .h{font-weight:800;color:#d94a4a;font-size:15px;display:block;margin-bottom:4px}
+td.bad{color:#d94a4a;font-weight:700} td.good{color:#28a05e;font-weight:700}
+tr.hlgood td{background:#f1fbf5} tr.hlbad td{background:#fff6f6}
+ul.k{margin:6px 0 4px;padding-left:0;list-style:none}
+ul.k li{padding:8px 0 8px 26px;position:relative;font-size:14.5px;border-bottom:1px dashed var(--line)}
+ul.k li:last-child{border-bottom:none}
+ul.k li::before{content:"🎀";position:absolute;left:2px;font-size:13px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:720px){.two{grid-template-columns:1fr}.cover{padding:44px 24px}.cover h1{font-size:32px}}
+.subh{font-size:16px;font-weight:800;color:var(--pink2);margin:20px 0 8px;display:flex;align-items:center;gap:8px}
+.tag{font-size:11.5px;color:var(--mut);font-weight:600}
+.foot{text-align:center;color:var(--mut);font-size:12.5px;padding:8px 0 0}
+</style></head><body><div class="wrap">
+
+<div class="slide cover">
+  <div class="bunny">🐰🍼</div>
+  <div class="kick">GROSMIMI JAPAN · Weekly Report</div>
+  <h1>JP 위클리 종합 보고</h1>
+  <div class="sub">Meta 광고 · 키워드 광고 · 틱톡샵 · 기타 진행</div>
+  <div class="meta"><span>📅 <b>2026. 08/27 ~ 09/02</b></span><span>🙋‍♀️ 담당 <b>세은</b></span><span>✍️ <b>2026-09-03</b></span></div>
+</div>
+
+<div class="slide">
+  <div class="band"><span class="em">🔎</span> 이번 주 한눈에</div>
+  <div class="body">
+    <div class="lead">Meta는 효율 소폭 후퇴했지만 <b>클릭률 최고치</b>(10.86%). 라쿠텐 RPP는 흑자(ROAS 162%) 유지하나 <b>여름 스테인리스 수요가 빠지며</b> 볼륨 감소. 아마존 SP는 관찰 단계. <b>틱톡샵은 셀러 신청에 착수</b>했고, 라쿠텐 ROOM·모니터 모집이 다음 성장 축으로 정리됨.</div>
+    <div class="cards">
+      <div class="card"><div class="lab">Meta 광고비 (주)</div><div class="val">₩184만</div><div class="dl down">₩202만 ▼</div></div>
+      <div class="card"><div class="lab">Meta CPLPV</div><div class="val">₩78</div><div class="dl down">₩71 → ₩78 ▲</div></div>
+      <div class="card"><div class="lab">Meta CTR</div><div class="val">10.86%</div><div class="dl up">최근 최고 ▲</div></div>
+      <div class="card"><div class="lab">RPP ROAS(720h)</div><div class="val">162%</div><div class="dl down">흑자·볼륨 ▼</div></div>
+      <div class="card"><div class="lab">틱톡샵</div><div class="val">신청 중</div><div class="dl up">물류 온보딩 완료</div></div>
+    </div>
+    <ul class="k">
+      <li><b>메타</b> — PPSU 소재가 효율 견인(CPLPV ₩42), 신규 유상 릴 <b>MUSUKOLOVE ₩34</b>가 계정 1위. 스테인리스는 소재별 편차 큼</li>
+      <li><b>키워드광고</b> — RPP 감소는 <b>여름 스테인리스·보냉 키워드 계절 페이드</b>가 원인(PPSU는 유지). 아마존 SP는 제네릭 키워드 낭비 발견 → 재배분 필요</li>
+      <li><b>틱톡샵</b> — <b>오늘(9/3) 테크타카 물류 온보딩 완료 + 셀러 신청 진행 중</b>. JP 유아 카테고리 미개척 = 선점 기회</li>
+      <li><b>기타</b> — 인플루언서 신규 계약 다수, 모니터 모집폼 완성, 라쿠텐 어필리에이트 10배 확대 로드맵 수립</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide">
+  <div class="band"><span class="em">📘</span> 메타 광고 (JP) — 주간 성과</div>
+  <div class="body">
+    <div class="subh">3주 추이</div>
+    <table>
+      <tr><th>지표</th><th class="n">8/13~8/19</th><th class="n">8/20~8/26</th><th class="n">8/27~9/2</th></tr>
+      <tr><td>광고비</td><td class="n">₩1,884,383</td><td class="n">₩2,020,881</td><td class="n"><b>₩1,838,303</b></td></tr>
+      <tr><td>CTR</td><td class="n">9.20%</td><td class="n">10.41%</td><td class="n"><b>10.86%</b></td></tr>
+      <tr><td>CPC</td><td class="n">₩53</td><td class="n">₩54</td><td class="n">₩56</td></tr>
+      <tr><td>LPV (랜딩조회)</td><td class="n">22,423</td><td class="n">28,394</td><td class="n">23,597</td></tr>
+      <tr><td>CPLPV</td><td class="n">₩84</td><td class="n">₩71</td><td class="n"><b>₩78</b></td></tr>
+    </table>
+    <div class="hi">💡 <b>읽는 법</b> — CPLPV(랜딩 유입 1회당 비용)는 낮을수록 좋음. 직전주 ₩71 최고 효율 뒤 이번 주 ₩78로 소폭 상승했지만 <b>클릭률은 오히려 최고치</b>로 유입 질은 개선. LPV 감소는 광고비 ₩18만 축소분.</div>
+    <div class="subh">캠페인별 (8/27~9/2)</div>
+    <table>
+      <tr><th>캠페인</th><th class="n">광고비</th><th class="n">CPLPV</th><th class="n">CTR</th><th>평가</th></tr>
+      <tr><td>Stainless Proven</td><td class="n">₩1,068,984</td><td class="n">₩85</td><td class="n">10.16%</td><td><span class="pill p-mid">중간</span></td></tr>
+      <tr><td>PPSU &amp; Stainless Testing</td><td class="n">₩492,592</td><td class="n">₩112</td><td class="n">9.47%</td><td><span class="pill p-bad">개선요</span></td></tr>
+      <tr><td>PPSU Proven</td><td class="n">₩276,727</td><td class="n">₩42</td><td class="n">14.69%</td><td><span class="pill p-good">우수</span></td></tr>
+    </table>
+    <div class="two">
+     <div>
+      <div class="subh">🏆 BEST (효율순)</div>
+      <table>
+        <tr><th>소재</th><th class="n">CTR</th><th class="n">CPLPV</th></tr>
+        <tr><td>MUSUKOLOVE <span class="tag">유상</span></td><td class="n">16.0%</td><td class="n"><b>₩34</b></td></tr>
+        <tr><td>MITSUGOCHAN <span class="tag">무상</span></td><td class="n">15.6%</td><td class="n">₩40</td></tr>
+        <tr><td>INOUE <span class="tag">무상</span></td><td class="n">14.5%</td><td class="n">₩41</td></tr>
+        <tr><td>RIONO <span class="tag">신규 8/31</span></td><td class="n">19.1%</td><td class="n">₩56</td></tr>
+      </table>
+     </div>
+     <div>
+      <div class="subh">⚠️ WORST (하위)</div>
+      <table>
+        <tr><th>소재</th><th class="n">CTR</th><th class="n">CPLPV</th></tr>
+        <tr><td>KU_VLOG <span class="tag">신규 8/27</span></td><td class="n">10.2%</td><td class="n">₩225</td></tr>
+        <tr><td>CHIIISAN_V <span class="tag">무상</span></td><td class="n">8.8%</td><td class="n">₩196</td></tr>
+        <tr><td>AKITTOTAN <span class="tag">무상</span></td><td class="n">7.3%</td><td class="n">₩149</td></tr>
+        <tr><td>ARARA_NORARARA</td><td class="n">10.4%</td><td class="n">₩146</td></tr>
+      </table>
+     </div>
+    </div>
+    <ul class="k">
+      <li>이번 주 <b>신규 런칭 5건</b> — RIONO(8/31)·BOSS_TO_PAPA(8/31)·KU_VLOG(8/27)·MITSUMARU(9/3)·ITOSUKU_SA(9/3). RIONO는 CTR 19%로 즉시 상위권</li>
+      <li><b>PPSU 강세 지속</b> — 상위권 대부분 PPSU 소재(CTR 14~16%·저CPC). 스테인리스 신규는 편차 커 선별 필요</li>
+    </ul>
+  </div>
+</div>
+
+<div class="slide">
+  <div class="band"><span class="em">🔑</span> 키워드 광고 — 라쿠텐 RPP · 아마존 SP</div>
+  <div class="body">
+    <div class="subh">라쿠텐 RPP · 3주 추이</div>
+    <table>
+      <tr><th>지표</th><th class="n">8/13~8/19</th><th class="n">8/20~8/26</th><th class="n">8/27~9/2</th></tr>
+      <tr><td>광고비</td><td class="n">¥18,036</td><td class="n">¥32,689</td><td class="n"><b>¥18,018</b></td></tr>
+      <tr><td>클릭</td><td class="n">1,246</td><td class="n">1,506</td><td class="n">637</td></tr>
+      <tr><td>CPC</td><td class="n">¥14</td><td class="n">¥22</td><td class="n">¥28</td></tr>
+      <tr><td>매출(720h)</td><td class="n">¥70,930</td><td class="n">¥84,950</td><td class="n">¥29,180</td></tr>
+      <tr><td>ROAS(720h)</td><td class="n">393%</td><td class="n">260%</td><td class="n"><b>162%</b></td></tr>
+    </table>
+    <div class="subh">🔍 왜 떨어졌나 — 키워드 진단</div>
+    <div class="cards">
+      <div class="card"><div class="lab">Stainless 등록KW 클릭</div><div class="val">135→83</div><div class="dl down">−39% ▼</div></div>
+      <div class="card"><div class="lab">PPSU 등록KW 클릭</div><div class="val">31→31</div><div class="dl flat">유지 —</div></div>
+      <div class="card"><div class="lab">감소 집중</div><div class="val">스테인리스</div><div class="dl down">PPSU는 무변동</div></div>
+    </div>
+    <table>
+      <tr><th>📉 급감한 키워드</th><th class="n">Δ클릭</th><th>📈 증가한 키워드</th><th class="n">Δ클릭</th></tr>
+      <tr><td>ストローマグ 保冷 (보냉)</td><td class="n bad">−21</td><td>ベビーマグ (베이비마그)</td><td class="n good">+14</td></tr>
+      <tr><td>ストローマグ (제네릭)</td><td class="n bad">−19</td><td>サーモス ストローマグ</td><td class="n good">+10</td></tr>
+      <tr><td>ステンレス ストローマグ</td><td class="n bad">−10</td><td>漏れない (누수방지)</td><td class="n good">+9</td></tr>
+      <tr><td>grosmimi · グロミミ (브랜드)</td><td class="n bad">−21</td><td>赤ちゃん (아기)</td><td class="n good">+3</td></tr>
+    </table>
+    <div class="hi">💡 <b>해석</b> — 급감은 전부 <b>스텐·보냉 소구 + 브랜드 지명</b> 키워드, 증가는 <b>아기·누수방지·PPSU 소구</b>. 즉 광고 문제가 아니라 <b>여름 스테인리스·보냉 검색 수요의 계절 페이드</b>(성수기 3~7월). <b>가을·겨울은 예산·키워드 축을 PPSU/비계절로 이동</b>이 정답. (720h 매출은 최근 주라 집계 중 → ROAS 더 오를 여지)</div>
+
+    <div class="subh">아마존 JP 스폰서드 프로덕트 (SP) · 이번 주</div>
+    <div class="cards">
+      <div class="card"><div class="lab">광고비 (SP 전체)</div><div class="val">¥102,129</div><div class="dl flat">≈ ₩94만</div></div>
+      <div class="card"><div class="lab">노출</div><div class="val">35.6만</div><div class="dl up">송출 정상</div></div>
+      <div class="card"><div class="lab">클릭</div><div class="val">550</div><div class="dl flat">전환 1건</div></div>
+      <div class="card"><div class="lab">키워드 매출</div><div class="val">¥2,900</div><div class="dl down">1개 키워드만</div></div>
+    </div>
+    <p style="font-size:13.5px;color:var(--mut);margin:4px 0 10px">키워드 타겟 지출 ¥56,846 중 매출을 낸 키워드는 <b style="color:var(--goodt)">단 1개</b>. 나머지는 전환 0.</p>
+    <div class="two">
+      <div class="win"><span class="h">💰 매출이 난 곳</span>「ストローマグ 赤ちゃん」 <b>(BROAD)</b> 단 하나 — <b>¥2,900 · 전환 1건</b>.<br>아기 수식어가 붙은 <b>롱테일</b>에서만 성과가 났다.</div>
+      <div class="waste"><span class="h">🔥 돈이 샌 곳</span>제네릭 헤드 「ストローマグ」 3개 매치 합 — <b>¥17,283 · 86클릭 · 매출 0</b>.<br>키워드 예산의 <b>30%</b>를 전환 안 되는 대표어에 소진.</div>
+    </div>
+    <table>
+      <tr><th>키워드</th><th>매치</th><th class="n">광고비</th><th class="n">클릭</th><th class="n">매출</th><th>판정</th></tr>
+      <tr class="hlbad"><td>ストローマグ</td><td>3매치 합</td><td class="n">¥17,283</td><td class="n">86</td><td class="n bad">¥0</td><td><span class="pill p-bad">낭비</span></td></tr>
+      <tr><td>ストローマグ 赤ちゃん</td><td>EXACT</td><td class="n">¥7,932</td><td class="n">32</td><td class="n bad">¥0</td><td><span class="pill p-bad">낭비</span></td></tr>
+      <tr><td>ストローマグ 保冷</td><td>EXACT</td><td class="n">¥5,234</td><td class="n">27</td><td class="n bad">¥0</td><td><span class="pill p-bad">낭비</span></td></tr>
+      <tr><td>子供 水筒 ストロー</td><td>EXACT</td><td class="n">¥3,973</td><td class="n">30</td><td class="n bad">¥0</td><td><span class="pill p-bad">낭비</span></td></tr>
+      <tr class="hlgood"><td>ストローマグ 赤ちゃん</td><td>BROAD</td><td class="n">¥1,674</td><td class="n">14</td><td class="n good">¥2,900</td><td><span class="pill p-good">✅ 전환</span></td></tr>
+    </table>
+    <div class="hi">💡 <b>다음 액션</b> — ① 제네릭 헤드 「ストローマグ」 입찰 <b>대폭 하향/일시중지</b> ② 전환이 나온 <b>아기 특화 롱테일(赤ちゃん·漏れない 등)로 예산 재배분</b> ③ 신규 캠페인(8/20·8/28 개시)이라 귀속 지연분 있음 → <b>D+14(9월 중순) 정식 판정</b> 후 확정. 지금은 관찰기지만 헤드 낭비는 즉시 손볼 것.</div>
+  </div>
+</div>
+
+<div class="slide">
+  <div class="band"><span class="em">🎵</span> 틱톡샵 (TikTok Shop) — 진출 실행 현황</div>
+  <div class="body">
+    <div class="lead">시장조사 단계를 넘어 <b>실제 진입 실행에 착수</b>. 오늘(9/3) 물류 파트너 온보딩을 마치고 셀러 신청을 진행 중.</div>
+    <div class="subh">🚀 진행 상황</div>
+    <ul class="k">
+      <li><b>물류 온보딩 완료</b> — 오늘(9/3) <b>테크타카(Techtaka)</b> 3PL 온보딩 완료</li>
+      <li><b>셀러 신청 진행 중</b> — 틱톡샵 신청 → <b>초대 링크 수령</b> → 셀러 등록 진행 중</li>
+      <li>리서치 인프라 — FastMoss(JP Pro) 구독으로 경쟁·판매 데이터 상시 실측</li>
+    </ul>
+    <div class="subh">📈 시장 기회 — 🇯🇵 JP vs 🇺🇸 US (실측)</div>
+    <table>
+      <tr><th>항목</th><th>🇯🇵 JP <span class="tag">진입 대상</span></th><th>🇺🇸 US <span class="tag">참고·검증됨</span></th></tr>
+      <tr><td>틱톡샵 시장 규모</td><td>6개월 <b>15배</b> 급성장 (¥4억→60억)</td><td>상반기 <b>$11.8B</b> · +103%</td></tr>
+      <tr><td>유아 판매자 풀</td><td class="good">649명 (여유 · 조회 가능)</td><td>5,000+ (조회 상한 초과 · 포화)</td></tr>
+      <tr><td>유아 주간 판매</td><td>6.2천개 (집중도 76.8%)</td><td>대량 · 상위 셀러 과점</td></tr>
+      <tr><td>유아 카테고리 성숙도</td><td class="good">Top5 밖 · <b>미개척</b></td><td>성숙 · 경쟁 치열</td></tr>
+      <tr><td>우리 포지션</td><td class="good"><b>선점 가능</b></td><td>후발 진입</td></tr>
+    </table>
+    <div class="hi">💡 <b>US는 이미 거대·포화</b>(유아 셀러 5,000+ 경쟁), <b>JP는 시장이 폭발 성장하는데 유아 칸이 아직 비어 있음</b>. US에서 검증된 유아 수요를 <b>JP에서 선점</b>하는 그림 — 지금 셀러 신청이 타이밍상 정확. (실측: FastMoss JP Pro · US Ultimate)</div>
+  </div>
+</div>
+
+<div class="slide">
+  <div class="band"><span class="em">📦</span> 기타 진행 현황</div>
+  <div class="body">
+    <div class="two">
+      <div>
+        <div class="subh">🤝 인플루언서 운영</div>
+        <ul class="k">
+          <li>신규 협업 계약 <b>다수 체결</b> — 유상·무상 E2E(폼→계약서→서명→발송) 완주</li>
+          <li>BOSS 샘플 발송·네고 성사 등 파이프라인 정상 가동</li>
+        </ul>
+        <div class="subh">📝 앰버서더·모니터 모집</div>
+        <ul class="k">
+          <li>모니터 응모폼(Typeform) <b>E2E 완성</b> — 모집 개시 준비 완료</li>
+          <li>앰버서더 모집 요강 확정(월 20명·상시)</li>
+        </ul>
+      </div>
+      <div>
+        <div class="subh">📊 데이터·앱</div>
+        <ul class="k">
+          <li>메타몽 앱 — DM 자동 집계 월별 뷰 + <b>SKU 발송 집계 카드</b>(색상·유무상 분리) 배포</li>
+        </ul>
+        <div class="subh">🛍 라쿠텐 어필리에이트 확대</div>
+        <ul class="k">
+          <li>파트너 콘텐츠 <b>10배 확대 로드맵</b> 수립 — 라쿠텐 ROOM 유아 인플루언서 <b>800~1,000명</b> 접근 가능 확인</li>
+          <li>현재 월 활동 파트너 60~97명 → ROOM×인스타 연동 섭외로 확장</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hi">🎯 <b>다음 주 우선순위</b> — ① 아마존 SP 제네릭 헤드 정리 + 아기 롱테일 재배분 ② RPP 가을 축(PPSU·비계절) 전환 ③ 틱톡샵 셀러 승인 후 상품 등록 ④ 라쿠텐 ROOM 섭외 착수 ⑤ 모니터 모집 개시</div>
+  </div>
+</div>
+
+<div class="foot">GROSMIMI JAPAN · JP Weekly Report · 2026-09-03 · Meta/RPP/AMZ 실측 (Graph API·RMS·DK)</div>
+</div></body></html>

@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JP 맘 인플루언서 풀 산정 — 틱톡샵 진출 (2026-10-26)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #f4f6fa; color: #1a2233; padding: 28px 4vw 60px; }
+  h1 { font-size: 24px; margin-bottom: 4px; }
+  .meta { color: #667; font-size: 13px; margin-bottom: 22px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 9px 18px; border-radius: 999px; background: #e6eaf2; cursor: pointer; font-size: 14px; font-weight: 600; color: #445; }
+  .tab.on { background: #1a56db; color: #fff; }
+  .panel { display: none; }
+  .panel.on { display: block; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .card { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(20,30,60,.08); }
+  .card .q { font-size: 13px; color: #556; font-weight: 700; margin-bottom: 8px; }
+  .card .v { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+  .card .v small { font-size: 15px; font-weight: 600; color: #667; }
+  .card .d { font-size: 12.5px; color: #667; margin-top: 7px; line-height: 1.55; }
+  .note { color: #8a93a6; font-size: 12px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; margin-left: 6px; vertical-align: middle; }
+  .b-exact { background: #def7e4; color: #0a7a35; }
+  .b-est { background: #fef0d4; color: #a05c00; }
+  .b-low { background: #e4ecfb; color: #1a56db; }
+  .callout { background: #fff; border-left: 4px solid #1a56db; border-radius: 10px; padding: 14px 18px; margin: 14px 0; font-size: 14px; line-height: 1.7; box-shadow: 0 1px 4px rgba(20,30,60,.06); }
+  .callout.warn { border-left-color: #e8a200; }
+  .callout.good { border-left-color: #0a9a45; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(20,30,60,.07); font-size: 13.5px; }
+  th { background: #eef1f7; text-align: left; padding: 10px 14px; font-size: 12.5px; color: #445; }
+  td { padding: 9px 14px; border-top: 1px solid #f0f2f7; }
+  td.tname { font-weight: 700; }
+  td.bio { font-size: 12px; color: #667; max-width: 340px; }
+  .sub { color: #778; font-size: 12px; }
+  tr.unk td { color: #889; }
+  .map { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 22px; align-items: stretch; }
+  @media (max-width: 1100px) { .map { grid-template-columns: 1fr; } }
+  .uni { background: #fff; border-radius: 14px; padding: 18px 20px 10px; box-shadow: 0 1px 4px rgba(20,30,60,.08); }
+  .uni.bridge { background: #faf8ff; border: 1.5px dashed #b49ae0; box-shadow: none; }
+  .uh { font-size: 13px; font-weight: 700; color: #556; margin-bottom: 6px; }
+  .ub { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 12px; }
+  .ub small { font-size: 15px; font-weight: 600; color: #667; }
+  .lrow { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 8px 0; border-top: 1px solid #eef1f7; font-size: 13.5px; color: #334; }
+  .lrow b { font-weight: 700; white-space: nowrap; }
+  .lrow.d2 { padding-left: 16px; }
+  .lrow.d3 { padding-left: 32px; }
+  .lrow.d2 > span::before, .lrow.d3 > span::before { content: "└ "; color: #aab; }
+  .lrow.dim, .lrow.dim b { color: #99a3b5; font-weight: 500; }
+  .lrow.hot { background: #eef4fe; border-radius: 8px; padding-top: 8px; padding-bottom: 8px; }
+  .lrow.hot b { color: #1a56db; }
+  .flow { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin: 16px 0 24px; }
+  .fstep { flex: 1; min-width: 150px; background: #fff; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 1px 4px rgba(20,30,60,.07); position: relative; }
+  .fstep .n { font-size: 23px; font-weight: 800; }
+  .fstep .l { font-size: 12.5px; color: #556; margin-top: 3px; line-height: 1.4; }
+  .fstep .r { font-size: 12px; color: #1a56db; font-weight: 700; margin-top: 5px; }
+  .arrow { align-self: center; font-size: 20px; color: #99a; }
+  h2 { font-size: 17px; margin: 26px 0 10px; }
+  .method p { margin-bottom: 10px; font-size: 13.5px; line-height: 1.75; }
+  .method b { color: #1a2233; }
+  a { color: #1a56db; text-decoration: none; }
+</style></head><body>
+<h1>틱톡샵 진출 — 일본 맘 인플루언서 풀 산정</h1>
+<div class="meta">2026-10-26 실측 · 10-27 재산정(표본 전수 판정 + 틱톡샵 타깃 JP·맘 개별 판정) · 10-28 증보(선정 기준 상세 + 풀 성장 실측·전망 + 콜라보 가능 수 모델) · 소스: 내부 아웃리치 원장 + 트래커 시트 + DocuSeal + FastMoss JP(유료) + 틱톡샵 공식 어필리에이트 센터 + Instagram 표본 조사</div>
+
+<div class="tabs">
+  <div class="tab on" data-p="p1">요약 (4개 질문)</div>
+  <div class="tab" data-p="p2">팔로워 티어 분해</div>
+  <div class="tab" data-p="p3">리치아웃 타깃 리스트</div>
+  <div class="tab" data-p="p5">풀 성장·콜라보 전망</div>
+  <div class="tab" data-p="p4">측정 방법</div>
+</div>
+
+<div class="panel on" id="p1">
+  <div class="vennwrap">
+  <svg viewBox="0 0 1000 540" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:980px;display:block;margin:0 auto;">
+    <circle cx="390" cy="270" r="235" fill="#4a7fe0" fill-opacity="0.14" stroke="#4a7fe0" stroke-width="2"/>
+    <circle cx="675" cy="270" r="185" fill="#f0a93c" fill-opacity="0.16" stroke="#e0932a" stroke-width="2"/>
+
+    <text x="295" y="165" text-anchor="middle" font-size="14" font-weight="700" fill="#44557a">인스타그램 풀 · 추정</text>
+    <text x="295" y="187" text-anchor="middle" font-size="12" fill="#8a93a6">일본 맘 인플루언서 전체</text>
+    <text x="295" y="243" text-anchor="middle" font-size="34" font-weight="800" fill="#1a2233">약 18,528명</text>
+    <text x="295" y="295" text-anchor="middle" font-size="15" fill="#1a2233">① 우리가 접촉 <tspan font-weight="700">1,309명 · 7.1%</tspan></text>
+    <text x="295" y="323" text-anchor="middle" font-size="13.5" fill="#445">└ 계약 <tspan font-weight="700">270명 · 1.5%</tspan></text>
+    <text x="295" y="349" text-anchor="middle" font-size="13.5" fill="#445">└ 투고 완료 <tspan font-weight="700">145명</tspan></text>
+    <text x="295" y="393" text-anchor="middle" font-size="12.5" fill="#8a93a6">미접촉 약 17,219명 (92.9%)</text>
+    <text x="295" y="412" text-anchor="middle" font-size="12.5" fill="#8a93a6">= 리치아웃 여력</text>
+
+    <text x="556" y="200" text-anchor="middle" font-size="13" font-weight="700" fill="#6b4fa3">③ 양쪽 다 운영</text>
+    <text x="556" y="233" text-anchor="middle" font-size="20" font-weight="800" fill="#4a3380">97~228명</text>
+    <text x="556" y="256" text-anchor="middle" font-size="11.5" fill="#6b5a92">틱톡샵 쪽의 11.6%~27.3%</text>
+    <text x="556" y="300" text-anchor="middle" font-size="12.5" fill="#4a3380">접촉 이력 <tspan font-weight="700">27명</tspan></text>
+    <text x="556" y="327" text-anchor="middle" font-size="12.5" fill="#4a3380">④ 콜라보 <tspan font-weight="700">5명 · 2.2%</tspan></text>
+
+    <text x="748" y="165" text-anchor="middle" font-size="14" font-weight="700" fill="#8a5a12">틱톡샵 풀 · 관측 전수</text>
+    <text x="748" y="187" text-anchor="middle" font-size="12" fill="#a08354">유아 카테고리 활동 계정</text>
+    <text x="748" y="230" text-anchor="middle" font-size="26" font-weight="800" fill="#1a2233">835+명</text>
+    <text x="748" y="277" text-anchor="middle" font-size="14" fill="#1a2233">② JP 맘 확정 <tspan font-weight="700">304명</tspan></text>
+    <text x="748" y="303" text-anchor="middle" font-size="13" fill="#445">└ 기접촉 <tspan font-weight="700">28명</tspan></text>
+    <text x="752" y="337" text-anchor="middle" font-size="14.5" fill="#1a56db" font-weight="800">└ 미접촉 타깃 276명</text>
+    <text x="752" y="357" text-anchor="middle" font-size="12" fill="#1a56db">(맘 풀의 90.8%)</text>
+  </svg>
+  </div>
+  <p class="note" style="margin:4px 0 24px;text-align:center;">원 크기는 비례 아님 · 겹침은 관측 835명 전원 조사 기준(맘 판정 전) · 관측 중 판정 제외 531명(비일본어 166·업체 50·맘 시그널 없음 301·판정불가 14) — 기준 상세는 「리치아웃 타깃 리스트」 탭</p>
+
+  <div class="callout good"><b>핵심:</b> 틱톡샵에서 유아 카테고리로 활동하는 계정은 835+ 관측되지만,
+  한 명씩 판정하면 <b>일본인 맘 크리에이터는 304명</b>. 그중 우리가 이미 아는(접촉한) 크리에이터는 28명뿐이라
+  <b>276명이 신규 리치아웃 대상</b>이다.
+  반대로 IG 쪽에서는 전체 추정 18,528명 중 7.1%만 접촉한 상태 — IG 리치아웃 여력도 충분히 남아 있다.</div>
+  <div class="callout"><b>부가 확인:</b> 틱톡샵 셀러센터·어필리에이트 센터가 <b>JP 리전으로 접속됨</b>(shop_region=JP 실측)
+  — 어필리에이트 크리에이터 검색·초대 기능 사용 가능 상태.</div>
+</div>
+
+<div class="panel" id="p2">
+  <h2>① 전체 일본 맘 인플루언서 — 팔로워 티어별</h2>
+  <p class="note" style="margin:-4px 0 10px;">인스타그램 기준 · 맘 실측 318명의 티어별 실측 → 모수 환산(95% CI) · 접촉/계약=원장 실측 · 접촉자 팔로워 10/28 전수 보강(미확인 333→23, 잔여=탈퇴·개명 계정) · 티어별 환산은 반올림이라 합계가 모수와 ±1명 차이 가능</p>
+  <table>
+    <tr><th>팔로워 티어</th><th>표본 실측 (맘 318명 중)</th><th>전체 환산 [95% CI]</th><th>우리가 접촉</th><th>계약</th></tr>
+    <tr>
+      <td class="tname">0-5K</td>
+      <td>233명 <span class="sub">(73.3%)</span></td>
+      <td>13,576명 <span class="sub">[12,675~14,477]</span></td>
+      <td>760명 <span class="sub">(5.6%)</span></td>
+      <td>173명 <span class="sub">(1.3%)</span></td>
+    </tr><tr>
+      <td class="tname">5-10K</td>
+      <td>29명 <span class="sub">(9.1%)</span></td>
+      <td>1,690명 <span class="sub">[1,103~2,276]</span></td>
+      <td>172명 <span class="sub">(10.2%)</span></td>
+      <td>42명 <span class="sub">(2.5%)</span></td>
+    </tr><tr>
+      <td class="tname">10-20K</td>
+      <td>25명 <span class="sub">(7.9%)</span></td>
+      <td>1,457명 <span class="sub">[909~2,005]</span></td>
+      <td>176명 <span class="sub">(12.1%)</span></td>
+      <td>25명 <span class="sub">(1.7%)</span></td>
+    </tr><tr>
+      <td class="tname">20-50K</td>
+      <td>12명 <span class="sub">(3.8%)</span></td>
+      <td>699명 <span class="sub">[311~1,087]</span></td>
+      <td>110명 <span class="sub">(15.7%)</span></td>
+      <td>9명 <span class="sub">(1.3%)</span></td>
+    </tr><tr>
+      <td class="tname">50K+</td>
+      <td>19명 <span class="sub">(6.0%)</span></td>
+      <td>1,107명 <span class="sub">[624~1,590]</span></td>
+      <td>68명 <span class="sub">(6.1%)</span></td>
+      <td>5명 <span class="sub">(0.5%)</span></td>
+    </tr><tr class="unk">
+  <td class="tname">팔로워 미확인</td><td>—</td><td>—</td>
+  <td>23명 <span class="sub">(탈퇴·개명·수집 실패)</span></td>
+  <td>16명</td></tr>
+  </table>
+  <div class="callout warn">50K+(19명)가 20-50K(12명)보다 많게 나온 것은
+  CI가 겹쳐 유의미한 역전이 아니며, 해시태그 최근 게시물 표본이라 게시 빈도 높은 대형 계정이 더 잡히는 성향(과대표집 가능)도 있음 — 상위 2개 티어는 참고치.</div>
+
+  <h2>② 틱톡샵 JP 맘 타깃 276명 — 팔로워 티어별</h2>
+  <table>
+    <tr><th>팔로워 티어</th><th>크리에이터 수</th><th>비중</th></tr>
+    <tr><td class='tname'>0-5K</td><td>174명</td><td>63.0%</td></tr><tr><td class='tname'>5-10K</td><td>34명</td><td>12.3%</td></tr><tr><td class='tname'>10-20K</td><td>35명</td><td>12.7%</td></tr><tr><td class='tname'>20-50K</td><td>21명</td><td>7.6%</td></tr><tr><td class='tname'>50K+</td><td>11명</td><td>4.0%</td></tr><tr><td class='tname'>팔로워 미확인</td><td>1명</td><td>0.4%</td></tr>
+  </table>
+</div>
+
+<div class="panel" id="p3">
+  <h2>선정 기준 — 835명이 276명이 되기까지</h2>
+  <div class="flow">
+    <div class="fstep"><div class="n">835</div><div class="l">풀 수집 (3축 합집합)<br>육아 콘텐츠 분류 165 ∪ 최근 28일<br>유아용품 판매 507 ∪ 공식 마켓 264</div></div>
+    <div class="arrow">→</div>
+    <div class="fstep"><div class="n">807</div><div class="l">접촉 이력 제거<br>DM 원장·CRM·계약·IG 매칭 대조<br>기접촉 28명 제외</div></div>
+    <div class="arrow">→</div>
+    <div class="fstep"><div class="n">591</div><div class="l">1차 판정 통과<br>비일본어 166 · 업체/샵 50 제외</div></div>
+    <div class="arrow">→</div>
+    <div class="fstep" style="border: 2px solid #1a56db;"><div class="n">276</div><div class="l">JP 맘 확정<br>육아 시그널 없음 301 ·<br>bio 없어 판정불가 14 제외</div></div>
+  </div>
+  <table style="margin-bottom:18px;">
+    <tr><th>판정 단계</th><th>기준 (프로필 닉네임+bio 텍스트)</th><th>결과</th></tr>
+    <tr><td class="tname">풀 수집</td><td>FastMoss JP ⓐ틱톡 크리에이터 분류=유아(전수 165) ⓑ최근 28일 유아동&출산 카테고리 판매 실적(전수 507) + 틱톡샵 공식 어필리에이트 Baby & Maternity 검색(264)</td><td>835명 (중복 제거)</td></tr>
+    <tr><td class="tname">기접촉 제외</td><td>DM 원장 1,207 · CRM Master DB · 계약 원장 · IG 겹침 매칭과 대조 — 일치 시 제외</td><td>-28명 → 807</td></tr>
+    <tr><td class="tname">업체/샵 제외</td><td>公式·株式会社·ストア·ショップ·専門店·問屋·卸·仕入·メディア·運営 등 판매자 시그널 포함</td><td>-50명</td></tr>
+    <tr><td class="tname">비일본어 제외</td><td>프로필에 일본어 문자(히라가나·가타카나·한자) 없음 — 외국인 셀러·크로스보더 업자</td><td>-166명</td></tr>
+    <tr><td class="tname">육아 시그널 필수</td><td>ママ·パパ·育児·子育て·息子·娘·0〜12歳·離乳食·妊娠·出産·双子·兄弟·姉妹·ワンオペ·プレママ 등 40여 개 단어 중 1개 이상 (본인 나이 「22歳」류는 오탐 차단)</td><td>-301명</td></tr>
+    <tr><td class="tname">판정불가 분리</td><td>bio 없음·수집 실패 — 제외하되 실제 맘일 수 있어 276명은 하한</td><td>-14명</td></tr>
+    <tr><td class="tname">품질 검증</td><td>팔로워 상위 20행 육안 검수 (오탐 2건 적발·룰 보강 후 재판정 완료분)</td><td>= <b>276명 확정</b></td></tr>
+  </table>
+
+  <h2>틱톡샵 리치아웃 신규 타깃 276명 — JP 맘 확정 전원 (팔로워순)</h2>
+  <div class="callout">「육아 콘텐츠」 = 틱톡 분류가 유아 · 「유아용품 판매」 = 최근 28일 유아동&출산 카테고리 판매 실적 보유 · 「공식 마켓 등재」 = 틱톡샵 어필리에이트 공식 검색 노출.</div>
+  <table>
+    <tr><th>TikTok</th><th>이름</th><th>팔로워</th><th>프로필(bio)</th><th>풀 근거</th><th>IG</th></tr>
+    <tr>
+      <td><a href="https://www.tiktok.com/@hanahana8740" target="_blank">@hanahana8740</a></td>
+      <td>𝐇𝐚𝐧𝐚❁⃘*.ﾟ</td>
+      <td>1,184,976</td>
+      <td class="bio">twins mom🍒single mother  / 発達障害の双子の娘は21歳に！ / 母は50を迎え全力爆走ちう！ / YouTube </td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@na54gi" target="_blank">@na54gi</a></td>
+      <td>なぎちー♡</td>
+      <td>180,792</td>
+      <td class="bio">山形𝐈𝐆𝐍𝐈𝐓𝐄杯主催💎𝑱𝑬𝑾𝑬𝑳𝑺 / 𝑉𝐼𝑃𝑆𝑇𝑌𝐿𝐸𝟚𝟘𝟚𝟘年𝟙𝟘月号表紙車 / 𝟚𝟙𝑪𝑹𝑶𝑾𝑵. Woomy influencer </td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/na54gi" target="_blank">@na54gi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yuki.sota" target="_blank">@yuki.sota</a></td>
+      <td>☆ゆきそたパパ☆</td>
+      <td>173,764</td>
+      <td class="bio">☆撮影、編集、投稿はパパ、ママが行なっています😎！ / 【親管理】</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/yu_ki1919" target="_blank">@yu_ki1919</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@eeeeemama_home_syunou" target="_blank">@eeeeemama_home_syunou</a></td>
+      <td>えーママ｜ズボラママのアイディア収納術</td>
+      <td>155,055</td>
+      <td class="bio">\\ズボラにはズボラに合う収納// / - ̗̀ 初めての100均DIY / - ̗̀ 簡単にできる収納法 / PR・動画依頼はInstag</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/eeeeemama_home_syunou" target="_blank">@eeeeemama_home_syunou</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@4shimaitok" target="_blank">@4shimaitok</a></td>
+      <td>４姉妹</td>
+      <td>102,447</td>
+      <td class="bio">子育てママ／vlog／美容／グルメ／日常 /  / ↓4姉妹愛用品とInstagramはこちら↓</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/4shimaitok" target="_blank">@4shimaitok</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yuinana_ch" target="_blank">@yuinana_ch</a></td>
+      <td>ゆいななちゃんねる</td>
+      <td>75,136</td>
+      <td class="bio">ゆいね　2歳 / 息子　0歳 / 母　28歳 /  / @28歳2児の母です。</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/yuinana_ch" target="_blank">@yuinana_ch</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@moooe.07170" target="_blank">@moooe.07170</a></td>
+      <td>愛されもえちゃん ·͜·♡🍈</td>
+      <td>71,839</td>
+      <td class="bio">もえだよ♥️2児のママ👦🏻👶🏻 / 毎日夜配信待ってます♥️ / 新潟に移住🌾🙋🏼‍♀️ / Insta🩷moooe_0717</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/moooe_0717" target="_blank">@moooe_0717</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nao_chipa" target="_blank">@nao_chipa</a></td>
+      <td>ほぼ専業主婦</td>
+      <td>63,671</td>
+      <td class="bio">旦那🇵🇭×嫁🇯🇵  "ほぼ専業主婦"の日常 / 👦🏻👦🏻👦🏻👶🏻🎀28歳4児のママ🐳🎀 / インスタは、naochipaで出てくるよ★</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/ipa" target="_blank">@ipa</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@tmk_0207" target="_blank">@tmk_0207</a></td>
+      <td>𝒕𝒐𝒎𝒐𝒌𝒐</td>
+      <td>57,048</td>
+      <td class="bio">𝟗𝟖' 𝐚𝐠𝐞𝟐𝟖 𝐎𝐬𝐚𝐤𝐚 /  3y👧🏻 1y👶🏻 年子のママ /  / 👇🏻Instagramなど…🤍</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/tmk_0207" target="_blank">@tmk_0207</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@misaki.misaki.tm" target="_blank">@misaki.misaki.tm</a></td>
+      <td>💜 . 𝑚𝑖𝑠𝑎𝑘𝑖𝑡𝑡𝑦. 😈</td>
+      <td>55,728</td>
+      <td class="bio">２児のママ➕3人目妊娠中🤰 / 大阪🐙 𝐻𝑒𝑙𝑙𝑜𝐾𝑖𝑡𝑡𝑦🎀 /  / 💜😈↩︎ファンマ</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/misaki_misaki_tm" target="_blank">@misaki_misaki_tm</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kyoro0312" target="_blank">@kyoro0312</a></td>
+      <td>きょろろ</td>
+      <td>50,402</td>
+      <td class="bio">歳の差兄弟ママきょろろです🐰🎀 / 日常Vlogと愛用品紹介してます🩰 / ⋱ Instagram楽天ROOMはコチラ⋰</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/oom" target="_blank">@oom</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yukikuu96" target="_blank">@yukikuu96</a></td>
+      <td>yukikuu96</td>
+      <td>48,313</td>
+      <td class="bio">アラフォー三姉妹mama💕✨ / 15歳&13歳双子の三姉妹と暮らす日常🌿 / 美容｜子育て｜お出かけ｜買ってよかったもの</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/yukikuu96" target="_blank">@yukikuu96</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mi_e_02" target="_blank">@mi_e_02</a></td>
+      <td>mie.</td>
+      <td>46,468</td>
+      <td class="bio">157cm ／骨格ウェーブ／0y👶🏻🎀 / fashion | cosme| hair styling / ig：@mi_e_02 / 着て</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/mi_e_02" target="_blank">@mi_e_02</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ayacoro_1027" target="_blank">@ayacoro_1027</a></td>
+      <td>あやころ🐶💐</td>
+      <td>46,066</td>
+      <td class="bio">岡山で保護犬猫と夢を追いかけるライバーの日常 🐶💐 / 5/27母になり、育児と配信の両立頑張ります！</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/coro_coro_ayacoro" target="_blank">@coro_coro_ayacoro</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mayu_kurasi" target="_blank">@mayu_kurasi</a></td>
+      <td>まゆ⌇ 忙しいママでもゆとりある暮らし</td>
+      <td>39,235</td>
+      <td class="bio">＼ 暮らしをもっとラクに🕊️／ / 見た目もいい便利アイテムと家事ラクの工夫🌿 / ママだって毎日たのしく暮らす🫶🏻 / 楽天ルームはこちら</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/mayu_kurasi" target="_blank">@mayu_kurasi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@torarinka.life" target="_blank">@torarinka.life</a></td>
+      <td>とらりんか|名もなき家事と闘うワーママ</td>
+      <td>39,129</td>
+      <td class="bio">とっておきのアイテムで気分を上げる🫧 / 子供6人買い物大好き大家族ママ</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@miffygram0601" target="_blank">@miffygram0601</a></td>
+      <td>miffygram0601</td>
+      <td>38,580</td>
+      <td class="bio">3kids mom ♡ /  / 可愛いものが好き🐰</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mamacharm_" target="_blank">@mamacharm_</a></td>
+      <td>mamacharm / ママチャーム</td>
+      <td>36,174</td>
+      <td class="bio">癒される赤ちゃん動画を毎日お届け👶🏻❤️ /  / マタニティ&ベビースキンケアブランド🍃 /  / ▼妊娠/出産/子育てに役立つ情報はこち</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kanakomaru_aoi" target="_blank">@kanakomaru_aoi</a></td>
+      <td>かなこまる🎀🩰</td>
+      <td>33,792</td>
+      <td class="bio">2児男の子シングルマザー🎀🩰 / ファッション・ライフスタイル・育児 / を主に動画上げてます🎥ˎˊ˗ /  / Instagram・You</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/1016_kanako" target="_blank">@1016_kanako</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@miu_____322" target="_blank">@miu_____322</a></td>
+      <td>miu | 返信はフォロワーさんのみ𓂃 𓈒𓏸</td>
+      <td>30,369</td>
+      <td class="bio">instagram 12万人𓍯  / 2026年6月生まれboyとの暮らし ⸝⋆　 / インテリア ⌇アイテム ⌇ ベビー / ⬇︎nosh</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yamaoma_mini" target="_blank">@yamaoma_mini</a></td>
+      <td>ミニやま</td>
+      <td>27,905</td>
+      <td class="bio">大阪　4月2日4016g生まれの男の子🎂 /  / インスタ→ @yamaoma_mini</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/yamaoma_mini" target="_blank">@yamaoma_mini</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@arakawakids" target="_blank">@arakawakids</a></td>
+      <td>あらかわキッズ</td>
+      <td>26,434</td>
+      <td class="bio">なんだかクセになる沖縄の3兄弟🧡 / まおぴ👩🏻‍🦱れんと👦🏻かなと👶🏻 / 編集・管理はママ🌺</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/arakawa_kids" target="_blank">@arakawa_kids</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@harumama__" target="_blank">@harumama__</a></td>
+      <td>はるまま</td>
+      <td>26,112</td>
+      <td class="bio">🎀InstaID @_juri_hk / baby / fashion / travel / gourmet ♡</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/harumama__" target="_blank">@harumama__</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@applebey7h2" target="_blank">@applebey7h2</a></td>
+      <td>ピアノ</td>
+      <td>25,104</td>
+      <td class="bio">🍀 買ってよかった！本音レビュー / ✨ 暮らしに役立つ便利グッズ / 🛍️ 子ども用品・日用品・旅行グッズ / 👇 おすすめ商品はチェック</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@picaruuu" target="_blank">@picaruuu</a></td>
+      <td>picaru</td>
+      <td>23,998</td>
+      <td class="bio">＼朝6:00〜ライブコマース🤍／ / 34歳 | 2児ママ | ファッション・美容 / アパレル、美容・日用品紹介♡ / お仕事お問い合わせ</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/picaruuu" target="_blank">@picaruuu</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mimiy330" target="_blank">@mimiy330</a></td>
+      <td>みみ／時短飯</td>
+      <td>23,684</td>
+      <td class="bio">気になるもの全部試す主婦🛍️｜便利グッズ＆子供用品紹介などなど！ / 毎日をちょっとラクにするものがだいすき✨ / 楽天room↓</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ahyan175" target="_blank">@ahyan175</a></td>
+      <td>あーやん🥝</td>
+      <td>23,641</td>
+      <td class="bio">一児のママ👶🏻✨ / 🏆 日間 3.4M / 盾イベシルバー3位 / 📩 配信・お仕事のご相談は @YOUVIA</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@akane_origami" target="_blank">@akane_origami</a></td>
+      <td>あかね｜3児ママのお買い物部</td>
+      <td>22,875</td>
+      <td class="bio">かわいい🐰おいしい🍩便利🌟 / が大好きなアラサー3児ママたちの / リアルお買い物記録🛒</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/akane_origami" target="_blank">@akane_origami</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@chuuu_home" target="_blank">@chuuu_home</a></td>
+      <td>チュウ🐶✨</td>
+      <td>21,679</td>
+      <td class="bio">アラサー夫婦/👧(2) / 家づくりこだわりグレーハウス🏠 / 掃除１級ママ / インスタ@chu_myhome</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/chu_myhome" target="_blank">@chu_myhome</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@riri_mama_gohan" target="_blank">@riri_mama_gohan</a></td>
+      <td>りり🧸頑張りすぎない栄養たっぷり離乳食</td>
+      <td>20,922</td>
+      <td class="bio">簡単に作れて栄養のある離乳食レシピを発信中❤️‍🔥 / インスタもやってまっす💪 / riri_mama_gohanで検索✅</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/riri_mama_gohan" target="_blank">@riri_mama_gohan</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@jk86861" target="_blank">@jk86861</a></td>
+      <td>海猿ショッピング🌊🐒</td>
+      <td>20,519</td>
+      <td class="bio">おすすめの商品紹介 食品も物もバズらせます✅ / この動画限定で安く買える裏技も🔥パパです！ / ✅食品 日用品 ガジェット / 🏆7月食品</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yururi_lifehack" target="_blank">@yururi_lifehack</a></td>
+      <td>ゆるり⌇ママの暮らしがラクになる時短術</td>
+      <td>20,159</td>
+      <td class="bio">最新の投稿はInstagramに / ＼たまには楽しよ☺️／ / 🫧 知らないと損する暮らしワザ / 🌿 捨てない・ムダにしない保存テク /</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/yururi_lifehack" target="_blank">@yururi_lifehack</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hiro_dietter" target="_blank">@hiro_dietter</a></td>
+      <td>ひろ</td>
+      <td>19,226</td>
+      <td class="bio">ママのQOLが爆上がる商品🎁 / コスパよく美味しいもの🍖 / を紹介💓💓 /  / 今日のお得はストーリーに☝️</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/hiro_dietter" target="_blank">@hiro_dietter</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@m.choco_home" target="_blank">@m.choco_home</a></td>
+      <td>ちょこ ﾏﾝｼｮﾝ暮らし×1歳男子×ﾏﾏの自分時</td>
+      <td>18,965</td>
+      <td class="bio">𓏸 3LDKマンションを自分好みに / 𓏸 1歳息子との暮らしのリアル / 𓏸 気分が上がる便利アイテム / . / 紹介アイテムはこちら↓</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/m.choco_home" target="_blank">@m.choco_home</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ponchan45" target="_blank">@ponchan45</a></td>
+      <td>ぽんちゃん</td>
+      <td>17,932</td>
+      <td class="bio">子供達の日常をアップしてます🥰お試しして良かったのを紹介してます☺️良ければ覗いて見てください💕</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/ponchan45" target="_blank">@ponchan45</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@lerable_" target="_blank">@lerable_</a></td>
+      <td>𝑆ℎ𝑖𝑜𝑟𝑖🍨</td>
+      <td>17,474</td>
+      <td class="bio">2001  ⌇フルタイム勤務 / 可愛い息子と日常記録 🦢🩰 /  / Insta:【_mignon28_】</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mariko_kurashi" target="_blank">@mariko_kurashi</a></td>
+      <td>まりこ</td>
+      <td>17,293</td>
+      <td class="bio">\ラク家事で"心を満たす時間"を手に入れる/ / 💁‍♀️家事苦手、余裕がほしい3児のママ👦 / 家事を少し楽しむ工夫を紹介✨ / 紹介アイ</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/mariko_kurashi" target="_blank">@mariko_kurashi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kanastyle01" target="_blank">@kanastyle01</a></td>
+      <td>KANA🤍🪷</td>
+      <td>16,698</td>
+      <td class="bio">関西2児ママ👧👶˖* ⋈ / 子どもが夢中になった知育おもちゃ🧸 / 育児がラクになる便利グッズを本音レビュー🧏‍♀️ / ママのご褒美グッ</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/kanastyle01" target="_blank">@kanastyle01</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kenerichannel" target="_blank">@kenerichannel</a></td>
+      <td>ケンエリちゃんねる♡</td>
+      <td>16,433</td>
+      <td class="bio">バツイチアラフィフ旦那と18歳年下妻の日常👩🏼‍❤️‍👨🏽 / 👼🏻育児/👩🏼‍❤️‍👨🏽夫婦関係/🍽️グルメ/🎁商品紹介 / アカウントは</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/kenerichannel" target="_blank">@kenerichannel</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@chobi__recipe" target="_blank">@chobi__recipe</a></td>
+      <td>ちょび</td>
+      <td>15,965</td>
+      <td class="bio">はやりのも好き❤️ / 30代ママ（7.5.3才）ゲットして / よかったもの紹介🛍️</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/chobi__recipe" target="_blank">@chobi__recipe</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@igaharu.clean" target="_blank">@igaharu.clean</a></td>
+      <td>いがはる | 家事ラクにガチるママの暮らし術</td>
+      <td>15,842</td>
+      <td class="bio">▶︎無駄な家事は0.1秒もしない / ▶︎家事を時短して自分時間を勝ち取る🏆 / ▶︎一緒に分娩台に置いてきた女を取り戻そ！</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@soft_room7" target="_blank">@soft_room7</a></td>
+      <td>soft_room</td>
+      <td>15,521</td>
+      <td class="bio">2児育児｜子育て日常 北海道キャンプ / 時短×ラクする暮らし / 使って買ってよかったもの👇PR可</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kasumi.bodymake" target="_blank">@kasumi.bodymake</a></td>
+      <td>ちゅみたん🧸💖</td>
+      <td>14,998</td>
+      <td class="bio">🎀4兄弟ママ｜ちゅみたん / 66kgから−23kg✨元エステティシャン / ママだって可愛くいたい♡ / 🪞バタバタな毎日でも楽しむお家美</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/kasumi.bodymake" target="_blank">@kasumi.bodymake</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nao_health_beauty_baby" target="_blank">@nao_health_beauty_baby</a></td>
+      <td>衝動買いのNAO</td>
+      <td>14,876</td>
+      <td class="bio">TikTok shopアイテムをお得に紹介🛍️ / 娘にはデレな父親です👨 / 楽しくお得な通販生活しましょ！！ / 👇ショーケースも見てね</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@straightbodytype" target="_blank">@straightbodytype</a></td>
+      <td>骨格ストレート情報局</td>
+      <td>14,529</td>
+      <td class="bio">骨格ストレートタイプに / 似合う服・コーデを発信📢💭 / 骨スト低身長ママのコーデ / PR・ご依頼はDMへ📩</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/straightbodytype" target="_blank">@straightbodytype</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ettantantan" target="_blank">@ettantantan</a></td>
+      <td>打越家🐽格闘技キッズ日常4男1女〜夢〜</td>
+      <td>14,382</td>
+      <td class="bio">はい🤘注目！LIVE初心者🔰札幌住🐷５児のママ👩長男は闘病生活からのラッパーに？！次男、長女は全国2位世界3位の成績持つ格闘技キッズ🥊三男四</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hiyamugi_pan" target="_blank">@hiyamugi_pan</a></td>
+      <td>冷麦</td>
+      <td>14,378</td>
+      <td class="bio">独学パン記録🥯 ೀ / レシピ⌇パン作りのリアル雑談 / 毎日投稿フォローしてね ⸜̑⸝͂⸌̑⸍͂ /  / 𓂃 2y girl mom 🎀</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mamanurse.momo" target="_blank">@mamanurse.momo</a></td>
+      <td>小児科看護師もも〻安心できる子育て</td>
+      <td>14,374</td>
+      <td class="bio">\知っておきたいこどもの健康や安全について/ / 2歳0歳年子を育てる2児のアラサーママ🍑</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@dan.go.715" target="_blank">@dan.go.715</a></td>
+      <td>なちゃ⚛️リノベ団地ママ</td>
+      <td>14,322</td>
+      <td class="bio">szok/01 / 👧2025.7.12 / 👶2026.7.27 / 楽天room↓↓↓</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@collinma81767" target="_blank">@collinma81767</a></td>
+      <td>ペットと子供のおもちゃ屋</td>
+      <td>13,636</td>
+      <td class="bio">ペットおもちゃ：噛み強い・知育・ストレス解消、ペットの楽しい時間を演 子供おもちゃ：知育で楽しく、子供の純真な時間を守ります安全素材を厳選、</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@02yy_" target="_blank">@02yy_</a></td>
+      <td>おじゃる。(☁️)</td>
+      <td>13,466</td>
+      <td class="bio">02’(23) / 2児のmama👶🏻🎀</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/lllllll____.02" target="_blank">@lllllll____.02</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@skypicks7" target="_blank">@skypicks7</a></td>
+      <td>スカイ | 3児ハーフパパの正直レビュー</td>
+      <td>13,219</td>
+      <td class="bio">🔍 失敗しないモノ選びを、正直にシェア‼︎ / 🧔‍♂️ライブも配信中👩 / 📩お仕事のご相談はお気軽にDMへ📩 / 👇TikTokShop</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@gonchanzzzzz" target="_blank">@gonchanzzzzz</a></td>
+      <td>🦋👾ごんちゃん👾🦋</td>
+      <td>12,747</td>
+      <td class="bio">楽しいこと大好きなウォンナです。 / 子育て/旅行/サウナ/グルメ/コスプレ/レジャー/ゲーム /3D/モデリング / ✉️仕事の相談はDM</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@tamama_days" target="_blank">@tamama_days</a></td>
+      <td>tamama_days</td>
+      <td>12,540</td>
+      <td class="bio">ラク・時短・かわいいが好き❤️ /  / キレイで健康でいたい青森生まれの / 4歳&2歳男の子のアラサーママ</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/tamama_no_diet" target="_blank">@tamama_no_diet</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@choke_bodymake" target="_blank">@choke_bodymake</a></td>
+      <td>ちょけ</td>
+      <td>12,342</td>
+      <td class="bio">𓂃𓈒𓏸3児ママでも“隠す”から“魅せる”お腹へ 𓈒𓏸𓂃</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/choke_bodymake" target="_blank">@choke_bodymake</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@maopi_babygohan" target="_blank">@maopi_babygohan</a></td>
+      <td>まおぴ|栄養×ラクうま離乳食</td>
+      <td>12,246</td>
+      <td class="bio">\笑顔でもりもり食べてほしい/ / ▫︎マネするだけで食いつき💯 / ▫︎たっぷりの栄養を冷凍ストック🥦 / ▫︎10分で作ってママの自由時</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/maopi_babygohan" target="_blank">@maopi_babygohan</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@___yxxx8" target="_blank">@___yxxx8</a></td>
+      <td>ゆん | 美容ヲタクの1歳ママ</td>
+      <td>12,106</td>
+      <td class="bio">元美容部員の美容ヲタク🫧 / お仕事依頼DMまで✉️</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yupi_kids_stock" target="_blank">@yupi_kids_stock</a></td>
+      <td>ゆぴ</td>
+      <td>11,932</td>
+      <td class="bio">おいしいもの&使ってよかったもの紹介 / 育児に役立つグッズ多め🚙 / 朝ラク冷凍ストックレシピも🩵 / 30代ワーママ/2歳👦🏻</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/yupi_kids_stock" target="_blank">@yupi_kids_stock</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@miiiimichi" target="_blank">@miiiimichi</a></td>
+      <td>みーみち/三兄弟と便利な暮らし</td>
+      <td>11,830</td>
+      <td class="bio">便利グッズ大好き3兄弟ママ👩🏼 / dmはインスタまで💌 /  / 紹介したアイテムは楽天ルームに載せてます💗</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/miiiimichi" target="_blank">@miiiimichi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@dog.snake.monkey" target="_blank">@dog.snake.monkey</a></td>
+      <td>垢抜けたいママ</td>
+      <td>11,816</td>
+      <td class="bio">🫪気になるもの全部試します🫪</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nyamidzizo1" target="_blank">@nyamidzizo1</a></td>
+      <td>しごおわ主婦</td>
+      <td>11,528</td>
+      <td class="bio">\旅好き元ホテルマン/ / 暮らしとおでかけ記録🌿 / 👶🏻1歳娘🎀 / 👩🏻🇯🇵と🇳🇱でホテルマンしてました</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ena_nail128" target="_blank">@ena_nail128</a></td>
+      <td>🫧えな🐶</td>
+      <td>11,277</td>
+      <td class="bio">2024/9/25〜🫧1.5周年日間40位⸜❤︎⸝‍ / 0 month baby🩵👶🏻子育て奮闘中❤️‍🔥 /  / DMはｲﾝｽﾀしか見</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/enaena_kuku" target="_blank">@enaena_kuku</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@earth120914" target="_blank">@earth120914</a></td>
+      <td>♡猫と赤ちゃんママ♡</td>
+      <td>11,243</td>
+      <td class="bio">我が家の家族😺とベビーです♪ / うちの子のスタンプ作ってます^ ^ / よかったらご覧ください🎵⬇️</td>
+      <td>육아 콘텐츠 · 유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@itopapa_life" target="_blank">@itopapa_life</a></td>
+      <td>いとパパ</td>
+      <td>10,496</td>
+      <td class="bio">妻に喜んでもらうための収納アイデア💡 / 散らかるストレスもう卒業！👋 / 子どもも片付けやすくなる工夫🔨</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@im._.7o_log" target="_blank">@im._.7o_log</a></td>
+      <td>naお。の日常</td>
+      <td>10,241</td>
+      <td class="bio">4世代で暮らす4児のママ👦🏻👧🏻👦🏻👶🏻 / @ちいかわ夫婦【たいせいとなお】  / @naお  / ⇩⇩⇩</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/im._.7o" target="_blank">@im._.7o</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mochimimi_premama" target="_blank">@mochimimi_premama</a></td>
+      <td>もちみみ</td>
+      <td>10,227</td>
+      <td class="bio">＼ママになる前に知って／ / ✴︎「失敗ゼロ」のベビー＆ママグッズ / ✴︎お金も時間もムダにしない毎日🧸🎈 / ✴︎マタニティ〜産後ママの</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/mochimimi_premama" target="_blank">@mochimimi_premama</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kipo_room_" target="_blank">@kipo_room_</a></td>
+      <td>きぽ｜せまい家でも整う暮らし</td>
+      <td>10,216</td>
+      <td class="bio">\ 収納ゼロ×14坪🏠 しまえない家の整え方 / / 🧺 出しっぱなしでも絵になる収納 / 🛒 家事・育児に役立つ便利アイテム / 🪴 本当</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/kipo_room_" target="_blank">@kipo_room_</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@pokopi.mw" target="_blank">@pokopi.mw</a></td>
+      <td>助産師ママぽこぴ👶🏻🍒</td>
+      <td>9,925</td>
+      <td class="bio">29歳助産師ママ𓎤𓅮 / 2度の流産を乗り越えて2025.07 出産 👶🏻🩵 / リアルな育児と成長キロク✍️ / 👇べびまる愛用チェア『ス</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@chiechun" target="_blank">@chiechun</a></td>
+      <td>ちゅん🐤🐤🐤</td>
+      <td>9,479</td>
+      <td class="bio">長女 ひな　9歳　次女さら　7歳     長男はると2歳 / いつも嬉しいお言葉ありがとうございます。 / 心無しコメント削除、ブロックしま</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@a______0929" target="_blank">@a______0929</a></td>
+      <td>𝐚𝐤𝐚𝐧𝐞</td>
+      <td>8,992</td>
+      <td class="bio">健康オタクママの日常🪞🫧🤍 / 🍃𝘪𝘯𝘯𝘦𝘳 𝘤𝘢𝘳𝘦 | 𝘥𝘦𝘵𝘰𝘹 / 　 / 厳選アイテム↓</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@expertmidwife_keiko" target="_blank">@expertmidwife_keiko</a></td>
+      <td>ベテラン助産師ケイコ</td>
+      <td>8,669</td>
+      <td class="bio">助産師歴40年・出産介助3000人。ベテラン助産師がママが幸せになる発信をしています。助産師目線のグッズも時々紹介していきます。</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mn_saki1220" target="_blank">@mn_saki1220</a></td>
+      <td>あひる🐥SAKI</td>
+      <td>8,651</td>
+      <td class="bio">👧🏻4歳&👶🏻0歳の姉妹ママ🐥 / 【配信→平日12時〜】 / 京都出身/九州在住/173cm</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/mn_saki1220" target="_blank">@mn_saki1220</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hii_omocha" target="_blank">@hii_omocha</a></td>
+      <td>ひい|保育歴21年・簡単手作りおもちゃ</td>
+      <td>8,267</td>
+      <td class="bio">＼現役シッターが届ける💕／ / 🧸 子どもが夢中になるおうち遊び🖍️ / ✂️ 身近なもので簡単手作りおもちゃ✨ / ✨ 暮らしに役立つアイ</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/hii_omocha" target="_blank">@hii_omocha</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@some_mom_kurashi" target="_blank">@some_mom_kurashi</a></td>
+      <td>ソメ⌇3歳児ママの暮らし</td>
+      <td>8,247</td>
+      <td class="bio">1児のママです🙋🏻‍♀️【親管理】 / 使って良かったアイテム紹介✨ / ショーケースを見てねっ👇🏻</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@gachi.kensho" target="_blank">@gachi.kensho</a></td>
+      <td>けんじ｜限界パパの生存戦略</td>
+      <td>7,929</td>
+      <td class="bio">🦊子供は好き。でも「1人になりたい」 / 🛠️ガジェットで「自由」を作る /  ⚠️高くても「時間」「心」が浮くなら買い /  💰それが俺た</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/gachi.kensho" target="_blank">@gachi.kensho</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ai_seiri_room" target="_blank">@ai_seiri_room</a></td>
+      <td>あい｜暮らしがラクになる仕組みづくり</td>
+      <td>7,775</td>
+      <td class="bio">＼頑張らなくても家が整う仕組みづくり🏠／ / 整理収納アドバイザー｜1歳児ママ👧🏻 / 無印・100均・ニトリ🧺 / YouTubeでルーム</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/ai_seiri_room" target="_blank">@ai_seiri_room</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ymt_mao" target="_blank">@ymt_mao</a></td>
+      <td>ふたりのママちゃん</td>
+      <td>7,632</td>
+      <td class="bio">ペキポメのポコとベイビーの吟坊とママちゃんの日常〜 / TikTok shopにハマり中 / インスタ▶️ymt_mao</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/mao" target="_blank">@mao</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@takutore_shisei" target="_blank">@takutore_shisei</a></td>
+      <td>くっぴー｜暮らしを救う専門家</td>
+      <td>7,618</td>
+      <td class="bio">TikTok shop歴1年以上　医療職2児のパパ👨 / 仕事と育児の疲れた、時間がないを解決！ / 生活・時短・健康のアイテムを紹介✨</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@amicheeen" target="_blank">@amicheeen</a></td>
+      <td>あみ｜損しない出産準備ガイド𓂃 𓈒𓏸</td>
+      <td>7,265</td>
+      <td class="bio">＼ 200万円損したママが伝える✨ ／ / 🪄┊︎"買ってよかった" だけを厳選 / 🧸┊︎ムダ買いゼロの出産準備 / 🩰┊︎おしゃれもコス</td>
+      <td>육아 콘텐츠 · 유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/aby" target="_blank">@aby</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hachichise" target="_blank">@hachichise</a></td>
+      <td>はち🐝⸝꙳.˖</td>
+      <td>7,191</td>
+      <td class="bio">2児ママ｜最強家事ラク𝕚𝕥𝕖𝕞 / 便利・時短グッズと、おいしいもの / 𓂃 𓈒 / 紹介した物はショーケース🧸 / ⇣</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@misaki92909" target="_blank">@misaki92909</a></td>
+      <td>美咲 🌸🌸</td>
+      <td>6,898</td>
+      <td class="bio">https://youtube.com/channel/UC1GOFZXz5ySd5Plo155axcg</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@rei0baby_asobi" target="_blank">@rei0baby_asobi</a></td>
+      <td>れい⌇保育士ママの0歳育児</td>
+      <td>6,764</td>
+      <td class="bio">\ 赤ちゃんが喜ぶあそびって？/ / 𖧷わが子がグングン育つ🌱 / 𖧷カンタン手作りおもちゃ / 𖧷何しよう？→これしたい！に✨</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/rei0baby_asobi" target="_blank">@rei0baby_asobi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yuko_baby_asobi" target="_blank">@yuko_baby_asobi</a></td>
+      <td>ゆぅこ⌇0・1歳のかわいいおうち遊び🌸</td>
+      <td>6,681</td>
+      <td class="bio">0・1歳ママ必見👶 / ラクちん×ゆる知育🌈 / 身近なもので簡単おうち遊び✂️ / 保育士ママが発信中💌 ̖́-</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/yuko_baby_asobi" target="_blank">@yuko_baby_asobi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@6130000aa" target="_blank">@6130000aa</a></td>
+      <td>2人の男の子👶👶と美容頑張るママの暮らし</td>
+      <td>6,598</td>
+      <td class="bio">1歳赤ちゃんと3歳の男の子ママ👶👶 / TikTokshopで見つけた便利グッズ、赤ちゃんおもちゃ、美容グッズなどたくさん紹介🥰！ / 美味</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@3zi2nekomama" target="_blank">@3zi2nekomama</a></td>
+      <td>3児2猫ママ｜好きな場所で働く</td>
+      <td>6,533</td>
+      <td class="bio">3児ママ目線のおすすめを紹介🛍️ / コスパ｜楽ちん｜便利｜おいしい / ✈️子連れ旅 → @3児2猫ママ｜子連れ旅・おでかけ  / 💼音楽</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/3zi2nekomama" target="_blank">@3zi2nekomama</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@eringi_room" target="_blank">@eringi_room</a></td>
+      <td>eri｜3児ママの部屋</td>
+      <td>6,397</td>
+      <td class="bio">ズボラでも可愛いママでいたい👩🏻 / ☽TikTokshopおすすめグッズご紹介 / ☽ 時短でも盛れる美容・コーデ / ☽ 買ってよかった</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/eringi_room" target="_blank">@eringi_room</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kiimama_kurashi" target="_blank">@kiimama_kurashi</a></td>
+      <td>きい⌇ずぼらママでもゆとりある暮らし🍃</td>
+      <td>6,276</td>
+      <td class="bio">\ 今日もできなかった...がなくなるコツ✊ / / ✴︎苦手な家事に時間をかけない⏰ / ✴︎値段と質を重視した神アイテム👀 / ✴︎アナ</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/kiimama_kurashi" target="_blank">@kiimama_kurashi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@misa_stock_recipe" target="_blank">@misa_stock_recipe</a></td>
+      <td>みさ</td>
+      <td>6,252</td>
+      <td class="bio">\フォローするとお得に買い物できるかも🉐/ / 30代ママ👩4歳👦 / 心から推せるモノ、場所、レシピなど / 好きなこと載せてます🥰</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/misa_stock_recipe" target="_blank">@misa_stock_recipe</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kassy_family" target="_blank">@kassy_family</a></td>
+      <td>かっしー</td>
+      <td>6,125</td>
+      <td class="bio">2歳girl【なっちゃん👶🏻ྀི】との生活 / 主にインスタに生息してます🍀*゜ / Instagram ▷▶︎ kassy＿family</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/ily" target="_blank">@ily</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@pi_mama.baby2" target="_blank">@pi_mama.baby2</a></td>
+      <td>ぴーまま⌇0歳ベビとのごきげんな暮らし</td>
+      <td>6,040</td>
+      <td class="bio">mom of boy(4y) & girl(8m) / 🧺:育児は課金でラクにする / 💐:かわいいgoodsでモチベUP / 🪞:ママのゆ</td>
+      <td>육아 콘텐츠 · 유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@_risa3510_" target="_blank">@_risa3510_</a></td>
+      <td>R!SA</td>
+      <td>5,920</td>
+      <td class="bio">元エステティシャンの１児ママ / プチ贅沢品、お得な物、便利グッズが大好き / insta→_mogumogurutabi_</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sora_babyanddog" target="_blank">@sora_babyanddog</a></td>
+      <td>sora_babyanddog</td>
+      <td>5,908</td>
+      <td class="bio">0歳男の子ママ👶🏻🩵＋わんこ3匹🐩 / 美容 / グルメ / 健康 / 育児 / 買ってよかったもの＆日常のおすすめ紹介🤍</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nako.room_" target="_blank">@nako.room_</a></td>
+      <td>なこ┊収納× アイテムで快適な暮らし</td>
+      <td>5,849</td>
+      <td class="bio">\  ラクもキレイも叶える   / / 🧺⌇整えるだけでラクになる収納アイデア / 🤍⌇毎日のストレスを減らす仕組みづくり / 🌿⌇年子男の</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/nako.room_" target="_blank">@nako.room_</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@aru_lifehack777" target="_blank">@aru_lifehack777</a></td>
+      <td>ある〻週３寝落ちママでも整う暮らし</td>
+      <td>5,799</td>
+      <td class="bio">\ バタバタな毎日に"10分"の余白を🌙'- /▫️ズル賢くサボる家事のコツ🫧 / ▫️知らなきゃ損な便利グッズ＆裏ワザ🪄 / ▫️ゴロゴロ</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@tanukichi.560" target="_blank">@tanukichi.560</a></td>
+      <td>たぬきち｜子育てお得商品紹介</td>
+      <td>5,764</td>
+      <td class="bio">子育てに役立つ / ライフハック商品紹介！ / 自分時間を作る！ / お得大好き</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kanrai1" target="_blank">@kanrai1</a></td>
+      <td>MIRAI🐄</td>
+      <td>5,703</td>
+      <td class="bio">🐄46歳 .169cm.mama🐄 / 元百貨店社員のセレクト🔍 / 🐄大人キレイのコーデ・大人美容🐄 / 🐄プチプラ服好き🐄</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sana_kosodate" target="_blank">@sana_kosodate</a></td>
+      <td>さな</td>
+      <td>5,370</td>
+      <td class="bio">1歳児育児中👦 /  / おすすめ商品をママ目線で紹介してる👍 / 使ってよかったものはハイライト▼</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/sana_kosodate" target="_blank">@sana_kosodate</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@_choiyuki_" target="_blank">@_choiyuki_</a></td>
+      <td>チェ・ユキ</td>
+      <td>5,368</td>
+      <td class="bio">【 ほぼ毎日配信 】 / 日韓ハーフママが正直に評価🤱🏻 / ミスコリア2023日本代表 / 1児ママ / 美容看護師</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@shina_kurashi" target="_blank">@shina_kurashi</a></td>
+      <td>しな￤2児ママのゆとりある暮らし</td>
+      <td>5,348</td>
+      <td class="bio">＼子どもがいてもオシャレなお部屋／ / ⧉家事・育児をラクにする推しアイテム / ⧉新居での暮らしをもっと快適に🪴🫧 / 🤍最新情報はIns</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/shina_kurashi" target="_blank">@shina_kurashi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@michella6riley1tedy0" target="_blank">@michella6riley1tedy0</a></td>
+      <td>Michelaちゃん</td>
+      <td>5,228</td>
+      <td class="bio">Michella(みけいら)長女 /  / Riley(ライリー)次女 /  / Teddy(テディ)長男</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@koharu.gohan.oc" target="_blank">@koharu.gohan.oc</a></td>
+      <td>こはる</td>
+      <td>5,059</td>
+      <td class="bio">ネットショッピングがやめられない / それなりのコスパで小綺麗でいたい30歳 /  / 2歳と0歳のニ児ママ</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@maru_.kurashi" target="_blank">@maru_.kurashi</a></td>
+      <td>maru_.kurashi</td>
+      <td>4,902</td>
+      <td class="bio">5歳&4歳&🐶の30代ママ👩/戸建て / インスタ7.1万人 / 👇🏻紹介したアイテム&楽天roomは👇🏻</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/7.1" target="_blank">@7.1</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mochimochi.omochisan" target="_blank">@mochimochi.omochisan</a></td>
+      <td>もちもち☁️</td>
+      <td>4,897</td>
+      <td class="bio">2歳児がいる3人家族の日常🍃 / ⚪︎2歳0ヶ月リアルご飯🍚 / ⚪︎ママとベビーの可愛いものたち</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@pocho_kun" target="_blank">@pocho_kun</a></td>
+      <td>ポチョくん👶🏻🐥💋</td>
+      <td>4,829</td>
+      <td class="bio">2歳0歳年子ワンオペママ / 関西→東北移住❄️ / 子連れスポット＆育児リアル発信 / 東北移住で知れた東北の魅力も発信中⛄️ / サブ垢</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/pochokun_0207" target="_blank">@pochokun_0207</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yukkoro_kurashi_" target="_blank">@yukkoro_kurashi_</a></td>
+      <td>ゆっころ</td>
+      <td>4,786</td>
+      <td class="bio">\ 生活に役立つ裏ワザが見つかる💡 / / ✾ 明日からやりたくなるアイデア集📓 / ✾ 買って損なし！プチプラグッズを紹介🧺 / ✾ 時短</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/yukkoro_kurashi_" target="_blank">@yukkoro_kurashi_</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@onigirichan716" target="_blank">@onigirichan716</a></td>
+      <td>おにぎりちゃん🍙🤍</td>
+      <td>4,577</td>
+      <td class="bio">もちもちほっぺのおにぎりちゃん🍙🤍🖤 / おにぎりを食べるまでの成長記録✍️ /  ꕤ.｡1万フォロワー目標✻*˸ꕤ / 2025年7月産ま</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/onigirichan16" target="_blank">@onigirichan16</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nonopa1220" target="_blank">@nonopa1220</a></td>
+      <td>ののぱ🌸❄️</td>
+      <td>4,470</td>
+      <td class="bio">橋本病、甲状腺機能低下症 / 2人目妊活中 / 1歳児を育てる / 39歳お母ちゃん👩 / 母管理</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/nonopaoyuyu" target="_blank">@nonopaoyuyu</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@_gorisu_life" target="_blank">@_gorisu_life</a></td>
+      <td>risu mama ˊ˗</td>
+      <td>4,454</td>
+      <td class="bio">ｲﾝｽﾀ: _gorisu_life / \ 下カゴに🛍️紹介した商品掲載中♡ᝰ✍🏻/ / 🧺楽天room⤵︎TikTokShop👶🏻⤵︎</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/ife" target="_blank">@ife</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@takumi7880" target="_blank">@takumi7880</a></td>
+      <td>Ⓢⓞⓡⓐ</td>
+      <td>4,407</td>
+      <td class="bio">Em búc bang  hàng mẫu ạ  / Nhiều mẫu Ok lắm flowchéo với em nhé.  / Em</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@usanokurashi" target="_blank">@usanokurashi</a></td>
+      <td>うさの⌇子育て中でもラクする暮らし</td>
+      <td>4,382</td>
+      <td class="bio">＼家族と笑って過ごすためのヒント💡／ / ▫️家事育児がラクになる神アイテム紹介🌱 / ▫️めんどうがキライな夫婦×やんちゃな1歳児🦖 / </td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@marupi_babylife" target="_blank">@marupi_babylife</a></td>
+      <td>marupi⌇保育士ママと1歳女の子の暮らし</td>
+      <td>4,237</td>
+      <td class="bio">🌿 ⌇ 新米ママの暮らし𝘝𝘭𝘰𝘨 / Insta（ @marupi_babylife同じです🥨 ）2024.08出産👶🏻</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/marupi_babylife" target="_blank">@marupi_babylife</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yasuchikkatok" target="_blank">@yasuchikkatok</a></td>
+      <td>やすちかとヤスナリ</td>
+      <td>4,199</td>
+      <td class="bio">✌︎やすちか3y🦖やすなり2y🦕 / ✌︎ 妹🧚‍♀️産まれたて / ✌︎ ママ管理 ✌︎沖縄</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/yasuchikkatok" target="_blank">@yasuchikkatok</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ino_baby_mama0" target="_blank">@ino_baby_mama0</a></td>
+      <td>いの｜家では残業しない時短ワーママ</td>
+      <td>4,117</td>
+      <td class="bio">\ 23時、やっと主役に戻れる母の暮らし / / ▫️ 1分でマネできる裏ワザ 🪄 / ▫️ ガチで使えたグッズを本音レビュー🧺 / ▫️ </td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yukomama_ie" target="_blank">@yukomama_ie</a></td>
+      <td>ゆこママ</td>
+      <td>4,066</td>
+      <td class="bio">おすすめアイテムを紹介中💖 / 毎日LIVE限定セールやってるよ🙌</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/yukomama_ie" target="_blank">@yukomama_ie</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@germany_vlog" target="_blank">@germany_vlog</a></td>
+      <td>みーひ｜ママでも楽におしゃれ雑貨</td>
+      <td>4,026</td>
+      <td class="bio">暮らしを彩る便利＆おしゃれ雑貨が大好き🫶 / わんぱく男の子(2才)ママ🙋‍♀️🤍</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@m_milk418" target="_blank">@m_milk418</a></td>
+      <td>Megumi🦕🤍</td>
+      <td>4,010</td>
+      <td class="bio">👦🏻⌇ 2024.01 👶🏻⌇ 2025.12  / 2歳&0歳 兄弟の育児日記💭  / 📍関東</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@aichamcham0611" target="_blank">@aichamcham0611</a></td>
+      <td>ちゃむちゃむ</td>
+      <td>4,005</td>
+      <td class="bio">可愛さで世界を救うのだぁ⭐️⭐️⭐️⭐️ / このアカウントの管理はママちゃむ🎀</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@m_picklog" target="_blank">@m_picklog</a></td>
+      <td>サケ子｜旅と暮らしの推し</td>
+      <td>3,978</td>
+      <td class="bio">🏰 年6回以上お泊まりディズニー / ✨ ディズニーホテル全制覇のリアルな情報 / 🛍️ 旅行・暮らしの「これよかった！」 / 👩 小学生男</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@inuneko_5" target="_blank">@inuneko_5</a></td>
+      <td>犬猫ベビーの暮らし👶🏼🐶🐈‍⬛</td>
+      <td>3,916</td>
+      <td class="bio">🐻🦊🐈🐈‍⬛🐈‍⬛👶🏼6児のママ。 / 【おすすめの宿・ホテル】を紹介中✨ / 愛用品や便利グッズは下の【ショーケース🛍️】を　　　　チェッ</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hinakozou.423" target="_blank">@hinakozou.423</a></td>
+      <td>ヒナコゾウ🐘</td>
+      <td>3,893</td>
+      <td class="bio">6ヶ月べびー👶🏻🍼5歳よーきー🐶🐾 / と暮らすシンママです🦖 /  / 買ってよかった購入品🧺や愛用グッズ🧤 / 毎日の暮らしを投稿してい</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@doracha_00" target="_blank">@doracha_00</a></td>
+      <td>𝚗𝚎𝚞ꨄ︎</td>
+      <td>3,842</td>
+      <td class="bio">24歳女の子ママの日常𝑣𝑙𝑜𝑔 🎀𓂃 ࣪˖) / ‧꒰˚ʚ不定期17:00投稿ɞ˚꒱ ‧</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@saki_to_kurashi" target="_blank">@saki_to_kurashi</a></td>
+      <td>saki_to_kurashi</td>
+      <td>3,831</td>
+      <td class="bio">✽さき✽ママの毎日が楽しくなる暮らしのアイデア×グッズ♥ / テンプレshopやInstagramなどのリンクはこちら👇</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/saki_to_tedukuri" target="_blank">@saki_to_tedukuri</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@dyh1p79uk77m" target="_blank">@dyh1p79uk77m</a></td>
+      <td>⭐️🎀れもん🎀⭐️</td>
+      <td>3,779</td>
+      <td class="bio">ズボラ3児のmama👧👦👶 / 👩‍🍳栄養士免許取得 / 離乳食・幼児食コーディネーター 取得 / 良かったら仲良くしてください🎀</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mingren11" target="_blank">@mingren11</a></td>
+      <td>赤ちゃん👶</td>
+      <td>3,776</td>
+      <td class="bio"></td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@stellaseafibers" target="_blank">@stellaseafibers</a></td>
+      <td>めーこ@3児ママの暮らし</td>
+      <td>3,744</td>
+      <td class="bio">起業家3児ママのリアルな暮らし🌷30代🐰 / 買ってよかったものを正直レビュー🛒 / コスメ｜食品｜日用品｜スクイーズ🫧 / サブ垢 @めー</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@leafmfko" target="_blank">@leafmfko</a></td>
+      <td>りふりふ🐰🌿</td>
+      <td>3,744</td>
+      <td class="bio">👧🏻👶🏻 2児のママライバー🐰🌿 / ☀️ 朝9時前後 🌷 昼15時前後 / 🌙 たま〜に夜も出没！ / 💚 ゆるっと雑談しよ〜🫶</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@akachan.1005" target="_blank">@akachan.1005</a></td>
+      <td>あーか</td>
+      <td>3,698</td>
+      <td class="bio">育児休暇中ꔛෆ10.31 2周年🤍 / 2児のｼﾝｸﾞﾙﾏｻﾞｰ👦🏼👶🏻出会いに感謝🥂 / 大切にしてくれる人を、私も大切に。 / 自分らし</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/akachan.1005" target="_blank">@akachan.1005</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@daimaoh_to_father" target="_blank">@daimaoh_to_father</a></td>
+      <td>1歳娘は大魔王様</td>
+      <td>3,569</td>
+      <td class="bio">娘が生まれました。 / 2025/01/14生まれの元気な元気な大魔王様。18:30〜19時に晩ご飯Liveしてるかも。 / 沢山食べるんだ</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@cocosuke.yu" target="_blank">@cocosuke.yu</a></td>
+      <td>ゆい🩵正直レビュー</td>
+      <td>3,435</td>
+      <td class="bio">interior🪞／息子👦／vlog / おススメしたい商品紹介🧸 / 1歳児🩷男の子ママです</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/cocotoboy1013" target="_blank">@cocotoboy1013</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nachi_mama" target="_blank">@nachi_mama</a></td>
+      <td>なち◎</td>
+      <td>3,355</td>
+      <td class="bio">2児ママのミドサーママです👩🏻 / 暮らし＆ママ美容＆食べものなど / リアルレビューします🫶</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@diary____chika14" target="_blank">@diary____chika14</a></td>
+      <td>Chika</td>
+      <td>3,314</td>
+      <td class="bio">0歳児男の子ママ👶🏻🩵 / 育児のあれこれを更新中🍼 /  / Instagram▶︎ @diary____chika</td>
+      <td>육아 콘텐츠 · 유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/diary____chika" target="_blank">@diary____chika</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nei8200" target="_blank">@nei8200</a></td>
+      <td>N-Ei｜4歳児のパパ</td>
+      <td>3,312</td>
+      <td class="bio">【4歳児戦力化計画】発動中🫡 / 自由時間を5分作るため司令官(4才)を家事の戦力へ教育中！ / 🪖任務:配膳・ゴミ捨て等 🛡️副司令官(2</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sui.otoku" target="_blank">@sui.otoku</a></td>
+      <td>すい</td>
+      <td>3,263</td>
+      <td class="bio">Tiktok shopで気になった商品レビュー💬 / 2歳5歳のママ👧👩👧(38) / ズボラママが楽できるアイテム紹介 / ご褒美グルメ🍣</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@chomu_85" target="_blank">@chomu_85</a></td>
+      <td>ちょむ︎︎︎︎︎☺︎</td>
+      <td>3,256</td>
+      <td class="bio">02' / 👶🏻🌸 / スクイーズにハマってる女の子ママ🎀💕 / おすすめ商品は下のショーケースから / 👇🏻💖</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ruimama_baby" target="_blank">@ruimama_baby</a></td>
+      <td>るい⌇妊婦になっても綺麗な暮らし𓂃𓍯</td>
+      <td>3,205</td>
+      <td class="bio">2y👦🏻7月第2子出産👶🏻 / . / 楽天ROOM⬇️</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/ruimama_baby" target="_blank">@ruimama_baby</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@samon.life" target="_blank">@samon.life</a></td>
+      <td>･:*+.🍑momo｜手相開運🔮 Life･*:</td>
+      <td>3,187</td>
+      <td class="bio">37さい｜149cm｜2児ママ👧♡👧 / 美容・食・日常・お気に入り正直レビュー</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@honchan_diet" target="_blank">@honchan_diet</a></td>
+      <td>ほんちゃん⌇ -10kgママの自分磨き</td>
+      <td>3,143</td>
+      <td class="bio">＼ 50kgの壁を越えたママ｜痩せ習慣 ／ / ◽️160cm｜55kg → 45kg（−10kg達成✨️） / ◽️食事×ちょいトレ=痩せ</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/honchan_diet" target="_blank">@honchan_diet</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mai31578" target="_blank">@mai31578</a></td>
+      <td>麻衣ママ</td>
+      <td>3,143</td>
+      <td class="bio">元外資系ブランド販売員⭐️居酒屋、スナック、クリーニング経営、現在建築関係 / 他アプリで雑談歌枠ライバー3年 / TikTokShopで商</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kanna_nail_art" target="_blank">@kanna_nail_art</a></td>
+      <td>かんな┊︎2児ママネイリスト💅</td>
+      <td>3,074</td>
+      <td class="bio">現役ネイリストによるネイルhowto配信や日常の発信🌼.*</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/kanna_nail_art" target="_blank">@kanna_nail_art</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mimin_diet80" target="_blank">@mimin_diet80</a></td>
+      <td>みみん</td>
+      <td>3,069</td>
+      <td class="bio">物欲・食欲おばけ👻 / 0歳4歳7歳のママ👶🏻👦🏻👦🏻 / 猫がだーーーーい好きฅ^•ω•^ฅ🤍 / 妹といろんなもの紹介します🛒</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/mimin_diet80" target="_blank">@mimin_diet80</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ninkatsuchan" target="_blank">@ninkatsuchan</a></td>
+      <td>ninkatsuchan</td>
+      <td>3,033</td>
+      <td class="bio">2026/2/20 男の子出産👦🏻 / 妊活〜妊娠〜出産〜育児までを記録してます🌼</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@maruchan_zuboralife" target="_blank">@maruchan_zuboralife</a></td>
+      <td>まるちゃん</td>
+      <td>2,959</td>
+      <td class="bio">子育てママに嬉しい🍴✨ / 美味しいもの＆便利グッズを紹介 / 毎日がちょっとラクになる情報を発信🤍</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/maruchan_zuboralife" target="_blank">@maruchan_zuboralife</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@_1111room" target="_blank">@_1111room</a></td>
+      <td>Kotomin【3姉妹ママ】</td>
+      <td>2,936</td>
+      <td class="bio">👧🏻4y × 👧🏻2y × 👶🏻0y</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kodomomiraichizu" target="_blank">@kodomomiraichizu</a></td>
+      <td>ゆず🧶🐈‍⬛ ͗魔女見習い</td>
+      <td>2,905</td>
+      <td class="bio">コマース配信始めました🤭 / 初心者🔰なので優しく見守ってね / 子ども食堂を開催する事が将来の夢です / 皆さんヨロシクお願いします</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/kodomomiraichizu" target="_blank">@kodomomiraichizu</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@family_vlog39" target="_blank">@family_vlog39</a></td>
+      <td>我が家の寄り道</td>
+      <td>2,883</td>
+      <td class="bio">10mbaby👶🏻 / Maltipoo🐶🐶 / Family Vlogꕤ</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@son_shinai_item" target="_blank">@son_shinai_item</a></td>
+      <td>知らなきゃ損な神アイテム</td>
+      <td>2,881</td>
+      <td class="bio">知らなきゃ損な神アイテムを発信✨ / 育児グッズ・便利グッズ・購入品紹介🧸 / 👇紹介商品は楽天ROOMからチェック👇</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yonamineke1219" target="_blank">@yonamineke1219</a></td>
+      <td>よなみね家 | 3人家族の日常</td>
+      <td>2,878</td>
+      <td class="bio">ママ('95)×パパ('95)×りとたん('25) / 騒がしい母と息子の日常 / YouTube更新中🌸 /   / 👇インスタで日常更新</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/yonamineke1219" target="_blank">@yonamineke1219</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@s_y_2love5" target="_blank">@s_y_2love5</a></td>
+      <td>Nico｜アラフォーママ×育児</td>
+      <td>2,857</td>
+      <td class="bio">17歳差きょうだいのママ🎀 / 1歳娘との毎日を記録📷 / 育児グッズ・購入品・おでかけ /  / 楽天room👇 Instagram▶︎ </td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/log" target="_blank">@log</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@first_time_mom_bibiko" target="_blank">@first_time_mom_bibiko</a></td>
+      <td>びびこ👶ママ1年生</td>
+      <td>2,839</td>
+      <td class="bio">息子(5m)👶がいるママ1年生！ / 41歳。初の子育て奮闘中… / 旅行・好きな食べ物・セルフネイル・息子との生活など…… / 日常の事を</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@karin.0730" target="_blank">@karin.0730</a></td>
+      <td>か り ん🌸🍐</td>
+      <td>2,777</td>
+      <td class="bio">115studio所属 / dance / 現役保育士📛男の子ママしてます👶🏻💙 / 妊婦･育児日記➞@のび / ハンドメイド垢➞@aosh</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@non.smileyy" target="_blank">@non.smileyy</a></td>
+      <td>まこととたいが</td>
+      <td>2,726</td>
+      <td class="bio">5歳まこと君と2歳たいが君のママ🤱 / 【あやのん日記】でYouTubeもやってます❤ / よかったらフォローチャンネル登録してね👶🫧</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@anna.log8" target="_blank">@anna.log8</a></td>
+      <td>anna.log8</td>
+      <td>2,667</td>
+      <td class="bio">現役ママが本気レビュー✨育児が楽になるアイテム激選！👶🏼 いおな（2025.12.17） / mama あんな (26)/ papa 晴くん</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@usagi_gumi_san" target="_blank">@usagi_gumi_san</a></td>
+      <td>ウサギぐみさん</td>
+      <td>2,566</td>
+      <td class="bio">子育て中のママ&パパを応援しています📣 ▶︎▶︎ 妊娠・出産・子育て・夫婦 雑学やあるあるを毎日発信中🤳</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/usagi_gumi_san" target="_blank">@usagi_gumi_san</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@m.o.e.c.h.a.n.710" target="_blank">@m.o.e.c.h.a.n.710</a></td>
+      <td>Moe💖👶🏻なとくんとギャルママの日常</td>
+      <td>2,566</td>
+      <td class="bio">✨👶🏻７ヶ月ニコニコ陽キャベイビー👶🏻✨ / 🩵 なとくんの日常vlog / 🩷 離乳食記録 / 🩶 おすすめ育児グッズ / ママのアカウン</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yupon_life" target="_blank">@yupon_life</a></td>
+      <td>ゆうぽん@物欲おばけの二児ママ</td>
+      <td>2,558</td>
+      <td class="bio">＼ 失敗しない!ママのリアルなお買い物日記 🫧／ / ▫️優秀キッチン用品｜便利グッズ｜プチプラ服 / ▫️ 使って本気で良かったモノだけ厳</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sayakudati" target="_blank">@sayakudati</a></td>
+      <td>さあママ</td>
+      <td>2,551</td>
+      <td class="bio">本当に使ってよかったものだけ / 紹介します❣️</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@piyochanmama_baby" target="_blank">@piyochanmama_baby</a></td>
+      <td>ぴよママ｜3兄弟ママ×TikTokShop🛒</td>
+      <td>2,542</td>
+      <td class="bio">5歳・4歳・0歳の3兄弟ママ👦🏻👦🏻👶🏻 / 育児便利グッズを正直レビュー✨ / 「これ早く買えばよかった！」を集めてます🫶 / 愛用品・購</td>
+      <td>육아 콘텐츠 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/piyochanmama_baby" target="_blank">@piyochanmama_baby</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yuyumama_handmade" target="_blank">@yuyumama_handmade</a></td>
+      <td>ゆゆまま</td>
+      <td>2,492</td>
+      <td class="bio">𖧷2歳👧ママが使って / 本当に良かったものを紹介◎</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/yuyumama_handmade" target="_blank">@yuyumama_handmade</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@miona__gohan" target="_blank">@miona__gohan</a></td>
+      <td>miona__gohan</td>
+      <td>2,427</td>
+      <td class="bio">＼ 炊飯器でキッチン滞在時間5分に✨ ／ / ▫️全部入れてスイッチ押すだけ◎ / ▫️究極の手抜きで心に余裕をˊ˗ / ▫️料理嫌いママ集</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@tamaco_life" target="_blank">@tamaco_life</a></td>
+      <td>タマ</td>
+      <td>2,424</td>
+      <td class="bio">タマ13歳女の子。寝るのが趣味。猫好きさんと繋がりたい！タマの日常と愛用グッズ紹介しています。 / よろしくお願いします🐈‍⬛</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/tamaco_life" target="_blank">@tamaco_life</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@perosuke_story" target="_blank">@perosuke_story</a></td>
+      <td>perosuke_story</td>
+      <td>2,397</td>
+      <td class="bio">ぺろすけ 1歳、たまにねぇね(JK) / ベロがチャームポイントの男の子 / コメント楽しく読んでいます✨返せないときもありすみません…よろ</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yumo_mama10" target="_blank">@yumo_mama10</a></td>
+      <td>yumo_mama10</td>
+      <td>2,372</td>
+      <td class="bio">Instagram→@yumo_mama10 / 出産〜0歳育児までの不安を解消🫧 / 購入品正直レビュー🐰 / 育児をラクにする裏技公開💓</td>
+      <td>육아 콘텐츠 · 유아용품 판매</td>
+      <td><a href="https://www.instagram.com/yumo_mama10" target="_blank">@yumo_mama10</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@taketsuna.pediatr" target="_blank">@taketsuna.pediatr</a></td>
+      <td>小児科医たけつな先生⭐️夢商店⭐️</td>
+      <td>2,277</td>
+      <td class="bio">年間30,000人の子供を診る小児科医🩺たけつな先生のtiktok shop「夢商店」オープン❗️不定期で医療相談もやってるよ❗️</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@tamabuuuuuuuu" target="_blank">@tamabuuuuuuuu</a></td>
+      <td>たまぶー🐷</td>
+      <td>2,256</td>
+      <td class="bio">時短美容・産後ケア・ / リアル育児情報をお届け！ / ０歳ママ𓂃🌷</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@meta1_og" target="_blank">@meta1_og</a></td>
+      <td>明太釜玉🐣⭐️</td>
+      <td>2,248</td>
+      <td class="bio">通勤3h×フルタイムワーママ / ズボラ効率厨のQOL向上記録 / 1歳娘との日常・購入品・オタ活📽</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@inunokimochishuu" target="_blank">@inunokimochishuu</a></td>
+      <td>inunokimochishuu</td>
+      <td>2,220</td>
+      <td class="bio">実家でちゎまる🐶と暮らしています / +家族が増えました👶❤️ / 少しでもわんちゃん / +👶の気持ちが頑張ってるママに皆に伝わったらと思</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kt27.s2" target="_blank">@kt27.s2</a></td>
+      <td>ねむい⸝⋆ᴗ ̫ ᴗ 𓈒𓂂𓏸</td>
+      <td>2,151</td>
+      <td class="bio">平成1桁夫婦𖠿𖤣𖥧𖥣14y,4y໒꒱· ﾟ2児ママ / みてくれてありがとう(❁ᴗ͈ˬᴗ͈)*.ﾟ / 12:15日常vlog.˖/19:0</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@oyuyu2024" target="_blank">@oyuyu2024</a></td>
+      <td>おゆゆの母ちゃん🩵🍉</td>
+      <td>2,126</td>
+      <td class="bio">おゆゆを育てる母ちゃん</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/nonopaoyuyu" target="_blank">@nonopaoyuyu</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@asuka_aoi0906" target="_blank">@asuka_aoi0906</a></td>
+      <td>明香</td>
+      <td>2,116</td>
+      <td class="bio">45歳の3人の子供のママです。長男と次男は成人してます(*^^*)長女はまだ5歳でまた一から育児に奮闘してます。娘メインで投稿してます。＼(</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@dotabata01" target="_blank">@dotabata01</a></td>
+      <td>ドタバタファミリー</td>
+      <td>2,062</td>
+      <td class="bio">毎日ドタバタしながらも、娘2人に恵まれて幸せです☺️ / 娘2人の成長や、何気ない毎日を記録したファミリー動画です👧🏻👶🏻 / 育児の毎日が</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@chise_record" target="_blank">@chise_record</a></td>
+      <td>ちせの成長記録</td>
+      <td>2,046</td>
+      <td class="bio">R7.6/25生まれ / 娘が可愛すぎる‼️</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@uka2555" target="_blank">@uka2555</a></td>
+      <td>𝚞𝚔𝚊 ⋰ 新米ママ👶🏻ྀི🎀</td>
+      <td>2,039</td>
+      <td class="bio">⋱  ０歳児 ＆ 猫 との日常vlog🪽⟡⁺.   ⋰ / 2026.02.07⌇baby girl 👶🏻ྀི🎀 #0y8m / 𓃠🤍 ar</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@apiphu1022" target="_blank">@apiphu1022</a></td>
+      <td>てんくん👶🏻あっちゃんDiary</td>
+      <td>2,022</td>
+      <td class="bio">国際夫婦🇯🇵🇻🇳 | 28歳ママパパ / Baby boy👶🏻🩵2024.5.8生まれ♡てんくん / ３人家族の日常🌻 / フォローお願いし</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@momonosuke__" target="_blank">@momonosuke__</a></td>
+      <td>愛川もも🍑</td>
+      <td>2,013</td>
+      <td class="bio">2026年~TikTok再開🤍 / 育児・ベビー・便利グッズ購入品紹介🦤🦖🐘❤️‍🩹</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mikity_foodmemories" target="_blank">@mikity_foodmemories</a></td>
+      <td>みきてぃ⌇大阪2児ママ👦👶</td>
+      <td>2,009</td>
+      <td class="bio">＼八尾発・関西子連れお出かけ／ / 2歳👦と0歳👶の2児ママです👩‍🦰 / 京都宇治から大阪八尾にお引越し🏠 / 主に関西グルメや子連れお出</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/mikity_foodmemories" target="_blank">@mikity_foodmemories</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@noon59098" target="_blank">@noon59098</a></td>
+      <td>りこ｜お得にご機嫌な暮らし</td>
+      <td>1,991</td>
+      <td class="bio">▷北海道在住、30代 / ▷7歳0歳男の子ママ / ▷子育て中にオススメのもの紹介</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yumamapapapa" target="_blank">@yumamapapapa</a></td>
+      <td>ゆうままぱぱぱ</td>
+      <td>1,990</td>
+      <td class="bio">気軽にフォローしてね😃✌️ / 1歳半:口癖は「だっこ」 / 8ヶ月:口癖は「あうあう」 / 記録用に始めました😂 / 2025/5/30 </td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@_2ji_shinmamanichijo_" target="_blank">@_2ji_shinmamanichijo_</a></td>
+      <td>えるもちるる</td>
+      <td>1,970</td>
+      <td class="bio">シンママ2児の母👩 / 🐱🐶🐶🦎とわちゃわちゃ生活♥ /  / いいと思ったもののみ紹介します🫡♡</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@gourmet.miy" target="_blank">@gourmet.miy</a></td>
+      <td>『おすすめ購入品』｜暮らしセレクト</td>
+      <td>1,963</td>
+      <td class="bio">\商品のお得情報やキャンペーン🧳🤎/ /  / 0歳🤱ママのリアルお買い物！ / 良品・早い・安い の外さないリスト✨✨</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@tikitikikotokoto" target="_blank">@tikitikikotokoto</a></td>
+      <td>こばた｜年上妻にモテたい年下夫🦖</td>
+      <td>1,907</td>
+      <td class="bio">0歳息子と楽しむパパ育児👶🏻 / 育児の気持ちを楽に、子育てを楽しく🌱 / 育児のリアル｜ためになる話｜子連れおでかけ✈️ / 家族でたくさ</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@liru_71" target="_blank">@liru_71</a></td>
+      <td>りる</td>
+      <td>1,874</td>
+      <td class="bio">3歳女の子のママ👧♥️ / やっと授かった娘の成長記録にできたらいいな👶🍼💞 / コメント返信遅くなりがちですみません🙇‍♀️</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@_misojichan_" target="_blank">@_misojichan_</a></td>
+      <td>三十路ちゃん。│プレママライフ</td>
+      <td>1,833</td>
+      <td class="bio">12月出産予定の初マタアラサー👶🏻❤︎ / - ̗̀ 日常と購入品  ̖́-</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@eririn__dayo" target="_blank">@eririn__dayo</a></td>
+      <td>こまめちゃん</td>
+      <td>1,813</td>
+      <td class="bio">2人目出産しました❣️ / 最近はクレーンゲームにどハマり中です🙌✨️</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yun..life" target="_blank">@yun..life</a></td>
+      <td>Yun🍊</td>
+      <td>1,804</td>
+      <td class="bio">1児のママ👦🏻🩵 / TikTokshopで買ったもの / レアルレビュー✍️</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yan.mama_kurashi" target="_blank">@yan.mama_kurashi</a></td>
+      <td>やん ｜ズボラママのラクする暮らし術</td>
+      <td>1,800</td>
+      <td class="bio">╲家事をラクして心にゆとりを...🫶🏻╱ / ＊楽しくできる時短アイデア⏱ / ＊手抜きに見えないキッチンハック👩🏻‍🍳 / ＊ママのイライ</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/shi" target="_blank">@shi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@twinsmama_0525" target="_blank">@twinsmama_0525</a></td>
+      <td>レイミー(男女双子ママ)</td>
+      <td>1,794</td>
+      <td class="bio">顔も性格も似てない3歳男女双子👧🏻👦🏻 / ジェンダーリビールケーキうまく切れない夫👨🏻 / 4人家族</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@toromom18" target="_blank">@toromom18</a></td>
+      <td>もうすぐ無職の2児ママ</td>
+      <td>1,777</td>
+      <td class="bio">もうすぐ無職になる2児ママ🌸 / 料理できなかった私でも作れる！！ / 節約×簡単×ズボラレシピ🍳 / 作ってほしいレシピがあればコメントし</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@cat_and_baby_life" target="_blank">@cat_and_baby_life</a></td>
+      <td>べびちゃんず🐾</td>
+      <td>1,773</td>
+      <td class="bio">🐱2021.冬産まれ / 👶2025.夏産まれ / Sharing cozy baby & cat moments /  / Talk to</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@papa_raku" target="_blank">@papa_raku</a></td>
+      <td>ぱぱらく👶｜知らなかった育児</td>
+      <td>1,766</td>
+      <td class="bio">0歳児育児👶2026.3 / 妻と一緒に育児のあれこれを毎日発信🍼</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@shoronpoooooo123" target="_blank">@shoronpoooooo123</a></td>
+      <td>小籠包ちゃん</td>
+      <td>1,746</td>
+      <td class="bio">日常の切り抜き✂️🩷 / 思い出記録🌱 / 育休中ママ👩🏻✖️年子姉妹👶🏻👶🏻 / familyの日常🏠 / 娘達の成長記録✨</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hogege_cosme" target="_blank">@hogege_cosme</a></td>
+      <td>ほげげ</td>
+      <td>1,745</td>
+      <td class="bio">スキンケア/コスメ/食べ物/子育てetc. / 3児の母。 / フォロバはそこそこ。FFさんいいね保存返しします。反応はちょっと遅いです🙏</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/hogege_cosme" target="_blank">@hogege_cosme</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sue_chiikutoy" target="_blank">@sue_chiikutoy</a></td>
+      <td>すえ | 2歳児ママ</td>
+      <td>1,722</td>
+      <td class="bio">お得に買い物したい / 2歳児のママが紹介🤍🫧</td>
+      <td>육아 콘텐츠 · 유아용품 판매</td>
+      <td><a href="https://www.instagram.com/sue_chiikutoy" target="_blank">@sue_chiikutoy</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mona_mama_" target="_blank">@mona_mama_</a></td>
+      <td>もなママ</td>
+      <td>1,714</td>
+      <td class="bio">男の子ママ🧸 / 🌱良かった購入品正直レビュー🌱 / フォローでお得情報ゲット🉐🕊️</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mamalog.fam" target="_blank">@mamalog.fam</a></td>
+      <td>年子兄弟 りっくんママ𓎩𓌉𓇋</td>
+      <td>1,665</td>
+      <td class="bio">22/6/19 第1子 ♂︎ / 23/6/27 第2子 ♂︎ / 26/9末 第3子 ♀︎ 出産予定です(˶' ᵕ ' ˶) / 料理やイ</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/mamalog.fam" target="_blank">@mamalog.fam</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@dememama" target="_blank">@dememama</a></td>
+      <td>でめきん🐟️年子3兄弟ママのお助け紹介</td>
+      <td>1,655</td>
+      <td class="bio">【心臓のとなりにがん腫瘍14㌢】→経過観察中 / 7・5・4歳👦👦👦｜発達障害の兄2人   / 闘病中・育児中で本当に助かった神アイテム /</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/dememama" target="_blank">@dememama</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@bubble_baby_awa" target="_blank">@bubble_baby_awa</a></td>
+      <td>バブルスfamily🫧</td>
+      <td>1,645</td>
+      <td class="bio">👶🏻25,6,8(1y) / 👩🏻00(26) / 👨🏻00(26) / Liveコマース歴5年の幼なじみ夫婦です✨ / \\Tiktok </td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@aochanpapa26" target="_blank">@aochanpapa26</a></td>
+      <td>あおパパ｜3歳時に困らない今から知っておく科学的</td>
+      <td>1,642</td>
+      <td class="bio">26.01生まれの男の子👨半年育休中☕️初めての育児を楽しく✨9割の親が知らないNG育児知識発信中📨初めての旅行日記や、買ってよかったアイテ</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/aochanpapa26" target="_blank">@aochanpapa26</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sfamily__" target="_blank">@sfamily__</a></td>
+      <td>愉快な子供たち🐅</td>
+      <td>1,619</td>
+      <td class="bio">👧🏻5👦🏻3👶🏻0 / 無断転載しないでください！</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@norikuuuuuma" target="_blank">@norikuuuuuma</a></td>
+      <td>NORIKA🍒ྀིママ美容👶🏻💛ᩚ</td>
+      <td>1,614</td>
+      <td class="bio">めんどくさがり薬剤師ママ👶🏻ྀི🩷ྀི / 娘と私の成長記録🍒ྀི / ズボラでも続けられる美容や / オススメ商品を紹介しています☺️✨ </td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@y69521491i9" target="_blank">@y69521491i9</a></td>
+      <td>0歳育児奮闘ママ👶🏻</td>
+      <td>1,610</td>
+      <td class="bio">◻︎ワンオペ育児 / ◻︎美容 / ◻︎時短料理 / 育休中ママはチェック👇🔗</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@erinanakata" target="_blank">@erinanakata</a></td>
+      <td>erinanakata</td>
+      <td>1,595</td>
+      <td class="bio">7歳男の子2歳女の子ママ☺️🎀アパレルブランド le reve vanillerのプロデュースをしています🇯🇵</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@da.yu.ru_07.22" target="_blank">@da.yu.ru_07.22</a></td>
+      <td>ﾕ ｷ ﾐ ◡̈</td>
+      <td>1,571</td>
+      <td class="bio">【ゴールデンレトリバー】ﾙｰちゃん / 2023.05.18生まれの女の子🐶" / 🧑🏻👩🏻🐶👶🏻家族の日常をアップ📝</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@rinco_hamham" target="_blank">@rinco_hamham</a></td>
+      <td>はむはむ🍎</td>
+      <td>1,531</td>
+      <td class="bio">⭐︎my  lovely diary⭐︎🎀🎧 / ꒰ 7m boy ꒱ / オタクなママとちびはむとの日常🍼👶🏻🩵</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nano_7055" target="_blank">@nano_7055</a></td>
+      <td>なのママ🐰🍑</td>
+      <td>1,516</td>
+      <td class="bio">0歳ママ👶🏻良い商品を厳選して紹介！</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ikepapa_1224" target="_blank">@ikepapa_1224</a></td>
+      <td>いけパパ👨🏻新米育児日記</td>
+      <td>1,515</td>
+      <td class="bio">パパと娘、日々の成長記録アカウント✍🏻 / 子育てに役立つ情報も発信します！</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yamayama050823" target="_blank">@yamayama050823</a></td>
+      <td>やまやま夫婦</td>
+      <td>1,510</td>
+      <td class="bio">❥不妊治療からの妊娠/出産/年子ママ / ❥1人目【体外授精】❥2人目【自然妊娠】 / 自宅保育中👦👶 / ----------------</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/yamayama050823" target="_blank">@yamayama050823</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sherry.fruit" target="_blank">@sherry.fruit</a></td>
+      <td>しぇりーファミリー 🐶👶🏻</td>
+      <td>1,503</td>
+      <td class="bio">わんちゃんとベビーと快適に暮らす🐶🌿  / 0歳児ママのリアルな愛用品｜育児・時短 ・美容</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mi_rin24" target="_blank">@mi_rin24</a></td>
+      <td>㍉n</td>
+      <td>1,485</td>
+      <td class="bio">年子兄弟ママの#おおらかな暮らし</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@tecopeco_official" target="_blank">@tecopeco_official</a></td>
+      <td>tecopeco(テコペコ)｜ベビーキッズ</td>
+      <td>1,482</td>
+      <td class="bio"></td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@onajimi_no_huhu" target="_blank">@onajimi_no_huhu</a></td>
+      <td>おなじみのみみ(みーちゃん)</td>
+      <td>1,465</td>
+      <td class="bio">7ヶ月ベビー(つむ社長)のママです！ / ベビー系商品紹介メインのアカ🍼 / コラボ依頼はDMへ。(TiktokShopのみ) / @つむ社</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/onajimi_no_huhu" target="_blank">@onajimi_no_huhu</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yuka2739" target="_blank">@yuka2739</a></td>
+      <td>Yꯁꯧ3児のmama</td>
+      <td>1,420</td>
+      <td class="bio">3児のママのリアルな日常Vlog🖤 / 大好きなサンリオの購入品🎀.⋆ / おすすめの便利グッズを発信中ᝰ✍️ / 仲良くしてね🫶🏻💖</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nam_money_life" target="_blank">@nam_money_life</a></td>
+      <td>なむ⌇脱赤字したい３児ママ</td>
+      <td>1,405</td>
+      <td class="bio">\ こどもの「やりたい」を叶えられるママ / 🪄100日後に脱赤字するため週2万で生活 / 29歳ママ┊︎長女(5)次女(4)長男(1) /</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/ife" target="_blank">@ife</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@may_kosodate" target="_blank">@may_kosodate</a></td>
+      <td>めい</td>
+      <td>1,315</td>
+      <td class="bio">お得なお買い物大好きな主婦🥰❤️‍🔥 / ２歳👶🏻７歳👦🏻のママです🫶🏻</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/may_kosodate" target="_blank">@may_kosodate</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yua_baby_yua" target="_blank">@yua_baby_yua</a></td>
+      <td>6m🎀👶🏻Yua日韓タイハーフベビー</td>
+      <td>1,309</td>
+      <td class="bio">👶🏻2026.4.7生まれ🎀新米ママ/Tokyo / ライブでママ友と気軽にお喋り初見さん大歓迎♡ / 気軽にフォロー/コメント嬉しいです🫧</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ryufutagopapa" target="_blank">@ryufutagopapa</a></td>
+      <td>双子パパと双子の日常🙋🏾‍♂️👶👶</td>
+      <td>1,306</td>
+      <td class="bio">双子の成長日記👶✨👶✨</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@2_mama_nikki" target="_blank">@2_mama_nikki</a></td>
+      <td>2児ママ🌷ダイエット中</td>
+      <td>1,304</td>
+      <td class="bio">おしゃべりな2歳の娘と / 生後3ヶ月の息子👶🏻🤍 /  / 子育て/ダイエット/美容</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nanamom__lifehack" target="_blank">@nanamom__lifehack</a></td>
+      <td>なな│ズボラの便利とお得探し</td>
+      <td>1,302</td>
+      <td class="bio">✴︎お迎えして良かったアイテム紹介 / ✴︎ママ目線でレビュー / ✴︎暮らしに役立つアイテムやアイデア</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/nanamom__lifehack" target="_blank">@nanamom__lifehack</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@rima___home" target="_blank">@rima___home</a></td>
+      <td>りま☺︎︎</td>
+      <td>1,300</td>
+      <td class="bio">9歳👧🏻7歳🧒🏻4歳児👦🏻のママです / インスタrima___homeもやってます</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/ome" target="_blank">@ome</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@soni_tan3104" target="_blank">@soni_tan3104</a></td>
+      <td>そにたん☁️のママ｜育児×暮らし</td>
+      <td>1,295</td>
+      <td class="bio">色白もちもちベビ👶🏻☁️と / 20代後半新米ママ🤱🌱 / 愛用品紹介🧸</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kome_komem" target="_blank">@kome_komem</a></td>
+      <td>こめ🍙🌶️🔥</td>
+      <td>1,291</td>
+      <td class="bio">2026年💋TikTokちょっとずつ頑張ります。 / 👨‍🦰👩🏻‍🦰🧑👧👧 / @らんちゃん フォロー＆いいねしてね🩷 / 娘です♡</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hanashihalf" target="_blank">@hanashihalf</a></td>
+      <td>ryu</td>
+      <td>1,287</td>
+      <td class="bio">育児と雑学</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hiro_max_24" target="_blank">@hiro_max_24</a></td>
+      <td>ヒロ | 売れ筋紹介MAX</td>
+      <td>1,284</td>
+      <td class="bio">最近は、TikTok Shopで試した商品レビューしてます✅ / 子どもや家族で楽しめるものも紹介してます。 / フォローしておくとお得情報</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@runnn723" target="_blank">@runnn723</a></td>
+      <td>ル</td>
+      <td>1,249</td>
+      <td class="bio">2025.9月生まれ女の子ママ💖🪽</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@waka_rakuraku" target="_blank">@waka_rakuraku</a></td>
+      <td>わか</td>
+      <td>1,241</td>
+      <td class="bio">もう頑張らない！ママのQOL爆上げ技まとめ🎁 /  / 使ってよかった高コスパ商品だけ厳選💕</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@miiboo1205" target="_blank">@miiboo1205</a></td>
+      <td>ズボラ主婦</td>
+      <td>1,233</td>
+      <td class="bio">0歳1歳年子ママ👦🏻👶🩵 / 美容好き💖エステティシャン💆‍♀️ / 🔥TikTok shopのよかったものガチレビュー🔥</td>
+      <td>유아용품 판매 · 공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@greente__a" target="_blank">@greente__a</a></td>
+      <td>KOU</td>
+      <td>1,224</td>
+      <td class="bio">日常vlog ⌇ 男の子まま👦🏻˖ ࣪⊹</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/scon__e7" target="_blank">@scon__e7</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@daichanman0806" target="_blank">@daichanman0806</a></td>
+      <td>だいしんみちか𓂃𓃱𓈒𓏸</td>
+      <td>1,211</td>
+      <td class="bio">だいしんとみちかです𓅯 ⸒⸒ / いつも見て頂いて嬉しいです♡ / やんちゃな男の子兄弟の / 成長日記𓈒 𓂂𓏸𓋪 / Instagramは</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@okomemugikumasan" target="_blank">@okomemugikumasan</a></td>
+      <td>おこめママ</td>
+      <td>1,198</td>
+      <td class="bio">のんびりズボラな一児のママ🌱 / くまさん🧸ぷーさん好き🥰 / 使ってよかったおすすめ紹介します🙌</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kochi2424" target="_blank">@kochi2424</a></td>
+      <td>Pika</td>
+      <td>1,185</td>
+      <td class="bio">3しゃいの娘がいます🦄💖🫧 / ＊TikTok Shop購入品 / ＊ガチャガチャ、シール、スクイーズ / ＊娘との日常 / 更新します◎仲</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yuki___tigers" target="_blank">@yuki___tigers</a></td>
+      <td>おゆき🐯💚</td>
+      <td>1,182</td>
+      <td class="bio">\1歳👶🏻とママの日常✨/ / ライバー初心者🔰8/26〜 / 子供寝た後に、ゲリラ配信してるよ🍬 / 一回見に来て？？笑🐯</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ol25sai" target="_blank">@ol25sai</a></td>
+      <td>こじなみ</td>
+      <td>1,157</td>
+      <td class="bio">産後ダイエット中(万年) / 1歳女の子のママです！ / 育児に役立つもの紹介していくよー👶🏻ྀི🍼🍼</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nyan062co" target="_blank">@nyan062co</a></td>
+      <td>mapo♡</td>
+      <td>1,151</td>
+      <td class="bio">29歳｜男の子ママ 👶🏻 / 𝟤𝟢𝟤𝟨.𝟢𝟧 𓂃 𝐁𝐚𝐛𝐲 / 👶🏻との日常｜ごはん｜ホカンス 🩰🫧 / Instagram ↓</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/_____and.ivy" target="_blank">@_____and.ivy</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@pogumili_bichon" target="_blank">@pogumili_bichon</a></td>
+      <td>pogumili_bichon</td>
+      <td>1,140</td>
+      <td class="bio">ポグ(ビションフリーゼ7歳♂) / ミリム(ビションフリーゼ2歳♀)</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/pogumili_bichon" target="_blank">@pogumili_bichon</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@arsansyn" target="_blank">@arsansyn</a></td>
+      <td>あり🐣2児ママ｜2歳差育児</td>
+      <td>1,131</td>
+      <td class="bio">🤰9月第二子出産予定 / 👧2歳ママ / 🏡出産準備｜家計｜暮らし</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@cakechan_kakei" target="_blank">@cakechan_kakei</a></td>
+      <td>ケーキちゃんの毎日出費🧁</td>
+      <td>1,130</td>
+      <td class="bio">子育てママのリアルな毎日出費✍🏻 / 94年｜3歳＆1歳ママ👧🏻👶🏻 / 👧🏻幼稚園｜👶🏻自宅保育 / 手取り37万｜4人家族🏠</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/cakechan_kakei" target="_blank">@cakechan_kakei</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mpp_mgmg" target="_blank">@mpp_mgmg</a></td>
+      <td>まぴぴ</td>
+      <td>1,124</td>
+      <td class="bio">旅行とサウナ大好き /  / 🧸▶︎子育てママにオススメグッズ /  / 💎▶︎買ってよかったオススメグッズ紹介</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@user67881248119396" target="_blank">@user67881248119396</a></td>
+      <td>さゆ工房</td>
+      <td>1,108</td>
+      <td class="bio">さゆちゃんファームの姉妹です👭 / 手作りのお菓子、パン、料理、 / 手芸、服作りを投稿していきます。</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@onakasuitekitanaa" target="_blank">@onakasuitekitanaa</a></td>
+      <td>MIKU</td>
+      <td>1,107</td>
+      <td class="bio">2児のズボラママ🦖 / 育児も美容も頑張るぞ٩( 'ω' )و</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@babunoikuji" target="_blank">@babunoikuji</a></td>
+      <td>きいろちゃん｜育児の推しアイテム紹介</td>
+      <td>1,104</td>
+      <td class="bio">1歳女子＆4歳男子のママ👶TikTok初めてみた！初心者なので優しくして🥹ワンオペでも旅行に行く🚗かわいいもの・便利なもの、育児アイテムを紹</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@osakana_mama" target="_blank">@osakana_mama</a></td>
+      <td>おさかなママ</td>
+      <td>1,088</td>
+      <td class="bio">0歳児、4歳児の子育てママです☺️</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/osakana_mama" target="_blank">@osakana_mama</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@papayuuki1602" target="_blank">@papayuuki1602</a></td>
+      <td>Yuki baby</td>
+      <td>1,087</td>
+      <td class="bio">✨ 毎日がハッピーになる、お着替えタイム 🧸 / 🌿 1歳から６歳のママが選ぶ、本当に可愛いベビーウェア / ☁️ まるでマシュマロのような</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mimimi41m" target="_blank">@mimimi41m</a></td>
+      <td>yuka❤︎</td>
+      <td>1,075</td>
+      <td class="bio">女の子ママ🎀 / オススメ商品紹介</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@pomiotoku" target="_blank">@pomiotoku</a></td>
+      <td>ぽみ❁0歳ベビーとの暮らし</td>
+      <td>1,072</td>
+      <td class="bio">育児/美容/グルメの発信してます☺️ / 旅行/お出かけも好き / 👶0歳boy  / Instagramもフォローお願いします♡</td>
+      <td>육아 콘텐츠 · 유아용품 판매 · 공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/pomiotoku" target="_blank">@pomiotoku</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@aochansensei" target="_blank">@aochansensei</a></td>
+      <td>Rena🍋3kidsまま</td>
+      <td>1,065</td>
+      <td class="bio">６歳👧３歳👦９ヶ月👶 / 日常、グルメ、旅行 / 北海道の田舎住み３児まま</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mayu_mama.life" target="_blank">@mayu_mama.life</a></td>
+      <td>まゆ|自分を後回しにしない子育て</td>
+      <td>1,065</td>
+      <td class="bio">\「ママだから…」って我慢しない‼︎/ / 🕊️ | 心が疲れない*ママ優先*の育児 / 🪴 | ワンオペを楽しみ尽くす / 🧺 | 育児本</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sennoosusume" target="_blank">@sennoosusume</a></td>
+      <td>ミンちゃんのママ</td>
+      <td>1,064</td>
+      <td class="bio">日本のお得な商品をレビュー✨ / 食品・日用品・便利グッズを紹介♪ / フォローお願いします。</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@shumama35" target="_blank">@shumama35</a></td>
+      <td>Shumama</td>
+      <td>1,062</td>
+      <td class="bio">＼子育て迷子から卒業🎓／ / 💎イライラは才能開花のサイン✨ / 🧠 脳の仕組み×現役プリスクール保育士の知恵🤱🏻フォローで👇 / 子どもの</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/happy.family_salon" target="_blank">@happy.family_salon</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@zubora_sufreme" target="_blank">@zubora_sufreme</a></td>
+      <td>ポンコツ主婦の推し買い</td>
+      <td>1,059</td>
+      <td class="bio">元美容部員💄 2歳児男児ママ👦🏻 / 美容×子育ての買ってよかったもの🛒 / 本当におすすめしたいものだけ紹介</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nakonaco19" target="_blank">@nakonaco19</a></td>
+      <td>なこたんママ👶🏻🍼</td>
+      <td>1,048</td>
+      <td class="bio">🍼baby girl🎀｜ 初ママ育児vlog /  / 👶🏻育児グッズ・離乳食・成長記録発信中 /  / お仕事の相談や依頼はDMまで✉️</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@2ji_mama_select" target="_blank">@2ji_mama_select</a></td>
+      <td>いちか｜使ってよかったもの</td>
+      <td>1,035</td>
+      <td class="bio">2児(4歳👦1歳👦)の育休中ママ /  / 実際に使ってよかったものだけ紹介します♡ /  / 育児用品｜暮らし｜時短アイテム</td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/2ji_mama_select" target="_blank">@2ji_mama_select</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mipemom" target="_blank">@mipemom</a></td>
+      <td>みぺ⌇3児のママ</td>
+      <td>1,027</td>
+      <td class="bio">子育てママのためのお得情報や / 3児のママが推すKIDS & BABYグッズ などを / 紹介していきます 🧺⸝⸝꙳</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@3ksbambi" target="_blank">@3ksbambi</a></td>
+      <td>3ksbambi</td>
+      <td>1,020</td>
+      <td class="bio">３児ママのbambichaです♪ / よろしくお願いします🌼</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@aoimama_kurashi" target="_blank">@aoimama_kurashi</a></td>
+      <td>あおい | 2児ママの便利帖</td>
+      <td>1,017</td>
+      <td class="bio">2児ママの「ラクしたい」が詰まった暮らし / 🧺 家事ラクグッズ / 🧸 子ども用品 / 🛒 買ってよかったもの</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@mememama.sp" target="_blank">@mememama.sp</a></td>
+      <td>mememama</td>
+      <td>1,016</td>
+      <td class="bio">実際に使ってみた商品を紹介しています☺️🫶</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@user6504630903655" target="_blank">@user6504630903655</a></td>
+      <td>🍑ももこ🍑</td>
+      <td>1,010</td>
+      <td class="bio">30代主婦🍑ズボラな母ちゃん🍑 / 日常Vlog｜買ってよかったモノ紹介</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@yukichikun411" target="_blank">@yukichikun411</a></td>
+      <td>ゆきちとすーたん</td>
+      <td>990</td>
+      <td class="bio">シーズー　ゆきちくん2歳 / 　　　　　すーたん7ヶ月 / Instagram→yukichi_0411</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@suzu_ikuji" target="_blank">@suzu_ikuji</a></td>
+      <td>suzu|わんぱく2歳児との育児バトル</td>
+      <td>980</td>
+      <td class="bio">\頑張りすぎない！自分らしい育児/ / 口ときめく育児アイテムでママに余白を🤎 / ロリサーチ時間を子どもとの時間に変換で✨ / 口地元離れ</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/suzu_ikuji" target="_blank">@suzu_ikuji</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@jasmine7_stella8" target="_blank">@jasmine7_stella8</a></td>
+      <td>Jasmine_Stella</td>
+      <td>972</td>
+      <td class="bio">女の子ベビーとの気まま生活♡</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@nizi_hh830" target="_blank">@nizi_hh830</a></td>
+      <td>にじははの育児メモ🌈</td>
+      <td>879</td>
+      <td class="bio"></td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@romanjyu_shop" target="_blank">@romanjyu_shop</a></td>
+      <td>RomanjyuShop</td>
+      <td>844</td>
+      <td class="bio">RomanjyuShop｜暮らしをもっと快適に🛍️ / 日用品・ベビー＆キッズ用品・レディースアイテムなど、毎日の生活に役立つアイテムをお届</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@remoremon37" target="_blank">@remoremon37</a></td>
+      <td>正直レビューちゃん🍋</td>
+      <td>806</td>
+      <td class="bio">便利グッズ/ベビーグッズ/かわいいもの /  / とにかく正直レビュー</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@kosuge_kurashi" target="_blank">@kosuge_kurashi</a></td>
+      <td>こすげ｜家族時間が増える暮らし術</td>
+      <td>760</td>
+      <td class="bio">＼ 掃除苦手な妻と2歳の子ども快適な生活へ ／ / ■共働きで掃除ができない夫婦 / ■子供が遊んだおもちゃはそのまま放置 / 3DK | </td>
+      <td>공식 마켓 등재</td>
+      <td><a href="https://www.instagram.com/kosuge_kurashi" target="_blank">@kosuge_kurashi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ebiebiten1" target="_blank">@ebiebiten1</a></td>
+      <td>えびてん🎀</td>
+      <td>754</td>
+      <td class="bio">0歳ベビとの毎日👶🏻🎀 / 買ってよかったベビ&ママ item 🧺</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@miru_mama_ikuji" target="_blank">@miru_mama_ikuji</a></td>
+      <td>みる⌇ママのための育児×暮らしの名品𓂃 𓈒𓏸</td>
+      <td>683</td>
+      <td class="bio">˗ˏˋ 子育てが心地よくなるヒント ˎˊ˗ / 🧺￤ 1人目から知りたかった育児グッズ / 🌿￤ときめく便利な お家item / ☕️￤現役</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/miru_mama_ikuji" target="_blank">@miru_mama_ikuji</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@shufucomi" target="_blank">@shufucomi</a></td>
+      <td>しゅふコミ　福島県子育てコミュニティ</td>
+      <td>612</td>
+      <td class="bio">福島県で8年活動する子育てコミュニティ。 / 子育て経験者、保育士、保育士が本気で使える子育て用品をご紹介します。</td>
+      <td>유아용품 판매</td>
+      <td><a href="https://www.instagram.com/shufucomi" target="_blank">@shufucomi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@hinatanbo4" target="_blank">@hinatanbo4</a></td>
+      <td>ひなた</td>
+      <td>595</td>
+      <td class="bio">＼ぶっちゃけレビュー💖フォローしてね♪／ / お得大好き2児のママ🌟 / パート保育士☺️ / 最安値でゲットしたい人は要チェック◎</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@poni202511" target="_blank">@poni202511</a></td>
+      <td>ぽに</td>
+      <td>595</td>
+      <td class="bio">👶🏻2025.11🎀(生後10ヶ月/女の子ママ) / 🔰配信休み中🙇‍♀️またやります</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@user7277638533400" target="_blank">@user7277638533400</a></td>
+      <td>ゆーくんとヒー坊</td>
+      <td>519</td>
+      <td class="bio">男の子二人のママ / 少しずつやってみます👶 / 不慣れなので温かい目で見ていただけたら嬉しいです！気軽にフォローしてください♪</td>
+      <td>공식 마켓 등재</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@uniglow6" target="_blank">@uniglow6</a></td>
+      <td>UniGlow</td>
+      <td>318</td>
+      <td class="bio">😘あいちゃんです / 娘の米ちゃんとの育児日常を記録しています / 🫶実際に愛用して良かったベビー用品を厳選してシェア / 🥰安心してお買い</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@ruka_no_kurashi" target="_blank">@ruka_no_kurashi</a></td>
+      <td>るか | 子どもがいても整う暮らし</td>
+      <td>312</td>
+      <td class="bio">꒰ 子どもがいても“好き"を集めたい ꒱ / ◾︎小さな子がいても叶うお部屋作り / ◾︎センス０でも真似するだけ</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/ruka_no_kurashi" target="_blank">@ruka_no_kurashi</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@caraniang4" target="_blank">@caraniang4</a></td>
+      <td>Pit-Pat baby</td>
+      <td>214</td>
+      <td class="bio">💕赤ちゃんの健やかな成長を見守り / 😍繊細な体と心を優しくケア / 😘自身でも愛用しているベビーグッズをご紹介します</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@izxi_baby_mom" target="_blank">@izxi_baby_mom</a></td>
+      <td>izxi いつくし</td>
+      <td>197</td>
+      <td class="bio">🏆キッズデザイン賞2025受賞✨ / 利用者様14万人突破！ / ベビー&マタニティグッズをご紹介しています。</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/izxi_baby_mom" target="_blank">@izxi_baby_mom</a></td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@moku_check" target="_blank">@moku_check</a></td>
+      <td>もく</td>
+      <td>72</td>
+      <td class="bio">初マタ卒業👶🏻🩷 新米ママの購入品レビュー / 出産準備グッズから使ってよかった育児アイテムまで🛒 / 買ってよかったものをリアルに紹介しま</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@sowan.official" target="_blank">@sowan.official</a></td>
+      <td>SOWANソワン【ご連絡用アカウント】</td>
+      <td>69</td>
+      <td class="bio">シルクやオーガニックコットンなど / 肌にやさしい素材をつかった / 兵庫県加古川市にある肌着屋です🧺 / ベビーから大人まで幅広く展開して</td>
+      <td>육아 콘텐츠</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@otterpuff_qy" target="_blank">@otterpuff_qy</a></td>
+      <td>OTTER PUFF</td>
+      <td>40</td>
+      <td class="bio">OTTER PUFFは、スタイや靴下など育児用品を扱うベビーブランドです。新商品も続々登場予定。ぜひフォローしてください。</td>
+      <td>유아용품 판매</td>
+      <td>—</td>
+    </tr><tr>
+      <td><a href="https://www.tiktok.com/@meimei_hitofudeya" target="_blank">@meimei_hitofudeya</a></td>
+      <td>筆文字デザインSHOP ひとふでや</td>
+      <td>—</td>
+      <td class="bio">オーダーメイド命名書のひとふでやです👶　赤ちゃんの誕生や出産祝いに命名書はいかがですか？書き直しも可能で安心😊　　　　　　　　納得の命名書を</td>
+      <td>육아 콘텐츠</td>
+      <td><a href="https://www.instagram.com/meimei_hitofudeya" target="_blank">@meimei_hitofudeya</a></td>
+    </tr>
+  </table>
+</div>
+
+<div class="panel" id="p5">
+  <h2>틱톡샵 베이비 카테고리 풀 — 지금 얼마나 빨리 크고 있나 <span class="badge b-exact">실측</span></h2>
+  <p class="note" style="margin:-4px 0 10px;">FastMoss JP 시장 동향, 8월 말 수집분 vs 10월 말 수집분 — 동일 지표·동일 소스 페어만 사용</p>
+  <h3 style="margin:14px 0 8px;font-size:15px;">① 활동 크리에이터 수(사람)는 거의 정체</h3>
+  <table>
+    <tr><th>지표 (유아동&출산 카테고리)</th><th>8월 말</th><th>10월 말</th><th>8주 변화</th></tr>
+    <tr><td class="tname">주간 활동 커머스 인플루언서</td><td>1,570명 <span class="sub">(8/25~31)</span></td><td>1,427명 <span class="sub">(10/19~25)</span></td><td><b>-9.1%</b></td></tr>
+    <tr><td class="tname">일별 활동 (5일 평균)</td><td>741명 <span class="sub">(8/27~31)</span></td><td>705명 <span class="sub">(10/22~26)</span></td><td><b>-4.9%</b></td></tr>
+    <tr><td class="tname">최근 28일 판매 크리에이터 (동일 검색 조건)</td><td>—</td><td>507명(10/26) → 526명(10/28)</td><td>이틀 간격 재측정 — 노이즈 범위</td></tr>
+  </table>
+
+  <h3 style="margin:20px 0 8px;font-size:15px;">② 그런데 매출(GMV)은 오르고 있다 <span class="badge b-est">GMV는 근사</span></h3>
+  <table>
+    <tr><th>지표 (유아동&출산 카테고리)</th><th>8월 말</th><th>10월 말</th><th>8주 변화</th></tr>
+    <tr><td class="tname">판매 건수 <span class="sub">(일 5일평균, 실측)</span></td><td>928건 <span class="sub">(8/27~31)</span></td><td>887건 <span class="sub">(10/22~26)</span></td><td><b>-4.5%</b></td></tr>
+    <tr><td class="tname">평균 거래액(객단가) <span class="sub">(실측)</span></td><td>2,436엔</td><td>2,746엔</td><td><b>+12.7%</b></td></tr>
+    <tr><td class="tname">GMV 근사 <span class="sub">(건수×객단가, 일 추정)</span></td><td>226만엔 <span class="sub">/일</span></td><td>243만엔 <span class="sub">/일</span></td><td><b style="color:#0a7a35;">+7.7%</b></td></tr>
+  </table>
+
+  <div class="callout good"><b>진단: 사람 수는 정체인데, 돈은 커지는 시장.</b>
+  베이비 카테고리의 활동 크리에이터 수는 8주간 -5~-9%로 식지만, <b>매출(GMV)은 약 +8% 성장</b>한다.
+  판매 건수는 거의 횡보(-4.5%)인데 객단가가 +13% 올라 매출을 끌어올리는 구조 —
+  「더 적은 셀러가 더 비싼 걸 더 큰 금액으로」 파는 집중·고도화 국면.<br>
+  그래서 우리 그림은 <b>「빠르게 크는 시장을 선점」이 아니라, 돈은 커지는데 경쟁 브랜드는 아직 안 들어온 고정 풀 304명을 먼저 잡는 것」</b>이다.
+  <span class="note">⚠ GMV는 FastMoss에 직접 금액 필드가 없어 판매건수×평균거래액으로 산출한 근사치. 건수·객단가 각각은 실측이고 둘 다 양(+)이라 상승 방향은 성립.</span></div>
+
+  <h2>그래서 앞으로 풀이 얼마나 늘어날까 <span class="badge b-est">예측</span></h2>
+  <div class="callout">현 추세(활동 풀 횡보) 유지 시 <b>3~6개월 뒤에도 JP 맘 풀은 270~300명대</b>로 전망.
+  풀이 다시 크는 조건은 틱톡샵 일본 전체의 재가속인데, 현재 전 카테고리 지표도 횡보라 시점 근거 없음 — 확인 못 함.
+  대신 풀 구성원은 교체된다(28일 활동 기준이라 이탈·신규 유입 상시 발생) → <b>분기 1회 풀 재수집으로 신규 유입분을 타깃에 추가</b>하는 운영을 권장.</div>
+
+  <h2>콜라보 몇 명까지 가능한가 — 돈의 흐름으로 <span class="badge b-est">예측 (IG 실측 전환율 적용)</span></h2>
+  <div class="flow">
+    <div class="fstep"><div class="n">276</div><div class="l">미접촉 타깃<br>(JP 맘 확정)</div></div>
+    <div class="arrow">→</div>
+    <div class="fstep"><div class="n">전수 접촉</div><div class="l">월 100명 아웃리치 시<br>약 3개월 소요</div></div>
+    <div class="arrow">→</div>
+    <div class="fstep"><div class="n">56~57</div><div class="l">기대 계약<br>(타깃의 20%~21%)</div></div>
+    <div class="arrow">→</div>
+    <div class="fstep" style="border: 2px solid #1a56db;"><div class="n">30~31</div><div class="l">기대 투고 완료<br><b>= 맘 풀 304명의 10%~10%</b></div></div>
+  </div>
+  <table>
+    <tr><th>팔로워 티어</th><th>TT 타깃</th><th>접촉→계약 (IG 원장 실측)</th><th>계약→투고 (IG 원장 실측)</th><th>기대 투고</th></tr>
+    <tr>
+      <td class="tname">0-5K</td>
+      <td>174명</td>
+      <td>23% <span class="sub">(IG 173/760명)</span></td>
+      <td>53% <span class="sub">(IG 91/173명)</span></td>
+      <td>21명</td>
+    </tr><tr>
+      <td class="tname">5-10K</td>
+      <td>34명</td>
+      <td>24% <span class="sub">(IG 42/172명)</span></td>
+      <td>60% <span class="sub">(IG 25/42명)</span></td>
+      <td>5명</td>
+    </tr><tr>
+      <td class="tname">10-20K</td>
+      <td>35명</td>
+      <td>14% <span class="sub">(IG 25/176명)</span></td>
+      <td>60% <span class="sub">(IG 15/25명)</span></td>
+      <td>3명</td>
+    </tr><tr>
+      <td class="tname">20-50K</td>
+      <td>21명</td>
+      <td>8% <span class="sub">(IG 9/110명)</span></td>
+      <td>33% <span class="sub">(IG 3/9명)</span></td>
+      <td>1명</td>
+    </tr><tr>
+      <td class="tname">50K+</td>
+      <td>11명</td>
+      <td>7% <span class="sub">(IG 5/68명)</span></td>
+      <td>40% <span class="sub">(IG 2/5명)</span></td>
+      <td>0명</td>
+    </tr><tr class="unk"><td class="tname">팔로워 미확인</td><td>1명</td>
+      <td>21% <span class="sub">(전체 평균)</span></td>
+      <td>54% <span class="sub">(전체 평균)</span></td><td>0.1명</td></tr>
+  </table>
+  <div class="callout warn"><b>이 숫자의 전제:</b> IG 아웃리치 1,309명의 실측 전환율을 틱톡 타깃에 그대로 적용한 값
+  (전체 평균 적용과 티어별 적용 두 방식이 계약 56~57 · 투고 30~31명으로 수렴 — 10/28 팔로워 보강 후 재산정).
+  틱톡 DM 응답률은 우리 실적이 0건이라 실측 없음 — 첫 50명 접촉 결과로 전환율을 재보정해야 함.</div>
+
+  <h2 style="margin-top:34px;font-size:16px;color:#556;">참고 — 틱톡샵 JP 전체(전 카테고리) 시장 현황 <span class="badge b-exact">실측</span></h2>
+  <p class="note" style="margin:-4px 0 10px;">베이비만이 아니라 틱톡샵 일본 시장 전체도 같은 패턴인지 — 동일 지표·동일 수집 시점 페어</p>
+  <table style="font-size:13px;">
+    <tr><th>지표 (전 카테고리)</th><th>8월 말</th><th>10월 말</th><th>8주 변화</th></tr>
+    <tr><td class="tname">활동 크리에이터 수 (일별 5일 평균)</td><td>21,100명</td><td>18,588명</td><td><b>-11.9%</b></td></tr>
+    <tr><td class="tname">활동 크리에이터 수 (주간 직전 주 대비)</td><td colspan="2">최근 주(W43)</td><td><b>-14%</b></td></tr>
+    <tr><td class="tname">판매 건수 (일 5일평균)</td><td>166,698건</td><td>171,071건</td><td><b>+2.6%</b></td></tr>
+    <tr><td class="tname">평균 거래액(객단가)</td><td>2,721엔</td><td>3,173엔</td><td><b>+16.6%</b></td></tr>
+    <tr><td class="tname">GMV 근사 (건수×객단가, 일 추정)</td><td>4.54억엔 <span class="sub">/일</span></td><td>5.43억엔 <span class="sub">/일</span></td><td><b style="color:#0a7a35;">+19.7%</b></td></tr>
+  </table>
+  <div class="callout"><b>시장 전체도 베이비와 같은 방향 — 사람 수 감소, 매출 성장.</b>
+  전 카테고리 활동 크리에이터 수는 8주간 <b>-11.9%</b>(베이비보다 더 많이 감소)인데,
+  매출(GMV)은 <b>약 +20%</b>로 베이비(+8%)보다 더 크게 성장합니다.
+  즉 베이비의 「사람↓·돈↑」 패턴은 틱톡샵 JP 시장 전반의 흐름 안에 있으며, 그 안에서 <b>베이비는 활동 감소 폭이 더 작은(상대적으로 견조한) 카테고리</b>입니다.
+  <span class="note">⚠ GMV는 판매건수×평균거래액 근사. 건수·객단가 각각은 실측. 기간 = 8/27~31 vs 10/22~26.</span></div>
+</div>
+
+<div class="panel" id="p4">
+  <div class="method">
+    <h2>① 전체 일본 맘 인플루언서 모수 — 왜 「추정」인가</h2>
+    <p>전체 수를 집계해 주는 공식 통계는 존재하지 않음. <b>표식-재포획(capture-recapture)</b> 방식으로 추정:
+    우리가 이미 접촉한 1,309명(그중 팔로워 500 이상 조건 충족 추정 1,216명)을 「표식 집단」으로 두고,
+    일본 육아 해시태그 8종(育児ママ·新米ママ·赤ちゃんのいる生活 등)의 최근 게시물 2,000건에서 독립 표본 1,223계정을 수집.
+    <b>표본 전원의 프로필을 실조사</b>(1,223 중 프로필 확인 1,220)해
+    맘 인플루언서 318명을 직접 셈(판정 기준: 일본어 + 육아 시그널 + 팔로워 500↑ + 업체 제외).
+    표본과 표식 집단의 겹침 20명으로 전체 규모를 역산, Chapman 보정 적용.
+    (초판 10/26은 무작위 493계정만 판정해 비율을 곱했으나, 10/27 전수 판정으로 재산정 — 모수 17,920 → 18,528.)</p>
+    <p><b>맘 인플루언서 정의(팔로워 하한)</b>: 우리 아웃리치 실적의 팔로워 분포 하위 10% 지점(563명)을 실측해 500명으로 설정 — 즉 「우리가 실제 리치아웃하는 급」과 같은 잣대.</p>
+    <p><b>티어 분해</b>: 맘 판정 318명의 팔로워 실측 분포를 그대로 사용, 티어별 95% CI 병기. 0-5K 구간 외에는 표본이 티어당 12~29명이라 CI가 넓음.</p>
+    <p><b>한계</b>: 우리 아웃리치도 해시태그 기반 발굴을 포함하면 표본과 완전 독립이 아니어서 전체 수가 실제보다 작게 나올 수 있음(= 커버리지 비율은 보수적으로 높게).
+    해시태그 최근 게시물 표본은 게시 빈도가 높은 계정이 더 잡히는 성향 → 대형 티어 과대표집 가능.
+    외부 교차점: 일본 최대급 맘 미디어 ベビーカレンダー의 공식 맘 인플루언서 재적이 약 830명 — 단일 플랫폼 재적 규모로서 추정치(약 18,528명)와 모순 없음.</p>
+    <h2>② 틱톡샵 크리에이터 수 — 관측 전수 + 개별 판정</h2>
+    <p>FastMoss JP(유료 Pro 계정, 당사 보유)에서 두 축으로 전수 수집: ⓐ 틱톡 크리에이터 분류=유아 165명,
+    ⓑ 최근 28일 유아동&출산 카테고리 판매 실적 보유 507명 — 합집합 661명(중복 11명). 전 페이지 끝까지 수집해 표시 총수와 일치 확인.
+    추가로 틱톡샵 <b>공식 어필리에이트 센터</b>의 크리에이터 검색(Baby & Maternity 필터)에서 264명 관측 — 이 중 174명이 FastMoss에 없어 풀에 합산.</p>
+    <p><b>개별 판정(10/27 추가)</b>: 카테고리 필터만으로는 잡화점·공급업체·외국인 셀러·비육아 계정이 섞여,
+    미접촉 807명 전원의 틱톡 프로필(닉네임+bio)을 개별 판정 — 일본어 + 육아 시그널 + 업체/샵 제외.
+    결과: JP 맘 확정 276 / 비일본어 166 / 업체·샵 50 / 맘 시그널 없음 301 / bio 없어 판정불가 14.
+    bio에 육아 표기가 없는 실제 맘은 누락될 수 있어 276명은 하한.</p>
+    <p><b>9/1 측정치(629·649명)와의 비교</b>: 당시와 검색 조건(활동 창·계정 토글)이 달라 풀 총수의 직접 성장률 산출은 불가.
+    성장 판단은 동일 지표·동일 조건 페어가 성립하는 시장 동향 지표(주간·일별 활동 수)로 별도 수행 — 「풀 성장·콜라보 전망」 탭.</p>
+    <h2>풀 성장 실측 — 어떻게 쟀고, 뭘 버렸나 (10/28 추가)</h2>
+    <p><b>쓴 것</b>: FastMoss JP 시장 동향(유아동&출산 카테고리)의 현재 기간 조회는 정상 응답(code 200) —
+    8월 말 수집분과 10월 말 수집분이 같은 지표라 페어 비교 성립: 주간 활동 1,570→1,427명(-9.1%), 일별 5일 평균 741→705명(-4.9%).
+    같은 검색 조건(최근 28일 판매·유아동&출산)의 크리에이터 총수 507(10/26)→526(10/28)도 보조 확인.</p>
+    <p><b>버린 것</b>: 9/1에 받아둔 월별 14개월 시계열은 전수 재검증 결과 <b>전부 오류 코드(MAG_AUTH_3016)와 함께 온 가짜 수치</b>로 판명 — FastMoss 가 플랜 범위 밖(과거 월) 조회에 무작위 수치를 돌려줌. 폐기하고 본 리포트에 미사용.
+    과거 월 조회·전 기간 조건 재측정은 현 플랜에서 불가(요청 자체가 400 거부) — 장기 시계열은 확인 못 함.</p>
+    <h2>콜라보 가능 수 모델 (10/28 추가)</h2>
+    <p>자사 IG 아웃리치 원장 실측(접촉 1,309 → 계약 270 = 20.6% · 계약 → 투고 = 53.7%)의
+    티어별 전환율을 틱톡 타깃 276명의 티어 분포에 적용. 하한 = 전체 평균 적용, 상한 = 티어별 적용.
+    틱톡 DM 응답률 실측이 생기면(첫 50명 권장) 그 값으로 교체.</p>
+    <h2>③ IG 겹침 — 전수 매칭</h2>
+    <p>관측 풀 835명 전원의 틱톡 프로필을 수집해 3단계로 IG 계정 확인:
+    E1 프로필에 IG 주소/계정 직접 명시(73명) ·
+    E2 링크 모음 페이지(lit.link 등) 경유 확인(24명) ·
+    E3 동일 아이디의 IG 계정이 실존하고 일본어·육아 프로필로 동일인 판정(131명).
+    E1+E2 = 하한(본인 명시), E3 포함 = 상한(동일인 추정 포함).</p>
+    <h2>④ 콜라보 경험 비율 — 전수 매칭</h2>
+    <p>③의 IG 계정을 우리 콜라보 원장(WL Code & Payment 탭 실투고 145명) ·
+    계약 원장(시트+전자계약 완료 270명) · DM 접촉 원장(1,207명)과 아이디 정규화 후 대조.</p>
+    <h2>데이터 소스·검증</h2>
+    <p>내부: DM 원장(전 기간 1,207명) ∪ CRM Master DB 283명 ∪ 계약 원장 = 접촉 통합 1,309명. 계약 = 시트 257명 ∪ 전자서명 완료 추출 54명 = 270명.
+    실투고 = 원장 URL 기입 기준 145명. 모든 전수 수집은 종료 페이지=표시 총수 일치로 검증. 외부 수치는 수집 시점 기준(관측 10/26 · 재판정 10/27).</p>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
+    document.getElementById(t.dataset.p).classList.add('on');
+  }));
+</script>
+</body></html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JP 사업 업무 성과 이력 보고 — 허세은 (2026.04–2026.10)</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --ink:#1a2233; --sub:#5b6478; --line:#e5e8f0;
+    --blue:#2457e6; --blue-bg:#eef3ff; --green:#0f8a4f; --green-bg:#e9f7f0;
+    --amber:#b45309; --amber-bg:#fdf3e3; --red:#c22b3a; --red-bg:#fdeef0;
+    --purple:#6d28d9; --purple-bg:#f2edfd; --navy:#111c3d;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Pretendard','Noto Sans KR','Malgun Gothic',sans-serif; background:var(--bg); color:var(--ink); line-height:1.65; font-size:15px;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 28px 80px;}
+
+  header{background:var(--navy); color:#fff; padding:46px 0 40px; margin-bottom:34px;}
+  header .wrap{padding-bottom:0;}
+  .h-kicker{font-size:13px; letter-spacing:2.5px; color:#8fa3d9; font-weight:700; margin-bottom:10px;}
+  h1{font-size:30px; font-weight:800; letter-spacing:-.5px; margin-bottom:12px;}
+  .h-meta{font-size:14px; color:#aab6d8;}
+  .h-meta b{color:#fff; font-weight:700;}
+
+  h2{font-size:21px; font-weight:800; letter-spacing:-.3px; margin:54px 0 6px; display:flex; align-items:center; gap:10px;}
+  h2 .num{display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:var(--navy); color:#fff; font-size:14px; flex:none;}
+  .h2sub{color:var(--sub); font-size:14px; margin-bottom:18px;}
+  h3{font-size:16px; font-weight:800; margin:26px 0 10px;}
+
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px;}
+  @media(max-width:860px){.cards{grid-template-columns:1fr 1fr;}}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:0 1px 3px rgba(20,30,70,.05);}
+  .card .label{font-size:12.5px; font-weight:700; color:var(--sub); letter-spacing:.3px; margin-bottom:8px;}
+  .card .value{font-size:25px; font-weight:800; letter-spacing:-.5px; line-height:1.2;}
+  .card .value small{font-size:14px; font-weight:600; color:var(--sub);}
+  .card .delta{margin-top:7px; font-size:13px; font-weight:700;}
+  .card .note{margin-top:7px; font-size:12.5px; color:var(--sub); line-height:1.5;}
+  .up{color:var(--green);} .down{color:var(--blue);}
+
+  .badge{display:inline-block; padding:2px 10px; border-radius:99px; font-size:12px; font-weight:800; vertical-align:2px; white-space:nowrap;}
+  .b-blue{background:var(--blue-bg); color:var(--blue);}
+  .b-green{background:var(--green-bg); color:var(--green);}
+  .b-amber{background:var(--amber-bg); color:var(--amber);}
+  .b-purple{background:var(--purple-bg); color:var(--purple);}
+
+  .callout{border-radius:12px; padding:16px 20px; margin:16px 0; font-size:14.5px; border:1px solid;}
+  .c-blue{background:var(--blue-bg); border-color:#cdd9fb;}
+  .c-green{background:var(--green-bg); border-color:#c4e8d4;}
+  .c-amber{background:var(--amber-bg); border-color:#f3dcb3;}
+  .callout b{font-weight:800;}
+
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px 26px; margin:14px 0; box-shadow:0 1px 3px rgba(20,30,70,.05);}
+
+  table{width:100%; border-collapse:collapse; font-size:13.8px; margin:12px 0;}
+  th{background:#f0f2f8; text-align:left; padding:9px 12px; font-weight:800; font-size:12.8px; color:#3a4460; border-bottom:2px solid var(--line); white-space:nowrap;}
+  td{padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.num, th.num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .src{color:#99a1b5; font-size:12px; white-space:nowrap;}
+
+  .bar-row{display:flex; align-items:center; gap:12px; margin:7px 0;}
+  .bar-label{width:140px; font-size:13px; font-weight:700; color:var(--sub); flex:none; text-align:right;}
+  .bar-track{flex:1; background:#eef0f6; border-radius:6px; height:26px; position:relative;}
+  .bar-fill{height:100%; border-radius:6px; display:flex; align-items:center; justify-content:flex-end; padding-right:9px; color:#fff; font-size:12.5px; font-weight:800; min-width:52px;}
+  .f-blue{background:linear-gradient(90deg,#3b6ef0,#2457e6);}
+  .f-green{background:linear-gradient(90deg,#17a35f,#0f8a4f);}
+  .f-navy{background:linear-gradient(90deg,#2a3a6e,#111c3d);}
+
+  .flow{display:flex; align-items:stretch; gap:8px; margin:14px 0; flex-wrap:wrap;}
+  .flow .step{flex:1; min-width:120px; background:var(--blue-bg); border:1px solid #cdd9fb; border-radius:10px; padding:12px 12px; text-align:center;}
+  .flow .step .n{font-size:20px; font-weight:800; color:var(--blue);}
+  .flow .step .t{font-size:12.5px; font-weight:700; color:#3a4460; margin-top:2px;}
+  .flow .arr{align-self:center; color:#9aa6c4; font-weight:800; font-size:16px;}
+
+  .timeline{border-left:3px solid #ccd6f0; margin:18px 0 6px 8px; padding-left:24px;}
+  .t-item{position:relative; margin-bottom:22px;}
+  .t-item::before{content:''; position:absolute; left:-31px; top:5px; width:13px; height:13px; border-radius:50%; background:var(--blue); border:3px solid #fff; box-shadow:0 0 0 2px #ccd6f0;}
+  .t-date{font-size:12.5px; font-weight:800; color:var(--blue); letter-spacing:.5px;}
+  .t-title{font-size:15px; font-weight:800; margin:2px 0 4px;}
+  .t-body{font-size:13.8px; color:#3d4660;}
+
+  ul.tight{margin:8px 0 8px 20px;}
+  ul.tight li{margin-bottom:7px; font-size:14.2px;}
+  .foot{margin-top:60px; padding-top:18px; border-top:1px solid var(--line); color:#8d95a9; font-size:12.5px; line-height:1.8;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="h-kicker">WORK HISTORY &amp; ACHIEVEMENT REPORT</div>
+    <h1>GROSMIMI JAPAN 사업 — 업무 성과 이력 보고</h1>
+    <div class="h-meta"><b>허세은</b> · 기간 <b>2026.04 – 2026.10 (7개월, 기록 기준)</b> · 작성일 2026-10-28 · 근거: 세션 기록 157건 전수 판독 + git 이력(담당 기간 본인 계정 360커밋) + 시스템 인벤토리 실측</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ====================== 0. 요약 ====================== -->
+<h2><span class="num">0</span>한 장 요약</h2>
+<div class="h2sub">7개월간 일본 사업의 인플루언서 워크플로우 · 전 플랫폼 광고 퍼포먼스 · 운영 앱/대시보드 · 자동화 시스템을 혼자서 End-to-End로 설계·구축·운영한 기록입니다.</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="label">인플루언서 소통 → 투고 (월평균)</div>
+    <div class="value">접촉 ~250건 → 투고 21건<small>/월</small></div>
+    <div class="delta up">누적: 접촉 1,309명 · 계약 270명 · 투고 완료 145건</div>
+    <div class="note">신규 접촉 9월 실측 252건, 협상 DM 처리 10월 실측 약 230건. 월평균 계약 약 39건·투고 완료 약 21건 (누적÷7개월).</div>
+  </div>
+  <div class="card">
+    <div class="label">인플루언서 워크플로우 설계</div>
+    <div class="value">STEP 1~12 <small>+ 정량·정성 심사</small></div>
+    <div class="delta up">발굴→협상→계약→심사→광고화→정산 전 구간 표준화</div>
+    <div class="note">9월 월간 퍼널 실측: 계약 서명 82 → 업로드 37 → 정량 통과 30 → 정성 심사 29 → 광고 집행 20. 심사 결과는 메타몽 앱에 배지·AI 1차 판정으로 반영.</div>
+  </div>
+  <div class="card">
+    <div class="label">유입 1건당 광고비 (CPLPV, Meta)</div>
+    <div class="value">₩124 → ₩84</div>
+    <div class="delta down">▼ 32% 개선 (6월 월간 → 10월 최종주)</div>
+    <div class="note">외부(라쿠텐) 랜딩 구조라 매체별 매출 귀속이 안 되는 환경에서, 정확히 측정되는 유입단가를 메인 지표로 직접 설계(2026.05)해 운영.</div>
+  </div>
+  <div class="card">
+    <div class="label">광고비 대비 매출 배수 (월간)</div>
+    <div class="value">0.93x → 2.28x</div>
+    <div class="delta up">▲ 담당 전(3월) 대비 2.45배 (5월, 원산식 기준)</div>
+    <div class="note">원산식 = 라쿠텐 전체 매출 ÷ Meta 광고비. RPP 귀속 매출을 역산 차감한 Meta 조정 배수는 4월 ≈1.1x → 5월 ≈1.8x (TikTok은 9/18 시작이라 기여 0 — 산출 전체는 §4). 2026.04.24 계정 인수.</div>
+  </div>
+  <div class="card">
+    <div class="label">제작·배포한 앱/대시보드</div>
+    <div class="value">6개 <small>서비스</small></div>
+    <div class="delta up">전부 프로덕션 실사용 중</div>
+    <div class="note">광고 대시보드(meta-app) · 퍼포먼스 판정 보드 · 크리에이터 CRM 화면 · 재콜라보 랭킹 · 교육 덱 · 온보딩 페이지.</div>
+  </div>
+  <div class="card">
+    <div class="label">구축한 JP 자동화 시스템</div>
+    <div class="value">20<small>개+</small></div>
+    <div class="delta up">§5에 전체 목록</div>
+    <div class="note">광고 자동 판정·집행, 투고 자동 감지, 계약·보수 자동 동기화, 송금 자동화, 주문 파이프라인 등 — 사람 손 없이 매일 도는 구조.</div>
+  </div>
+</div>
+
+<div class="callout c-blue" style="margin-top:20px;">
+  <b>이 보고의 성격:</b> 모든 수치는 세션 기록·API 실측·git 이력에 기재된 값만 사용했으며, 각 수치에 기준 날짜를 병기했습니다. 추정치·외삽값은 포함하지 않았습니다.
+</div>
+
+<!-- ====================== 1. 인플루언서 워크플로우 설계 ====================== -->
+<h2><span class="num">1</span>인플루언서 워크플로우 설계 — 발굴부터 광고화·정산까지</h2>
+<div class="h2sub">개인기로 돌던 인플루언서 협업을, 정량/정성 심사가 내장된 표준 워크플로우(STEP 1~12)로 설계하고 메타몽 앱에까지 반영했습니다.</div>
+
+<div class="panel">
+  <h3>전체 퍼널 구조 (9월 월간 실측치)</h3>
+  <div class="flow">
+    <div class="step"><div class="n">82</div><div class="t">계약 서명</div></div>
+    <div class="arr">→</div>
+    <div class="step"><div class="n">37</div><div class="t">콘텐츠 업로드</div></div>
+    <div class="arr">→</div>
+    <div class="step"><div class="n">30</div><div class="t">정량 게이트 통과</div></div>
+    <div class="arr">→</div>
+    <div class="step"><div class="n">29</div><div class="t">정성 심사 통과</div></div>
+    <div class="arr">→</div>
+    <div class="step"><div class="n">20</div><div class="t">광고 집행</div></div>
+  </div>
+  <div class="note" style="font-size:12.5px; color:var(--sub);">출처: 2026-10-02 세션 실측. 단계마다 탈락 기준이 명문화되어 있어, 담당자가 바뀌어도 같은 판정이 나오는 구조.</div>
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <h3>운영 플레이북 STEP 1~12 <span class="badge b-blue">직접 설계</span></h3>
+    <ul class="tight">
+      <li><b>발굴→리치아웃→조건 협상→폼 수집→계약→제품 발송→투고 가이드→투고 확인→광고코드→심사→광고화→정산</b>의 12단계를 표준 절차로 문서화 (2026.09 전면 전환).</li>
+      <li>단계별 일본어 DM 정본·예외 처리(광고코드 메뉴 미표시 대체경로 등)·입금 안내 문구까지 룰로 고정, 운영 중 확정된 룰 8건을 일괄 개정판으로 유지 (10/27).</li>
+      <li>협상 기준 체계화: 릴스 조회수 중앙값 기반 보수 산정 룰 (4/16 정립).</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>정량/정성 심사 설계 <span class="badge b-purple">게이트 내장</span></h3>
+    <ul class="tight">
+      <li><b>정량 게이트:</b> 투고 성과(조회 등) 기준 통과/탈락 자동 분류 — 통과분만 광고화 트랙 진입. 성과 측정 창은 D+14→D+30으로 재설계 (9/30).</li>
+      <li><b>정성 심사:</b> 콘텐츠 소구점(KM) 태깅 기반 심사 — <b>AI 1차 판정 → 인간 2차 검수</b> 체계로 설계하고, 사람의 교정이 AI에 다시 학습되는 few-shot 루프까지 배선 (10/21).</li>
+      <li><b>AI 제품 식별 학습:</b> 참조 사진 6장 few-shot + 자사 제품 여부 판정 필드 신설, 제품 DB 123개 전수 연결 (10/22) — 신제품은 사진 추가만으로 확장.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>메타몽 앱 반영 — 심사·워크플로우가 화면에서 돌아가게</h3>
+  <table>
+    <tr><th>반영 항목</th><th>내용</th><th class="num">기준</th></tr>
+    <tr><td>심사 결과 배지</td><td>콘텐츠마다 「정량 심사 탈락」「정성 심사 탈락」 판정 배지 표시 — 판정 근거가 화면에서 바로 보임</td><td class="num"><span class="src">10/23</span></td></tr>
+    <tr><td>심사 AI 1차 판정 탭</td><td>KM 태깅 AI 1차 → 인간 2차 확정 UI + 교정 학습 루프</td><td class="num"><span class="src">10/21</span></td></tr>
+    <tr><td>크리에이터 CRM 화면</td><td>화면 등재 크리에이터 258명(10/23 기준) 전원 단일 화면 관리 — 계약 "문서" 상태 배지(서명 완료 149·대기 119건, 10/16 발송 문서 수 기준으로 인원수와 별개 지표), 보수는 서명 PDF에서 자동 파싱, <b>구글시트 직접 입력 제로화</b></td><td class="num"><span class="src">10/16~23</span></td></tr>
+    <tr><td>재콜라보 랭킹</td><td>재협업 대상을 성과 데이터로 선별 — 랭킹 61명, 거래유형 전원 판별(미상 0), 정성 심사 컬럼 조인</td><td class="num"><span class="src">9/16·9/30</span></td></tr>
+    <tr><td>심사 통과분 자동 광고화</td><td>심사 통과 콘텐츠는 D+3에 자동으로 광고 생성 (GitHub Actions)</td><td class="num"><span class="src">상시 가동</span></td></tr>
+    <tr><td>송금 정보 칩</td><td>일본 전국은행 코드 자동 해석(유상 34건 백테스트 33건 해석·충돌 0), 영문 주소 28건 자동 생성</td><td class="num"><span class="src">10/23</span></td></tr>
+  </table>
+  <div class="callout c-amber" style="margin-top:10px;"><b>리스크 차단 설계:</b> 계약서의 계좌 필드 유무를 유상/무상 구조 마커로 룰화 — 유상 오인 건을 기록 5종 전수 대조로 잡아내 <b>입금 사고를 집행 직전에 차단</b>(10/23). 광고 집행 심사 게이트는 인턴 업무로 이관 가능한 수준까지 문서화(10/20).</div>
+</div>
+
+<!-- ====================== 2. 소통 볼륨 ====================== -->
+<h2><span class="num">2</span>인플루언서 소통 볼륨 — 월 단위로 얼마나 돌렸나</h2>
+<div class="h2sub">몇 건을 접촉해서 몇 건을 포스팅까지 끌고 갔는지, 월 단위 평균입니다.</div>
+
+<div class="panel">
+  <table>
+    <tr><th>지표</th><th class="num">월 수치</th><th>산출 근거</th></tr>
+    <tr><td><b>신규 접촉 (리치아웃)</b></td><td class="num">약 250건/월</td><td>9월 실측 252건 (IG DM 원장 집계, 10/2 기록 기준 월간)</td></tr>
+    <tr><td><b>협상 DM 처리 (왕복 대화)</b></td><td class="num">약 230건/월</td><td>10월 세션 기재 건수 합산 — 전건 일본어 초안 + 이중 감사 통과 후 발송</td></tr>
+    <tr><td><b>계약 체결</b></td><td class="num">평균 약 39건/월</td><td>누적 270명 ÷ 7개월 (피크월 9월은 서명 82건)</td></tr>
+    <tr><td><b>투고 완료</b></td><td class="num">평균 약 21건/월</td><td>누적 145건 ÷ 7개월</td></tr>
+    <tr><td><b>접촉 → 투고 전환율</b></td><td class="num">약 11%</td><td>투고 145 ÷ 접촉 1,309 (누적 기준)</td></tr>
+  </table>
+  <div class="callout c-green" style="margin-top:10px;">
+    <b>요약:</b> 매달 약 250명에게 새로 접촉하고, 기존 협상 230여 건을 병행 처리하면서, 월 평균 21건의 포스팅을 실제로 성사시키는 볼륨을 혼자 운영. 하루 단위로는 DM 최대 31건(10/6) 처리 기록. 시장 전체(일본 맘 인플루언서 모수 18,528명 — 직접 산정, 10/27) 기준 누적 접촉 커버리지 7.1%.
+  </div>
+  <div class="note" style="font-size:12.5px; color:var(--sub);">월평균은 누적치를 담당 기간 7개월로 나눈 값으로, 초기 구축기(4~5월)보다 후반(9~10월)이 높은 우상향 추이. 8월은 세션 기록 1건만 보존되어 월별 분해에서 제외.</div>
+</div>
+
+<!-- ====================== 3. 전 플랫폼 퍼포먼스 관리 + 앱 ====================== -->
+<h2><span class="num">3</span>JP 전 플랫폼 퍼포먼스 관리 · 앱 제작 · 대시보드 반영</h2>
+<div class="h2sub">Meta · 라쿠텐(RPP) · Amazon JP · TikTok 4채널을 한 사람이 관리하기 위해, 판정룰과 대시보드를 직접 만들어 운영했습니다.</div>
+
+<div class="panel">
+  <h3>채널별 관리 체계</h3>
+  <table>
+    <tr><th>채널</th><th>운영 체계 (직접 설계)</th><th>대표 실측</th></tr>
+    <tr><td><b>Meta</b></td><td>CPLPV 지표 체계 + Testing→Proven 졸업/중단 게이트(D+7/D+3) + 자동 집행</td><td>졸업 판정 적중률 75%·오컷 0건 (10월 백테스트)</td></tr>
+    <tr><td><b>라쿠텐 RPP</b></td><td>키워드 효율 점검 체계 + 중단 임계 룰(지출 ¥5,000+전환 0) + 수요 신호 API 발굴</td><td>승자 키워드 ROAS 9,300% 발굴, 8/11~9/16 ROAS 304% (라쿠텐 귀속 기준)</td></tr>
+    <tr><td><b>Amazon JP</b></td><td>저효율 구조 실측 적발 + 세션 무인 자동 수집 체인</td><td>전환 0 검색어에 지출 76% 적발(9/10) → 절감 액션 6건 ≈ 주 ₩38만 제시(10/19)</td></tr>
+    <tr><td><b>TikTok</b></td><td>광고 판정룰(D3 기준) 수립 + 틱톡샵 JP 크로스보더 진출 셋업</td><td>유입단가 Meta의 1/6.7 입증(10/21) → 예산 재배분 근거 / 타깃 크리에이터 276명 리스트 완성(10/27)</td></tr>
+  </table>
+  <div class="callout c-blue" style="margin-top:10px;"><b>채널 간 배분 분석 (10/21):</b> 라쿠텐 유입 로그 API를 직접 발굴해 채널별 실제 도착을 검증 — TikTok ₩12.0/유입 vs Meta ₩80.8 확정. 이 분석이 10월 감액·재배분 의사결정의 근거가 됨.</div>
+</div>
+
+<div class="panel">
+  <h3>자사 콘텐츠(IHV·IHM) 기획 → 인스타그램 게시 → 광고화 <span class="badge b-purple">주 2회 이상</span></h3>
+  <ul class="tight">
+    <li><b>주 2회 이상 IHV(자사 제작 영상)·IHM(자사 제작 이미지)를 직접 기획해 인스타그램 공식 계정에 게시</b> — 소재 기획부터 일본어 캡션까지 자체 제작.</li>
+    <li>기록으로 남은 제작 사례: IHV1~5 시리즈 (마이크로플라스틱 / おかしいマグ·내구 / 누수 시연 / 베스트마그 / 디자인 소구) — 자막 EN→JA 번역·일본어 캡션 작성·게시가 9/10~10/14 세션에 반복 기록.</li>
+    <li>게시물을 소구점(KM) 분류 체계에 매칭해 관리 (9/22: IHV 4개 전수 매칭, 소구 쏠림까지 진단) — 어떤 소구의 콘텐츠가 성과를 내는지 추적 가능한 구조.</li>
+    <li><b>게시 → 광고 자동 연결:</b> 자사 게시물(IH)은 D+3에 자동으로 광고화되고, D9 판정룰(유입단가 기준 증액/잔류/중단)로 운영 (10/8 정본화) — 콘텐츠 기획이 곧 광고 소재 파이프라인.</li>
+    <li>WL(인플루언서 콘텐츠) vs IHV(자사 영상) 효율을 주간 단위로 비교 운영 (10/2 주간 비교 기록).</li>
+  </ul>
+</div>
+
+<div class="panel">
+  <h3>제작·배포한 앱/대시보드 6종 (전부 프로덕션 실사용)</h3>
+  <table>
+    <tr><th>제품</th><th>용도</th><th>주요 실적</th></tr>
+    <tr><td><b>meta-app (광고 대시보드)</b><br><span class="src">2026.06.10 공개 배포</span></td><td>Meta 광고 성과·등급·WL 코드·월별 예산 통합 관리</td><td>광고 상세 차트 6종, 소재 등급 태깅, 중단 권장·졸업 후보 자동 표시, TikTok 탭·채널 전환율 탭 증설, 모바일 대응</td></tr>
+    <tr><td><b>JP 퍼포먼스 판정 보드</b><br><span class="src">2026.10.08</span></td><td>4채널 판정룰 + 「오늘의 액션」 일일 자동 게시</td><td>매일 08:40 자동 판정→배포 (GitHub Actions→Vercel), 가동 후 크론 연속 성공</td></tr>
+    <tr><td><b>크리에이터 CRM 화면</b><br><span class="src">2026.10.16 신설 → 10.21 전면 개편</span></td><td>인플루언서 전 데이터 단일 화면 관리 (§1 참조)</td><td>폼 연동 0→108명 복구, 제품 표시 75→221명, 시트 직접 입력 제로화</td></tr>
+    <tr><td><b>재콜라보 랭킹 대시보드</b><br><span class="src">2026.09.16</span></td><td>재협업 대상 데이터 기반 선별</td><td>랭킹 61명, 광고-크리에이터 연결 56→114건 회복</td></tr>
+    <tr><td><b>크리에이터 교육 덱 (공유편집형)</b><br><span class="src">2026.10.14–15</span></td><td>인플루언서 대상 제품 교육 자료</td><td>일/한 4종, 전원 실시간 공동편집 구조(Vercel Blob)</td></tr>
+    <tr><td><b>인턴 온보딩 페이지</b><br><span class="src">2026.10.20</span></td><td>신규 인력 온보딩 기준 문서</td><td>용어집 25개·CRM 플로우 PDF·전 채널 링크 전수 실측 검증, 전원 편집 가능</td></tr>
+  </table>
+</div>
+
+<!-- ====================== 4. 광고 성과 개선 ====================== -->
+<h2><span class="num">4</span>광고 성과 개선 — 개선이 수치로 검증된 것만</h2>
+<div class="h2sub">핵심 성과는 Meta입니다. 측정이 정확한 지표(유입단가)를 중심에 두고, 매출 배수는 산식을 명시해 참고로 제시합니다.</div>
+
+<div class="callout c-amber">
+  <b>지표 산식에 대한 정직한 주석:</b> JP는 광고를 외부 플랫폼(라쿠텐)으로 보내는 구조라 Meta 픽셀로 구매 귀속을 추적할 수 없습니다. 따라서 "광고비 대비 매출 배수"의 원산식은 <b>라쿠텐 전체 매출 ÷ Meta 광고비</b>입니다. 이를 Meta 몫에 가깝게 보정하기 위해 <b>타 광고 채널의 귀속 매출을 역산 차감</b>했습니다 — TikTok 광고는 9/18 시작이라 이 기간(3~5월) 기여 0이 확정이고, RPP(라쿠텐 검색광고) 귀속 매출은 당시 RPP 상품별 리포트 실측치로 차감했습니다. 이 한계 때문에 <b>정확히 측정되는 유입단가(CPLPV)를 메인 지표로 직접 설계</b>해 운영한 것이 핵심 의사결정입니다.
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <h3>Meta ① 유입단가(CPLPV) <span class="badge b-green">-32%</span> — 정확 측정 지표</h3>
+    <table>
+      <tr><th>시점</th><th class="num">주간 CPLPV</th><th>비고</th></tr>
+      <tr><td>2026.06 (월간)</td><td class="num">₩124</td><td>지표 체계 가동 초기</td></tr>
+      <tr><td>2026.07 말</td><td class="num">₩112</td><td>자동 생성 파이프라인 가동</td></tr>
+      <tr><td>2026.09 초</td><td class="num">₩74</td><td>기간 최저 (CTR 11.07%)</td></tr>
+      <tr><td>2026.10/08~14</td><td class="num">₩94.7</td><td>효율 악화 감지 → 감액 플랜 착수</td></tr>
+      <tr><td>2026.10/15~21</td><td class="num">₩90.9</td><td>감액 집행 직전 주 (기점)</td></tr>
+      <tr><td>2026.10/20~26</td><td class="num"><b>₩83.8</b></td><td><span class="badge b-green">감액 후 개선</span> 주간 실지출 ₩2,666,372 (전주 대비 -11.8%)</td></tr>
+    </table>
+    <div class="callout c-green" style="margin:10px 0 0;"><b>10월 예산 구조조정:</b> 악화 신호를 주간 추적으로 조기 포착 → 백테스트로 저성과 17개 광고세트 선별 중단(일예산 ₩472K→₩336K, -29% 선집행·확정안 -50%) → 효율이 <b>오히려 개선</b>(90.9→83.8). 일간 CPLPV는 10/26 ₩74.9까지 회복.</div>
+  </div>
+  <div class="panel">
+    <h3>Meta ② 광고비 대비 매출 배수 — RPP·TikTok 기여 차감 조정</h3>
+    <table>
+      <tr><th>월</th><th class="num">원산식<br>(전체 매출÷Meta 광고비)</th><th class="num">RPP 귀속 매출 차감 후<br>(Meta 조정 배수)</th></tr>
+      <tr><td>2026.03 (담당 전)</td><td class="num">0.93x</td><td class="num">조정 불가*</td></tr>
+      <tr><td>2026.04 (인수)</td><td class="num">1.48x</td><td class="num"><b>≈1.1x</b></td></tr>
+      <tr><td>2026.05 (담당 1개월)</td><td class="num">2.28x</td><td class="num"><b>≈1.8x</b></td></tr>
+    </table>
+    <div class="note" style="font-size:12.5px; color:var(--sub); margin:8px 0 12px;">
+      TikTok 광고는 2026-09-18 시작이라 이 기간 기여 0 (차감 불필요 확정). RPP 차감분은 당시 RPP 상품별 리포트 실측(12시간 어트리뷰션): 4월 ¥126,940(4/6~5/5 윈도우)·5월 ¥216,890(5/7~31, 5/1~6 데이터 없음), 환율 9.561 적용. *3월은 RPP 콘솔 보존기간(90일) 밖이라 분리 불가 — 담당 전 베이스라인도 같은 조정을 못 하므로 성장 비교는 원산식끼리만 대칭. 30일 어트리뷰션으로 전액 차감하면 4월 ≈0.7x·5월 ≈1.4x까지 내려가나, 30일 귀속은 Meta 유입 구매와 중복 귀속되는 과차감이라 12시간 기준을 채택.
+    </div>
+    <h3 style="margin-top:18px;">슈퍼세일 150h 집중 운영 (6/4 20:00~6/11)</h3>
+    <table>
+      <tr><th>지표</th><th class="num">결과 (취소 제외 확정)</th></tr>
+      <tr><td>매출</td><td class="num">¥630,720 / 116건 (평시 직전주 ¥116,130 대비 +443%)</td></tr>
+      <tr><td>매출 ÷ 총광고비 (Meta+RPP)</td><td class="num">2.64x</td></tr>
+      <tr><td>광고비 증액 → 유입단가</td><td class="num">+89% → 직전주 ₩126 → 세일주 ₩126 동결</td></tr>
+    </table>
+    <div class="note" style="font-size:12.5px; color:var(--sub);">증액 구간에서 유입단가 완전 동결 — 효율 손실 없는 확장을 실측으로 입증 (6/12 확정치).</div>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>그 외 개선 실적 (개선이 검증된 항목만)</h3>
+  <ul class="tight">
+    <li><b>Meta Proven 소재 효율:</b> 월별 CPLPV Stainless 103→72 · PPSU 100→39 개선 실측 (10/23).</li>
+    <li><b>라쿠텐 RPP:</b> 효율 점검 체계로 승자 키워드에 집중(전환의 77%가 상위 4키워드) + 저효율 키워드 중단 룰 확정 — 라쿠텐 귀속 ROAS 기준 스텐 478%·구간 전체 304% (9/17~9/30).</li>
+    <li><b>비용 절감 집행:</b> Meta 일예산 -₩136K/일 선집행(10/23) + TikTok 일예산 -20% + Amazon 절감 액션 6건(≈주 ₩38만) 제시 — 효율 지표 유지·개선 전제의 선별 감액.</li>
+  </ul>
+</div>
+
+<!-- ====================== 5. 자동화 시스템 ====================== -->
+<h2><span class="num">5</span>JP 업무 자동화 시스템 — 직접 구축한 목록</h2>
+<div class="h2sub">Claude 기반으로 설계·구축해 실제 워크플로우에서 상시 가동 중인 JP 관련 자동화입니다.</div>
+
+<div class="grid2">
+  <div class="panel">
+    <h3>인플루언서 · CRM</h3>
+    <ul class="tight">
+      <li><b>DM 파이프라인</b> — DM 수신 → AI 초안(일본어+한국어 번역) → 승인 → 발송. 전건 이중 적대감사(Codex+Gemini) 통과 후 발송 <span class="src">4월~</span></li>
+      <li><b>전자계약 자동화</b> — 계약서 DOCX 자동 생성 → DocuSeal 업로드·검수·발송·서명 추적 E2E <span class="src">4월~</span></li>
+      <li><b>투고 자동 감지</b> — 15분 주기로 인플루언서 투고를 자동 탐지해 CRM 상태 전환 <span class="src">4/21~</span></li>
+      <li><b>WL 광고코드 동기화</b> — 매시간 광고코드-크리에이터 자동 매칭 <span class="src">4/29~</span></li>
+      <li><b>계약→보수 자동 동기화</b> — 서명된 계약서에서 보수액을 파싱해 원장에 자동 기입 (매일 08:35) <span class="src">10/16~</span></li>
+      <li><b>심사 AI</b> — 콘텐츠 KM 태깅 1차 판정 + 제품 식별 few-shot 학습 루프 <span class="src">10/21~22</span></li>
+      <li><b>송금 자동화</b> — 전국은행 코드 자동 해석 + 영문 주소 자동 생성 <span class="src">10/23</span></li>
+      <li><b>호칭·월령·상품링크 자동 추출</b> — DM 텍스트에서 CRM 필드 자동 채움 <span class="src">5/26</span></li>
+      <li><b>모니터 응모폼 동기화</b> — 응모 데이터 자동 수집·시트 반영 <span class="src">상시</span></li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>광고 · 커머스 운영</h3>
+    <ul class="tight">
+      <li><b>Meta 졸업/중단 자동 판정·집행</b> — 테스트 소재의 승급/중단을 룰로 자동 실행 (GitHub Actions) <span class="src">6월~</span></li>
+      <li><b>심사 통과분 D+3 자동 광고화</b> — WL·자사 게시물을 자동으로 광고 생성 <span class="src">9월~</span></li>
+      <li><b>「오늘의 액션」 판정 파이프라인</b> — 매일 08:40 전 채널 데이터 판정 → 보드 자동 게시 <span class="src">10/12~</span></li>
+      <li><b>채널 전환율 일별 측정</b> — RPP 효과를 차감한 순수 소셜 전환율 자동 산출 (매일 10:30) <span class="src">9/23~</span></li>
+      <li><b>라쿠텐 주문 풀 파이프라인</b> — 주문확인→발송메일→옵션코드→송장 기입 원스톱 + 4중 감사 (ALL PASS 100/100) <span class="src">4월~</span></li>
+      <li><b>라쿠텐 발송대기 일일 체크</b> — 매일 13:30 발송대기 주문 자동 조회·보고 <span class="src">5/7~</span></li>
+      <li><b>아마존 JP 데이터 무인 수집</b> — 세션 자동 갱신 포함 일일 자동 체인 <span class="src">10/21~</span></li>
+      <li><b>RPP 수요 신호 API 체계</b> — 추천 키워드·목표 CPC 자동 조회 <span class="src">10/2</span></li>
+      <li><b>트위터 계정 전자동 운영</b> — 기획→승인→투고→댓글→경쟁조사 6단계 자동 (주 35개 트윗) <span class="src">5월~</span></li>
+      <li><b>IG 주간 기획안 자동 생성</b> — 주 20건 기획안 + 중복 방지 + 사실 검증 <span class="src">4월~</span></li>
+      <li><b>데이터 수집 게이트웨이</b> — 광고·매출 18채널 일 2회 자동 수집 (전 분석의 공통 기반) <span class="src">상시</span></li>
+      <li><b>산출물 이중 감사 하네스</b> — 모든 DM·코드·리포트를 2개 AI가 교차 검수 후 통과분만 보고 <span class="src">4/13~</span></li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout c-green">
+  <b>효과:</b> 위 자동화가 깔려 있어서, §2의 소통 볼륨(월 접촉 250건+협상 230건)과 §3·4의 4채널 광고 운영을 한 사람이 동시에 감당할 수 있었음. 장애 대응도 체계화 — 클라우드 인증 전환으로 자동화가 13일 중단된 것을 발견해 워크플로우 17개를 당일 일괄 복구(10/12).
+</div>
+
+<!-- ====================== 6. 히스토리 ====================== -->
+<h2><span class="num">6</span>7개월 히스토리 — 단계별 전개</h2>
+<div class="h2sub">"수작업 운영 → 시스템 구축 → 룰 기반 최적화 → 조직 이관" 4단계로 발전시킨 궤적입니다.</div>
+
+<div class="panel">
+  <div class="timeline">
+    <div class="t-item">
+      <div class="t-date">PHASE 1 · 2026.04 <span class="badge b-blue">기반 구축기</span></div>
+      <div class="t-title">담당 첫 달에 핵심 파이프라인 일괄 구축</div>
+      <div class="t-body">인플루언서 CRM 파이프라인 재구축(66→268명, 4월 당시 파이프라인 등재 기준 — 10월 CRM 화면 인원과 별개 시점), DocuSeal 전자계약 체계 개통, 라쿠텐 주문 풀 파이프라인(4중 감사 ALL PASS 100/100), 적대감사 하네스, 트위터 자동 운영 6부대, 일본어 카탈로그·박람회 리플렛 제작. <b>4/24 Meta 광고 계정 인수</b>(화이트리스팅 셋업부터).</div>
+    </div>
+    <div class="t-item">
+      <div class="t-date">PHASE 2 · 2026.05 – 06 <span class="badge b-green">지표 체계 수립 + 첫 성과 검증</span></div>
+      <div class="t-title">CPLPV 지표 체계를 직접 설계하고, 슈퍼세일에서 실전 검증</div>
+      <div class="t-body">광고 운영 기준 전면 정립(CPLPV 메인 지표·인플루언서 등급제·3단 손절 게이트, 5/11). 월간 매출 배수 0.93x→2.28x 실측(6/1). 라쿠텐 슈퍼세일 150시간 — 증액 +89%에 유입단가 동결, 평시 대비 매출 +443%(6/12). 광고 대시보드 meta-app 공개 배포(6/10). 제품별 공헌이익 워크북 구축(6/18).</div>
+    </div>
+    <div class="t-item">
+      <div class="t-date">PHASE 3 · 2026.07 – 09 <span class="badge b-purple">자동화 심화 + 채널 확장</span></div>
+      <div class="t-title">광고 생성까지 자동화하고, 라쿠텐 검색·아마존·틱톡으로 채널 확장</div>
+      <div class="t-body">콘텐츠→광고 자동 생성 파이프라인 첫 가동(7/7), 광고 명명 체계 V1 확정. JP 시장 BSR TOP100 경쟁 분석(TOP100 매출 기준 JP가 US의 1/6.4 규모임을 규명, 7/9). 주간 CPLPV ₩124→₩74까지 개선(9/1). RPP 키워드 효율 체계·상세페이지 SEO·재콜라보 랭킹 대시보드 신설. 인플루언서 플레이북 STEP 1~12 전면 전환(9/9). TikTok 광고 수집 파이프라인 착수(9/21).</div>
+    </div>
+    <div class="t-item">
+      <div class="t-date">PHASE 4 · 2026.10 <span class="badge b-amber">룰 기반 의사결정 + 조직 이관</span></div>
+      <div class="t-title">"감이 아닌 룰"로 돌아가는 구조 완성, 사람에게 넘길 수 있는 상태로 문서화</div>
+      <div class="t-body">판정룰 3종(SBV·TikTok·자사영상) 수립 + 「오늘의 액션」 매일 자동 판정(10/12). 채널 간 배분 분석으로 TikTok 유입단가가 Meta의 1/6.7임을 입증(10/21) → 일 ₩472K→336K 감액 당일 집행(10/23). 심사 AI 제품 식별 학습, 송금 자동화, JP 맘 인플루언서 전체 시장 산정(모수 18,528명). 인턴 온보딩 페이지·CRM 이관 문서·플레이북 개정으로 조직 이관 준비 완료.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== 7. 종합 ====================== -->
+<h2><span class="num">7</span>종합 — 이 기록이 보여주는 것</h2>
+<div class="h2sub">7개월 기록을 관통하는 다섯 가지.</div>
+
+<div class="panel">
+  <table>
+    <tr><th style="width:220px;">논점</th><th>근거</th></tr>
+    <tr>
+      <td><b>① 1인 = 팀 단위 산출</b></td>
+      <td>퍼포먼스 마케터 + 인플루언서 매니저 + CRM 운영 + 웹 개발자 + 데이터 엔지니어 역할을 동시 수행. 월 접촉 250건·협상 230건 + 매일 4채널 광고 판정·집행 + 주문 파이프라인 + 앱 6종 유지보수가 한 사람 체제에서 동시 가동 — 자동화 시스템 20개+가 그 레버리지의 실체.</td>
+    </tr>
+    <tr>
+      <td><b>② 성과가 수치로 증명됨</b></td>
+      <td>인수 전 0.93x였던 계정을 담당 첫 풀가동 월에 매출 배수 2.28x로 — RPP 귀속 매출을 차감한 Meta 조정 배수로도 4월 ≈1.1x → 5월 ≈1.8x 상승(산식 §4). 유입단가 ₩124→₩84(-32%), 증액 +89% 구간 효율 동결, 감액 -29% 집행 후 효율 개선. 전부 API·리포트 실측 기반.</td>
+    </tr>
+    <tr>
+      <td><b>③ "감"이 아닌 "룰"로 운영</b></td>
+      <td>정량/정성 심사 게이트, CPLPV 지표 체계, 졸업/중단 게이트, 판정룰 3종, RPP 중단 임계, 유상/무상 구조 마커 — 의사결정을 재현 가능한 룰로 코드화. 담당자가 바뀌어도 같은 품질이 나오는 구조.</td>
+    </tr>
+    <tr>
+      <td><b>④ 시장을 정의하는 수준의 분석</b></td>
+      <td>일본 맘 인플루언서 전체 모수(18,528명)를 직접 산정해 자사 커버리지(7.1%)를 좌표화. JP Amazon TOP100 전수 분석으로 시장 구조 규명. 채널 간 유입단가 1/6.7 입증으로 예산 재배분 근거 제시 — 실행자이면서 전략 수립자.</td>
+    </tr>
+    <tr>
+      <td><b>⑤ 확장 가능한 상태로 인계</b></td>
+      <td>플레이북 STEP 1~12·온보딩 페이지·이관 문서·AI 학습 루프까지 — 노하우가 조직 자산으로 전환 완료. 입금 사고 집행 직전 차단, 자동화 13일 중단 당일 복구 등 리스크 관리 실적 포함.</td>
+    </tr>
+  </table>
+</div>
+
+<div class="callout c-green">
+  <b>한 줄 결론:</b> 7개월간 일본 사업의 운영 체계를 맨바닥에서 설계해, <b>유입단가 32% 개선·매출 배수 성장(원산식 2.45배, Meta 조정 기준 4월 ≈1.1x→5월 ≈1.8x)·월 250건 접촉→21건 투고의 운영 볼륨</b>을 만들었고, 그 전 과정을 <b>룰과 시스템으로 코드화해 조직이 물려받을 수 있는 자산</b>으로 남겼습니다.
+</div>
+
+<div class="foot">
+  <b>데이터 출처 및 검증 범위</b><br>
+  · 본 보고의 모든 수치는 레포(Orbiters-dev/SE) 세션 기록 157건 전수 판독, git 이력(본인 계정 Orbiters11-dev 기준, JP 담당 기간 2026.04~10 커밋 360건), 파일 시스템 실측에 기재된 값만 사용. 각 수치에 기준 날짜 병기. 레포는 공동 운영(전체 1,532커밋)이며 자동화 자산 중 일부는 공동 구축분 포함.<br>
+  · JP 담당 시작: 세션 기록 최초 2026-04-10, Meta 광고 담당 시작 2026-04-24(첫 화이트리스팅 셋업 기록). 월간 매출 배수 원산식(0.93x/1.48x/2.28x)은 2026-06-01 집계 도구 실측값(라쿠텐 전체 매출 ÷ Meta 광고비)이며 2026.03은 담당 전 베이스라인. Meta 조정 배수는 당시 저장된 RPP 상품별 리포트(12시간 어트리뷰션, 4/6~5/5·5/7~6/5 윈도우 실측)의 귀속 매출을 차감해 산출 — TikTok 광고는 2026-09-18 시작이라 해당 기간 차감 대상 없음. Meta 픽셀 직접 귀속은 외부(라쿠텐) 랜딩 구조상 측정 불가. 슈퍼세일 수치는 취소 제외 확정치(2026-06-12 기준). Meta JP 광고계정 통화 = KRW, 환율 9.561 KRW/JPY(2026-06-11 세션 기준값).<br>
+  · 월평균 소통 volume은 누적치 ÷ 7개월의 기간 평균(월별 변동 있음). 8월 세션 기록은 1건만 보존되어 8월 활동은 과소 반영 가능 (기록 부재 ≠ 활동 부재).<br>
+  · 크리에이터 CRM 화면·재콜라보 대시보드는 별도 레포(Orbiters-dev/WONGI) 소스로, 본 보고에는 세션 기록 기준 실적만 반영.
+</div>
+
+</div>
+</body>
+</html>

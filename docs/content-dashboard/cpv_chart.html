@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>CPV Analysis — Grosmimi JP</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="cpv_data.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6fa; color: #333; padding: 24px; }
+h1 { font-size: 20px; margin-bottom: 4px; }
+.subtitle { color: #888; font-size: 13px; margin-bottom: 20px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.card.full { grid-column: 1 / -1; }
+.card h2 { font-size: 15px; color: #555; margin-bottom: 12px; }
+.stat-row { display: flex; gap: 20px; margin-bottom: 16px; }
+.stat { text-align: center; flex: 1; }
+.stat .num { font-size: 28px; font-weight: 700; }
+.stat .label { font-size: 12px; color: #888; }
+.grade-a .num { color: #22c55e; }
+.grade-b .num { color: #f59e0b; }
+.grade-c .num { color: #ef4444; }
+canvas { max-height: 350px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; }
+th { color: #888; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.tag-a { background: #dcfce7; color: #166534; }
+.tag-b { background: #fef3c7; color: #92400e; }
+.tag-c { background: #fee2e2; color: #991b1b; }
+.tag-d { background: #fecaca; color: #7f1d1d; }
+.tag-ppsu { background: #dbeafe; color: #1e40af; }
+.tag-fliptop { background: #fae8ff; color: #86198f; }
+.tag-stainless { background: #d1fae5; color: #065f46; }
+.tag-paid { background: #e0e7ff; color: #3730a3; }
+.tag-free { background: #f3f4f6; color: #6b7280; }
+.note { font-size: 12px; color: #aaa; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<h1>CPV Analysis — Grosmimi JP Influencers</h1>
+<p class="subtitle">Updated: <span id="updated"></span> | Cost basis: COGS (KRW→JPY) | Per-post, Percentile ABCD</p>
+
+<div class="stat-row">
+  <div class="stat grade-a"><div class="num" id="cnt-a">-</div><div class="label">Grade A (top 25%)</div></div>
+  <div class="stat grade-b"><div class="num" id="cnt-b">-</div><div class="label">Grade B (25-50%)</div></div>
+  <div class="stat grade-c"><div class="num" id="cnt-c">-</div><div class="label">Grade C (50-75%)</div></div>
+  <div class="stat" style="color:#dc2626"><div class="num" id="cnt-d">-</div><div class="label">Grade D (bottom 25%)</div></div>
+  <div class="stat"><div class="num" id="avg-cpv">-</div><div class="label">Avg CPV</div></div>
+  <div class="stat"><div class="num" id="med-cpv">-</div><div class="label">Median CPV</div></div>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>CPV by Creator (lower = better)</h2>
+    <canvas id="cpvBar"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>Paid vs Free — CPV Distribution</h2>
+    <canvas id="paidFreeChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>Cost vs Views</h2>
+    <canvas id="scatterChart"></canvas>
+  </div>
+
+  <div class="card full">
+    <h2>All Creators</h2>
+    <table id="creatorTable">
+      <thead><tr><th>Creator</th><th>Post</th><th>Product</th><th>Type</th><th>Fee</th><th>Product</th><th>Ad Spend</th><th>Views</th><th>Organic CPV</th><th>Total CPV</th><th>Grade</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<p class="note">v2 — Per-post, Percentile 4분위: A (top 25%) / B (25-50%) / C (50-75%) / D (bottom 25%). Tooltip: Fee + Product Cost 분리 표시.</p>
+
+<script>
+const data = CPV_DATA;
+document.getElementById('updated').textContent = CPV_UPDATED;
+
+// Stats
+const cpvs = data.map(d => d.cpv).sort((a,b) => a-b);
+const a = data.filter(d => d.grade === 'A').length;
+const b = data.filter(d => d.grade === 'B').length;
+const c = data.filter(d => d.grade === 'C').length;
+const dd = data.filter(d => d.grade === 'D').length;
+const avg = (cpvs.reduce((s,v) => s+v, 0) / cpvs.length).toFixed(2);
+const med = cpvs[Math.floor(cpvs.length/2)].toFixed(2);
+
+document.getElementById('cnt-a').textContent = a;
+document.getElementById('cnt-b').textContent = b;
+document.getElementById('cnt-c').textContent = c;
+document.getElementById('cnt-d').textContent = dd;
+document.getElementById('avg-cpv').textContent = '¥' + avg;
+document.getElementById('med-cpv').textContent = '¥' + med;
+
+function gradeColor(g) {
+  return g === 'A' ? '#22c55e' : g === 'B' ? '#f59e0b' : g === 'C' ? '#ef4444' : '#991b1b';
+}
+function productType(p) {
+  if (!p) return '';
+  const l = p.toLowerCase();
+  if (l.includes('stain')) return 'Stainless';
+  if (l.includes('fliptop') || l.includes('onetouch')) return 'Fliptop';
+  return 'PPSU';
+}
+function productTag(p) {
+  const t = productType(p);
+  if (!t) return '';
+  const cls = t === 'Stainless' ? 'tag-stainless' : t === 'Fliptop' ? 'tag-fliptop' : 'tag-ppsu';
+  return '<span class="tag ' + cls + '">' + t + '</span>';
+}
+
+// Bar chart — CPV by post
+const sorted = [...data].sort((a,b) => a.cpv - b.cpv);
+const barLabels = sorted.map(d => {
+  const pt = productType(d.product);
+  const tag = pt ? ' [' + pt + ']' : '';
+  return d.username + tag;
+});
+new Chart(document.getElementById('cpvBar'), {
+  type: 'bar',
+  data: {
+    labels: barLabels,
+    datasets: [{
+      label: 'CPV (¥)',
+      data: sorted.map(d => d.cpv),
+      backgroundColor: sorted.map(d => gradeColor(d.grade)),
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          afterLabel: (ctx) => {
+            const d = sorted[ctx.dataIndex];
+            return [
+              `Views: ${d.views.toLocaleString()}`,
+              `Fee: ¥${d.fee.toLocaleString()} | Product: ¥${d.product_cost.toLocaleString()}`,
+              `Total: ¥${d.total_cost.toLocaleString()} | ${d.deal_type}`,
+            ];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'CPV (¥)' },
+        grid: { color: '#f0f0f0' }
+      }
+    }
+  }
+});
+
+// Paid vs Free scatter
+const paid = data.filter(d => d.deal_type === 'paid');
+const free = data.filter(d => d.deal_type === 'free');
+new Chart(document.getElementById('paidFreeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Avg CPV', 'Avg Views', 'Count'],
+    datasets: [
+      {
+        label: 'Paid',
+        data: [
+          (paid.reduce((s,d) => s+d.cpv, 0)/paid.length).toFixed(2),
+          Math.round(paid.reduce((s,d) => s+d.views, 0)/paid.length),
+          paid.length,
+        ],
+        backgroundColor: '#6366f1',
+      },
+      {
+        label: 'Free',
+        data: [
+          (free.reduce((s,d) => s+d.cpv, 0)/free.length).toFixed(2),
+          Math.round(free.reduce((s,d) => s+d.views, 0)/free.length),
+          free.length,
+        ],
+        backgroundColor: '#a5b4fc',
+      }
+    ]
+  },
+  options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+});
+
+// Scatter: total cost vs views
+new Chart(document.getElementById('scatterChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'Posts',
+      data: data.map(d => ({ x: d.total_cost, y: d.views, username: d.username, fee: d.fee, product_cost: d.product_cost, ad_spend: d.ad_spend || 0, organic_cost: d.organic_cost || d.total_cost })),
+      backgroundColor: data.map(d => gradeColor(d.grade) + '88'),
+      pointRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const r = ctx.raw;
+            return [
+              `${r.username}`,
+              `Fee: ¥${r.fee.toLocaleString()} + Product: ¥${r.product_cost.toLocaleString()}`,
+              r.ad_spend ? `Ad Spend: ¥${r.ad_spend.toLocaleString()}` : '',
+              `Organic: ¥${r.organic_cost.toLocaleString()} | Total: ¥${r.total_cost.toLocaleString()}`,
+              `${r.y.toLocaleString()} views`,
+            ].filter(Boolean);
+          }
+        }
+      }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Total Cost (¥)' } },
+      y: { title: { display: true, text: 'Views' } }
+    }
+  }
+});
+
+// Table
+const tbody = document.querySelector('#creatorTable tbody');
+sorted.forEach(d => {
+  const tr = document.createElement('tr');
+  const postLink = d.url ? `<a href="${d.url}" target="_blank" style="color:#6366f1;text-decoration:none">${d.shortcode ? d.shortcode.slice(0,8) : 'link'}</a>` : '-';
+  const adSpend = d.ad_spend || 0;
+  tr.innerHTML = `
+    <td><strong>${d.username}</strong></td>
+    <td>${postLink}</td>
+    <td>${productTag(d.product)}</td>
+    <td><span class="tag ${d.deal_type === 'paid' ? 'tag-paid' : 'tag-free'}">${d.deal_type}</span></td>
+    <td>¥${d.fee.toLocaleString()}</td>
+    <td>¥${d.product_cost.toLocaleString()}</td>
+    <td>${adSpend ? '¥' + adSpend.toLocaleString() : '-'}</td>
+    <td>${d.views.toLocaleString()}</td>
+    <td>¥${d.organic_cpv || d.cpv}</td>
+    <td>¥${d.total_cpv || d.cpv}</td>
+    <td><span class="tag tag-${d.grade.toLowerCase()}">${d.grade}</span></td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>

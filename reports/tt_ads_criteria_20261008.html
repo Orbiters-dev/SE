@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>TikTok Ads 운영 기준 — 캠페인 전체 히스토리 실측 (2026-10-08)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+body{font-family:'Pretendard','Malgun Gothic',sans-serif;max-width:1060px;margin:24px auto;padding:0 20px;color:#1a1a1a;line-height:1.55}
+h1{font-size:21px;border-bottom:3px solid #111;padding-bottom:8px}
+h2{font-size:16px;margin-top:34px;border-left:4px solid #111;padding-left:9px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0}
+th{background:#111;color:#fff;padding:6px 8px;text-align:left;font-weight:600}
+td{border-bottom:1px solid #e3e3e3;padding:5px 8px}
+.r{text-align:right} tr.good td{background:#f0f7f0} tr.bad td{background:#fbf0f0}
+.note{font-size:12px;color:#555;background:#f5f5f5;border-left:3px solid #999;padding:8px 12px;margin:10px 0}
+.chartbox{margin:14px 0;padding:10px;border:1px solid #ddd;border-radius:6px}
+canvas{max-height:330px}
+.kpi{font-size:13px} .kpi b{font-size:14px}
+</style></head><body>
+
+<h1>TikTok Ads 운영 기준 — 캠페인 전체 히스토리 실측</h1>
+<p class="kpi">모수: 캠페인 1개(260918_traffic_IHV_PPSU&amp;Stainless, 유일한 집행 이력) · 광고 17개 · 2026-09-18 ~ 10-08 (21일, 10/8은 당일 진행분) · 총 지출 <b>99,355엔</b> · Ads Manager 일자별 실측(일합 vs 누적 오차 0.01%).<br>
+지표는 전부 TikTok <b>destination 기준</b>(LPV=landing page view, 구매 아님). CPC·CPLPV는 원시값 재계산.</p>
+
+<h2>TL;DR — 질문 5개 답</h2>
+<table>
+<tr><th style="width:34%">질문</th><th>답</th></tr>
+<tr><td>1. 언제 OFF?</td><td><b>D3부터, 일 지출 ≥200엔인 날 기준 「CPLPV &gt; 4엔 or CTR &lt; 8%」 3판정일 연속 → OFF</b> (최초 OFF = 집행 6일차, 120시간+ 관찰 보장). 과거 21일에 적용 시 실패 5개 전부 D5~D10에 차단, 정상 광고 오탐 0, 지출 39% 절약 (아래 시뮬).</td></tr>
+<tr><td>2. 기세 꺾이는 시점</td><td>실패 소재는 <b>2~5일차에 결판</b>(5/5건이 D2~D5 붕괴). 생존 소재 4개는 21일 내 꺾임 없음. 중간 2개만 8~11일차 완만 피로. "오래 돌려서 꺾였다"보다 <b>초반 생존 여부가 거의 전부</b>.</td></tr>
+<tr><td>3. 잘/못 판정 기준</td><td>지출 게이트(누적 ≥1,500엔) 통과 후: <b>정상 = CPLPV ≤ 3엔 &amp; CTR ≥ 10%</b> / 실패 = CPLPV ≥ 4엔 or CTR &lt; 8%. 실측 분포가 1.7엔↔4.6엔, 14%↔8%로 갈라져 중간지대 거의 없음.</td></tr>
+<tr><td>4. 잘 돌아가는 광고 궤적</td><td>CPLPV가 <b>0.7~1.5엔 좁은 밴드에서 횡보</b>, 지출이 몇 배로 출렁여도 밴드 유지 (차트 ②).</td></tr>
+<tr><td>5. 안 돌아가는 광고 궤적</td><td><b>D0~D1 CTR 19~56% 미끼 스파이크 → D2~D5 붕괴(CTR 2~6%, CPLPV 7~27엔) → 복구 없이 고착.</b> 5건 전부 동일 패턴 (차트 ③·④).</td></tr>
+</table>
+
+<h2>광고 17개 전기간 성적 (CPLPV 오름차순)</h2>
+<table>
+<tr><th>광고</th><th class="r">지출(엔)</th><th class="r">LPV</th><th class="r">CPLPV(엔)</th><th class="r">CTR</th><th class="r">지출비중</th><th>판정</th></tr>
+<tr class=''><td>0929_グロミミ開要</td><td class='r'>263</td><td class='r'>966</td><td class='r'>0.27</td><td class='r'>48.2%</td><td class='r'>0%</td><td>판정 유보 (지출 미달)</td></tr><tr class=''><td>0929_赤ちゃん自分から選ぶマグ</td><td class='r'>339</td><td class='r'>924</td><td class='r'>0.37</td><td class='r'>43.6%</td><td class='r'>0%</td><td>판정 유보 (지출 미달)</td></tr><tr class=''><td>0918_#5506</td><td class='r'>1,132</td><td class='r'>2,801</td><td class='r'>0.40</td><td class='r'>35.6%</td><td class='r'>1%</td><td>판정 유보 (지출 미달)</td></tr><tr class='good'><td>0918_#5522</td><td class='r'>2,152</td><td class='r'>2,907</td><td class='r'>0.74</td><td class='r'>38.3%</td><td class='r'>2%</td><td>정상</td></tr><tr class=''><td>0929_話題のマグ</td><td class='r'>333</td><td class='r'>430</td><td class='r'>0.77</td><td class='r'>26.8%</td><td class='r'>0%</td><td>판정 유보 (지출 미달)</td></tr><tr class=''><td>0918_#3810</td><td class='r'>1,329</td><td class='r'>1,696</td><td class='r'>0.78</td><td class='r'>42.1%</td><td class='r'>1%</td><td>중간</td></tr><tr class='good'><td>0918_#3858</td><td class='r'>3,725</td><td class='r'>4,461</td><td class='r'>0.84</td><td class='r'>30.1%</td><td class='r'>4%</td><td>정상</td></tr><tr class='good'><td>0918_#5490</td><td class='r'>9,949</td><td class='r'>10,654</td><td class='r'>0.93</td><td class='r'>20.1%</td><td class='r'>10%</td><td>정상</td></tr><tr class='good'><td>0918_#6642</td><td class='r'>1,219</td><td class='r'>1,279</td><td class='r'>0.95</td><td class='r'>18.9%</td><td class='r'>1%</td><td>정상</td></tr><tr class=''><td>0918_#6626</td><td class='r'>726</td><td class='r'>682</td><td class='r'>1.06</td><td class='r'>18.4%</td><td class='r'>1%</td><td>판정 유보 (지출 미달)</td></tr><tr class=''><td>0918_#5538</td><td class='r'>913</td><td class='r'>609</td><td class='r'>1.50</td><td class='r'>14.0%</td><td class='r'>1%</td><td>판정 유보 (지출 미달)</td></tr><tr class=''><td>0918_#3826</td><td class='r'>13,817</td><td class='r'>8,691</td><td class='r'>1.59</td><td class='r'>15.1%</td><td class='r'>14%</td><td>중간</td></tr><tr class='bad'><td>0929_ママたちの間で話題のマグ</td><td class='r'>2,581</td><td class='r'>1,532</td><td class='r'>1.68</td><td class='r'>16.8%</td><td class='r'>3%</td><td>OFF 대상</td></tr><tr class='bad'><td>0918_#6658</td><td class='r'>3,003</td><td class='r'>648</td><td class='r'>4.63</td><td class='r'>8.1%</td><td class='r'>3%</td><td>OFF 대상</td></tr><tr class='bad'><td>0918_#2770</td><td class='r'>34,252</td><td class='r'>7,280</td><td class='r'>4.70</td><td class='r'>8.0%</td><td class='r'>34%</td><td>OFF 대상</td></tr><tr class='bad'><td>0918_#3842</td><td class='r'>8,855</td><td class='r'>1,171</td><td class='r'>7.56</td><td class='r'>4.1%</td><td class='r'>9%</td><td>OFF 대상</td></tr><tr class='bad'><td>0929_韓国ママの秘密</td><td class='r'>14,767</td><td class='r'>1,388</td><td class='r'>10.64</td><td class='r'>5.6%</td><td class='r'>15%</td><td>OFF 대상</td></tr>
+</table>
+<p class="note">실패 5개가 지출 <b>63,458엔(64%)</b>를 소진하고 LPV는 12,019개(25%)만 생산. 같은 돈을 정상 광고 단가(≈0.9엔)로 돌렸으면 LPV 약 5배. <b>자동배분이 효율을 따라가지 않음</b>(지출 1·2위가 효율 최하위권) — 수동 OFF 룰이 필요한 직접 근거.</p>
+
+<h2>① OFF 룰 + 과거 21일 백테스트</h2>
+<p class="kpi">룰: <b>D0~D2 판정 금지</b> → D3부터 일 지출 ≥200엔인 날만 판정일로 집계 → <b>CPLPV &gt; 4엔 or CTR &lt; 8% 가 판정일 3회 연속 → OFF</b> (최초 OFF = 집행 6일차 = 120시간+ 관찰 후).<br>
+D0~D1 제외 근거: 탐색 트래픽이 CTR 왜곡 — 실패 5건도 초반 1~2일 CTR 19~56%로 정상권. D2 제외 근거: 정상 광고도 D2에 위반을 찍는 노이즈 날 — #5490(D2 6.72엔→D4부터 0.8~1.0엔 복귀)·#3826(D2 5.34엔→D3 1.05엔 복귀). 판정 시작을 D4로 더 미루면 #2770이 간헐 회복일 덕에 D13까지 생존(절약 18%로 반토막)·#6658 미차단 — D3가 최적점.</p>
+<table>
+<tr><th>광고</th><th>OFF 발동 시점</th><th class="r">그때까지 지출(엔)</th><th class="r">절약(엔)</th></tr>
+<tr><td>0929_ママたちの間で話題のマグ</td><td>D8 (10-07)</td><td class='r'>2,544</td><td class='r'>37</td></tr><tr><td>0918_#6658</td><td>D9 (09-27)</td><td class='r'>1,852</td><td class='r'>1,151</td></tr><tr><td>0918_#2770</td><td>D5 (09-23)</td><td class='r'>8,110</td><td class='r'>26,142</td></tr><tr><td>0918_#3842</td><td>D10 (09-28)</td><td class='r'>5,184</td><td class='r'>3,671</td></tr><tr><td>0929_韓国ママの秘密</td><td>D5 (10-04)</td><td class='r'>7,101</td><td class='r'>7,666</td></tr>
+<tr><td><b>합계</b></td><td></td><td></td><td class="r"><b>38,667 (전체 지출의 39%)</b></td></tr>
+</table>
+<p class="note">오탐 검증: 정상·중간 광고 전부 미발동. "3회 연속" 조건은 실패 광고의 간헐 회복일(#2770의 D6·D10·D17) 미끼와 정상 광고의 일시 흔들림을 모두 흡수 — 0918_#3826(D1~D2 8.3→5.3엔으로 나빴다가 D3 1.0엔 복구, 최종 1.59엔) 같은 회복형을 살림.</p>
+
+<h2>② 캠페인 일별 흐름 + 신규 소재 투입 리스크</h2>
+<div class="chartbox"><canvas id="c1"></canvas></div>
+<p class="kpi">9/30에 0929 신규 5본 투입 → 투입 당일은 좋았으나(전체 CPLPV 0.85엔) <b>10/1·10/3·10/4에 韓国ママの秘密가 지출을 흡수하며 캠페인 전체가 6.3~17.5엔으로 붕괴</b>. 한 캠페인 안에 신규를 넣으면 기존 성과가 같이 흔들림 — 신규 투입 후 D2~D4는 광고별 감시 필수 구간.</p>
+
+<h2>③ 잘 돌아가는 광고의 움직임 — CPLPV 밴드 횡보</h2>
+<div class="chartbox"><canvas id="c2"></canvas></div>
+<p class="kpi">생존 4개는 21일 내내 0.7~1.5엔 밴드 (y축 로그). 일 지출이 21엔→2,142엔으로 100배 출렁여도(#5490) 단가가 밴드를 벗어나지 않음 = <b>"잘 돌아간다" = 단가의 안정성</b>이지 특정 날 성과가 아님.</p>
+
+<h2>④ 안 돌아가는 광고의 움직임 — D2 붕괴 후 고착</h2>
+<div class="chartbox"><canvas id="c3"></canvas></div>
+<p class="kpi">5개 전부 D2~D5 구간에 CPLPV 7~27엔으로 점프 후 끝까지 4엔 아래로 복귀 못 함 (y축 로그). 간헐적 회복일(#2770의 D6·D10·D17)이 있어도 누적은 4.7엔 — <b>하루 반등을 회복으로 믿지 말 것</b>(그래서 룰이 "3판정일 연속").</p>
+
+<h2>⑤ D0~D1은 전부 잘 나온다 — 미끼 구간 증명</h2>
+<div class="chartbox"><canvas id="c4"></canvas></div>
+<p class="kpi">실패 광고도 첫 1~2일 합산 CTR 19~48%로 정상 광고와 구분 불가 → D2 이후 2~6%로 추락. <b>론칭 직후 성과로 증액·판정 금지.</b></p>
+
+<h2>구매(라쿠텐 착지) 레이어 — 판정 보류 유지</h2>
+<p class="kpi">TT 착지인 기본컵의 라쿠텐 주문은 19일간 25건(일 0~3건)으로 TT 일 지출(1천~6.3천엔)과 연동 신호 없음. LPV 효율 기준과 별개로 <b>구매 CVR 판정은 D+14 누적 후</b>(기존 결론 유지). 위 기준은 "트래픽 캠페인으로서 소재·배분 관리" 기준이고, 채널 자체의 매출 기여 판정이 아님.</p>
+
+<p class="note">한계: ①지표 전부 TikTok destination 정의 — Meta link click과 직접 비교 금지 ②상태(Active)는 현재값이라 과거 수동 on/off 이력은 식별 불가 ③표본 = 캠페인 1개·트래픽 목적·21일. GMV Max 등 다른 목적엔 이 임계값 이식 금지, 구조(D0~D1 제외·연속 판정·지출 게이트)만 이식.</p>
+
+<script>
+const C = {"daily": {"labels": ["09-18", "09-19", "09-20", "09-21", "09-22", "09-23", "09-24", "09-25", "09-26", "09-27", "09-28", "09-29", "09-30", "10-01", "10-02", "10-03", "10-04", "10-05", "10-06", "10-07", "10-08"], "spend": [1720.0, 6250.0, 4042.0, 6000.0, 6003.0, 5476.0, 4497.0, 4497.0, 4485.0, 5498.0, 5906.0, 3791.0, 5961.0, 3692.0, 5659.0, 4493.0, 4027.0, 6250.0, 3962.0, 6121.0, 1025.0], "cplpv": [0.84, 1.11, 3.08, 2.98, 1.67, 1.25, 1.2, 1.49, 3.77, 3.05, 1.75, 4.08, 0.85, 12.91, 2.94, 6.26, 17.51, 2.02, 5.61, 6.34, 9.67], "ctr": [33.46, 21.07, 10.03, 8.15, 17.44, 18.84, 20.48, 18.23, 8.06, 9.33, 15.51, 8.4, 24.88, 4.26, 14.32, 6.87, 3.58, 17.06, 8.17, 7.73, 6.97]}, "good": [{"label": "0918_#5490", "cplpv": [1.53, 0.45, 6.72, 2.77, 1.06, 0.88, 0.97, 1.02, 0.89, 0.75, 0.91, 1.01, 0.89, 0.88, 0.94, 0.89, 6.33, 0.8, 1.13, 0.98, null], "ctr": [26.51, 23.18, 5.46, 9.31, 20.78, 21.9, 19.38, 17.79, 13.38, 21.49, 21.78, 19.47, 21.52, 12.73, 20.36, 14.99, 2.08, 21.3, 12.85, 18.73, 0.0]}, {"label": "0918_#3858", "cplpv": [0.36, 0.41, 2.11, 0.9, 0.97, 0.91, 1.03, 0.91, 0.84, 1.08, 1.05, 1.0, 1.02, 1.15, 0.88, 0.73, 0.96, 0.74, 0.82, 0.83], "ctr": [21.31, 39.59, 11.11, 21.65, 25.55, 29.93, 26.71, 34.58, 22.9, 18.5, 18.94, 13.92, 17.38, 21.64, 38.9, 26.32, 24.26, 36.62, 29.96, 31.93]}, {"label": "0918_#5522", "cplpv": [2.04, 0.2, 1.29, 0.78, 0.8, 1.0, 0.75, 0.99, 1.29, 2.71, 1.33, 1.39, 0.94, 1.0, 0.76, 0.76, 0.83, 0.75, 0.81, 0.68, 0.38], "ctr": [23.78, 50.7, 37.68, 28.89, 37.72, 34.25, 37.0, 43.48, 30.22, 18.48, 28.74, 29.19, 34.61, 23.08, 43.44, 33.89, 18.18, 40.95, 29.27, 37.38, 26.92]}, {"label": "0918_#6642", "cplpv": [1.54, 0.47, 1.88, 0.86, 1.28, 1.92, 0.9, 1.06, 0.77, 0.72, 1.12, 2.9, 0.89, 1.5, 1.62, 1.55, 3.5, 0.77, 1.67, 3.12, null], "ctr": [20.27, 19.34, 14.18, 21.74, 10.99, 9.85, 19.19, 16.33, 22.64, 22.73, 22.22, 10.75, 21.33, 16.67, 11.49, 13.54, 6.59, 18.65, 14.29, 10.91, 0.0]}], "bad": [{"label": "0918_#2770", "cplpv": [0.31, 0.19, 15.68, 15.28, 17.52, 22.16, 1.85, 2.61, 9.75, 7.77, 2.37, 5.59, 12.19, 16.77, 20.88, 15.59, 16.2, 2.97, 5.32, 7.67, 6.79], "ctr": [55.77, 45.56, 2.23, 2.32, 3.05, 2.24, 22.42, 16.41, 4.39, 5.43, 16.31, 7.69, 3.85, 2.97, 2.75, 3.22, 3.1, 11.87, 7.84, 5.81, 9.61]}, {"label": "0929_韓国ママの秘密", "cplpv": [null, 0.24, 24.88, 27.29, 23.79, 23.89, 17.24, 13.01, 17.36, 12.66], "ctr": [0.0, 44.31, 3.1, 3.54, 3.73, 4.02, 4.58, 4.99, 4.39, 5.74]}, {"label": "0918_#3842", "cplpv": [3.19, 1.02, 2.51, 4.31, 2.43, 12.21, 8.2, 19.71, 30.18, 30.64, 24.81, 37.12, 16.33, 35.86, 16.44, 38.6, 46.5, 36.5, 36.5, 30.25, 33.0], "ctr": [21.44, 14.52, 11.47, 5.73, 11.83, 1.99, 1.82, 1.2, 1.15, 1.26, 1.59, 0.87, 1.57, 1.71, 1.8, 1.52, 1.73, 1.6, 1.86, 1.8, 4.9]}, {"label": "0918_#6658", "cplpv": [0.56, 0.91, 0.97, 12.82, 16.03, 9.86, 9.5, 8.0, 20.67, 57.25, 38.6, 29.33, 4.91, 27.0, 22.5, 17.43, 35.0, 29.2, 16.0, 22.43, null], "ctr": [20.34, 23.88, 30.44, 3.16, 3.25, 4.65, 3.09, 6.67, 2.3, 1.69, 2.17, 1.94, 8.64, 3.25, 1.26, 3.03, 2.16, 1.86, 2.63, 2.09, 7.14]}, {"label": "0929_ママたちの間で話題のマグ", "cplpv": [null, 0.66, 6.85, 7.3, 25.33, 18.62, 17.24, 18.56, 16.13, 12.33], "ctr": [0.0, 29.13, 5.56, 5.59, 2.36, 3.16, 2.89, 2.69, 2.68, 5.69]}], "trap": {"labels": ["0918_#5522", "0918_#3858", "0918_#5490", "0918_#6642", "0929_ママたちの間で話題のマグ", "0918_#6658", "0918_#2770", "0918_#3842", "0929_韓国ママの秘密"], "early": [46.7, 38.0, 23.8, 19.6, 28.9, 22.7, 47.6, 19.1, 43.4], "late": [37.3, 29.6, 20.0, 18.7, 3.8, 6.7, 6.7, 3.6, 4.2], "isbad": [false, false, false, false, true, true, true, true, true]}};
+const gcol = ["#1a7a3a","#2f9e55","#57b878","#8fd3a8"];
+const bcol = ["#b02020","#d04545","#e07070","#8a1515","#f0a0a0"];
+new Chart(document.getElementById('c1'), {
+ data: {labels: C.daily.labels, datasets: [
+  {type:'bar', label:'지출(엔)', data:C.daily.spend, backgroundColor:'#c9d4e4', yAxisID:'y'},
+  {type:'line', label:'CPLPV(엔)', data:C.daily.cplpv, borderColor:'#b02020', yAxisID:'y2', tension:.2},
+  {type:'line', label:'CTR(%)', data:C.daily.ctr, borderColor:'#1a7a3a', yAxisID:'y2', tension:.2, borderDash:[5,3]}]},
+ options: {scales: {y:{position:'left', title:{display:true,text:'지출(엔)'}},
+  y2:{position:'right', title:{display:true,text:'CPLPV(엔) / CTR(%)'}, grid:{drawOnChartArea:false}}},
+  plugins:{title:{display:true,text:'캠페인 일별: 지출 · CPLPV · CTR (9/18~10/8)'}}}
+});
+function adChart(id, series, cols, title) {
+ const maxLen = Math.max(...series.map(s=>s.cplpv.length));
+ new Chart(document.getElementById(id), {type:'line',
+  data: {labels: Array.from({length:maxLen},(_,i)=>'D'+i),
+   datasets: series.map((s,i)=>({label:s.label, data:s.cplpv, borderColor:cols[i],
+     backgroundColor:cols[i], tension:.15, spanGaps:true, pointRadius:2.5}))},
+  options: {scales:{y:{type:'logarithmic', title:{display:true,text:'CPLPV(엔, 로그)'}}},
+   plugins:{title:{display:true,text:title}}}});
+}
+adChart('c2', C.good, gcol, '정상 광고 4개 — 일별 CPLPV (런칭 후 경과일)');
+adChart('c3', C.bad, bcol, '실패 광고 5개 — 일별 CPLPV (런칭 후 경과일)');
+new Chart(document.getElementById('c4'), {type:'bar',
+ data: {labels: C.trap.labels, datasets: [
+  {label:'D0~D1 CTR(%)', data:C.trap.early, backgroundColor:'#7a9cc9'},
+  {label:'D2 이후 CTR(%)', data:C.trap.late,
+    backgroundColor:C.trap.isbad.map(b=>b?'#d04545':'#2f9e55')}]},
+ options: {plugins:{title:{display:true,text:'론칭 직후 CTR vs 이후 CTR — 초록=정상, 빨강=실패'}}}
+});
+</script>
+</body></html>

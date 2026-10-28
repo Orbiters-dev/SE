@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JP 위클리 리포트 덱 · 9/18~9/30</title>
+<style>
+:root{
+--pink:#f48ab0;--pink2:#ef6b9c;--rose:#ffd9e6;--peach:#ffe8d6;--ivory:#fff9f2;--cream:#fffdf9;
+--ink:#5a4650;--mut:#9b8790;--line:#f3e2e8;--card:#fffdfb;
+--good:#ff7fb0;--mid:#f7b955;--bad:#e06a6a;--goodt:#d94f88;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Malgun Gothic',system-ui,sans-serif;background:var(--ivory);color:var(--ink);line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+.cover{background:linear-gradient(135deg,#ffe3ee 0%,#ffd9e6 45%,#ffe8d6 100%);color:#8a4763;padding:54px 54px;text-align:center;border-radius:24px;margin:26px 0;box-shadow:0 8px 30px rgba(239,107,156,.10)}
+.cover .bunny{font-size:50px}
+.cover .kick{font-size:13px;letter-spacing:4px;opacity:.75;text-transform:uppercase;margin-top:4px}
+.cover h1{font-size:42px;line-height:1.15;margin:10px 0 8px;font-weight:800;color:#c6437a}
+.cover .sub{font-size:17px;opacity:.9}
+.cover .meta{margin-top:24px;font-size:15px;display:inline-flex;gap:22px;flex-wrap:wrap;background:#fff6fa;padding:12px 22px;border-radius:999px}
+/* tabs */
+.tabs{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:7px;padding:12px 0 10px;background:linear-gradient(180deg,var(--ivory) 70%,rgba(255,249,242,0));margin-bottom:4px}
+.tab{cursor:pointer;border:1px solid #fbd2e1;background:#fff6fa;color:var(--pink2);font-weight:800;font-size:13.5px;padding:9px 15px;border-radius:999px;transition:.15s;white-space:nowrap}
+.tab:hover{background:#ffe9f1}
+.tab.on{background:linear-gradient(90deg,var(--pink2),var(--pink));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(239,107,156,.3)}
+.tab .dot{font-size:11px;opacity:.85}
+.page{display:none;animation:fade .25s ease}
+.page.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.slide{background:var(--card);border-radius:24px;box-shadow:0 8px 30px rgba(239,107,156,.10);margin:18px 0;overflow:hidden;border:1px solid #fbe9ef}
+.band{background:linear-gradient(90deg,var(--pink2),var(--pink));color:#fff;padding:15px 28px;font-size:20px;font-weight:800;display:flex;align-items:center;gap:11px}
+.band .em{font-size:23px}
+.body{padding:24px 28px 28px}
+.lead{font-size:15.5px;background:#fff3f8;border-left:5px solid var(--pink);padding:13px 16px;border-radius:12px;margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:13px;margin:6px 0 18px}
+.card{background:linear-gradient(180deg,#fffafc,#fff4f8);border:1px solid var(--line);border-radius:18px;padding:15px 13px 13px;text-align:center}
+.card .lab{font-size:12px;color:var(--mut);font-weight:700;letter-spacing:.2px}
+.card .val{font-size:26px;font-weight:800;margin:6px 0 2px;color:var(--goodt)}
+.card .dl{font-size:12px;font-weight:700}
+.up{color:var(--goodt)} .down{color:var(--bad)} .flat{color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0 6px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:#fff0f6;color:var(--goodt);font-weight:800;font-size:12px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11.5px;font-weight:700;color:#fff}
+.p-good{background:var(--good)} .p-mid{background:var(--mid)} .p-bad{background:var(--bad)} .p-mut{background:#c8b3bd}
+.hi{background:#fff7ea;border:1px solid #ffe0ad;border-radius:14px;padding:12px 15px;margin:14px 0;font-size:14px}
+.hi b{color:#c98a12}
+.diag{background:#fff2f7;border:1px solid #ffcfe0;border-radius:14px;padding:12px 15px;margin:14px 0;font-size:14px}
+.diag b{color:var(--goodt)}
+.win{background:#f1fbf5;border:1.5px solid #b6e5c8;border-radius:16px;padding:14px 16px;font-size:14px}
+.win .h{font-weight:800;color:#28a05e;font-size:14.5px;display:block;margin-bottom:4px}
+.waste{background:#fff0f1;border:1.5px solid #ffc4c4;border-radius:16px;padding:14px 16px;font-size:14px}
+.waste .h{font-weight:800;color:#d94a4a;font-size:14.5px;display:block;margin-bottom:4px}
+td.bad{color:#d94a4a;font-weight:700} td.good{color:#28a05e;font-weight:700}
+tr.hlgood td{background:#f1fbf5} tr.hlbad td{background:#fff6f6}
+ul.k{margin:6px 0 4px;padding-left:0;list-style:none}
+ul.k li{padding:8px 0 8px 26px;position:relative;font-size:14px;border-bottom:1px dashed var(--line)}
+ul.k li:last-child{border-bottom:none}
+ul.k li::before{content:"🎀";position:absolute;left:2px;font-size:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:720px){.two{grid-template-columns:1fr}.cover{padding:40px 22px}.cover h1{font-size:30px}}
+.subh{font-size:15.5px;font-weight:800;color:var(--pink2);margin:20px 0 8px;display:flex;align-items:center;gap:8px}
+.tag{font-size:11px;color:var(--mut);font-weight:600}
+.step{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}
+.stepc{background:#fff6fa;border:1px solid var(--line);border-radius:14px;padding:13px 14px;font-size:13.5px}
+.stepc .no{display:inline-block;background:var(--pink2);color:#fff;font-weight:800;font-size:12px;border-radius:999px;padding:1px 9px;margin-bottom:6px}
+.note{background:#f6f3fb;border:1px dashed #d8c9ee;border-radius:12px;padding:11px 14px;margin:12px 0;font-size:13.5px;color:#6b5a86}
+.foot{text-align:center;color:var(--mut);font-size:12px;padding:10px 0 0}
+.badge{display:inline-block;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;margin-left:6px}
+.b-prog{background:#fff0d6;color:#c98a12} .b-done{background:#e2f7ea;color:#28a05e} .b-block{background:#ffe0e0;color:#d94a4a}
+/* guideline buttons */
+.gbtns{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 6px}
+.gbtn{display:flex;align-items:center;gap:12px;text-decoration:none;background:linear-gradient(135deg,#ef6b9c,#f48ab0);color:#fff;font-weight:800;font-size:15px;padding:17px 22px;border-radius:16px;box-shadow:0 6px 18px rgba(239,107,156,.28);transition:.15s;min-width:260px;flex:1}
+.gbtn:hover{transform:translateY(-2px);box-shadow:0 11px 26px rgba(239,107,156,.4)}
+.gbtn.alt{background:linear-gradient(135deg,#f7a65c,#f7c45c)}
+.gbtn .ic{font-size:24px}
+.gbtn .tt{display:flex;flex-direction:column;line-height:1.25}
+.gbtn .tt small{font-weight:600;font-size:11.5px;opacity:.88}
+.gbtn .arr{margin-left:auto;font-size:20px;opacity:.85}
+/* funnel */
+.funnel{margin:14px 0 10px}
+.frow{display:flex;align-items:center;gap:12px;margin:8px 0}
+.flab{width:150px;text-align:right;flex-shrink:0;font-weight:800;font-size:13px;color:var(--pink2)}
+.fbarwrap{flex:1}
+.fbar{height:44px;border-radius:12px;display:flex;align-items:center;padding:0 15px;color:#fff;font-weight:800;font-size:15px;box-shadow:0 3px 10px rgba(239,107,156,.18);white-space:nowrap}
+.fbar small{font-weight:600;font-size:11.5px;opacity:.9;margin-left:8px}
+@media(max-width:720px){.flab{width:92px;font-size:11.5px}.gbtn{min-width:100%}}
+</style></head><body><div class="wrap">
+
+<div class="cover">
+  <div class="bunny">🐰🍼</div>
+  <div class="kick">GROSMIMI JAPAN · Weekly Report</div>
+  <h1>JP 위클리 리포트</h1>
+  <div class="sub">핵심 작업 3건 · 채널 현황 (RPP · PPC · TikTok · Meta)</div>
+  <div class="meta"><span>📅 <b>2026. 09/18 ~ 09/30</b></span><span>🙋‍♀️ 담당 <b>세은</b></span><span>✍️ <b>2026-10-02</b></span></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab on" data-t="ov">📋 개요</div>
+  <div class="tab" data-t="rppk">🔑 RPP 키워드 개선</div>
+  <div class="tab" data-t="ovfile">🖼️ 그로미미 Overview</div>
+  <div class="tab" data-t="review">⭐ 인플루언서 정성 심사</div>
+  <div class="tab" data-t="funnel">🗓️ 9월 인플루언서 퍼널</div>
+  <div class="tab" data-t="meta">📡 현황 · Meta</div>
+  <div class="tab" data-t="rpp">📡 현황 · RPP</div>
+  <div class="tab" data-t="ppc">📡 현황 · PPC</div>
+  <div class="tab" data-t="tt">📡 현황 · TikTok</div>
+</div>
+
+<!-- ========================= 개요 ========================= -->
+<div class="page on" id="p-ov">
+  <div class="slide">
+    <div class="band"><span class="em">🔎</span> 이번 주 한눈에</div>
+    <div class="body">
+      <div class="lead">직전 보고(9/17 마감) 이후 <b>9/18~9/30 통째</b> 커버(9/18~9/23 미보고 공백 포함). 핵심 작업 3건 — <b>RPP 키워드 효율 개선</b>, 인플루언서 전달용 <b>그로미미 Overview 제작·수정</b>, <b>인플루언서 정성 심사 시스템 제작</b>. Meta는 지출 늘리며 효율 동반 개선(CPLPV ₩77, LPV +18.7%).</div>
+      <div class="cards">
+        <div class="card"><div class="lab">Meta 지출 (주)</div><div class="val">₩287.9만</div><div class="dl up">+9.6% ▲</div></div>
+        <div class="card"><div class="lab">Meta CPLPV</div><div class="val">₩77</div><div class="dl up">-7.7% ▼ 개선</div></div>
+        <div class="card"><div class="lab">Meta LPV (주)</div><div class="val">37,341</div><div class="dl up">+18.7% ▲</div></div>
+        <div class="card"><div class="lab">RPP ROAS (스텐)</div><div class="val">478%</div><div class="dl up">판매중 3상품 중 1위</div></div>
+        <div class="card"><div class="lab">신규 계약</div><div class="val">2건</div><div class="dl flat">무상 · E2E 완주</div></div>
+      </div>
+      <ul class="k">
+        <li><b>RPP 키워드</b> — 9/18 20슬롯 재구성 + 9/30 판매중 3상품 효율 분석. <b>PPSU 제네릭 ¥11,109 전액 전환0</b>이 효율 저하 진범으로 규명 → 정리·OFF 방향 확정(실행 승인 대기)</li>
+        <li><b>그로미미 Overview</b> — 인플루언서 전달용 자료 <b>제작 및 수정 중</b></li>
+        <li><b>정성 심사</b> — 정량(좋아요≥10) + 정성 7축 심사 체계 제작, 재콜라보 대시보드에 정성 컬럼 조인, AI 1차 채점 자동화</li>
+        <li><b>채널</b> — Meta 효율 개선 지속 / RPP 흑자·전환 집중 / PPC(아마존 SP) 적자(ACOS 466%)·지혈 필요 / TikTok Ads 운영 중(트래픽 CPC ¥1·CTR 16.32%)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="band"><span class="em">🤝</span> 인플루언서 협업 현황 (9/18~9/30)</div>
+    <div class="body">
+      <div class="cards">
+        <div class="card"><div class="lab">신규 계약 완주</div><div class="val">2</div><div class="dl flat">達崎 · 杜氏 (무상)</div></div>
+        <div class="card"><div class="lab">投稿 완료</div><div class="val">1</div><div class="dl flat">八田 (무상)</div></div>
+        <div class="card"><div class="lab">신규 리치아웃</div><div class="val">4</div><div class="dl flat">거절 2건</div></div>
+        <div class="card"><div class="lab">WL 권한 복구</div><div class="val">4</div><div class="dl up">옛 코드 교체 → 심사중</div></div>
+      </div>
+      <ul class="k">
+        <li><b>신규 계약 2건 E2E</b> — 達崎様(PPSU 핑크 300·IC-202609-AF8318) · 杜氏様(스텐 베어버터 300·IC-202609-38009B). 폼→계약생성→DocuSeal 본발송→서명완료까지 동일 세션 처리</li>
+        <li><b>진행 DM 다건</b> — 森崎(대본 대기) · 加藤(13→30초 수정) · 川井(컷 삭제 40초) · 園川(유상·자막 재공유) · 下山(台本 승인) · 松村 · 早乙女 · とっしー(유상·11~12월 투고)</li>
+        <li><b>WL 파트너십 광고 권한</b> — 막힘 4건(emaa·mari·harura·gaaaaaku) 옛 코드 교체로 심사중 전환. 3867026 근본원인 규명(account 승인은 태그글만 커버 → 태그없는 오가닉 릴스는 파트너십 광고 코드가 해결)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= RPP 키워드 개선 ========================= -->
+<div class="page" id="p-rppk">
+  <div class="slide">
+    <div class="band"><span class="em">🔑</span> RPP 키워드 수정 방향</div>
+    <div class="body">
+      <div class="lead">라쿠텐 유료검색(RPP) 키워드를 <b>슈퍼세일 리스팅에서 판매중 3상품으로 전면 이동</b>하고(9/18 20슬롯 재구성), 9/30 전량 효율 실측으로 <b>돈 새는 지점</b>을 특정했습니다. 리포트(클릭>0만)와 콘솔 등록 전량(노출0 포함)을 교차해 반쪽 진단을 막았습니다.</div>
+
+      <div class="subh">① 9/18 — 20슬롯 재구성</div>
+      <div class="step">
+        <div class="stepc"><span class="no">상한</span> 슬롯 상한 ≥17 확인 (기존 "10" 무효)</div>
+        <div class="stepc"><span class="no">등록</span> 판매중 3상품에 각 수동 키워드 재등록</div>
+        <div class="stepc"><span class="no">예산</span> 월 예산 ¥150,000 설정</div>
+        <div class="stepc"><span class="no">대상</span> 슈퍼세일·copy SKU는 전량 제외(비움)</div>
+      </div>
+
+      <div class="subh">② 9/30 — 판매중 3상품 효율 실측</div>
+      <table>
+        <tr><th>상품</th><th class="n">ROAS</th><th class="n">전환</th><th>핵심</th></tr>
+        <tr class="hlgood"><td>스텐 스트로컵 300 <span class="tag">¥5,800</span></td><td class="n good">478%</td><td class="n">6</td><td>保冷·ステンレス 전환 견인</td></tr>
+        <tr><td>PPSU 스트로컵 300 <span class="tag">¥3,190</span></td><td class="n">175%</td><td class="n">7</td><td><b>제네릭 ¥11,109 전액 전환0</b> = 진범</td></tr>
+        <tr class="hlbad"><td>원터치 스트로컵 <span class="tag">¥4,200</span></td><td class="n bad">144%</td><td class="n">1</td><td>高CTR(28%)+전환0 = 상품페이지 병목</td></tr>
+      </table>
+
+      <div class="diag"><b>진단</b> — 전환 60개 키워드 중 <b>7개가 전부</b>이고 <b>상위 4개(保冷·ステンレス·グロミミ×2)가 77%</b>. 전환축 = <b>브랜드 + 속성</b>. 제네릭(ベビーマグ·ストローマグ)은 3상품에 중복등록돼 <b>자기잠식</b>만 하고 전환0. 써모스 등 경쟁 컨퀘스팅도 실패.</div>
+
+      <div class="subh">③ 수정 방향 <span class="badge b-prog">실행 세은 승인 대기</span></div>
+      <div class="two">
+        <div class="waste"><span class="h">🩹 지혈 (낭비 차단)</span>
+          ·  PPSU 제네릭 키워드 정리 (¥11,109 전환0)<br>
+          ·  ベビーマグ 등 제네릭 OFF (기준 = ¥5,000 소진+전환0)<br>
+          ·  제네릭 3상품 중복등록 해소 (자기잠식 제거)
+        </div>
+        <div class="win"><span class="h">🚀 강화 (전환 집중)</span>
+          ·  브랜드(グロミミ)+속성(保冷·ステンレス) 입찰 강화<br>
+          ·  원터치 상품페이지 전환 병목 점검(高CTR인데 전환0)<br>
+          ·  미노출 키워드는 검색빈도 극저 → 입찰보다 상품 적합도 우선
+        </div>
+      </div>
+      <div class="note">📌 산출물: <b>rpp_keyword_efficiency_20260930.html</b> (상품별 20키워드 전량·설정CPC(입찰상한)/추천CPC(目安) 병기·정렬·판정 배지). 데이터 2소스 교차 = 全キーワードレポート(효율) × 콘솔 등록 전량(미노출 포함).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= 그로미미 Overview ========================= -->
+<div class="page" id="p-ovfile">
+  <div class="slide">
+    <div class="band"><span class="em">🖼️</span> 그로미미 Overview (인플루언서 전달용)</div>
+    <div class="body">
+      <div class="lead">인플루언서에게 전달하기 위한 <b>그로미미 Overview 자료</b>를 <b>제작 및 수정 중</b>입니다.</div>
+      <div class="cards">
+        <div class="card"><div class="lab">용도</div><div class="val" style="font-size:19px">인플루언서 전달용</div><div class="dl flat">브랜드/제품 소개 자료</div></div>
+        <div class="card"><div class="lab">상태</div><div class="val" style="font-size:19px">제작·수정 중</div><div class="dl up">진행 중 <span class="badge b-prog">In progress</span></div></div>
+      </div>
+      <div class="subh">🔗 인플루언서 전달 가이드라인</div>
+      <div class="gbtns">
+        <a class="gbtn" href="https://claude.ai/artifact/51kjAWRTmJqZL47PjBWNfd" target="_blank" rel="noopener">
+          <span class="ic">📘</span>
+          <span class="tt">브랜드 안내 가이드라인<small>그로미미 브랜드 소개 자료</small></span>
+          <span class="arr">→</span>
+        </a>
+        <a class="gbtn alt" href="https://claude.ai/artifact/KtE6dhisKvFeRZNmhYtg54" target="_blank" rel="noopener">
+          <span class="ic">🎬</span>
+          <span class="tt">영상 제작 가이드라인<small>콘텐츠 촬영·편집 가이드</small></span>
+          <span class="arr">→</span>
+        </a>
+      </div>
+      <div class="note">📌 상세 내용 및 시연은 세은이 직접 공유 예정.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= 정성 심사 ========================= -->
+<div class="page" id="p-review">
+  <div class="slide">
+    <div class="band"><span class="em">⭐</span> 인플루언서 콘텐츠 정성 심사 제작</div>
+    <div class="body">
+      <div class="lead">인플루언서 콘텐츠의 <b>광고 집행 가치</b>를 객관적으로 가르는 심사 체계를 제작했습니다. <b>정량 게이트 + 정성 7축</b> 2단 구조로, 주관성을 최대한 제거하고 메타몽 app에 모듈로 탑재했습니다.</div>
+
+      <div class="subh">심사 구조</div>
+      <div class="two">
+        <div class="win"><span class="h">📊 정량 게이트</span>
+          D+3 오가닉 <b>좋아요 ≥ 10</b> 통과<br>
+          <span class="tag">튜닝 검토 결과 현행 10 유지 — ≥10 통과 92% / ≥30 통과 62%. likes 원값이 최적(댓글은 JP 부적합)</span>
+        </div>
+        <div class="win"><span class="h">🎬 정성 7축 (9점 만점)</span>
+          집행컷 = <b>4점</b> · 최소 게이트 없음<br>
+          <span class="tag">정도 문제(KM 단일성·훅)만 0/1/2, 나머지는 예/아니오 이진화 → 관찰 체크 조합을 고정표로 매핑</span>
+        </div>
+      </div>
+
+      <div class="subh">설계 원칙 (세은 확정)</div>
+      <ul class="k">
+        <li><b>재협업 판단 = 광고 성과가 정본</b> / 콜라보별 평가 = 광고 성과 + 정성 <b>병치</b></li>
+        <li><b>정성 단독 게이트는 반대</b> — "잘 만든 영상 ≠ 잘 파는 자산". 집행 게이트를 파트너 선정 게이트로 전용하면 오용</li>
+        <li>시계열 개선 추적은 방향은 맞으나 baseline 부재(크리에이터당 심사 1건) → 2번째 심사부터 자연 축적</li>
+      </ul>
+
+      <div class="subh">구현 <span class="badge b-done">배포 완료</span></div>
+      <div class="step">
+        <div class="stepc"><span class="no">모듈</span> 메타몽 app <b>/influencer/review</b> 심사 모듈 빌드</div>
+        <div class="stepc"><span class="no">조인</span> 재콜라보 대시보드에 <b>정성 컬럼</b> 조인 — 점수/9 · 집행/미집행 · 추세 ▲▼ · AI 미검수 배지</div>
+        <div class="stepc"><span class="no">자동화</span> <b>AI 1차 채점</b> 자동화 (Task Scheduler 15:00 + Gmail 알림)</div>
+        <div class="stepc"><span class="no">학습</span> correction_notes 기반 <b>few-shot 학습루프</b> (축별 주입)</div>
+      </div>
+      <div class="note">📌 심사 큐 정본 = brand='grosmimi' 콜라보. 좋아요 10컷 = 측정 가능 102건 중 91건 통과(89%), 하위 11%만 거름.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= 9월 인플루언서 퍼널 ========================= -->
+<div class="page" id="p-funnel">
+  <div class="slide">
+    <div class="band"><span class="em">🗓️</span> 9월 인플루언서 퍼널</div>
+    <div class="body">
+      <div class="lead">9월 한 달 인플루언서 파이프라인을 단계별로 정리했습니다. <b>계약 82명 서명</b> → 제품 발송·제작 리드타임을 거쳐 <b>콜라보 37건 업로드</b> → 정량(좋아요≥10) 게이트 → 정성 심사(7축). ⚠️ 단, 9월엔 심사가 <b>소급 평가</b>라 다수가 심사 전 광고 집행됨 — 심사된 29건 중 <b>집행 20건</b>.</div>
+
+      <div class="funnel">
+        <div class="frow"><div class="flab">계약 서명</div><div class="fbarwrap"><div class="fbar" style="width:100%;background:linear-gradient(90deg,#d94f88,#ef6b9c)">82명 <small>발송 87 · 서명대기 80 · 거절 2</small></div></div></div>
+        <div class="frow"><div class="flab">콜라보 업로드</div><div class="fbarwrap"><div class="fbar" style="width:60%;background:linear-gradient(90deg,#ef6b9c,#f48ab0)">37건 <small>brand=grosmimi 30 + partnered</small></div></div></div>
+        <div class="frow"><div class="flab">정량 통과</div><div class="fbarwrap"><div class="fbar" style="width:50%;background:linear-gradient(90deg,#f48ab0,#f7a65c)">30건 <small>측정 32 중 94%</small></div></div></div>
+        <div class="frow"><div class="flab">정성 심사</div><div class="fbarwrap"><div class="fbar" style="width:42%;background:linear-gradient(90deg,#f7a65c,#f7b955)">29건 <small>업로드 37 중 · 미심사 8</small></div></div></div>
+        <div class="frow"><div class="flab">집행 판정</div><div class="fbarwrap"><div class="fbar" style="width:30%;background:linear-gradient(90deg,#f7b955,#f7c45c)">20건 <small>심사 29 중 · 미집행 9</small></div></div></div>
+      </div>
+      <div class="note">⏳ 계약(82) → 업로드(37) 간 격차는 <b>드롭오프가 아니라 리드타임</b> — 9월 서명자 다수는 제품 발송·촬영을 거쳐 10월 이후 업로드됩니다.</div>
+      <div class="diag">⚠️ <b>중요 — 정성 심사는 9월 중순 도입·소급 평가.</b> 심사 모듈이 9월 하순에 만들어져, 업로드 당시엔 <b>심사 없이 광고가 집행된 콘텐츠가 다수</b>입니다. 실제 심사 시점은 9/23(8건)·9/28(18건)·10/2(3건)으로 전부 <b>업로드 이후 소급</b>. 또 37건 중 <b>8건은 아직 미심사</b>. 즉 "심사 통과 → 집행" 순서가 아니라, <b>집행 먼저 → 사후 심사</b> 구조였고, 10월부터 업로드 전 심사(사전 게이트)로 전환하는 게 과제입니다.</div>
+
+      <div class="subh">① 계약 및 업로드</div>
+      <div class="cards">
+        <div class="card"><div class="lab">계약 서명완료</div><div class="val">82명</div><div class="dl up">9월 서명 기준</div></div>
+        <div class="card"><div class="lab">계약 발송</div><div class="val">87명</div><div class="dl flat">서명대기 80 · 거절 2</div></div>
+        <div class="card"><div class="lab">콜라보 업로드</div><div class="val">37건</div><div class="dl flat">9월 게시 (IG)</div></div>
+        <div class="card"><div class="lab">업로드 크리에이터</div><div class="val">37명</div><div class="dl flat">1인 1게시</div></div>
+      </div>
+      <div class="tag">계약 = DocuSeal JP Contract 서명완료 실측(이메일 중복제거) · 업로드 = DataKeeper content_posts(region=jp·brand=grosmimi∪partnered·자사계정 제외)</div>
+
+      <div class="subh">② 정량 평가 <span class="tag">게이트 = D+3 오가닉 좋아요 ≥ 10</span></div>
+      <table>
+        <tr><th>구분</th><th class="n">건수</th><th>비고</th></tr>
+        <tr><td>업로드 콜라보</td><td class="n">37</td><td>정량 평가 대상</td></tr>
+        <tr><td>D+3 좋아요 측정 가능</td><td class="n">32</td><td>측정대기 5 (D+3 미도달·크롤 대기)</td></tr>
+        <tr class="hlgood"><td>게이트 통과 (≥10)</td><td class="n good">30</td><td><b>94%</b> — 하위 소수만 거름</td></tr>
+        <tr class="hlbad"><td>게이트 탈락</td><td class="n bad">2</td><td>좋아요 10 미만</td></tr>
+      </table>
+
+      <div class="subh">③ 정성 심사 <span class="tag">7축 9점 · 집행컷 4점 · 9월 소급 평가</span></div>
+      <table>
+        <tr><th>구분</th><th class="n">건수</th><th>비고</th></tr>
+        <tr><td>업로드 콜라보</td><td class="n">37</td><td>심사 대상</td></tr>
+        <tr><td>심사 완료</td><td class="n">29</td><td>AI 1차 29 + 인간 2차 29 (소급 채점)</td></tr>
+        <tr class="hlbad"><td>미심사</td><td class="n bad">8</td><td>심사 없이 업로드·집행된 분</td></tr>
+        <tr class="hlgood"><td>└ 심사 중 집행 판정</td><td class="n good">20</td><td>광고 집행 가치 인정</td></tr>
+        <tr class="hlbad"><td>└ 심사 중 미집행</td><td class="n bad">9</td><td>정성 기준 미달</td></tr>
+      </table>
+      <div class="tag">심사 = JP Content Review 시트(9월 post_date 29행) 실측 · 인간 2차 verdict 기준 · 심사 시점 9/23·9/28·10/2(소급)</div>
+
+      <div class="subh">④ good content 현황</div>
+      <div class="win"><span class="h">✅ good content = 심사에서 집행 판정된 콘텐츠 20건 (+ 미심사 중 성과분 포함 가능)</span>
+        9월은 심사가 소급이라 "집행된 광고" 중 일부는 미심사 상태로 돌아갔습니다. 10월부터 <b>업로드 전 사전 심사</b>를 거쳐야 집행 → 검증된 콘텐츠만 광고 자산화하는 흐름이 완성됩니다.
+      </div>
+      <div class="two" style="margin-top:14px">
+        <div class="win"><span class="h">🏆 현재 WL 광고 성과 BEST (이번 주)</span>
+          chimbabygram · musukolove · inoueff · nicogakulog
+        </div>
+        <div class="hi">🔁 <b>재콜라보 가치 상위(S/A 티어)</b> = 광고 성과 기준으로 "다시 쓸 자산"으로 선별 — 메타몽 app 재콜라보 랭킹 대시보드에서 관리(정성 점수 병치).</div>
+      </div>
+      <div class="note">📌 퍼널 전 수치 = 2026-10-02 실측(DocuSeal API · DataKeeper content_posts/metrics · JP Content Review 시트). good content 성과는 「현황 · Meta」 탭 BEST/캠페인 참조.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= 현황 · Meta ========================= -->
+<div class="page" id="p-meta">
+  <div class="slide">
+    <div class="band"><span class="em">📱</span> 현황 · Meta (JP)</div>
+    <div class="body">
+      <div class="lead">지출을 늘리면서 <b>효율이 함께 개선</b>된 한 주. CPLPV ₩77(-7.7%), LPV +18.7%. 자동집행(WL/IH/졸업·OFF) 파이프라인은 <b>GitHub Actions 클라우드 이전 완결</b>.</div>
+      <div class="cards">
+        <div class="card"><div class="lab">지출 (주 9/24~30)</div><div class="val">₩287.9만</div><div class="dl up">+9.6% ▲</div></div>
+        <div class="card"><div class="lab">CTR</div><div class="val">11.48%</div><div class="dl down">-0.21pt</div></div>
+        <div class="card"><div class="lab">CPC</div><div class="val">₩58</div><div class="dl up">-3.3% ▼</div></div>
+        <div class="card"><div class="lab">LPV</div><div class="val">37,341</div><div class="dl up">+18.7% ▲</div></div>
+        <div class="card"><div class="lab">CPLPV</div><div class="val">₩77</div><div class="dl up">-7.7% ▼</div></div>
+        <div class="card"><div class="lab">3초 재생률</div><div class="val">42.7%</div><div class="dl up">+1.6pt ▲</div></div>
+      </div>
+
+      <div class="subh">📈 주간 추이 (8주)</div>
+      <table>
+        <tr><th>주</th><th class="n">지출</th><th class="n">CTR</th><th class="n">CPC</th><th class="n">LPV</th><th class="n">CPLPV</th><th class="n">3S율</th></tr>
+        <tr><td>8/6~8/12</td><td class="n">₩1,909,969</td><td class="n">9.36%</td><td class="n">₩54</td><td class="n">22,608</td><td class="n">₩84</td><td class="n">46.1%</td></tr>
+        <tr><td>8/13~8/19</td><td class="n">₩1,884,383</td><td class="n">9.20%</td><td class="n">₩53</td><td class="n">22,423</td><td class="n">₩84</td><td class="n">43.6%</td></tr>
+        <tr><td>8/20~8/26</td><td class="n">₩2,020,881</td><td class="n">10.41%</td><td class="n">₩54</td><td class="n">28,394</td><td class="n">₩71</td><td class="n">47.0%</td></tr>
+        <tr><td>8/27~9/2</td><td class="n">₩1,838,464</td><td class="n">10.85%</td><td class="n">₩56</td><td class="n">23,597</td><td class="n">₩78</td><td class="n">47.3%</td></tr>
+        <tr><td>9/3~9/9</td><td class="n">₩1,910,217</td><td class="n">12.12%</td><td class="n">₩52</td><td class="n">24,284</td><td class="n">₩79</td><td class="n">45.2%</td></tr>
+        <tr><td>9/10~9/16</td><td class="n">₩2,397,613</td><td class="n">11.50%</td><td class="n">₩59</td><td class="n">28,358</td><td class="n">₩85</td><td class="n">45.0%</td></tr>
+        <tr><td>9/17~9/23</td><td class="n">₩2,626,089</td><td class="n">11.69%</td><td class="n">₩60</td><td class="n">31,449</td><td class="n">₩84</td><td class="n">41.1%</td></tr>
+        <tr class="hlgood"><td><b>9/24~9/30</b></td><td class="n"><b>₩2,878,865</b></td><td class="n">11.48%</td><td class="n">₩58</td><td class="n"><b>37,341</b></td><td class="n good"><b>₩77</b></td><td class="n">42.7%</td></tr>
+      </table>
+      <div class="tag">9월 누계(30일) — 지출 ₩10,373,933 · LPV 128,160 · CPLPV ₩81 · CTR 11.6%</div>
+
+      <div class="subh">🎯 캠페인별 (이번 주)</div>
+      <table>
+        <tr><th>캠페인</th><th class="n">지출</th><th class="n">CPLPV</th><th class="n">CTR</th><th class="n">LPV</th><th>판정</th></tr>
+        <tr class="hlgood"><td>PPSU WL Proven</td><td class="n">₩271,310</td><td class="n good">₩34</td><td class="n">16.8%</td><td class="n">8,065</td><td><span class="pill p-good">최고 효율</span></td></tr>
+        <tr><td>WL PPSU&amp;Stainless Testing</td><td class="n">₩597,590</td><td class="n">₩62</td><td class="n">12.2%</td><td class="n">9,565</td><td><span class="pill p-good">양호</span></td></tr>
+        <tr><td>Stainless WL Proven</td><td class="n">₩1,092,828</td><td class="n">₩77</td><td class="n">13.8%</td><td class="n">14,173</td><td><span class="pill p-mid">주력·보통</span></td></tr>
+        <tr class="hlbad"><td>IH PPSU&amp;Stainless Testing</td><td class="n">₩917,137</td><td class="n bad">₩166</td><td class="n">5.7%</td><td class="n">5,538</td><td><span class="pill p-bad">효율 저조</span></td></tr>
+      </table>
+
+      <div class="subh">🆚 WL vs IHV — 소재 출처의 차이</div>
+      <table>
+        <tr><th>구분</th><th>WL (Whitelisting · 파트너십 광고)</th><th>IHV (In-House Video · 자사 영상)</th></tr>
+        <tr><td><b>소재 출처</b></td><td>인플루언서가 만든 오가닉 콘텐츠</td><td>그로미미가 직접 제작한 영상</td></tr>
+        <tr><td><b>게재 명의</b></td><td>크리에이터 계정 핸들 (크리에이터 명의로 광고)</td><td>자사 계정 (@grosmimi_japan 명의)</td></tr>
+        <tr><td><b>강점</b></td><td>실사용 후기·UGC 신뢰도 (제3자 추천 효과)</td><td>메시지·브랜딩 통제, 소재 무제한 생산</td></tr>
+        <tr><td><b>비용 구조</b></td><td>계약(기프팅/유상) + 광고비 + 파트너십 권한 필요</td><td>자사 제작비 + 광고비 (권한 이슈 없음)</td></tr>
+        <tr class="hlgood"><td><b>이번 주 성과</b></td><td class="good">WL Proven CPLPV ¥34~77 · CTR 12~17% (양호)</td><td class="bad">IH Testing CPLPV ¥166 · CTR 5.7% (저조)</td></tr>
+      </table>
+      <div class="diag"><b>요약</b> — WL = <b>인플루언서 콘텐츠를 광고화</b>(크리에이터 명의·신뢰도), IHV = <b>자사 제작 영상 광고</b>(통제·양산). 이번 주는 WL(특히 PPSU Proven CPLPV ¥34)이 IH Testing(¥166)을 크게 앞섬 → <b>검증된 인플루언서 콘텐츠의 광고 효율이 자사 소재보다 우수.</b> 이것이 정성 심사로 good content를 골라 WL로 돌리는 파이프라인의 근거.</div>
+
+      <div class="two" style="margin-top:14px">
+        <div class="win"><span class="h">🏆 이번 주 BEST (CPLPV 기준·풀 29)</span>
+          chimbabygram · musukolove · inoueff · nicogakulog
+        </div>
+        <div class="waste"><span class="h">⚠️ 이번 주 WORST</span>
+          gaaaaaku1109 · emaa331 · minkorokosodate · kanemamababy
+        </div>
+      </div>
+
+      <div class="hi">🆕 신규 등록 광고 <b>5건</b>(테스팅·ACTIVE) — omatsuri_to_omami(CPLPV ₩60) · mari__threelife(₩62) · yurakun789(₩72) 등 초기 효율 양호. &nbsp;|&nbsp; 최근 30일 OFF 처리 <b>27건</b>(졸업/저효율).</div>
+      <div class="note">⚙️ 자동집행 WL/IH/졸업·OFF = GitHub Actions 이전 완결. ⚠️ <b>LIVE 토큰 data_access 11/1 만료</b> — D-7(≈10/25) Teams+Gmail 사전경보 설정됨.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= 현황 · RPP ========================= -->
+<div class="page" id="p-rpp">
+  <div class="slide">
+    <div class="band"><span class="em">🛍️</span> 현황 · RPP (라쿠텐 유료검색)</div>
+    <div class="body">
+      <div class="lead">판매중 3상품 20슬롯 운영 체제로 전환 완료(예산 ¥150,000/월). 전 상품 <b>흑자(ROAS 100%+)</b>이나 전환이 소수 키워드에 극단적으로 집중 — 낭비 지혈 + 전환 집중이 다음 과제.</div>
+      <div class="cards">
+        <div class="card"><div class="lab">스텐 ROAS</div><div class="val">478%</div><div class="dl up">전환 6</div></div>
+        <div class="card"><div class="lab">PPSU ROAS</div><div class="val">175%</div><div class="dl flat">전환 7</div></div>
+        <div class="card"><div class="lab">원터치 ROAS</div><div class="val">144%</div><div class="dl down">전환 1</div></div>
+        <div class="card"><div class="lab">전환 집중</div><div class="val">7/60</div><div class="dl flat">상위 4개 = 77%</div></div>
+      </div>
+      <div class="diag"><b>전환축</b> = 브랜드(グロミミ) + 속성(保冷·ステンレス). <b>제네릭(ベビーマグ·ストローマグ)은 전환0 + 3상품 중복(자기잠식)</b>. PPSU 제네릭 ¥11,109이 효율을 끌어내리는 진범.</div>
+
+      <div class="subh">🎯 상품별 전환 발생 키워드 (9월 全키워드리포트 실측 · 売上件数 720h)</div>
+      <table>
+        <tr><th>상품</th><th>키워드</th><th>구분</th><th class="n">전환</th><th class="n">매출</th><th class="n">지출</th><th class="n">ROAS</th></tr>
+        <tr class="hlgood"><td rowspan="3"><b>스텐 300</b><br><span class="tag">전환 6</span></td><td>ストローマグ 保冷</td><td><span class="pill p-good">속성</span></td><td class="n">3</td><td class="n">¥18,200</td><td class="n">¥2,800</td><td class="n good">650%</td></tr>
+        <tr class="hlgood"><td>ステンレス ストローマグ</td><td><span class="pill p-good">속성</span></td><td class="n">2</td><td class="n">¥12,400</td><td class="n">¥1,520</td><td class="n good">816%</td></tr>
+        <tr class="hlgood"><td>グロミミ ステンレスマグ</td><td><span class="pill p-good">브랜드</span></td><td class="n">1</td><td class="n">¥6,200</td><td class="n">¥40</td><td class="n good">15,500%</td></tr>
+        <tr><td rowspan="3"><b>PPSU 300</b><br><span class="tag">전환 7</span></td><td>グロミミ</td><td><span class="pill p-good">브랜드</span></td><td class="n">3</td><td class="n">¥11,650</td><td class="n">¥1,120</td><td class="n">1,040%</td></tr>
+        <tr><td>グロミミ ストローマグ</td><td><span class="pill p-good">브랜드</span></td><td class="n">3</td><td class="n">¥9,980</td><td class="n">¥1,520</td><td class="n">657%</td></tr>
+        <tr><td>ベビーマグ 韓国</td><td><span class="pill p-mid">제네릭</span></td><td class="n">1</td><td class="n">¥3,190</td><td class="n">¥40</td><td class="n">7,975%</td></tr>
+        <tr class="hlbad"><td><b>원터치</b><br><span class="tag">전환 1</span></td><td>グロミミ</td><td><span class="pill p-good">브랜드</span></td><td class="n">1</td><td class="n">¥5,800</td><td class="n">¥320</td><td class="n">1,812%</td></tr>
+      </table>
+      <div class="diag"><b>읽는 법</b> — 스텐은 <b>속성 키워드(保冷·ステンレス)</b>가 전환 견인(비브랜드인데 효율 우수). PPSU·원터치는 <b>브랜드(グロミミ)</b> 의존. 지출 큰 PPSU 제네릭(ベビーマグ·ストローマグ 단독)은 이 표에 없음 = <b>전환0</b>(=¥11,109 낭비). 즉 돈은 제네릭에 나가는데 전환은 속성·브랜드에서만 난다.</div>
+
+      <ul class="k">
+        <li><b>운영</b> — 슈퍼세일/copy SKU 리스팅 전량 비움 → 판매중 3상품 집중. 슬롯 20개 수동 운영</li>
+        <li><b>과제 1</b> — PPSU 제네릭 낭비 정리 + 제네릭 중복등록 해소 (자기잠식)</li>
+        <li><b>과제 2</b> — 원터치 상품페이지 전환 병목 (CTR 28%인데 전환0 = 유입은 되나 안 사는 구조)</li>
+        <li><b>판정 기준</b> — OFF = ¥5,000 소진 + 전환0. 미달 전환0은 관찰 보류</li>
+      </ul>
+      <div class="note">📌 상세 키워드 수정 방향은 <b>「RPP 키워드 개선」 탭</b> 참조. 실행은 세은 승인 대기.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= 현황 · PPC ========================= -->
+<div class="page" id="p-ppc">
+  <div class="slide">
+    <div class="band"><span class="em">🅰️</span> 현황 · PPC (Amazon JP SP)</div>
+    <div class="body">
+      <div class="lead">아마존 JP SP는 <b>심각한 적자 구조</b> — 9월 ACOS <b>466%</b>·ROAS <b>21%</b>(광고비 ¥55만 쓰고 매출 ¥12만). CTR 0.18%·CVR 0.7%로 노출 대비 전환이 거의 안 붙음. <b>Stainless·PPSU 수동캠 2개 + 전환0 UNKNOWN 캠 2개</b>가 낭비 주범. (성과=DataKeeper 실측 / 트래픽·세션 세부 축만 BA 롤 대기)</div>
+      <div class="cards">
+        <div class="card"><div class="lab">광고비 (9월)</div><div class="val">¥550,791</div><div class="dl flat">clicks 3,563</div></div>
+        <div class="card"><div class="lab">광고매출 (9월)</div><div class="val">¥118,285</div><div class="dl down">orders 24</div></div>
+        <div class="card"><div class="lab">ACOS</div><div class="val" style="color:#d94a4a">466%</div><div class="dl down">목표 대비 과다</div></div>
+        <div class="card"><div class="lab">ROAS</div><div class="val" style="color:#d94a4a">21%</div><div class="dl down">적자</div></div>
+        <div class="card"><div class="lab">CTR · CVR</div><div class="val" style="font-size:20px">0.18% · 0.7%</div><div class="dl down">전환 병목</div></div>
+      </div>
+
+      <div class="subh">📊 캠페인별 (9월 · JPY)</div>
+      <table>
+        <tr><th>캠페인</th><th class="n">광고비</th><th class="n">매출</th><th class="n">ROAS</th><th class="n">ACOS</th><th>판정</th></tr>
+        <tr class="hlbad"><td>Stainless_Manual_20260820</td><td class="n">¥284,776</td><td class="n">¥80,341</td><td class="n bad">28%</td><td class="n">354%</td><td><span class="pill p-bad">적자·지출 1위</span></td></tr>
+        <tr class="hlbad"><td>PPSU_Manual_20260828</td><td class="n">¥155,295</td><td class="n">¥26,672</td><td class="n bad">17%</td><td class="n">582%</td><td><span class="pill p-bad">적자</span></td></tr>
+        <tr class="hlbad"><td>UNKNOWN_1442…997</td><td class="n">¥51,458</td><td class="n">¥11,272</td><td class="n bad">22%</td><td class="n">457%</td><td><span class="pill p-bad">적자</span></td></tr>
+        <tr class="hlbad"><td>UNKNOWN_2045…420</td><td class="n">¥33,951</td><td class="n">¥0</td><td class="n bad">0%</td><td class="n">—</td><td><span class="pill p-bad">전환0 낭비</span></td></tr>
+        <tr class="hlbad"><td>UNKNOWN_1085…189</td><td class="n">¥25,310</td><td class="n">¥0</td><td class="n bad">0%</td><td class="n">—</td><td><span class="pill p-bad">전환0 낭비</span></td></tr>
+      </table>
+
+      <div class="waste"><span class="h">🩹 즉시 지혈 포인트</span>
+        ·  <b>전환0 UNKNOWN 캠 2개</b>(¥59,261 소진·매출0) OFF<br>
+        ·  Stainless·PPSU 수동캠 ACOS 354~582% — <b>category 타겟 누수</b> 지혈 1순위(9/8 진단 지속)<br>
+        ·  CTR 0.18%·CVR 0.7% = 소재·상품페이지·타겟 관련도 전면 점검 필요
+      </div>
+      <div class="hi">ℹ️ <b>BA 롤(Brand Analytics)</b>은 트래픽/세션·검색어 세부 축 무인 수집에만 필요 — 광고 성과(지출·매출·ACOS·ROAS)는 DataKeeper로 수집되어 위 수치는 실측입니다. BA 롤 승인 후 검색어 단위 누수까지 정밀 분석 가능.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= 현황 · TikTok ========================= -->
+<div class="page" id="p-tt">
+  <div class="slide">
+    <div class="band"><span class="em">🎵</span> 현황 · TikTok</div>
+    <div class="body">
+      <div class="lead">TikTok Ads <b>운영 중</b> — 트래픽 목적 캠페인 1개(IHV 소재 · PPSU&amp;Stainless)가 활성. 9월 <b>CPC ¥1 · CTR 16.32%</b>로 매우 저렴한 트래픽 대량 유입. (개발자 API 미제공이라 브라우저로 성과 수집 · 계정 littlefingerusa_adv)</div>
+      <div class="cards">
+        <div class="card"><div class="lab">광고비 (9월)</div><div class="val">¥64,126</div><div class="dl flat">트래픽 캠페인 1개</div></div>
+        <div class="card"><div class="lab">노출</div><div class="val">304,279</div><div class="dl flat">CPM ¥211</div></div>
+        <div class="card"><div class="lab">클릭</div><div class="val">49,649</div><div class="dl up">CPC ¥1</div></div>
+        <div class="card"><div class="lab">CTR</div><div class="val">16.32%</div><div class="dl up">높음 ▲</div></div>
+        <div class="card"><div class="lab">전환(목적지)</div><div class="val">40,082</div><div class="dl flat">CVR 13.17%</div></div>
+      </div>
+
+      <div class="subh">📊 캠페인 (9월 · 계정 littlefingerusa_adv)</div>
+      <table>
+        <tr><th>캠페인</th><th>상태</th><th class="n">지출</th><th class="n">노출</th><th class="n">클릭</th><th class="n">CTR</th><th class="n">CPC</th><th class="n">전환</th><th class="n">CVR</th></tr>
+        <tr class="hlgood"><td>260918_traffic_IHV_PPSU&amp;Stainless</td><td><span class="pill p-good">Active</span></td><td class="n">¥64,126</td><td class="n">304,279</td><td class="n">49,649</td><td class="n good">16.32%</td><td class="n">¥1</td><td class="n">40,082</td><td class="n">13.17%</td></tr>
+      </table>
+      <div class="diag"><b>읽는 법</b> — <b>트래픽 목적</b> 캠페인이라 "전환 40,082"은 목적지 도달(랜딩/프로필) 액션이고 <b>구매 전환은 아님</b>. CTR 16.32%·CPC ¥1 = <b>저비용 대량 트래픽 확보</b> 단계. 다음 과제 = 이 트래픽을 구매 전환(틱톡샵/랜딩)으로 연결·측정.</div>
+
+      <div class="subh">🛒 틱톡샵 JP + 수집 메모</div>
+      <ul class="k">
+        <li><b>틱톡샵 JP 크로스보더</b> — 진출 신청 진행 중 + 물류사 온보딩 완료(명의 리틀핑거유에스에이). JP 유아 카테고리 미개척 = 선점 기회</li>
+        <li><b>데이터 수집</b> — 개발자 API 프로필이 'domain security'로 거절돼 <b>자동 수집 불가</b> → 브라우저(Playwright)로 수동 수집. <b>광고 계정 운영은 정상</b>(위 수치는 Ads Manager 실측)</li>
+      </ul>
+      <div class="note">📌 다음: 트래픽 → 구매 전환 연결 측정 · 틱톡샵 JP 오픈 후 GMV 연동 · API 소명 재시도(자동화용).</div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">🐰 GROSMIMI JAPAN · Weekly Report Deck · 2026-10-02 · 담당 세은 · 원본: JP Weekly Report (Notion, 10/1 발행)</div>
+</div>
+
+<script>
+const tabs=document.querySelectorAll('.tab');
+const pages={ov:'p-ov',rppk:'p-rppk',ovfile:'p-ovfile',review:'p-review',funnel:'p-funnel',meta:'p-meta',rpp:'p-rpp',ppc:'p-ppc',tt:'p-tt'};
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  Object.values(pages).forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById(pages[t.dataset.t]).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body></html>
