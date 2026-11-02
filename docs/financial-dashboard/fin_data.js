@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-11-02 14:07 PST",
+ "generated_pst": "2026-11-02 15:35 PST",
  "through_date": "2026-11-01",
  "months": [
   "2025-08",
@@ -13993,1065 +13993,11 @@ const FIN_DATA = {
   }
  ],
  "keyword_rankings": {
-  "7d": [
-   {
-    "query": "onzenna",
-    "clicks": 18,
-    "impressions": 285,
-    "avg_position": 2.9,
-    "ctr": 6.32,
-    "weekly_positions": [
-     2.9
-    ]
-   },
-   {
-    "query": "toddler won't drink",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 14.5,
-    "ctr": 100.0,
-    "weekly_positions": [
-     14.5
-    ]
-   },
-   {
-    "query": "toddler will only drink milk",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 16.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     16.0
-    ]
-   },
-   {
-    "query": "thirty five weeks pregnant symptoms",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 12.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     12.0
-    ]
-   },
-   {
-    "query": "clean feeding bottle",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 14.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     14.0
-    ]
-   },
-   {
-    "query": "toddler stopped drinking milk",
-    "clicks": 4,
-    "impressions": 12,
-    "avg_position": 6.1,
-    "ctr": 33.33,
-    "weekly_positions": [
-     6.1
-    ]
-   },
-   {
-    "query": "toddler refusing milk",
-    "clicks": 4,
-    "impressions": 14,
-    "avg_position": 5.4,
-    "ctr": 28.57,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "newborn bottle feeding schedule",
-    "clicks": 4,
-    "impressions": 6,
-    "avg_position": 16.2,
-    "ctr": 66.67,
-    "weekly_positions": [
-     16.2
-    ]
-   },
-   {
-    "query": "indian name meaning",
-    "clicks": 4,
-    "impressions": 18,
-    "avg_position": 7.4,
-    "ctr": 22.22,
-    "weekly_positions": [
-     7.4
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 4,
-    "impressions": 225,
-    "avg_position": 7.6,
-    "ctr": 1.78,
-    "weekly_positions": [
-     7.6
-    ]
-   },
-   {
-    "query": "why is my toddler suddenly refusing milk",
-    "clicks": 4,
-    "impressions": 25,
-    "avg_position": 2.2,
-    "ctr": 16.0,
-    "weekly_positions": [
-     2.2
-    ]
-   },
-   {
-    "query": "hawaiian girl names",
-    "clicks": 4,
-    "impressions": 180,
-    "avg_position": 8.6,
-    "ctr": 2.22,
-    "weekly_positions": [
-     8.6
-    ]
-   },
-   {
-    "query": "40th week pregnancy",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 13.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     13.0
-    ]
-   },
-   {
-    "query": "french names",
-    "clicks": 3,
-    "impressions": 919,
-    "avg_position": 8.7,
-    "ctr": 0.33,
-    "weekly_positions": [
-     8.7
-    ]
-   },
-   {
-    "query": "symptoms at 4 weeks pregnant",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 15.9,
-    "ctr": 33.33,
-    "weekly_positions": [
-     15.9
-    ]
-   },
-   {
-    "query": "episiotomy recovery timeline",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 8.5,
-    "ctr": 25.0,
-    "weekly_positions": [
-     8.5
-    ]
-   },
-   {
-    "query": "what not to eat when breastfeeding",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 2.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "what is onzenna",
-    "clicks": 2,
-    "impressions": 22,
-    "avg_position": 1.7,
-    "ctr": 9.09,
-    "weekly_positions": [
-     1.7
-    ]
-   },
-   {
-    "query": "what foods to avoid while breastfeeding",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 11.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "what foods to avoid eating while breastfeeding",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "what does it feel like when your water breaks?",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 19.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     19.0
-    ]
-   },
-   {
-    "query": "toddler only drinks milk",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 19.3,
-    "ctr": 50.0,
-    "weekly_positions": [
-     19.3
-    ]
-   },
-   {
-    "query": "should i switch formula if baby is gassy",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 20.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     20.0
-    ]
-   },
-   {
-    "query": "ozenna",
-    "clicks": 2,
-    "impressions": 18,
-    "avg_position": 1.0,
-    "ctr": 11.11,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "do diastasis recti underwear work",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 2.7,
-    "ctr": 50.0,
-    "weekly_positions": [
-     2.7
-    ]
-   }
-  ],
-  "30d": [
-   {
-    "query": "onzenna",
-    "clicks": 18,
-    "impressions": 285,
-    "avg_position": 2.9,
-    "ctr": 6.32,
-    "weekly_positions": [
-     2.9
-    ]
-   },
-   {
-    "query": "toddler won't drink",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 14.5,
-    "ctr": 100.0,
-    "weekly_positions": [
-     14.5
-    ]
-   },
-   {
-    "query": "toddler will only drink milk",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 16.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     16.0
-    ]
-   },
-   {
-    "query": "thirty five weeks pregnant symptoms",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 12.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     12.0
-    ]
-   },
-   {
-    "query": "clean feeding bottle",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 14.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     14.0
-    ]
-   },
-   {
-    "query": "toddler stopped drinking milk",
-    "clicks": 4,
-    "impressions": 12,
-    "avg_position": 6.1,
-    "ctr": 33.33,
-    "weekly_positions": [
-     6.1
-    ]
-   },
-   {
-    "query": "toddler refusing milk",
-    "clicks": 4,
-    "impressions": 14,
-    "avg_position": 5.4,
-    "ctr": 28.57,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "newborn bottle feeding schedule",
-    "clicks": 4,
-    "impressions": 6,
-    "avg_position": 16.2,
-    "ctr": 66.67,
-    "weekly_positions": [
-     16.2
-    ]
-   },
-   {
-    "query": "indian name meaning",
-    "clicks": 4,
-    "impressions": 18,
-    "avg_position": 7.4,
-    "ctr": 22.22,
-    "weekly_positions": [
-     7.4
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 4,
-    "impressions": 225,
-    "avg_position": 7.6,
-    "ctr": 1.78,
-    "weekly_positions": [
-     7.6
-    ]
-   },
-   {
-    "query": "why is my toddler suddenly refusing milk",
-    "clicks": 4,
-    "impressions": 25,
-    "avg_position": 2.2,
-    "ctr": 16.0,
-    "weekly_positions": [
-     2.2
-    ]
-   },
-   {
-    "query": "hawaiian girl names",
-    "clicks": 4,
-    "impressions": 180,
-    "avg_position": 8.6,
-    "ctr": 2.22,
-    "weekly_positions": [
-     8.6
-    ]
-   },
-   {
-    "query": "40th week pregnancy",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 13.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     13.0
-    ]
-   },
-   {
-    "query": "french names",
-    "clicks": 3,
-    "impressions": 919,
-    "avg_position": 8.7,
-    "ctr": 0.33,
-    "weekly_positions": [
-     8.7
-    ]
-   },
-   {
-    "query": "symptoms at 4 weeks pregnant",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 15.9,
-    "ctr": 33.33,
-    "weekly_positions": [
-     15.9
-    ]
-   },
-   {
-    "query": "episiotomy recovery timeline",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 8.5,
-    "ctr": 25.0,
-    "weekly_positions": [
-     8.5
-    ]
-   },
-   {
-    "query": "what not to eat when breastfeeding",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 2.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "what is onzenna",
-    "clicks": 2,
-    "impressions": 22,
-    "avg_position": 1.7,
-    "ctr": 9.09,
-    "weekly_positions": [
-     1.7
-    ]
-   },
-   {
-    "query": "what foods to avoid while breastfeeding",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 11.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "what foods to avoid eating while breastfeeding",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "what does it feel like when your water breaks?",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 19.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     19.0
-    ]
-   },
-   {
-    "query": "toddler only drinks milk",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 19.3,
-    "ctr": 50.0,
-    "weekly_positions": [
-     19.3
-    ]
-   },
-   {
-    "query": "should i switch formula if baby is gassy",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 20.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     20.0
-    ]
-   },
-   {
-    "query": "ozenna",
-    "clicks": 2,
-    "impressions": 18,
-    "avg_position": 1.0,
-    "ctr": 11.11,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "do diastasis recti underwear work",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 2.7,
-    "ctr": 50.0,
-    "weekly_positions": [
-     2.7
-    ]
-   }
-  ],
-  "90d": [
-   {
-    "query": "onzenna",
-    "clicks": 18,
-    "impressions": 285,
-    "avg_position": 2.9,
-    "ctr": 6.32,
-    "weekly_positions": [
-     2.9
-    ]
-   },
-   {
-    "query": "toddler won't drink",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 14.5,
-    "ctr": 100.0,
-    "weekly_positions": [
-     14.5
-    ]
-   },
-   {
-    "query": "toddler will only drink milk",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 16.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     16.0
-    ]
-   },
-   {
-    "query": "thirty five weeks pregnant symptoms",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 12.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     12.0
-    ]
-   },
-   {
-    "query": "clean feeding bottle",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 14.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     14.0
-    ]
-   },
-   {
-    "query": "toddler stopped drinking milk",
-    "clicks": 4,
-    "impressions": 12,
-    "avg_position": 6.1,
-    "ctr": 33.33,
-    "weekly_positions": [
-     6.1
-    ]
-   },
-   {
-    "query": "toddler refusing milk",
-    "clicks": 4,
-    "impressions": 14,
-    "avg_position": 5.4,
-    "ctr": 28.57,
-    "weekly_positions": [
-     5.4
-    ]
-   },
-   {
-    "query": "newborn bottle feeding schedule",
-    "clicks": 4,
-    "impressions": 6,
-    "avg_position": 16.2,
-    "ctr": 66.67,
-    "weekly_positions": [
-     16.2
-    ]
-   },
-   {
-    "query": "indian name meaning",
-    "clicks": 4,
-    "impressions": 18,
-    "avg_position": 7.4,
-    "ctr": 22.22,
-    "weekly_positions": [
-     7.4
-    ]
-   },
-   {
-    "query": "hawaiian boy names",
-    "clicks": 4,
-    "impressions": 225,
-    "avg_position": 7.6,
-    "ctr": 1.78,
-    "weekly_positions": [
-     7.6
-    ]
-   },
-   {
-    "query": "why is my toddler suddenly refusing milk",
-    "clicks": 4,
-    "impressions": 25,
-    "avg_position": 2.2,
-    "ctr": 16.0,
-    "weekly_positions": [
-     2.2
-    ]
-   },
-   {
-    "query": "hawaiian girl names",
-    "clicks": 4,
-    "impressions": 180,
-    "avg_position": 8.6,
-    "ctr": 2.22,
-    "weekly_positions": [
-     8.6
-    ]
-   },
-   {
-    "query": "40th week pregnancy",
-    "clicks": 4,
-    "impressions": 4,
-    "avg_position": 13.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     13.0
-    ]
-   },
-   {
-    "query": "french names",
-    "clicks": 3,
-    "impressions": 919,
-    "avg_position": 8.7,
-    "ctr": 0.33,
-    "weekly_positions": [
-     8.7
-    ]
-   },
-   {
-    "query": "symptoms at 4 weeks pregnant",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 15.9,
-    "ctr": 33.33,
-    "weekly_positions": [
-     15.9
-    ]
-   },
-   {
-    "query": "episiotomy recovery timeline",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 8.5,
-    "ctr": 25.0,
-    "weekly_positions": [
-     8.5
-    ]
-   },
-   {
-    "query": "what not to eat when breastfeeding",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 2.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     2.0
-    ]
-   },
-   {
-    "query": "what is onzenna",
-    "clicks": 2,
-    "impressions": 22,
-    "avg_position": 1.7,
-    "ctr": 9.09,
-    "weekly_positions": [
-     1.7
-    ]
-   },
-   {
-    "query": "what foods to avoid while breastfeeding",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 11.0,
-    "ctr": 50.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "what foods to avoid eating while breastfeeding",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 11.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     11.0
-    ]
-   },
-   {
-    "query": "what does it feel like when your water breaks?",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 19.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     19.0
-    ]
-   },
-   {
-    "query": "toddler only drinks milk",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 19.3,
-    "ctr": 50.0,
-    "weekly_positions": [
-     19.3
-    ]
-   },
-   {
-    "query": "should i switch formula if baby is gassy",
-    "clicks": 2,
-    "impressions": 2,
-    "avg_position": 20.0,
-    "ctr": 100.0,
-    "weekly_positions": [
-     20.0
-    ]
-   },
-   {
-    "query": "ozenna",
-    "clicks": 2,
-    "impressions": 18,
-    "avg_position": 1.0,
-    "ctr": 11.11,
-    "weekly_positions": [
-     1.0
-    ]
-   },
-   {
-    "query": "do diastasis recti underwear work",
-    "clicks": 2,
-    "impressions": 4,
-    "avg_position": 2.7,
-    "ctr": 50.0,
-    "weekly_positions": [
-     2.7
-    ]
-   }
-  ]
+  "7d": [],
+  "30d": [],
+  "90d": []
  },
- "kw_positions_summary": [
-  {
-   "query": "onzenna",
-   "pos_7d": 2.9,
-   "clicks_7d": 18,
-   "impressions_7d": 285,
-   "pos_30d": 2.9,
-   "clicks_30d": 18,
-   "impressions_30d": 285,
-   "pos_90d": 2.9,
-   "clicks_90d": 18,
-   "impressions_90d": 285
-  },
-  {
-   "query": "40th week pregnancy",
-   "pos_7d": 13.0,
-   "clicks_7d": 4,
-   "impressions_7d": 4,
-   "pos_30d": 13.0,
-   "clicks_30d": 4,
-   "impressions_30d": 4,
-   "pos_90d": 13.0,
-   "clicks_90d": 4,
-   "impressions_90d": 4
-  },
-  {
-   "query": "clean feeding bottle",
-   "pos_7d": 14.0,
-   "clicks_7d": 4,
-   "impressions_7d": 4,
-   "pos_30d": 14.0,
-   "clicks_30d": 4,
-   "impressions_30d": 4,
-   "pos_90d": 14.0,
-   "clicks_90d": 4,
-   "impressions_90d": 4
-  },
-  {
-   "query": "hawaiian boy names",
-   "pos_7d": 7.6,
-   "clicks_7d": 4,
-   "impressions_7d": 225,
-   "pos_30d": 7.6,
-   "clicks_30d": 4,
-   "impressions_30d": 225,
-   "pos_90d": 7.6,
-   "clicks_90d": 4,
-   "impressions_90d": 225
-  },
-  {
-   "query": "hawaiian girl names",
-   "pos_7d": 8.6,
-   "clicks_7d": 4,
-   "impressions_7d": 180,
-   "pos_30d": 8.6,
-   "clicks_30d": 4,
-   "impressions_30d": 180,
-   "pos_90d": 8.6,
-   "clicks_90d": 4,
-   "impressions_90d": 180
-  },
-  {
-   "query": "indian name meaning",
-   "pos_7d": 7.4,
-   "clicks_7d": 4,
-   "impressions_7d": 18,
-   "pos_30d": 7.4,
-   "clicks_30d": 4,
-   "impressions_30d": 18,
-   "pos_90d": 7.4,
-   "clicks_90d": 4,
-   "impressions_90d": 18
-  },
-  {
-   "query": "newborn bottle feeding schedule",
-   "pos_7d": 16.2,
-   "clicks_7d": 4,
-   "impressions_7d": 6,
-   "pos_30d": 16.2,
-   "clicks_30d": 4,
-   "impressions_30d": 6,
-   "pos_90d": 16.2,
-   "clicks_90d": 4,
-   "impressions_90d": 6
-  },
-  {
-   "query": "thirty five weeks pregnant symptoms",
-   "pos_7d": 12.0,
-   "clicks_7d": 4,
-   "impressions_7d": 4,
-   "pos_30d": 12.0,
-   "clicks_30d": 4,
-   "impressions_30d": 4,
-   "pos_90d": 12.0,
-   "clicks_90d": 4,
-   "impressions_90d": 4
-  },
-  {
-   "query": "toddler refusing milk",
-   "pos_7d": 5.4,
-   "clicks_7d": 4,
-   "impressions_7d": 14,
-   "pos_30d": 5.4,
-   "clicks_30d": 4,
-   "impressions_30d": 14,
-   "pos_90d": 5.4,
-   "clicks_90d": 4,
-   "impressions_90d": 14
-  },
-  {
-   "query": "toddler stopped drinking milk",
-   "pos_7d": 6.1,
-   "clicks_7d": 4,
-   "impressions_7d": 12,
-   "pos_30d": 6.1,
-   "clicks_30d": 4,
-   "impressions_30d": 12,
-   "pos_90d": 6.1,
-   "clicks_90d": 4,
-   "impressions_90d": 12
-  },
-  {
-   "query": "toddler will only drink milk",
-   "pos_7d": 16.0,
-   "clicks_7d": 4,
-   "impressions_7d": 4,
-   "pos_30d": 16.0,
-   "clicks_30d": 4,
-   "impressions_30d": 4,
-   "pos_90d": 16.0,
-   "clicks_90d": 4,
-   "impressions_90d": 4
-  },
-  {
-   "query": "toddler won't drink",
-   "pos_7d": 14.5,
-   "clicks_7d": 4,
-   "impressions_7d": 4,
-   "pos_30d": 14.5,
-   "clicks_30d": 4,
-   "impressions_30d": 4,
-   "pos_90d": 14.5,
-   "clicks_90d": 4,
-   "impressions_90d": 4
-  },
-  {
-   "query": "why is my toddler suddenly refusing milk",
-   "pos_7d": 2.2,
-   "clicks_7d": 4,
-   "impressions_7d": 25,
-   "pos_30d": 2.2,
-   "clicks_30d": 4,
-   "impressions_30d": 25,
-   "pos_90d": 2.2,
-   "clicks_90d": 4,
-   "impressions_90d": 25
-  },
-  {
-   "query": "french names",
-   "pos_7d": 8.7,
-   "clicks_7d": 3,
-   "impressions_7d": 919,
-   "pos_30d": 8.7,
-   "clicks_30d": 3,
-   "impressions_30d": 919,
-   "pos_90d": 8.7,
-   "clicks_90d": 3,
-   "impressions_90d": 919
-  },
-  {
-   "query": "do diastasis recti underwear work",
-   "pos_7d": 2.7,
-   "clicks_7d": 2,
-   "impressions_7d": 4,
-   "pos_30d": 2.7,
-   "clicks_30d": 2,
-   "impressions_30d": 4,
-   "pos_90d": 2.7,
-   "clicks_90d": 2,
-   "impressions_90d": 4
-  },
-  {
-   "query": "episiotomy recovery timeline",
-   "pos_7d": 8.5,
-   "clicks_7d": 2,
-   "impressions_7d": 8,
-   "pos_30d": 8.5,
-   "clicks_30d": 2,
-   "impressions_30d": 8,
-   "pos_90d": 8.5,
-   "clicks_90d": 2,
-   "impressions_90d": 8
-  },
-  {
-   "query": "ozenna",
-   "pos_7d": 1.0,
-   "clicks_7d": 2,
-   "impressions_7d": 18,
-   "pos_30d": 1.0,
-   "clicks_30d": 2,
-   "impressions_30d": 18,
-   "pos_90d": 1.0,
-   "clicks_90d": 2,
-   "impressions_90d": 18
-  },
-  {
-   "query": "should i switch formula if baby is gassy",
-   "pos_7d": 20.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 20.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 20.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "symptoms at 4 weeks pregnant",
-   "pos_7d": 15.9,
-   "clicks_7d": 2,
-   "impressions_7d": 6,
-   "pos_30d": 15.9,
-   "clicks_30d": 2,
-   "impressions_30d": 6,
-   "pos_90d": 15.9,
-   "clicks_90d": 2,
-   "impressions_90d": 6
-  },
-  {
-   "query": "toddler only drinks milk",
-   "pos_7d": 19.3,
-   "clicks_7d": 2,
-   "impressions_7d": 4,
-   "pos_30d": 19.3,
-   "clicks_30d": 2,
-   "impressions_30d": 4,
-   "pos_90d": 19.3,
-   "clicks_90d": 2,
-   "impressions_90d": 4
-  },
-  {
-   "query": "what does it feel like when your water breaks?",
-   "pos_7d": 19.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 19.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 19.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "what foods to avoid eating while breastfeeding",
-   "pos_7d": 11.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 11.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 11.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  },
-  {
-   "query": "what foods to avoid while breastfeeding",
-   "pos_7d": 11.0,
-   "clicks_7d": 2,
-   "impressions_7d": 4,
-   "pos_30d": 11.0,
-   "clicks_30d": 2,
-   "impressions_30d": 4,
-   "pos_90d": 11.0,
-   "clicks_90d": 2,
-   "impressions_90d": 4
-  },
-  {
-   "query": "what is onzenna",
-   "pos_7d": 1.7,
-   "clicks_7d": 2,
-   "impressions_7d": 22,
-   "pos_30d": 1.7,
-   "clicks_30d": 2,
-   "impressions_30d": 22,
-   "pos_90d": 1.7,
-   "clicks_90d": 2,
-   "impressions_90d": 22
-  },
-  {
-   "query": "what not to eat when breastfeeding",
-   "pos_7d": 2.0,
-   "clicks_7d": 2,
-   "impressions_7d": 2,
-   "pos_30d": 2.0,
-   "clicks_30d": 2,
-   "impressions_30d": 2,
-   "pos_90d": 2.0,
-   "clicks_90d": 2,
-   "impressions_90d": 2
-  }
- ],
+ "kw_positions_summary": [],
  "keyword_volumes": [],
  "brand_analytics": {
   "Grosmimi": [
@@ -61653,9 +60599,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 67,
       "ads_sales_30d": 531,
       "ads_acos": 0.05,
-      "google_volume": 90,
-      "google_ads_impressions": 83,
-      "google_ads_clicks": 5
+      "google_volume": 7,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi ppsu straw cup",
@@ -61694,8 +60640,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 44,
       "ads_sales_30d": 289,
       "ads_acos": 0.07,
-      "google_volume": 25,
-      "google_ads_impressions": 16,
+      "google_volume": 9,
+      "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
      {
@@ -61837,9 +60783,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 101,
       "ads_sales_30d": 1347,
       "ads_acos": 0.04,
-      "google_volume": 37,
-      "google_ads_impressions": 33,
-      "google_ads_clicks": 4
+      "google_volume": 4,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "stainless steel baby sippy cup",
@@ -61864,15 +60810,11 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B07YL2FT96",
-      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
-     },
-     {
       "asin": "B083986L91",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B0842DMZ3H",
+      "asin": "B0842D5Z17",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
@@ -61880,7 +60822,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B0842D5Z17",
+      "asin": "B07YL2FT96",
+      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
+     },
+     {
+      "asin": "B0842DMZ3H",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
@@ -62000,7 +60946,11 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Baby Straw Cup Stage 2, 12M+, Spill-Proof, 6oz (Sugar Bear) | Flip"
      },
      {
-      "asin": "B0F9PX51FX",
+      "asin": "B0F9PZPMH8",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -62012,11 +60962,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PY2LBV",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PZPMH8",
+      "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -62024,7 +60970,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YKJ18D5",
+      "asin": "B082SSPN4X",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
@@ -62032,7 +60978,7 @@ const FIN_DATA = {
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
-      "asin": "B082SSPN4X",
+      "asin": "B07YKJ18D5",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      }
     ]
@@ -62273,8 +61219,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 10,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 31,
-      "google_ads_impressions": 27,
+      "google_volume": 4,
+      "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
      {
@@ -62340,9 +61286,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 22,
       "ads_sales_30d": 267,
       "ads_acos": 0.04,
-      "google_volume": 319,
-      "google_ads_impressions": 290,
-      "google_ads_clicks": 37
+      "google_volume": 29,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "stainless steel weighted straw cup",
@@ -62399,9 +61345,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 3,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 29,
-      "google_ads_impressions": 29,
-      "google_ads_clicks": 6
+      "google_volume": 0,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi straw cup 12 months",
@@ -62426,7 +61372,7 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H2CMFCSJ",
+      "asin": "B0H2CS5DLJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -62434,7 +61380,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0H2CS5DLJ",
+      "asin": "B0H2CMFCSJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -62719,8 +61665,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 15,
       "ads_sales_30d": 60,
       "ads_acos": 0.17,
-      "google_volume": 19,
-      "google_ads_impressions": 19,
+      "google_volume": 0,
+      "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
      {
@@ -62744,9 +61690,9 @@ const FIN_DATA = {
       "ads_clicks_30d": 120,
       "ads_sales_30d": 671,
       "ads_acos": 0.09,
-      "google_volume": 73,
-      "google_ads_impressions": 69,
-      "google_ads_clicks": 7
+      "google_volume": 4,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      },
      {
       "keyword": "grosmimi cup",
@@ -62763,19 +61709,19 @@ const FIN_DATA = {
       "ads_clicks_30d": 127,
       "ads_sales_30d": 632,
       "ads_acos": 0.09,
-      "google_volume": 584,
-      "google_ads_impressions": 512,
-      "google_ads_clicks": 67
+      "google_volume": 72,
+      "google_ads_impressions": 0,
+      "google_ads_clicks": 0
      }
     ],
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H32PSCF9",
+      "asin": "B0H32T8XBS",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0H32T8XBS",
+      "asin": "B0H32PSCF9",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -63030,8 +61976,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 15,
       "ads_sales_30d": 60,
       "ads_acos": 0.17,
-      "google_volume": 19,
-      "google_ads_impressions": 19,
+      "google_volume": 0,
+      "google_ads_impressions": 0,
       "google_ads_clicks": 0
      }
     ],
