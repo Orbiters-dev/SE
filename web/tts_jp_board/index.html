@@ -1,0 +1,1311 @@
+<!doctype html><html><head><!-- frame-runtime --><script>window.__FRAME_PREAMBLE={"v":1,"capabilities":{"artifact":"artifact.BBvTDtAn.js","assets":"assets.DOAjpBS9.js","comments":"comments.ZN89XxKU.js","db":"db.zFlAA4qL.js","desktop":"desktop.rKfvef3H.js","dictation":"dictation.f3j7VXQ8.js","downloads":"downloads.axDW2QAi.js","embed":"embed.SWCZLzn6.js","endpoints":"endpoints.BPfoKaE1.js","files":"files.IkpCjcgM.js","mcp":"mcp.kl0G36TA.js","network":"network.B5UA9Su4.js","paste":"paste.DeKNLIxx.js","permissions":"permissions.6yWoDecA.js","reads":"reads.Bgov9hIw.js","room":"room.BYRHiLCc.js","sample":"sample.ydkZ82FT.js","self":"artifact.BBvTDtAn.js","tts":"tts.iS74i_mi.js","user":"user.uKicftX-.js"},"transforms":"_transforms.BOM8DIey.js","comments":"_comments._RoG4m2E.js","translate":"_translate.DqxC5ek1.js","ldx":"_ldx.B4FSryPi.js"}                                                                                                                                                                                                                                                                                                                                </script><script>(function(){"use strict";function dr(t){return t==="cookie"||t==="query"?t:void 0}function hr(t){return typeof t=="number"&&Number.isSafeInteger(t)&&t>0?t:void 0}var no=3e5;function pr(t,e){try{const r=t("navigation")[0],n=[r.responseStart,r.redirectEnd-r.redirectStart,r.domContentLoadedEventStart,e(),r.connectEnd-r.domainLookupStart,r.responseStart-r.requestStart];r.requestStart>0||(n.length=4);for(let a=0;a<n.length;a++)if(n[a]>=0&&n[a]<=3e5)n[a]=n[a]|0;else{if(a<4)return;n.length=4}return n}catch{return}}var mr=["light","dark","system"],vr=/^[A-Za-z0-9_-]{1,64}$/,Mt=/^[a-zA-Z_:][a-zA-Z0-9_:.-]{0,127}$/,_r=new Set(["class","hidden","value","checked","style","title","alt","placeholder","lang","dir","role","tabindex","disabled","readonly","contenteditable","open","colspan","rowspan"]);function yr(t){const e=t.toLowerCase();return e.startsWith("data-")||e.startsWith("aria-")||_r.has(e)}var Pt="data-ldx-props";function gr(t,e){if(e.toLowerCase()===Pt)return!0;const r=t.getAttribute(Pt);if(r===null)return!1;try{const n=JSON.parse(r);if(n===null||typeof n!="object"||Array.isArray(n))return!0;const a=e.toLowerCase();return Object.keys(n).some(s=>s.toLowerCase()===a)}catch{return!0}}var oo="http://www.w3.org/1999/xhtml",wr="http://www.w3.org/2000/svg",br=new Set(["script","style","iframe","noscript","noframes","noembed","xmp","plaintext","template","title","textarea","object","embed"]),Er=new Set(["script","style"]);function Sr(t){const e=t.localName.toLowerCase();return t.namespaceURI==="http://www.w3.org/1999/xhtml"?!br.has(e):t.namespaceURI===wr?!Er.has(e):!1}function ot(t,e){return t===e||(t===160||t===32)&&(e===160||e===32)}function kr(t,e){const r=t.length,n=e.length;let a=0;for(;a<r&&a<n&&ot(t.charCodeAt(a),e.charCodeAt(a));)a++;let s=0;for(;s<r-a&&s<n-a&&ot(t.charCodeAt(r-1-s),e.charCodeAt(n-1-s));)s++;return{p:a,s}}function Ar(t,e){const r=t.firstChild;if(t.childNodes.length!==1||r===null||r.nodeType!==Node.TEXT_NODE){t.textContent=e;return}const n=r.data,a=n.length,s=e.length,{p:l,s:u}=kr(n,e);l===a&&u===0&&a===s||r.replaceData(l,a-l-u,e.slice(l,s-u));const R=r.data,b=t.ownerDocument.getSelection?.()??null,g=b!==null&&b.rangeCount>0&&(b.anchorNode===r||b.focusNode===r)?{anchor:b.anchorNode,anchorOffset:b.anchorOffset,focus:b.focusNode,focusOffset:b.focusOffset}:null;let p=-1,k=-1;for(let m=0;m<R.length&&m<e.length;m++){const j=R.charCodeAt(m),A=e.charCodeAt(m);j!==A&&ot(j,A)&&(p<0&&(p=m),k=m)}const L=p>=0;if(L&&r.replaceData(p,k-p+1,e.slice(p,k+1)),L&&g!==null&&g.anchor!==null&&g.focus!==null)try{b.setBaseAndExtent(g.anchor,g.anchorOffset,g.focus,g.focusOffset)}catch{}}var Rr=new Set(["html","head","body","frameset"]);function Tr(t){return t.namespaceURI==="http://www.w3.org/1999/xhtml"&&Rr.has(t.localName)}function Lr(t){if(t===null||typeof t!="object")return!1;const e=t;if(typeof e.target!="string"||!vr.test(e.target)||e.text!==void 0&&typeof e.text!="string")return!1;if(e.attrsSet!==void 0){if(e.attrsSet===null||typeof e.attrsSet!="object")return!1;for(const[r,n]of Object.entries(e.attrsSet))if(!Mt.test(r)||typeof n!="string")return!1}if(e.attrsRemoved!==void 0){if(!Array.isArray(e.attrsRemoved))return!1;for(const r of e.attrsRemoved)if(typeof r!="string"||!Mt.test(r))return!1}return!0}function Or(t,e){if(t===null||typeof t!="object")return!1;const{seq:r,elements:n}=t;if(typeof r!="number"||!Number.isSafeInteger(r)||!Array.isArray(n)||n.length===0||n.length>64)return!1;for(let a=0;a<n.length;a++)if(!e(n[a]))return!1;return!0}function Mr(t){return t===null||typeof t!="object"?!1:Or(t.__frame_patch,Lr)}function Pr(t){if(t===null||typeof t!="object")return!1;const e=t.__frame_init;return e!==null&&typeof e=="object"}function Nr(t){return t!==null&&typeof t=="object"&&t.__frame_size_poke===!0}function Cr(t){if(t===null||typeof t!="object")return!1;const e=t.__frame_host_visible;return e!==null&&typeof e=="object"&&typeof e.visible=="boolean"}function Fr(t){if(t===null||typeof t!="object")return!1;const e=t.__frame_theme;if(e===null||typeof e!="object")return!1;const r=e.theme;return typeof r=="string"&&mr.includes(r)}var Ir=["ok","empty","snapshot_error","snapshot_timeout","unclonable","oversize","unavailable","restore_error","withheld"],jr=["TypeError","RangeError","ReferenceError","SyntaxError","DataCloneError","QuotaExceededError","AbortError","TimeoutError","SecurityError","Error","other"];function xr(t){return typeof t=="string"&&jr.includes(t)?t:"other"}var Dr=Object.freeze({until:null,now:!1}),Hr="__claude_hot",Br="__claude_hot_in",qr=/^__claude_hot(?:_in)?(?::|$)/,Nt=/^[0-9a-z]{1,32}$/,at=t=>t===void 0?Hr:"__claude_hot:"+t,Oe=t=>t===void 0?Br:"__claude_hot_in:"+t;function Ur(t,e){const r=[];for(let n=0;n<t.length;n++){const a=t.key(n);a!==null&&a!==e&&qr.test(a)&&r.push(a)}for(const n of r)t.removeItem(n)}function $r(t){let e=null;try{e=q(JSON.parse(t)?.hot)}catch{return null}return e===null||typeof e.k!="string"||!Nt.test(e.k)?null:he(e.g)?{k:e.k,g:e.g}:{k:e.k}}var ao=262144,Kr=3e3,zr=5e3,Ct=/^[a-z0-9._:-]{1,64}$/,Gr=["none","hot-restart","hard-reload"],Wr=["asset","doc","added","removed"],Vr=1500,Xr=/^[0-9a-f]{64}$/;function q(t){return t!==null&&typeof t=="object"?t:null}function he(t){return typeof t=="number"&&Number.isInteger(t)&&t>=0&&t<2**31}function Ft(t){return t===void 0||typeof t=="number"&&Number.isFinite(t)}function Yr(t){return t===void 0||typeof t=="string"&&Ct.test(t)}function It(t){const e=q(t);return e!==null&&(e.until===null||typeof e.until=="number"&&Number.isFinite(e.until))&&typeof e.now=="boolean"}function st(t){const e=q(t);return e!==null&&typeof e.ver=="string"&&e.ver.length<=128&&Ft(e.seq)&&typeof e.handoff=="string"&&Ir.includes(e.handoff)&&Yr(e.note)}function jt(t){const e=q(t);return e!==null&&he(e.gen)&&(e.phase==="final"||e.phase==="pending")&&(e.from===null||st(e.from))}function Jr(t){const e=q(t);return e!==null&&e.kv===1&&he(e.gen)&&st(e.from)&&Object.hasOwn(e,"data")}function Zr(t){const e=q(t);return e!==null&&e.__frame_hot_snapshot===!0&&he(e.gen)&&typeof e.timeoutMs=="number"&&e.timeoutMs>=0&&e.timeoutMs<=6e4&&(e.handoff===void 0||typeof e.handoff=="boolean")&&(e.deadline===void 0||It(e.deadline))&&Ft(e.seq)&&(e.note===void 0||typeof e.note=="string")&&(e.key===void 0||typeof e.key=="string")}function Qr(t){const e=q(t);return e!==null&&e.__frame_hot_start===!0&&he(e.gen)&&st(e.from)}function en(t){return typeof t=="string"&&t.length>=1&&t.length<=128}function xt(t){return q(t)!==null&&!Array.isArray(t)}function tn(t){const e=q(t);return e!==null&&e.__frame_cap_grant===!0&&typeof e.cap=="string"&&en(e.ver)&&(e.grant===void 0||xt(e.grant))&&(e.budgets===void 0||xt(e.budgets)&&Object.values(e.budgets).every(Number.isFinite))&&(e.brokerGen===void 0||he(e.brokerGen))}function rn(t){const e=q(t);return e!==null&&e.__frame_cap_rewired===!0&&(e.caps===void 0||Array.isArray(e.caps)&&e.caps.every(r=>typeof r=="string"))&&(e.brokerGen===void 0||he(e.brokerGen))}function Ke(t){const e=q(t);return e!==null&&typeof e.ver=="string"&&e.ver.length<=128&&Number.isFinite(e.seq)}function Dt(t){if(t==null||typeof t=="string")return!0;const e=q(t);return e!==null&&typeof e.doc=="string"&&typeof e.profile=="string"}function nn(t){const e=q(t);return e!==null&&typeof e.path=="string"&&Wr.includes(e.kind)&&Dt(e.from)&&Dt(e.to)}function on(t){return t===null?null:Object.freeze(t.filter(nn))}function an(t){const e=q(t);return e!==null&&e.__frame_hot_update===!0&&Number.isFinite(e.id)&&Ke(e.from)&&Ke(e.to)&&(e.changed===null||Array.isArray(e.changed))&&Gr.includes(e.required)&&It(e.deadline)&&typeof e.verdictTimeoutMs=="number"&&e.verdictTimeoutMs>=0&&e.verdictTimeoutMs<=6e4&&(e.preflight===void 0||typeof e.preflight=="string"&&Xr.test(e.preflight))}function sn(t){const e=q(t);return e!==null&&e.__frame_hot_readdress===!0&&Ke(e.from)&&Ke(e.to)}var pe=/^[\w.-]+\.js$/;function ln(t,e,r){return r?"inert":typeof e=="string"&&pe.test(e)?t?[e]:"inert":t?"inert":"framed"}var Ht=Object.freeze({[Symbol("claude.hot.restart")]:!0});function Bt(t,e){let r;try{r=t??sessionStorage}catch{return null}const n=at(e?.k),a=Oe(e?.k);let s=null;try{s=r.getItem(n)}catch{}try{r.removeItem(n)}catch{}try{Ur(r,a)}catch{}let l=null;if(s!==null&&!(e!==null&&e.g===void 0))try{const u=JSON.parse(s);Jr(u)&&(e===null||u.gen===e.g)&&(l=u)}catch{}if(l===null)try{r.removeItem(a)}catch{}return l}function qt(){const t=/^\/_f\/([^/]{1,128})\//.exec(location.pathname);return t?t[1]:""}var cn=/^[^/\\?#]{1,128}$/,it=t=>cn.test(t)&&t!=="."&&t!=="..";function Ut(t,e,r){const n=new URL(t),a="/_f/"+e+"/";if(!e||!n.pathname.startsWith(a)||!it(r))return null;const s=n.search.slice(1).split("&").filter(l=>!/^__frame_t(?:=|$)/.test(l)).join("&");return n.origin+"/_f/"+r+"/"+n.pathname.slice(a.length)+(s?"?"+s:"")+n.hash}var ze="{}";function Me(t){if(!t)return null;const e={ver:t.ver,handoff:t.handoff};return t.seq!==void 0&&(e.seq=t.seq),t.note!==void 0&&(e.note=t.note),e}function $t(t,e){return t!==null&&t.note===void 0&&e?.note!==void 0?{...t,note:e.note}:t}function Kt(t){const e=t?.k;return e!==null&&typeof e=="object"?e:void 0}function un(t,e,r,n=null){const a=setTimeout,s=clearTimeout,l=queueMicrotask,u=performance.now.bind(performance),R=new TextEncoder;let b=null,g=null;try{b=history,g=b.replaceState.bind(b)}catch{}const p=(...o)=>{try{console.warn(...o)}catch{}};let k=qt(),L=null;try{L=sessionStorage}catch{}const m={storage:L,fetch:typeof fetch=="function"?fetch.bind(globalThis):null,entry:location.origin+location.pathname+location.search,ver:k,priors:[],key:n?.k};let j=n?.k;const A=typeof requestAnimationFrame=="function"?requestAnimationFrame:o=>a(()=>o(u()),16);let _=e?.data??{},E=Me(e?.from),x=e?.gen??0,D=e!==null,B=!1,W=!1,H=null,Ie=!1;const be=new AbortController;let je=null,U=null,Ee=null,xe=!1,ce=()=>{};const te=new Promise(o=>{ce=o});let ve=!1,Je=!1,Se=!1,c,h=null,y=!1,O=!1,F=!1,$=!1,K=!1,Z=!1;const ue=o=>{for(const f of[at(o),Oe(o)])try{L?.removeItem(f)}catch{}},G=(o,f)=>{try{f!==null&&r.post(o,f)}catch{}},_e=()=>K||=F&&(U===null||$),Q=()=>{const o={__frame_hot:!0,ready:U!==null,accept:Ee!==null,demand:!0};Z=!K,Z&&(o.booting=!0),ve&&(o.readData=!0),Se&&(o.threw=!0),h?.assess&&(o.preflight=!0),G(o,H)};let De=!1,He=!1,fe=!1,re=!1;const Be=()=>{De||!Ie||fe||(De=!0,G({__frame_reveal_hold:!0},"*"))},ke=()=>new Promise(o=>{let f,d=0;const v=P=>{if(f===void 0)f=P;else if(P!==f||++d>=8){o();return}try{A(v)}catch{o()}};try{A(v)}catch{o()}}),Ze=()=>{fe=!0,G({__frame_reveal_ready:!0},"*")},ye=o=>{He||(He=!0,o.then(f=>{if(f===!1)return;let d=null;try{d=h?.settle?.()??null}catch{}return(d===null?ke():new Promise(v=>{a(v,50),Promise.resolve(d).then(v,v)}).then(ke)).then(Ze)}))},Qe=()=>{if(re||!fe)return;re=!0;const o=()=>{try{h?.afterReveal?.()}catch{}};o(),ke().then(()=>{o(),Ze()})},ge=(o=!1)=>{if(xe||U===null||!D||!W)return;xe=!0;const f=U,d=_;l(()=>{let v;try{v=f(d)}catch(N){throw ce(!1),N}let P=!1;try{P=typeof v?.then=="function"}catch{}if(!P){ce(!0);return}Promise.resolve(v).then(()=>ce(!0),N=>{ce(!1),l(()=>{throw N})})}),ye(o?te:r.dcl.then(()=>te))},Ae=o=>typeof o=="string"&&Ct.test(o)?o:void 0,qe=o=>{const f={__frame_hot_restart:!0},d=Ae(o?.note);d!==void 0&&(f.note=d),o?.required==="hard-reload"&&(f.required="hard-reload"),G(f,H)},ne=Object.freeze({get data(){return W||(Je=!0),!D&&!ve&&(ve=!0,W&&Q()),_},get from(){return E},get gen(){return x},signal:be.signal,snapshot(o){typeof o=="function"&&(je=o)},ready(o){typeof o!="function"||U!==null||(U=o,Be(),Q(),B&&G({__frame_hot_ready:!0,gen:x},H),ge())},accept(o){typeof o=="function"&&(Ee=o,Q())},restart(o){const f={note:o?.note,required:o?.required};if(W){qe(f);return}const d=c;c={note:Ae(d?.note)??f.note,required:d?.required==="hard-reload"||f.required==="hard-reload"?"hard-reload":void 0}}});let de=null,Ue=()=>{};const et=new Promise(o=>{Ue=o});let i=null;const S=()=>i??=r.dcl.then(()=>{let o=!1;try{o=de!==null&&de.expect()}catch{}if(!o)return;const f=de.maxMs;return new Promise(d=>{et.then(d),a(d,f)})}),w=()=>{if(!y||O||h===null)return;O=!0;const o=h;S().then(()=>{try{fe||o.afterStart(Kt(e),!1)}catch{}})},M=o=>{e!==null&&Je&&(ve=!0),_={},E=null,x=0;try{L?.removeItem(Oe(n?.k))}catch{}e!==null&&!o&&ye(r.dcl.then(()=>U!==null?te:void 0))},ee=()=>{y=!0,ye(S().then(()=>U!==null?te:void 0)),w()};try{addEventListener("error",()=>{Se||U!==null||(Se=!0,Q())})}catch{}const V=()=>{a(()=>{!K&&_e()&&Z&&Q()},0)};try{F=document.readyState==="complete",F||addEventListener("load",()=>{F=!0,V()},{once:!0})}catch{F=!0}_e(),te.then(()=>{$=!0,V()});let z=-1,Et,St,$e=!0,kt=!1,At,tt=null;const Rt=o=>{const f=tt===null;tt=$e&&o[0]!=="withheld"?o:["withheld",o[1],ze];let d=o[0];if($e&&d!=="withheld"){const P={ver:k,handoff:d};Et!==void 0&&(P.seq=Et),St!==void 0&&(P.note=St);try{if(L===null)throw new Error("no storage");L.setItem(at(j),'{"kv":1,"gen":'+z+',"from":'+JSON.stringify(P)+(At!==void 0?',"k":'+JSON.stringify(At):"")+',"data":'+(d==="ok"?o[2]:ze)+"}")}catch{d="unavailable"}}else{d="withheld",ue(j);try{h?.release?.()}catch{}}const v={__frame_hot_snapshotted:!0,gen:z,handoff:d,bytes:o[1]};o[3]!==void 0&&(v.errName=o[3]),G(v,H),f&&(d==="snapshot_error"||d==="unclonable"||d==="oversize")&&p("claude.hot: snapshot",d,o[3])},Re=o=>{try{return xr(o?.name)}catch{return"other"}},Te=(o,f,d=0)=>Rt(f===void 0?[o,d,ze]:[o,d,ze,Re(f)]),Vn=o=>{if(o.gen<=z)return;const f=z>=0;if(z=o.gen,Et=o.seq,St=Ae(o.note),typeof o.key=="string"&&Nt.test(o.key)&&o.key!==j&&(ue(j),j=o.key),$e&&=o.handoff!==!1,f){tt!==null?Rt(tt):kt&&G({__frame_hot_held:!0,gen:z},H);return}be.abort();const d=Object.freeze({handoff:$e,timeoutMs:o.timeoutMs,deadline:o.deadline??Dr}),v=je,P=()=>{if($e)try{At=h?.capture()}catch{}if(v===null){Te("empty");return}let T=!1;const X=a(()=>{T||(T=!0,Te("snapshot_timeout"))},Math.max(0,d.timeoutMs));Promise.resolve().then(()=>v(d)).then(Le=>{if(T)return;T=!0,s(X);let oe;try{oe=JSON.stringify(Le)}catch(Tt){Te("unclonable",Tt);return}if(typeof oe!="string"){Te("unclonable");return}let ae=oe.length;try{ae=R.encode(oe).length}catch{}if(ae>262144){Te("oversize",void 0,ae);return}Rt(["ok",ae,oe])},Le=>{T||(T=!0,s(X),Te("snapshot_error",Le))})};let N=null;try{N=h?.holdForIme()??null}catch{}if(N===null)P();else{kt=!0,G({__frame_hot_held:!0,gen:z},H);const T=()=>{kt=!1,P()};N.then(T,T)}},Xn=o=>{if(!B||D||U===null||o.gen!==x)return;let f=null;try{f=Bt(L,n&&{k:n.k,g:o.gen})}catch{}if(f!==null&&f.gen!==o.gen){f=null;try{L?.removeItem(Oe(n?.k))}catch{}}_=f?.data??{},E=$t(Me(f?.from??o.from),Me(o.from)),f!==null&&(x=f.gen),D=!0,B=!1;const d=Kt(f);te.then(v=>{try{v&&h?.afterStart(d,!0)}catch{}}),ge(!0)},lr=o=>{const f=k,d=m.entry;let v="",P,N=null;try{if(v=location.href,P=b.state,N=Ut(v,f,o),N!==null)if(g(P,"",N),location.pathname.startsWith("/_f/"+o+"/"))N=location.href;else return{failed:"navigate event canceled"}}catch(T){return{failed:Re(T)}}k=m.ver=o,m.priors.push(f)>8&&m.priors.splice(1,1);try{m.entry=Ut(d,f,o)??d}catch{}return[N,f,d,v,P]},Yn=({from:o,to:f})=>{let d,v;if(!it(f.ver))d="adopt_failed",v="not a version path segment";else if(f.ver===k)d="adopted";else if(!k||o.ver!==k)d="stale";else{const N=lr(f.ver);"failed"in N?(d="adopt_failed",v=N.failed):d=N[0]===null?"adopt_skipped":"adopted"}v!==void 0&&p(`claude.hot: could not move this page's URL to its new version folder /_f/${f.ver}/ (${v})`);const P={__frame_hot_readdressed:!0,to:f.ver,at:k,outcome:d};G(P,H)};let rt=0;const Jn=o=>{const f=Ee;if(f===null||o.id<=rt)return;rt=o.id;const d=h?.assess;if(o.preflight===void 0||d===void 0){cr(o,f);return}let v=!1;const P=X=>{v||(v=!0,s(T),o.id===rt&&cr(o,f,X))},N=()=>P(d.timeout(o)),T=a(N,Vr+100);d.run(o,window).then(P,N)},cr=(o,f,d)=>{let v,P=!1,N=!1,T,X,Le=null;const oe=I=>{if(N)return!1;if(T!==void 0&&T!==I)return p(`claude.hot: u.${I}() ignored - u.${T}() was called first`),!1;const se=T===void 0;return T=I,se},ae=I=>{T="restart",p(`claude.hot: ${I} - restarting`)},Tt=()=>{if(!oe("adopt")||o.id!==rt)return;const I=o.to.ver;if(nt.required!=="none"){ae(`u.adopt() needs required 'none', it is '${nt.required}'`);return}if(!it(I)){ae("u.adopt() cannot address this version");return}if(!k||I===k)return;const se=lr(I);if("failed"in se){X="adopt_failed",ae(`adopt_failed ${se.failed}; URL not changed`);return}const[J,Ot,eo,fr,to]=se;J===null?(X="adopt_skipped",p(`claude.hot: adopt_skipped - page already left /_f/${Ot}/; URL not changed, update still applied`)):X="adopted",Le=()=>{if(k===I){if(J!==null)try{if(location.href!==J)p("claude.hot: adopt_revert_skipped - update not applied; URL left where the page navigated");else{if(g(to,"",fr),location.href!==fr){p("claude.hot: adopt_revert_failed navigate event canceled - URL still at the new version");return}X="adopt_reverted",p("claude.hot: adopt_reverted - adopt() was called but the handler threw; URL restored")}}catch(ro){p(`claude.hot: adopt_revert_failed ${Re(ro)} - URL still at the new version`);return}k=m.ver=Ot,m.entry=eo,m.priors[m.priors.length-1]===Ot&&m.priors.pop(),J===null&&(X=void 0)}}},nt=Object.freeze({from:{ver:o.from.ver,seq:o.from.seq},to:{ver:o.to.ver,seq:o.to.seq},changed:on(o.changed),required:o.required,deadline:o.deadline,adopt:Tt,defer(){return oe("defer")&&nt.deadline.now&&ae("u.defer() past the deadline"),Ht},restart(I){return oe("restart"),T==="restart"&&!N&&(v??=Ae(I?.note),P||=I?.required==="hard-reload"),Ht},...d?.update}),Zn=(I,se)=>{N=!0,I==="threw"?(Le?.(),v??=Re(se).toLowerCase()):T===void 0&&p(I==="timeout"?"claude.hot: accept handler did not answer in time - restarting":"claude.hot: accept handler settled without defer/restart/adopt - restarting");const J={__frame_hot_verdict:!0,id:o.id};J.verdict=I==="threw"||T===void 0||T==="restart"?"restart":T==="adopt"?"applied":"deferred",J.verdict==="restart"&&(P&&(J.required="hard-reload"),v!==void 0&&(J.note=v)),X!==void 0&&(J.verdict==="applied"||X!=="adopted")&&(J.adopt=X),G(Object.assign(J,d?.verdict),H)};let ur=!1;const Lt=(I,se)=>ur?!1:(ur=!0,s(Qn),Zn(I,se),!0),Qn=a(()=>Lt("timeout"),o.verdictTimeoutMs);Promise.resolve().then(()=>f(nt)).then(()=>Lt("settled"),I=>{!Lt("threw",I)&&T==="adopt"&&qe({note:Re(I).toLowerCase()}),p("claude.hot: accept",Re(I))})};try{t.hot===void 0&&Object.defineProperty(t,"hot",{value:ne,writable:!1,configurable:!1,enumerable:!1})}catch{}return{hot:ne,boot:m,afterConnect(){Ie=!0,(e!==null||U!==null)&&Be()},onInit(o,f){H=f,W=!0;const d=jt(o)?o:null;d?.phase==="final"&&e!==null&&e.gen===d.gen?(D=!0,E=$t(E,Me(d.from)),ee()):(B=d?.phase==="pending",M(B),D=!B,x=d?.gen??0,E=Me(d?.from)),Q(),Z&&a(()=>{K||(K=!0,Q())},zr),B&&U!==null&&G({__frame_hot_ready:!0,gen:x},f),c!==void 0&&(qe(c),c=void 0),ge()},onNoInit(){W=!0,M(!1),D=!0,ge()},onShell(o){return o?.__frame_revealed===!0?(Qe(),!1):Zr(o)?(Vn(o),!0):Qr(o)?(Xn(o),!0):an(o)?(Jn(o),!0):sn(o)?(Yn(o),!0):!1},attachExtras(o){h=o,w(),o.assess&&Q()},inSlot:()=>Oe(j),hydration(o,f){de??={expect:o,maxMs:f}},hydrated(){Ue()},carried(){return D?_:{}},presented:()=>fe}}var so="frame_ldx_runtime",fn="frame_ldx_build",io="script#an-form",dn=256;function lt(t,e,r){for(const n of t)r(n)&&t.delete(n);t.size>=dn&&!t.has(e)&&t.delete(t.values().next().value),t.add(e)}function Pe(t,e,r,n){try{const a=t[e];if(typeof a!="function")return;t[e]=function(...s){if(n){let u;try{u=n(this)}catch{}if(u!==void 0)return u}const l=a.apply(this,s);try{r?.(this)}catch{}return l}}catch{}}var hn=()=>{},ct;function pn(){if(ct)return ct;const t={media:new Set,contexts:new Set,wakeLocks:new Set,gate:null,refuse:null,onStart:null,onStop:null};ct=t;const e=l=>t.gate?.(l),r=l=>{t.onStop?.(l)},n=window.HTMLMediaElement?.prototype;n&&(Pe(n,"play",l=>{lt(t.media,l,u=>u.paused),t.onStart?.(l)},e),Pe(n,"pause",r));const a=window.AudioContext,s=window.AudioNode?.prototype;a&&s&&(Pe(s,"connect",l=>{const u=l.context;u instanceof a&&(lt(t.contexts,u,R=>R.state==="closed"),t.onStart?.(u))}),Pe(a.prototype,"resume",void 0,e),Pe(a.prototype,"suspend",r));try{const l=window.WakeLock?.prototype,u=l?.request;l&&typeof u=="function"&&(l.request=function(...R){if(t.refuse)return t.refuse();const b=u.apply(this,R);return Promise.resolve(b).then(g=>{lt(t.wakeLocks,g,p=>p.released),t.onStart?.(g)},hn),b})}catch{}return t}function mn(t){let e=window;for(let r=0;e.parent&&e.parent!==e&&r<8;r++)if(e=e.parent,t(e))return!0;return!1}function vn(){let t=null;const e=()=>t??parent,r=n=>t?n===t:mn(a=>a===n);return{post(n,a){if(t){e().postMessage(n,a);return}let s=parent;for(let l=0;l<8&&(s.postMessage(n,a),!(!s.parent||s.parent===s));l++)s=s.parent},on(n){const a=s=>{const l=s.source;r(l)&&n(s.data,s.origin,s.isTrusted,()=>{t??=l})};return addEventListener("message",a),()=>removeEventListener("message",a)},port:n=>({post(a,s){if(s?.activation){e().postMessage(a,{targetOrigin:n,includeUserActivation:!0});return}if(s?.transfer){e().postMessage(a,n,s.transfer);return}e().postMessage(a,n)},on(a,s){const l=u=>{r(u.source)&&u.origin===n&&a(u.data,u)};return addEventListener("message",l,s),()=>removeEventListener("message",l,s)}})}}function _n(){const t={post:()=>{},on:()=>()=>{}};return{...t,port:()=>t}}var yn=500,gn=2e4,wn="data-token-reads",bn="data-frame-refused-watch",En="data-frame-unsupported",Sn=/(?:^|\s)stylesheet(?:\s|$)/i;function kn(t,e){let r="";if(t instanceof HTMLScriptElement?r=t.src:t instanceof HTMLLinkElement&&Sn.test(t.rel)&&(r=t.href),!r)return null;try{const n=new URL(r);return n.origin===location.origin&&n.pathname.startsWith(e)?n.origin+n.pathname:null}catch{return null}}function An(t,e,r){if(!t||e!=="query")return;const n="/_f/"+t+"/";document.documentElement.setAttribute(bn,"");const a=location.href,s=fetch,l=setTimeout,u={method:"HEAD",cache:"no-store",credentials:"same-origin"},R=m=>m.ok||m.status===304;let b=!1,g=!1;const p=()=>removeEventListener("error",L,!0),k=async m=>{const j=await s(m,u);if(R(j))g=!0;else if(j.status===403){const A=await s(a,u);if(R(A)){const _=(await s(m,u)).status;_===403?(g=!0,document.documentElement.setAttribute(En,""),r()):_<500&&(g=!0)}else A.status>=400&&A.status<500&&(g=!0)}},L=m=>{if(g||b)return;if(document.documentElement.hasAttribute(wn)){g=!0,p();return}const j=kn(m.target,n);j&&(b=!0,l(()=>{k(j).catch(()=>{}).finally(()=>{b=!1,g&&p()})},yn))};addEventListener("error",L,!0),addEventListener("load",p,{once:!0}),l(p,gn)}var ut="__frame_scroll",Rn=150,Tn=310,Ln=160,On=3e4,zt="p,h1,h2,h3,h4,h5,h6,li,pre,blockquote,tr,dt,dd,figcaption,summary",Gt=()=>innerWidth<=Tn&&innerHeight<=Ln,Wt=t=>{const e=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);let r="";for(;r.length<600&&e.nextNode();)r+=e.currentNode.nodeValue.slice(0,600-r.length);const n=r.replace(/\s+/g," ").trim().slice(0,120);let a=2166136261;for(let s=0;s<n.length;s++)a=Math.imul(a^n.charCodeAt(s),16777619);return n.length>11?a>>>0||1:0},Vt=t=>{for(let e=t;e&&e!==document.scrollingElement;e=e.parentElement){const r=getComputedStyle(e).position;if(r==="fixed"||r==="sticky"||e!==t&&e.scrollTop)return!1}return!0},Mn=()=>{const t=[],e=[];try{for(let r=0;r<16;r++){const n=document.elementFromPoint(innerWidth/(r%2?4:2),innerHeight*(r>>1)/8+1);let a=n?.closest(zt)??n;for(;a&&!a.matches(zt)&&![...a.childNodes].some(l=>l.nodeType===3&&l.nodeValue?.trim());)a=a.parentElement;const s=a&&!e.includes(a)?Wt(a):0;s&&!t.some(l=>l[0]===s&&l[2]===a.tagName)&&Vt(a)&&(e.push(a),t.push([s,Math.round(a.getBoundingClientRect().top),a.tagName]))}}catch{}return t.sort((r,n)=>+(r[1]<0)-+(n[1]<0)),t.length?t.slice(0,3):void 0},Pn=t=>{try{for(const[e,r,n]of t.a??[]){const a=document.getElementsByTagName(n);let s;for(let u=0;u<a.length&&a.length<5e3;u++)Wt(a[u])===e&&(s=s===void 0||s?.contains(a[u])?a[u]:null);const l=s?.getBoundingClientRect();if(l?.height&&s.checkVisibility?.()!==!1&&Vt(s)&&isFinite(r))return Math.max(0,Math.round(scrollY+l.top-r))}}catch{}return t.y};function Nn(){let t=0,e=!1,r=!1,n=!1,a={y:0},s=null;const l=E=>{try{sessionStorage.setItem(ut,JSON.stringify(E))}catch{}},u=E=>{if(clearTimeout(t),s===null)return;const x=s;s=null,l({y:x,a:E&&x>0?Mn():void 0})},R=()=>{if(e){e=!1;return}r=!0,s=scrollY,clearTimeout(t),t=setTimeout(u,Rn,!0)};try{addEventListener("scroll",R,{passive:!0}),addEventListener("pagehide",()=>u())}catch{}const b=()=>{let E;try{E=sessionStorage.getItem(ut)}catch{return null}if(E===null)return null;let x;try{x=JSON.parse(E)}catch{x=null}const{y:D,a:B}=x??{};if(!(typeof D=="number"&&Number.isFinite(D)&&D>=0)){try{sessionStorage.removeItem(ut)}catch{}return null}const W=H=>Array.isArray(H)&&typeof H[0]=="number"&&Number.isFinite(H[1])&&typeof H[2]=="string";return{y:D,a:Array.isArray(B)&&B.length<4&&B.every(W)?B:void 0}};let g=!1,p=-1;const k=E=>{try{const x=scrollY,D=Pn(E);scrollTo({top:D,left:0,behavior:"instant"}),a=Gt()?E:{y:D,a:E.a},n=!0,clearTimeout(t),s=null,l(a),p=scrollY,p!==x&&(e=!0);const B=D!==E.y&&document.readyState!=="complete";(p!==D||B)&&!g&&(g=!0,addEventListener("load",()=>{try{scrollY===p&&k(b()??a)}catch{}},{once:!0}))}catch{}},L=()=>{try{return!!location.hash}catch{return!0}};let m=!1;const j=()=>{try{if(m||!Gt())return;m=!0;const E=Date.now(),x=()=>{try{removeEventListener("resize",x)}catch{}Date.now()-E>On||r||L()||k(b()??a)};addEventListener("resize",x)}catch{}};let A=!1,_=!1;return{restore(){if(A||(A=!0,L()))return;const E=b();E!==null&&(k(E),j())},promoted(){if(_||(_=!0,L()))return;const E=b();E!==null?(k(E),j()):n&&k(a)}}}function Cn(t,e,r,n){let a=null;try{a=window.trustedTypes?.createPolicy("frame-runtime",{createScriptURL:R=>R})??null}catch{}const s=window.Worker,l=s?.prototype,u=Object.freeze({Worker:s,workerOn:l?.addEventListener,workerPost:l?.postMessage,workerTerminate:l?.terminate,fetch:window.fetch.bind(window),preventDefault:Event.prototype.preventDefault,now:Date.now,policy:a,origins:e});r(t).then(R=>R?.bootTopLevel?R.bootTopLevel(u,n):n.settle()).catch(()=>n.settle())}var lo="modulepreload",co=function(t){return"/"+t},uo={},Fn=function(e,r,n){let a=Promise.resolve();function s(l){const u=new Event("vite:preloadError",{cancelable:!0});if(u.payload=l,window.dispatchEvent(u),!u.defaultPrevented)throw l}return a.then(l=>{for(const u of l||[])u.status==="rejected"&&s(u.reason);return e().catch(s)})},In=window===top,Xt=Object.getOwnPropertyDescriptor(window,"claude"),Ge=ln(In,window.__FRAME_PREAMBLE?.topLevel,Xt?.writable===!1),ft=typeof Ge=="object"&&Ge[0],C=ft?_n():vn();(function(){const t=Object.defineProperty,e=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let n=0;for(let a=0;a<r.length;a++){const s=r[a];try{t(e,s,{value:void 0,writable:!1,configurable:!1})}catch{try{delete e[s]}catch{}try{t(e,s,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof e[s]=="function"&&n++}if(n&&Ge==="framed")try{C.post({__frame_rtc_lockdown_failed:n},"*")}catch{}})();var Yt=1e4,jn=2e3,dt=2e3,ht=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]),xn="https://*.";function Jt(t){for(const e of ht)if(e.endsWith(":*"))try{const r=new URL(t);if(`${r.protocol}//${r.hostname}:*`===e)return!0}catch{}else if(e.startsWith(xn)){if(Dn(e.slice(10),t))return!0}else if(t===e)return!0;return!1}function Dn(t,e){if(!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(t))return!1;let r;try{r=new URL(e)}catch{return!1}if(r.protocol!=="https:"||r.port!==""||r.origin!==e)return!1;const n=r.hostname;if(!n.endsWith(`.${t}`))return!1;const a=n.slice(0,n.length-t.length-1);return/^[a-z0-9-]+$/.test(a)}var Ne=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),Ce=window.__FRAME_PREAMBLE?.transforms,pt=window.__FRAME_PREAMBLE?.comments,mt=window.__FRAME_PREAMBLE?.translate,me=window.__FRAME_PREAMBLE?.ldx,We=dr(window.__FRAME_PREAMBLE?.cred),Zt=(()=>{try{const[t]=performance.getEntriesByType("navigation"),e=t?.serverTiming?.find(r=>r.name==="frame-cred-exp");return e!==void 0&&/^\d{1,15}$/.test(e.description)?hr(Number(e.description)):void 0}catch{return}})();function Qt(t){return Fn(()=>import("/_runtime/"+t),void 0)}var Fe=new Set,er=setTimeout,Hn=fetch,Bn=AbortController,qn=800+800*Math.random(),Un=3e3,Ve=null,tr=new Map;function $n(t,e){let r=tr.get(t);return r||tr.set(t,r=Kn(t,e)),r}function Kn(t,e){if(Ve?.has(t))return Promise.resolve("csp");if(navigator.onLine===!1)return Promise.resolve("offline");const r=new Bn;let n=!1;return er(()=>{n=!0,r.abort()},Un),Hn("/_runtime/"+t,{signal:r.signal}).then(a=>(r.abort(),a.ok?/javascript/i.test(a.headers.get("content-type")??"")?e instanceof Error&&/:\d+:\d+\)?$/m.test(e.stack??"")?"eval":"served":"mime":"http"),()=>n?"timeout":Ve?.has(t)?"csp":"net")}function ie(t){if(!Ve){const e=Ve=new Set;try{document.addEventListener("securitypolicyviolation",r=>{const n=/\/_runtime\/([^/?#]+)/.exec(r.blockedURI);n&&r.disposition!=="report"&&e.add(n[1])})}catch{}}return Qt(t).catch(()=>new Promise(e=>er(e,qn)).then(()=>Qt(t+"?r=1")).then(e=>(e!==void 0&&Fe.add(t),e)))}function rr(t,e,r){return{contract:t.contract,changes:new Set(t.changes??[]),flags:new Set(t.flags??[]),capabilities:t.capabilities??{},capBudgets:t.capBudgets??{},brokerGen:t.brokerGen,transforms:new Map,shellOrigin:e,shell:r,mount:bt,hooks:Xe,pipe:()=>({wrap:(n,a)=>(...s)=>{try{return a(...s)}catch(l){return Promise.reject(l)}}})}}var we=null,Y=null;function nr(t,e,r){try{Object.defineProperty(t,e,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(t,e,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var vt=!1,Xe={editBefore:null,edit:null};function zn(t,e,r=!1){const n=[];let a;if(r)try{Xe.editBefore?.(t)}catch{}for(const s of t.elements){const l=document.querySelector(`[data-id="${s.target}"]`);if(!l){a=s.target;break}if([...Object.keys(s.attrsSet??{}),...s.attrsRemoved??[]].some(u=>!yr(u)||gr(l,u))){a=s.target;break}if(s.text!==void 0&&(!Sr(l)||Tr(l))){a=s.target;break}for(const[u,R]of Object.entries(s.attrsSet??{}))if(!ar(l,u)){try{l.setAttribute(u,R)}catch{}or(l,u,R)}for(const u of s.attrsRemoved??[])ar(l,u)||(l.removeAttribute(u),or(l,u,null));typeof s.text=="string"&&Ar(l,s.text),n.push(s.target)}if(r)try{Xe.edit?.(t.seq,n,a)}catch{}if(a!==void 0){C.post({__frame_patch_miss:{seq:t.seq}},e);return}try{document.dispatchEvent(new CustomEvent("claude:edit",{detail:{seq:t.seq,targets:n}}))}catch{}}function or(t,e,r){if(!(t instanceof HTMLInputElement))return;const n=e.toLowerCase();n==="checked"?t.checked=r!==null:n==="value"&&t.type!=="file"&&(t.value=r??"")}function ar(t,e){const r=e.toLowerCase(),n=t;return r==="data-id"||(r==="value"||r==="checked")&&(n.__artifactSecret===!0||/^(password|hidden|file)$/.test(n.type??"")||/(^|\s)(cc-|one-time-code|current-password|new-password)/i.test(`${t.getAttribute("autocomplete")??""} ${n.autocomplete??""}`))}function sr(t){const e=document.documentElement;t==="light"||t==="dark"?(e.dataset.theme=t,e.style.colorScheme=t,vt=!0):vt&&(delete e.dataset.theme,e.style.colorScheme="",vt=!1)}var le=new Map,_t=null;function yt(){let t;const e={u:new Promise(r=>{t=r}),r:r=>{e.done=!0,t(r)},done:!1,nulled:!1};return e}function Ye(t,e){t.nulled=!0,t.ver=e,t.r(null)}function gt(t,e){for(const[r,n]of le)n.done||(e&&n.asked?e(r,n):Ye(n,t))}function Gn(){for(const t of le.values())if(t.asked&&!t.done)return!0;return!1}var Wn=Object.freeze(Object.assign(Object.create(null),{call:Function.prototype.call,apply:Function.prototype.apply,bind:Function.prototype.bind})),wt=!1,bt=(t,e)=>{let r=le.get(t);if(r?.nulled&&wt)r=yt(),le.set(t,r);else if(!r||r.done){r?.nulled&&Y&&C.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:t,phase:"install"}},Y);return}const n=typeof e=="function"?Object.setPrototypeOf(e,Wn):Object.assign(Object.create(null),e);typeof n.then=="function"&&delete n.then,r.want=void 0,r.r(Object.freeze(n))};function ir(){const t=Xt?.value??{};nr(window,"claude",t);for(const e of Object.keys(Ne)){if(t[e]!==void 0){nr(t,e,t[e]);continue}le.set(e,yt())}if(t.use===void 0){const e=r=>{if(typeof r!="string"||!Object.hasOwn(Ne,r))return Promise.resolve(null);let n=le.get(r);return n?(_t&&(n.nulled||n.want!==void 0)&&(n=_t(r,n)),n.asked=!0,n.u):Promise.resolve(t[r]??null)};try{Object.defineProperty(t,"use",{value:e,writable:!0,configurable:!0,enumerable:!1})}catch{}}return t}if(Ge==="framed"){let t;const e=Ce&&pe.test(Ce)?ie(Ce).catch(c=>{t={f:Ce,e:c}}):Promise.resolve(void 0),r=c=>{if(c.type==="auxclick"&&c.button!==1)return;const h=c.target,y=h&&h.closest?h.closest("a[href],area[href]"):null;if(!y)return;const O=y.getAttribute("href");if(!O)return;let F;try{F=new URL(O,document.baseURI)}catch{return}if((F.protocol==="http:"||F.protocol==="https:")&&F.origin!==location.origin){c.preventDefault();const $=(y.getAttribute("target")??"").toLowerCase(),K=c.type==="auxclick"||c.metaKey||c.ctrlKey||c.shiftKey||c.altKey||!["","_self","_top","_parent"].includes($);C.post({__frame_nav:!0,url:F.href,newTab:K},"*")}};addEventListener("click",r,!0),addEventListener("auxclick",r,!0);const n={},a=c=>{c.isTrusted&&(n.pointer=!0)},s=c=>{c.isTrusted&&(n.click=!0)};addEventListener("pointermove",a,{capture:!0,passive:!0}),addEventListener("click",s,{capture:!0,passive:!0});const l={cb:null};addEventListener("keydown",c=>l.cb?.(c),!0);const u={cb:null};addEventListener("keydown",c=>u.cb?.(c));const R=pn();e.then(c=>c?.installEscapeForward?.(l,h=>{Y&&C.post(h,Y)})),e.then(c=>{try{c?.installFocusKeep?.()}catch{}}),e.then(c=>{if(!c?.wireNav)return;const h=C.port("*");c.wireNav(h),removeEventListener("click",r,!0),removeEventListener("auxclick",r,!0),removeEventListener("pointermove",a,!0),removeEventListener("click",s,!0),c.wireEngagement?.(n,h,R)});let b=null;try{b=Nn()}catch{}const g=document.readyState==="loading"?new Promise(c=>document.addEventListener("DOMContentLoaded",()=>c(),{once:!0})):Promise.resolve();let p="dcl",k=!1;g.then(()=>{k=!0});let L=null,m=null;try{m=$r(window.name),L=Bt(null,m)}catch{}const j=ir();let A=null;try{A=un(j,L,{post:(c,h)=>C.post(c,h),dcl:g},m)}catch{}e.then(c=>{try{A&&c?.installHotExtras?.(A)}catch{}});let _=null;const E=()=>Array.isArray(_?.flags)&&_.flags.includes("frame_ldx_runtime")&&!!me&&pe.test(me)&&document.querySelector("script#an-form")!==null;try{A?.hydration(E,Kr)}catch{}let x=null,D=0;const B=C.on((c,h,y,O)=>{Jt(h)&&Pr(c)&&(O(),_=c.__frame_init,Y=h,B(),clearTimeout(D),x?.())});if(We){const c=Zt===void 0?{__frame_cred:We}:{__frame_cred:We,exp:Zt};for(const h of ht)try{h.includes("*")||C.post(c,h)}catch{}}C.post({__frame_connect:!0},"*");try{A?.afterConnect()}catch{}const W=setTimeout,H=clearTimeout,Ie=()=>new Promise(c=>W(c,0));let be=()=>NaN,je=()=>[];try{be=performance.now.bind(performance),je=performance.getEntriesByType.bind(performance)}catch{}let U=0;const Ee=()=>{try{C.post({__frame_alive:!0},"*")}catch{}U=W(Ee,jn)},xe=()=>H(U);Ee(),addEventListener("load",xe,{once:!0});const ce=new Promise(c=>{x=c,D=setTimeout(()=>{B(),c()},Yt)}),te=new WeakSet;addEventListener("error",c=>{c.target&&te.add(c.target)},!0);try{An(qt(),We,()=>{e.then(c=>{try{c?.drawRefusedNotice?.()}catch{}})})}catch{}const ve=()=>{let c=[];try{c=[...document.querySelectorAll("link[rel~=stylesheet]:not([rel~=alternate])")].filter(y=>!y.sheet&&!y.disabled&&!te.has(y)&&y.getAttribute("href")&&URL.canParse(y.href)&&(!y.media||matchMedia(y.media).matches))}catch{}let h=c.length;return h===0?Promise.resolve():new Promise(y=>{try{const O=dt-be();O>0&&(p="sheets");const F=W(y,O>0?O<dt?O:dt:0),$=()=>{--h===0&&(H(F),y())};for(const K of c)K.addEventListener("load",$,{once:!0}),K.addEventListener("error",$,{once:!0})}catch{y()}})};g.then(()=>{try{b?.restore()}catch{}});const Je=Promise.all([ce,g,e]).then(c=>{if(_?.hostOverlays!==!0||!Y)return;const h=c[2],y=$=>{try{return $?.()===!0}catch{return!1}},O={cover:y(h?.declaresCover),..._.hostSides===!0&&{sides:y(h?.declaresSides)},...h?.answerLayoutCheck&&{checks:!0}};if(C.post({__frame_layout:O},Y),_.hostBackground!==!0)return;const F=Y;return Ie().then(ve).then(()=>{try{h?.watchBackground?.($=>C.post({__frame_layout:{...O,background:$}},F))}catch{}})}),Se={cb:null};C.on((c,h)=>{if(Jt(h)&&Nr(c)){try{b?.promoted()}catch{}Se.cb?.()}}),ce.then(async()=>{if(!_||!Y){gt();try{A?.onNoInit()}catch{}return}if(sr(_.theme),_.hostVisible===!1&&e.then(i=>i?.applyHostVisible?.(!1,R)),_.hostKeys!==void 0){const i=Y,S=_.hostKeys;e.then(w=>w?.installHostKeyForward?.(u,S,M=>C.post(M,i)))}try{A?.onInit(_.hot,Y)}catch{}let c;const h=()=>{try{!c&&me&&E()&&(c=ie(me),c.then(i=>i?.prefetch?.()).catch(()=>{}))}catch{}};h(),g.then(h);const y=Y,O=C.port(y),F=(i,S)=>C.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:i,phase:S}},y),$=(i,S,w)=>{new Promise(M=>M($n(S,w))).then(M=>F(i,M),()=>F(i))},K=i=>C.post({__frame_cap_recovered:{cap:i}},y);let Z=_.brokerGen;const ue=()=>A?.boot.ver??"",G=ue(),_e=(i,S)=>{const w=ue();H(S.t),S.want=w,S.t=W(()=>{S.done||Ye(S,w)},Yt),C.post({__frame_cap_want:!0,cap:i,ver:w},y)},Q=(i,S)=>{const w=le.get(i.cap),M=Ne[i.cap];if(!S||!w||w.done||w.want!==i.ver||!pe.test(M))return;if(H(w.t),w.want=void 0,Z=i.brokerGen??Z,i.ver!==ue()){_e(i.cap,w);return}if(!i.grant||i.cap==="network"){Ye(w,i.ver);return}const ee=we,V=we={...ee,capabilities:{...ee.capabilities,[i.cap]:i.grant},capBudgets:{...ee.capBudgets,[i.cap]:{...ee.capBudgets[i.cap],...i.budgets}}};ie(M).then(z=>{Fe.has(M)&&K(i.cap),V.brokerGen=Z,wt=!0;try{z?.install?.(V)}catch{F(i.cap,"install")}finally{wt=!1}},z=>$(i.cap,M,z)).then(()=>{w.done||Ye(w,i.ver)})};let De=!1,He=!1;C.on((i,S,w)=>{if(S!==y)return;try{if(A?.onShell(i))return}catch{}if(Fr(i)&&sr(i.__frame_theme.theme),tn(i)&&Q(i,w),w&&rn(i)&&(Z=i.brokerGen??Z),Cr(i)){const V=i.__frame_host_visible.visible;e.then(z=>z?.applyHostVisible?.(V,R))}i?.__frame_layout_check&&e.then(V=>V?.answerLayoutCheck?.(i,z=>C.post({__frame_layout_verdict:z},y))),Mr(i)&&zn(i.__frame_patch,y,w);const M=i?.__fc_mode;M&&typeof M=="object"&&!De&&pt&&pe.test(pt)&&(De=!0,ie(pt).then(V=>V.install?.(y,M.on===!0,O)).catch(()=>{}));const ee=i?.__ft_cmd;ee&&typeof ee=="object"&&!He&&mt&&pe.test(mt)&&(He=!0,ie(mt).then(V=>V.install?.(y,ee,O)).catch(()=>{}))});const fe=Object.keys(_.capabilities??{}).filter(i=>Object.hasOwn(Ne,i)).map(i=>[i,Ne[i]]).filter(i=>typeof i[1]=="string"&&pe.test(i[1])),re=y;let Be=!1,ke=()=>{};const Ze=new Promise(i=>{ke=()=>{Be=!0,i()}}),ye=()=>(Be||(p="caps"),Ze),Qe=L!==null||jt(_.hot)||_.hostVisible===!1||_.hostOverlays===!0;k&&(p="init");const ge=_.hostBackground===!0,Ae=g.then(()=>(ge&&ye(),ge?Je:void 0)).then(()=>Qe?ye():Ie()).then(ve).then(()=>{let i=!0;try{i=Qe||Gn()}catch{}return i?ye():void 0}).then(()=>{xe();const i=pr(je,be);C.post(i?{__frame_ready:!0,nav:i,gate:p}:{__frame_ready:!0,gate:p},re),e.then(S=>{S?.installSizeReporter?.(re,Se,O),S?.installPaintReporter?.(O)})}),qe=await Promise.allSettled(fe.map(([,i])=>ie(i))),ne=await e;if(ne?.buildBoot||(t?$("_transforms",t.f,t.e):F("_transforms")),ne?.buildBoot)try{we=ne.buildBoot(_,ne.TRANSFORMS??{},{shellOrigin:re,mount:bt,hooks:Xe,shell:O},i=>C.post({__frame_cap_telemetry:i},re))}catch{F("_transforms","install"),we=rr(_,re,O)}else we=rr(_,re,O);ne?.buildBoot&&Fe.has(Ce??"")&&K("_transforms");const de=we;de.brokerGen=Z;try{ne?.installAnchorMirror?.(O)}catch{}qe.forEach((i,S)=>{const[w,M]=fe[S];if(i.status!=="fulfilled"){$(w,M,i.reason);return}Fe.has(M)&&K(w);try{i.value?.install?.(de)}catch{F(w,"install")}});const Ue=_.capWants===!0;Ue&&(_t=(i,S)=>{const w=ue();if(!w)return S;if(!S.nulled)return S.want!==w&&_e(i,S),S;if(w===S.ver)return S;const M=yt();return le.set(i,M),_e(i,M),M}),gt(G,Ue&&ue()!==G?_e:void 0),ke(),await Ae;let et=!1;try{et=E()}catch{}me&&et?(c??ie(me)).then(i=>i?.boot?.({shellOrigin:y,build:de.flags.has(fn),hot:A?.hot??null,carried:A?.carried(),presented:()=>A?.presented()??!0})).catch(()=>!1).then(i=>{A?.hydrated(),i!==!0?F("_ldx"):Fe.has(me)&&K("_ldx")}):A?.hydrated()})}else ft&&(ir(),Cn(ft,ht,ie,{settle:gt,mount:bt}))})();</script><!-- /frame-runtime --><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>TTS JP 크리에이터 파이프라인 (Copy)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 업무 도구: 상단 단계 스트립(요약) → 탭별 표(상세). Reacher=파랑, FastMoss=주황, 상태색은 별도 */
+:root{
+  --sue:#c2185b; --sue-bg:#fde4ef; --lea:#00796b; --lea-bg:#dff4f0;
+  --bg:#f6f7f9; --panel:#ffffff; --fg:#1b1f24; --muted:#59636e; --line:#dde1e6; --soft:#eef1f4;
+  --reacher:#2f55c8; --reacher-bg:#eaf0ff; --fm:#b8430f; --fm-bg:#fff1e8;
+  --good:#1a7f45; --good-bg:#e5f5ec; --warn:#9a6700; --warn-bg:#fff6dc; --bad:#b42318; --bad-bg:#fdecea;
+  --focus:#2f55c8;
+  --sans:'IBM Plex Sans KR', system-ui, -apple-system, 'Malgun Gothic', sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111418; --panel:#181c21; --fg:#e7eaee; --muted:#9aa4ae; --line:#2b3138; --soft:#20262c;
+  --reacher:#8aa8ff; --reacher-bg:#1c2640; --fm:#ff9a63; --fm-bg:#3a2216;
+  --good:#5fd08f; --good-bg:#143524; --warn:#e8b84a; --warn-bg:#352a10; --bad:#ff8a80; --bad-bg:#3d1714; --focus:#8aa8ff; --sue:#ff8cc0; --sue-bg:#3d1428; --lea:#5fd4c2; --lea-bg:#0f3530; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --sue:#ff8cc0; --sue-bg:#3d1428; --lea:#5fd4c2; --lea-bg:#0f3530;
+  --bg:#111418; --panel:#181c21; --fg:#e7eaee; --muted:#9aa4ae; --line:#2b3138; --soft:#20262c;
+  --reacher:#8aa8ff; --reacher-bg:#1c2640; --fm:#ff9a63; --fm-bg:#3a2216;
+  --good:#5fd08f; --good-bg:#143524; --warn:#e8b84a; --warn-bg:#352a10; --bad:#ff8a80; --bad-bg:#3d1714; --focus:#8aa8ff; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.5}
+.wrap{max-width:1440px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+h1{font-size:22px;margin:0;text-wrap:balance}
+h2{font-size:16px;margin:0}
+.sub{color:var(--muted);font-size:13px}
+.head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);white-space:nowrap}
+.chip b{color:var(--fg);font-weight:600}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav.tabs button{font:inherit;font-weight:500;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:10px 12px;cursor:pointer;white-space:nowrap;min-height:44px}
+nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--fg)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.stage{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--panel);display:flex;flex-direction:column;gap:4px}
+.stage .k{font-size:12px;color:var(--muted)}
+.stage .v{font-family:var(--mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
+.stage .d{font-size:12px;color:var(--muted)}
+.stage.reacher{border-top:3px solid var(--reacher)}
+.stage.fm{border-top:3px solid var(--fm)}
+.stage.team{border-top:3px solid var(--fg)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grow{flex:1 1 200px;min-width:0}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-height:36px;box-sizing:border-box}
+input[type=search]{min-width:200px}
+.btn{font:inherit;font-weight:500;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:6px;padding:6px 12px;min-height:36px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--fg);color:var(--panel);border-color:var(--fg)}
+.btn.fm{background:var(--fm);color:#fff;border-color:var(--fm)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:4px 10px;min-height:32px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--panel);border-color:var(--fg)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
+th{position:sticky;top:0;background:var(--soft);font-weight:600;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+th.num,td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+th.fmcol{color:var(--fm)}
+tr:last-child td{border-bottom:0}
+td input,td select{min-height:30px;padding:3px 6px;font-size:13px}
+td input.w-s{width:90px} td input.w-m{width:130px} td input.w-l{width:220px}
+a{color:var(--reacher)}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.pill.good{background:var(--good-bg);color:var(--good)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)}
+.pill.fm{background:var(--fm-bg);color:var(--fm)}
+.own-Sue select,.pill.own-Sue{background:var(--sue-bg);color:var(--sue);border-color:var(--sue);font-weight:600}
+.own-Lea select,.pill.own-Lea{background:var(--lea-bg);color:var(--lea);border-color:var(--lea);font-weight:600}
+.stage.own-Sue{border-top:3px solid var(--sue)} .stage.own-Lea{border-top:3px solid var(--lea)} .pill.re{background:var(--reacher-bg);color:var(--reacher)}
+.muted{color:var(--muted)}
+.note{font-size:13px;color:var(--muted);max-width:75ch}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;font-weight:600;color:var(--muted)}
+.field .hint{font-size:12px;color:var(--muted)}
+.banner{border-radius:8px;padding:10px 12px;font-size:13px;background:var(--warn-bg);color:var(--warn)}
+.banner.bad{background:var(--bad-bg);color:var(--bad)}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;font-size:13px;color:var(--muted)}
+.creator{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.kv{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px}
+.kv span b{font-family:var(--mono);font-weight:500}
+.flow{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.flow svg{display:block;min-width:1000px;width:100%;height:auto;font-family:var(--sans)}
+.flow .band{fill:var(--soft)}
+.flow .bx{fill:var(--panel);stroke:var(--line);stroke-width:1.2}
+.flow .bx.re{fill:var(--reacher-bg);stroke:var(--reacher);stroke-width:1.5}
+.flow .bx.fm{fill:var(--fm-bg);stroke:var(--fm);stroke-width:1.5}
+.flow .bx.bd{fill:var(--fg);stroke:none}
+.flow .bx.dash{stroke-dasharray:5 4}
+.flow .dia{fill:var(--soft);stroke:var(--muted);stroke-width:1.2}
+.flow .t{fill:var(--fg);font-size:13px}
+.flow .t.s{font-size:12px}
+.flow .tb{font-weight:700}
+.flow .bdt{fill:var(--panel);font-weight:600}
+.flow .gl{fill:var(--fg);font-size:14px;font-weight:700}
+.flow .gs{fill:var(--muted);font-size:12px}
+.flow .ln{stroke:var(--muted);stroke-width:1.6}
+.flow .ln.re{stroke:var(--reacher)} .flow .ln.fm{stroke:var(--fm)} .flow .ln.dash{stroke-dasharray:6 5}
+.flow .ah{fill:var(--muted)} .flow .ahf{fill:var(--fm)}
+.flow .lb{fill:var(--muted);font-size:12px} .flow .lb.re{fill:var(--reacher)} .flow .lb.fm{fill:var(--fm)}
+.flow .tag{fill:var(--fm);font-size:12px;font-weight:600} .flow .tag.re{fill:var(--reacher)}
+td.comp{white-space:normal;min-width:240px}
+th.sortable{cursor:pointer} th.sortable::after{content:attr(data-arrow)}
+table.pool{font-size:12px}
+table.pool th{white-space:normal;line-height:1.25;vertical-align:bottom;padding:6px 7px;min-width:52px;max-width:96px;font-size:11px}
+table.pool th small{display:block;font-weight:400;font-size:10px;color:var(--muted)}
+table.pool td{padding:5px 7px}
+table.pool td.comp{min-width:200px} table.pool td.cat{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+table.pool th[draggable]{cursor:grab} table.pool th.dropto{box-shadow:inset 3px 0 0 var(--focus)}
+table.pool .stk1{position:sticky;left:0;z-index:2;background:var(--panel);min-width:170px;max-width:170px;overflow:hidden;text-overflow:ellipsis}
+table.pool .stk2{position:sticky;left:170px;z-index:2;background:var(--panel);min-width:44px;box-shadow:1px 0 0 var(--line)}
+table.pool thead .stk1,table.pool thead .stk2{background:var(--soft);z-index:3}
+.pooltbl{max-height:78vh}
+.detailwrap{position:sticky;left:0;max-width:min(1100px,calc(100vw - 80px))}
+.hbtn.sm{font-weight:500;font-size:12px;min-height:24px}
+a.ext{text-decoration:none;font-size:12px}
+.savebar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:13px}
+.savebar.on{border-color:var(--warn);background:var(--warn-bg)}
+.dirty select,.dirty input[type=text],.dirty input:not([type]){outline:2px solid var(--warn);outline-offset:0}
+.dirty input[type=checkbox]{outline:2px solid var(--warn);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:12px}
+.gtog{font:inherit;font-size:12px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--fg)}
+.gtog[aria-pressed="false"]{color:var(--muted);border-style:dashed}
+.hiddencols{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}
+.chipbtn{font:inherit;font-size:12px;border:1px dashed var(--line);background:var(--panel);color:var(--fg);border-radius:999px;padding:2px 9px;cursor:pointer}
+.colx{float:right;font:inherit;font-size:11px;line-height:1;border:0;background:none;color:var(--muted);cursor:pointer;padding:0 0 0 4px;margin:-2px -3px 0 0}
+.colx:hover{color:var(--bad)}
+table.pool tr.pgrp th{position:static;text-align:left;font-size:11px;white-space:nowrap;border-bottom:0}
+table.pool .gcol,table .gcol{min-width:24px;max-width:24px;width:24px;padding:4px 2px;text-align:center;background:var(--soft);overflow:hidden}
+tr.foldrow th{position:static;background:var(--panel);padding:3px 4px;text-align:center;border-bottom:1px dashed var(--line);cursor:default}
+tr.foldrow th.foldlbl,table.pool tr.foldrow th.stk1{text-align:left;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}
+.foldbtn{font:inherit;font-size:13px;font-weight:700;line-height:1;min-width:24px;height:22px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);cursor:pointer;padding:0 6px}
+.foldbtn:hover{background:var(--soft)}
+.anc{display:inline-block;line-height:1.3;text-align:right}
+th.strip,td.strip{width:12px;min-width:12px;max-width:12px;padding:0 !important;background:repeating-linear-gradient(90deg,var(--line) 0 1px,var(--soft) 1px 9px,var(--line) 9px 10px);border-left:1px solid var(--muted);border-right:1px solid var(--muted)}
+table.pool th.strip,table.pool td.strip{min-width:12px;max-width:12px}
+.stripbtn{font:inherit;font-size:11px;font-weight:700;width:16px;height:18px;margin-left:-3px;padding:0;border:1px solid var(--reacher);border-radius:4px;background:var(--reacher-bg);color:var(--reacher);cursor:pointer;position:relative;z-index:1} .foldbtn.is-col{background:var(--reacher-bg);color:var(--reacher);border-color:var(--reacher)}
+.gbtn{font:inherit;font-size:11px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:4px;padding:0 5px;cursor:pointer;margin-left:6px}
+.lg::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--line)}
+.lg.g-fm::before{background:var(--fm)} .lg.g-re::before{background:var(--reacher)} .lg.g-team::before{background:var(--fg)} .lg.g-base::before{background:var(--muted)} .lg.g-collab::before{background:var(--good)}
+th.g-fm{border-top:3px solid var(--fm)} th.g-re{border-top:3px solid var(--reacher)} th.g-team{border-top:3px solid var(--fg)} th.g-base{border-top:3px solid var(--muted)} th.g-collab{border-top:3px solid var(--good)} th.g-live{border-top:3px solid #8b5cf6} .lg.g-live::before{background:#8b5cf6}
+.hbtn{font:inherit;font-weight:600;background:none;border:0;color:var(--reacher);cursor:pointer;padding:4px 0;min-height:32px;text-align:left}
+tr.grp th{background:var(--panel);color:var(--fg);text-align:center;border-bottom:2px solid var(--line);cursor:default}
+th.recol{color:var(--reacher)}
+.form.pf{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.form.pf select,.form.pf input{width:100%}
+tr.detail td{background:var(--soft);white-space:normal;padding:12px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.notes .col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.nitem{display:flex;flex-direction:column;gap:2px;padding-bottom:8px;border-bottom:1px solid var(--line);font-size:13px;overflow-wrap:anywhere}
+.nmeta{font-size:12px;color:var(--muted)}
+textarea{resize:vertical;min-height:44px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>TTS JP 크리에이터 파이프라인</h1>
+      <div class="sub">FastMoss JP 풀·영상 지표 → 앵커 가격으로 접근·네고 (인바이트·IM·IG DM) → 샵 개통 후 셀러센터·Ads 실측 ROAS·ROI · 기준값을 바꾸면 전 탭이 바로 다시 계산됩니다</div>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div id="banner" class="banner" hidden></div><div class="banner" style="display:block;background:#fff7ed;border:1px solid #fdba74;color:#9a3412;padding:10px 14px;border-radius:8px;margin:8px 0">JP v0 — 풀 시드(807명·10/26 맘풀 산정)만 탑재. FastMoss API 키 수령 시 GMV·영상 지표 보강, TTS JP 샵 개통 시 셀러센터·GMV Max 실측(ROAS·ROI 탭) 연결. 데이터 흐름 탭의 US(Reacher) 도식은 JP판으로 교체 예정.</div>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+
+  <section id="v-pipeline" class="panel" role="tabpanel"></section>
+  <section id="v-flow" class="panel" role="tabpanel" hidden>
+    <div class="row"><h2 class="grow">데이터 흐름</h2><a href="https://claude.ai/artifact/SvucC3xRVP6dcdonkYhCtG" target="_blank" rel="noopener">편집용 구조도 열기</a></div>
+    <div class="flow">
+    <svg viewBox="0 0 1340 710" role="img" aria-label="Reacher 풀에서 추림, 접근·네고, 네고완료 시 FastMoss ROI 수집까지의 데이터 흐름과 NAS 저장 위치, 보드 탭 연결">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" class="ah"/></marker>
+        <marker id="ahf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" class="ahf"/></marker></defs>
+      <rect x="120" y="292" width="1190" height="186" rx="12" class="band"/>
+      <rect x="120" y="502" width="1190" height="198" rx="12" class="band"/>
+      <text x="20" y="116" class="gl">수집 · 판단</text>
+      <text x="20" y="378" class="gl">NAS RAW</text><text x="20" y="398" class="gs">원본 · 버전 보관</text>
+      <text x="20" y="592" class="gl">이 보드</text><text x="20" y="612" class="gs">팀 공유 저장</text>
+
+      <line x1="340" y1="120" x2="378" y2="120" class="ln" marker-end="url(#ah)"/>
+      <line x1="590" y1="120" x2="628" y2="120" class="ln" marker-end="url(#ah)"/>
+      <line x1="840" y1="120" x2="878" y2="120" class="ln" marker-end="url(#ah)"/>
+      <line x1="1050" y1="120" x2="1088" y2="120" class="ln" marker-end="url(#ah)"/>
+      <line x1="965" y1="180" x2="965" y2="213" class="ln" marker-end="url(#ah)"/>
+      <line x1="235" y1="180" x2="235" y2="333" class="ln dash re" marker-end="url(#ah)"/>
+      <line x1="485" y1="180" x2="485" y2="333" class="ln dash fm" marker-end="url(#ahf)"/>
+      <line x1="1195" y1="180" x2="1195" y2="333" class="ln dash re" marker-end="url(#ah)"/>
+      <line x1="590" y1="385" x2="878" y2="385" class="ln" marker-end="url(#ah)"/>
+      <line x1="965" y1="435" x2="965" y2="543" class="ln" marker-end="url(#ah)"/>
+      <line x1="1195" y1="435" x2="1195" y2="543" class="ln" marker-end="url(#ah)"/>
+
+      <text x="1070" y="108" class="lb" text-anchor="middle">예</text>
+      <text x="975" y="202" class="lb">아니오</text>
+      <text x="245" y="262" class="lb re">저장</text>
+      <text x="495" y="262" class="lb fm">저장</text>
+      <text x="1205" y="262" class="lb re">원본 먼저 저장</text>
+      <text x="735" y="375" class="lb" text-anchor="middle">날짜 버전으로 빌드</text>
+      <text x="975" y="495" class="lb">읽기</text>
+      <text x="1205" y="495" class="lb">읽기</text>
+      <text x="485" y="50" class="tag" text-anchor="middle">≈3 크레딧/명 · 신규만</text>
+      <text x="1195" y="50" class="tag re" text-anchor="middle">0 크레딧 (Reacher)</text>
+
+      <rect x="130" y="60" width="210" height="120" rx="10" class="bx re"/>
+      <text class="t" x="235" y="104" text-anchor="middle"><tspan class="tb" x="235">① Reacher 크리에이터 풀</tspan><tspan x="235" dy="22">Baby&amp;Maternity L2+</tspan><tspan x="235" dy="20">2주마다 전체 갱신 (무료)</tspan></text>
+      <rect x="380" y="60" width="210" height="120" rx="10" class="bx"/>
+      <text class="t" x="485" y="104" text-anchor="middle"><tspan class="tb" x="485">② FastMoss 영상 수집</tspan><tspan x="485" dy="22">영상 · 라이브 · 2주마다 신규만</tspan><tspan x="485" dy="20">기존은 키 정보 변동 시만</tspan></text>
+      <rect x="630" y="60" width="210" height="120" rx="10" class="bx"/>
+      <text class="t" x="735" y="104" text-anchor="middle"><tspan class="tb" x="735">③ 접근 · 네고</tspan><tspan x="735" dy="22">앵커 가격 ± 범위로 네고</tspan><tspan x="735" dy="20">미디어 킷 받아 개별 협상</tspan></text>
+      <polygon points="965,60 1050,120 965,180 880,120" class="dia"/>
+      <text class="t tb" x="965" y="125" text-anchor="middle">포스팅 완료?</text>
+      <rect x="1090" y="60" width="210" height="120" rx="10" class="bx re"/>
+      <text class="t" x="1195" y="104" text-anchor="middle"><tspan class="tb" x="1195">④ Partnered ROAS · ROI</tspan><tspan x="1195" dy="22">포스팅 후 Reacher 실측 · 2주마다</tspan><tspan x="1195" dy="20">ROAS = GMV ÷ 광고비</tspan></text>
+      <rect x="880" y="215" width="170" height="50" rx="10" class="bx dash"/>
+      <text class="t" x="965" y="245" text-anchor="middle">대기 · 포스팅 전</text>
+
+      <rect x="130" y="335" width="210" height="100" rx="10" class="bx re"/>
+      <text class="t s" x="235" y="370" text-anchor="middle"><tspan class="tb" x="235">Reacher/</tspan><tspan x="235" dy="20">풀 원본 xlsx (날짜별)</tspan></text>
+      <rect x="380" y="335" width="210" height="100" rx="10" class="bx fm"/>
+      <text class="t s" x="485" y="370" text-anchor="middle"><tspan class="tb" x="485">Fastmoss/creator_videos_api · live_api/</tspan><tspan x="485" dy="20">날짜/@핸들 응답 원문 + 수집 기록</tspan></text>
+      <rect x="880" y="335" width="170" height="100" rx="10" class="bx"/>
+      <text class="t s" x="965" y="370" text-anchor="middle"><tspan class="tb" x="965">versions/</tspan><tspan x="965" dy="20">pool·videos_날짜.json</tspan><tspan x="965" dy="20">지우지 않고 누적</tspan></text>
+      <rect x="1090" y="335" width="210" height="100" rx="10" class="bx re"/>
+      <text class="t s" x="1195" y="370" text-anchor="middle"><tspan class="tb" x="1195">Reacher/gmvmax · videos · fees/</tspan><tspan x="1195" dy="20">우리 광고 · 영상 · 협업 원본</tspan></text>
+
+      <rect x="130" y="545" width="210" height="70" rx="10" class="bx bd"/><text class="t bdt" x="235" y="585" text-anchor="middle">크리에이터 풀 · 필터</text>
+      <rect x="380" y="545" width="210" height="70" rx="10" class="bx bd"/><text class="t bdt" x="485" y="585" text-anchor="middle">파이프라인 · 기준별 비율</text>
+      <rect x="630" y="545" width="210" height="70" rx="10" class="bx bd"/><text class="t bdt" x="735" y="585" text-anchor="middle">접근 · 네고 (상태 · 노트)</text>
+      <rect x="880" y="545" width="170" height="70" rx="10" class="bx bd"/><text class="t bdt" x="965" y="585" text-anchor="middle">데이터 버전</text>
+      <rect x="1090" y="545" width="210" height="70" rx="10" class="bx bd"/><text class="t bdt" x="1195" y="585" text-anchor="middle">Partnered ROAS·ROI (Reacher 실측)</text>
+      <rect x="130" y="632" width="1170" height="52" rx="10" class="bx"/>
+      <text class="t" x="715" y="663" text-anchor="middle"><tspan class="tb">기준값 (팀 공유)</tspan> — GMV·판매량 기준, 추림 비율, 기간, ROI 기준을 바꾸면 모든 탭이 바로 다시 계산 · 변경 이력 저장</text>
+    </svg>
+    </div>
+    <h2>③ 접근 · 네고 원칙</h2>
+    <ol class="note" style="max-width:none;margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px">
+      <li><b>앵커 가격:</b> 크리에이터 분석 영상(FastMoss)의 <b>(영상 GMV 중간값 + 평균) ÷ 2 × 그 값을 넘긴 영상 비율</b>을 영상 1개당 기준가로, <b>± 범위(기본 30%, 기준값 탭에서 조정)</b> 안에서 협상합니다. 범위 위쪽은 넘지 않을 선으로 봅니다.</li>
+      <li><b>미디어 킷 수령 → 개별 네고:</b> 크리에이터에게 미디어 킷(제안 단가)을 받아 상한 안에서 개별 협상합니다.</li>
+      <li><b>최종 판단:</b> 크리에이터별 메트릭(영상 GMV 확률·라이브 비중·육아 비중·경쟁사 협업·참여율 등)을 보고 담당자가 결정합니다.</li>
+      <li><b>시장가격 축적:</b> 받은 제안 단가와 합의 단가를 접근·네고 탭에 남겨 크리에이터 구간별 시장가격 데이터를 쌓습니다.</li>
+      <li><b>기준가격으로 전환:</b> 계약 후 우리 콘텐츠 실측(Partnered ROAS · ROI, Reacher)을 쌓아 이후 단가 기준가격의 데이터 포인트로 씁니다.</li>
+    </ol>
+    <h2>갱신 규칙</h2>
+    <div class="tbl"><table><thead><tr><th>대상</th><th>언제</th><th>범위</th><th class="num">비용</th></tr></thead><tbody>
+      <tr><td><b>Reacher 전체</b> · 풀(레벨·플랫폼 GMV·이메일), 우리 영상 GMV, GMV Max 광고비, 협업·지급, DM 이력</td><td>2주마다</td><td>전체 갱신</td><td class="num">0</td></tr>
+      <tr><td><b>FastMoss 신규</b> · 영상 GMV·판매량·광고 여부·연결 상품</td><td>2주마다 (Reacher 풀 갱신 직후)</td><td>새 풀에서 처음 보는 크리에이터만 · 최근 90일 ∩ 30개</td><td class="num">1명당 3크레딧</td></tr>
+      <tr><td><b>FastMoss 재수집</b></td><td>필요할 때만 (수동)</td><td>그 크리에이터의 키 정보가 바뀌었을 때만: Reacher 레벨·플랫폼 GMV 변동, 연락 직전 최신 확인 등</td><td class="num">1명당 3크레딧</td></tr>
+      <tr><td><b>FastMoss 라이브 분해</b> · 라이브 vs 영상 GMV 비중, 라이브 1회당 · 영상 1개당 GMV</td><td>2주마다 (FastMoss 신규와 같이)</td><td>신규 크리에이터만 · 기존은 필요할 때만 수동</td><td class="num">1명당 1크레딧</td></tr>
+      <tr><td><b>FastMoss 라이브 회차</b> · 회차별 GMV · 판매량 · 시청자 · 방송 시간</td><td>라이브 분해 직후</td><td>라이브 GMV 비중이 기준(예: 30%) 이상인 크리에이터만 · 최근 90일 최대 30회차</td><td class="num">10회차당 1크레딧 (0건 무과금)</td></tr>
+    </tbody></table></div>
+    <p class="note">파랑 = Reacher(자사 실측), 주황 = FastMoss(추정·크레딧 소모), 진한 칸 = 이 보드의 탭. 팀이 입력하는 상태·노트·기준값과 수집 요청은 보드의 공유 저장소에, RAW 원본은 NAS에 남습니다.</p>
+  </section>
+  <section id="v-pool" class="panel" role="tabpanel" hidden></section>
+  <section id="v-market" class="panel" role="tabpanel" hidden></section>
+  <section id="v-fee" class="panel" role="tabpanel" hidden></section>
+  <section id="v-price" class="panel" role="tabpanel" hidden></section>
+  <section id="v-status" class="panel" role="tabpanel" hidden></section>
+  <section id="v-roi" class="panel" role="tabpanel" hidden></section>
+  <section id="v-assume" class="panel" role="tabpanel" hidden></section>
+  <section id="v-data" class="panel" role="tabpanel" hidden></section>
+</div>
+
+<script>
+const TABS = [['pipeline','파이프라인'],['flow','데이터 흐름'],['pool','크리에이터 풀'],['market','시장 정보'],['fee','Fee Table'],['status','접근·네고'],['roi','Partnered ROAS·ROI'],['assume','기준값'],['data','데이터 버전']];
+const STAGES = ['접근 대상','이메일 발송','회신','네고중','네고완료','포스팅 완료','보류','거절'];
+const ACTIVE = ['접근 대상','이메일 발송','회신','네고중'];
+const DEFAULT_A = {anchorBand: 30, anchorTrim: 0, gmvTiers:[100,250,500,1000], unitTiers:[10,50], shortTier:250, shortMinRatio:0.3, screenN:30, shortMedian:0, babyMin:0.3,
+  minLevel:2, minGmv:0, minFol:0, days:90, recentN:10, roiTarget:2, baseDate:'2026-10-23', poolVer:'', videosVer:''};
+
+const BABY = 'Baby & Maternity';
+const GT = [25, 50, 100, 150, 200, 250, 300, 500, 750, 1000], RT = [1, 1.5, 2, 3];
+const S = {roiOpen:{}, affOnly: (() => { try { const v = localStorage.getItem('affOnly'); return v == null ? true : v === '1'; } catch { return true; } })(), metric: (() => { try { return localStorage.getItem('metric') || 'roas'; } catch { return 'roas'; } })(), feeOpen:{}, cargo:{}, livesBy:{}, pending:{}, saveMsg:'', fetched:{}, tsort:{}, poolOrder:[], contacts:{}, collab:[], collabBy:{}, ourBy:{}, ourv:[], ft:{T:250, R:2, minN:2}, gm:[], gmBy:{}, lowerKey:{}, products:{}, mkt:{feed:false, open:null}, man:null, pool:[], videos:[], byH:new Map(), poolH:new Map(), A:{...DEFAULT_A}, savedA:null,
+  status:{}, queue:{}, ads:{}, log:[], db:null, user:null, me:null, names:{}, dl:null,
+  tab:'pipeline', poolView:{q:'', f:'all', sort:'gmv', dir:-1, page:0}, open:{}, drafts:{}, subs:{}, notes:{}, logs:{}};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt$ = v => v == null || isNaN(v) ? '–' : '$' + Math.round(v).toLocaleString('en-US');
+const fmtYen = v => v == null || isNaN(v) ? '–' : v >= 1e8 ? '円' + (v/1e8).toFixed(2) + '億' : v >= 1e4 ? '円' + (v/1e4).toFixed(1) + '万' : '円' + Math.round(v).toLocaleString('en-US');
+const fmtN = v => v == null || isNaN(v) ? '–' : Math.round(v).toLocaleString('en-US');
+const fmtP = v => v == null || isNaN(v) ? '–' : Math.round(v * 100) + '%';
+const fmtX = v => v == null || isNaN(v) ? '–' : v.toFixed(2) + 'x';
+const fmtK = v => v == null ? '–' : v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(1)+'K' : String(Math.round(v));
+const safeId = h => h.replace(/[^A-Za-z0-9_\-.~:@+]/g, '_').replace(/^\.+$/, '_');
+const nowIso = () => new Date().toISOString();
+
+function banner(msg, bad){ const b = $('banner'); b.hidden = !msg; b.textContent = msg || ''; b.className = 'banner' + (bad ? ' bad' : ''); }
+
+/* ---------- 계산 ---------- */
+function metrics(h){
+  const A = S.A, vids = S.byH.get(h);
+  if (!vids) return null;
+  const base = new Date(A.baseDate + 'T23:59:59'), from = new Date(base - A.days * 864e5);
+  const win = vids.filter(v => { const t = new Date(v.t); return t >= from && t <= base; }).sort((a, b) => b.t.localeCompare(a.t));
+  const isAff = v => (v.pp && v.pp.length > 0) || (/shoppable|^ecommerce/i.test(v.type || '') && !/non/i.test(v.type || ''));
+  const all30 = win.slice(0, A.screenN), affShare = all30.length ? all30.filter(isAff).length / all30.length : null;
+  const scr = (S.affOnly ? win.filter(isAff) : win).slice(0, A.screenN);   // 추림 지표 = 기간 안 ∩ 최근 screenN개 (스위치 켜면 상품 연결 영상만)
+  const n = scr.length, sum = scr.reduce((a, v) => a + (v.gmv || 0), 0);
+  const g = scr.map(v => v.gmv || 0).sort((a, b) => a - b);
+  const median = n ? (n % 2 ? g[(n - 1) / 2] : (g[n / 2 - 1] + g[n / 2]) / 2) : null;
+  const tier = {}, unit = {};
+  A.gmvTiers.forEach(t => tier[t] = n ? scr.filter(v => (v.gmv || 0) >= t).length / n : null);
+  A.unitTiers.forEach(u => unit[u] = n ? scr.filter(v => (v.units || 0) >= u).length / n : null);
+  const recent = win.slice(0, A.recentN);   // ROI 수집 = 기간 안 ∩ 최근 recentN개
+  const withAd = recent.filter(v => S.ads[v.id] && S.ads[v.id].spend > 0);
+  const roas = v => { const a = S.ads[v.id]; return a.roas != null ? a.roas : a.adGmv / a.spend; };
+  const spend = withAd.reduce((a, v) => a + S.ads[v.id].spend, 0), adGmv = withAd.reduce((a, v) => a + (S.ads[v.id].adGmv || 0), 0);
+  const collected = recent.filter(v => S.ads[v.id]).length;
+  const adKnown = scr.filter(v => v.ad != null);
+  const adShare = adKnown.length ? adKnown.filter(v => v.ad).length / adKnown.length : null;
+  // 연결 상품 기반 (API 버전만 pp 있음)
+  const withP = scr.filter(v => v.pp && v.pp.length);
+  let babyShare = null, ours = {gmv: 0, videos: 0}, comp = {};
+  if (withP.length){
+    babyShare = withP.filter(v => v.pp.some(([pid]) => (S.products[pid] || {}).c === BABY)).length / withP.length;
+    withP.forEach(v => { let o = false; v.pp.forEach(([pid, g]) => { const p = S.products[pid]; if (!p) return;
+      if (p.ours){ ours.gmv += g; o = true; }
+      else if (p.c === BABY && p.b !== '미분류'){ const c = comp[p.b] || (comp[p.b] = {gmv: 0, videos: 0, feed: false}); c.gmv += g; c.videos++; c.feed = c.feed || p.feed; } });
+      if (o) ours.videos++; });
+  }
+  const compList = Object.entries(comp).map(([b, c]) => ({b, ...c})).sort((a, b) => b.gmv - a.gmv || b.videos - a.videos);
+  const d28 = new Date(base - 28 * 864e5), all = [...vids].sort((a, b) => b.t.localeCompare(a.t));
+  const n28 = win.filter(v => new Date(v.t) >= d28).length;
+  const cap28 = all.length >= 30 && new Date(all[Math.min(29, all.length - 1)].t) >= d28;   // 수집 상한(30개)이 28일 안에서 찼으면 실제는 더 많음
+  const erKnown = scr.filter(v => v.er != null), erFM = erKnown.length ? erKnown.reduce((s, v) => s + v.er, 0) / erKnown.length : null;
+  const range = n ? [scr[n - 1].t.slice(0, 10), scr[0].t.slice(0, 10)] : null;
+  const fat = new Date((S.fetched[h.toLowerCase()] || A.baseDate + 'T23:59:59'));
+  const ageAvg = n ? scr.reduce((t, v) => t + (fat - new Date(v.t)) / 864e5, 0) / n : null;
+  const span = n > 1 ? (new Date(scr[0].t) - new Date(scr[n - 1].t)) / 864e5 : null, perDay = span ? n / Math.max(span, 1) : null;
+  const exo = scr;   // 앵커 = 분석 영상 전체 (우리 파트너 콘텐츠 포함, 다른 지표와 같은 기준)
+  let anchor = null, aBase = null, aP = null, aN = exo.length, aMd = null, aMn = null;
+  if (exo.length){ const gg = exo.map(v => v.gmv || 0).sort((p, q) => p - q), k = gg.length, md = k % 2 ? gg[(k - 1) / 2] : (gg[k / 2 - 1] + gg[k / 2]) / 2;
+    const trim = Math.min(Number(A.anchorTrim) || 0, k - 1), tg = gg.slice(0, k - trim), mn = tg.reduce((t, v) => t + v, 0) / tg.length;
+    aMd = md; aMn = mn; aBase = (md + mn) / 2; aP = aBase > 0 ? gg.filter(v => v >= aBase).length / k : 0; anchor = aBase * aP; }
+  return {anchor, aBase, aP, aN, aMd, aMn, ageAvg, perDay, affShare, n, sum, avg: n ? sum / n : null, median, adShare, babyShare, ours, compList, scr, tier, unit, recent, withAd: withAd.length, collected, n28, cap28, erFM, range,
+    roiRatio: withAd.length ? withAd.filter(v => roas(v) >= A.roiTarget).length / withAd.length : null,
+    roiAgg: spend ? adGmv / spend : null, spend, adGmv, nick: vids[0].nick};
+}
+// FastMoss 지식문서 23.4 '头达成本对照' 팔로워 구간별 단건 영상 업계 기준 (10K 미만은 문서에 없음)
+const BENCH = [[1e6, 15000, 50000], [5e5, 5000, 15000], [1e5, 1500, 5000], [5e4, 500, 1500], [1e4, 200, 500]];
+function bench(fol){ if (fol == null) return null; const b = BENCH.find(([min]) => fol >= min); return b ? {lo: b[1], hi: b[2]} : null; }
+const fmtB = b => b ? `${fmt$(b.lo)}–${fmt$(b.hi)}` : '–';
+function feeStats(){ // 우리 유상 협업 단가 = 유상 건 Fee 합 ÷ 유상 콘텐츠 수 (PayPal 정산 + Reacher 리테이너, 아카이브 제외)
+  const paid = S.collab.filter(r => r.paid && r.fee > 0 && !(r.src === 'reacher' && r.status === 'archived'));
+  const agg = rs => { const fee = rs.reduce((s, r) => s + r.fee, 0), posts = rs.reduce((s, r) => s + (r.posts || 1), 0); return {fee, posts, per: posts ? fee / posts : null, n: new Set(rs.map(r => r.h)).size}; };
+  const all = agg(paid), tt = agg(paid.filter(r => /tiktok/i.test(r.ch || '')));
+  return {n: all.n, fee: all.fee, posts: all.posts, perVideo: all.per, tt, gifted: S.collab.filter(r => !r.paid).length};
+}
+const SRC = {paypal: 'PayPal 정산', reacher: 'Reacher 리테이너', tts_sample: 'TTS 샘플'};
+const ourFeeCell = h => { const a = S.collabBy[h.toLowerCase()]; if (!a) return '<span class="muted">–</span>';
+  const tip = a.rows.map(r => `${SRC[r.src]} · ${r.ch || ''} · ${r.date || ''} · ${r.paid && r.fee ? '$' + r.fee + (r.posts > 1 ? '/' + r.posts + '개' : '') : 'gifted $0'}${r.status === 'archived' ? ' (아카이브)' : ''}`).join('\n');
+  return `<span title="${esc(tip)}">${a.paidN ? `<span class="pill re">유상 ${a.paidN}건 · ${fmt$(a.paidFee / a.paidN)}/건</span>` : ''}${a.gifted ? ` <span class="pill">gifted ${a.gifted}건</span>` : ''}</span>`; };
+function poolPass(p){ const A = S.A; return p && (p.lv ?? 0) >= A.minLevel && (p.gmv ?? 0) >= A.minGmv && (p.fol ?? 0) >= A.minFol; }
+function shortPass(m){ return !!(m && m.n && (m.tier[S.A.shortTier] ?? 0) >= S.A.shortMinRatio && (!S.A.shortMedian || (m.median ?? 0) >= S.A.shortMedian)); }
+function universe(){
+  const hs = new Set([...S.poolH.keys(), ...S.byH.keys()]);
+  const lk = new Set([...hs].map(h => h.toLowerCase())); [...Object.keys(S.notion || {}), ...Object.keys(S.mom || {})].forEach(h => { if (!lk.has(h)){ hs.add(h); lk.add(h); } });
+  return [...hs].map(h => ({h, p: S.poolH.get(h) || null, m: metrics(h), st: (r => r ? (r.stage === 'DM 발송' ? {...r, stage: '이메일 발송'} : r) : notionStatus(h))(S.status[safeId(h)])}));
+}
+
+/* ---------- 데이터 로드 ---------- */
+async function loadJSON(path){ const r = await fetch(path, {cache:'no-cache'}); if (!r.ok) throw new Error(path + ' → HTTP ' + r.status); return r.json(); }
+function pickVer(key, want){ const list = S.man.datasets[key] || []; return list.find(v => v.id === want) || list[list.length - 1] || null; }
+async function loadData(){
+  const pv = pickVer('pool', S.A.poolVer), vv = pickVer('videos', S.A.videosVer);
+  if (!pv || !vv) throw new Error('versions.json 에 pool/videos 버전이 없습니다');
+  const [pool, videos, products] = await Promise.all([loadJSON(pv.file), loadJSON(vv.file), vv.products ? loadJSON(vv.products) : Promise.resolve({})]);
+  S.products = products;
+  const gv = (S.man.datasets.gmvmax || []).slice(-1)[0];
+  S.gm = gv ? await loadJSON(gv.file) : []; S.loaded_gm = gv || null; S.gmBy = {};
+  S.gm.forEach(x => { if (x.spend > 0 && x.h && x.h !== 'onzenna.official') (S.gmBy[x.h] || (S.gmBy[x.h] = [])).push(x); });
+  S.lowerKey = {}; S.byH.forEach((_, h) => S.lowerKey[h.toLowerCase()] = h);
+  const ov = (S.man.datasets.ourvideos || []).slice(-1)[0];
+  S.ourv = ov ? await loadJSON(ov.file) : []; S.loaded_ov = ov || null; S.ourBy = {}; S.ourIds = new Set(S.ourv.map(v => v.id));
+  S.ourv.forEach(x => { if (x.h) (S.ourBy[x.h] || (S.ourBy[x.h] = [])).push(x); });
+  const cv = (S.man.datasets.collab || []).slice(-1)[0];
+  S.collab = cv ? (await loadJSON(cv.file)).rows : []; S.loaded_collab = cv || null; S.collabBy = {};
+  S.collab.forEach(r => { const a = S.collabBy[r.h] || (S.collabBy[r.h] = {paidN: 0, paidFee: 0, gifted: 0, ch: new Set(), rows: []});
+    a.rows.push(r); if (r.ch) a.ch.add(r.ch);
+    if (r.paid && r.fee > 0 && !(r.src === 'reacher' && r.status === 'archived')){ a.paidN += r.posts || 1; a.paidFee += r.fee; } else if (!r.paid) a.gifted++; });
+  const lv = (S.man.datasets.live || []).slice(-1)[0];
+  if (lv){ const L = await loadJSON(lv.file); S.cargo = L.cargo || {}; S.livesBy = {}; (L.lives || []).forEach(x => (S.livesBy[x.h] || (S.livesBy[x.h] = [])).push(x)); }
+  const ftv = (S.man.datasets.fetched || []).slice(-1)[0];
+  S.fetched = ftv ? (await loadJSON(ftv.file)).fm : {};
+  const emv = (S.man.datasets.emails || []).slice(-1)[0];
+  { const E = emv ? await loadJSON(emv.file) : {}; S.emails = E.emails || {}; S.emailsCrm = E.crm || {}; } S.loaded_emails = emv || null;
+  const ctv = (S.man.datasets.contacts || []).slice(-1)[0];
+  S.contacts = ctv ? await loadJSON(ctv.file) : {}; S.loaded_contacts = ctv || null;
+  const nov = (S.man.datasets.notion || []).slice(-1)[0];   // 노션 TTS Influencer Management (담당자·상태·아웃리치·재협업)
+  { const N = nov ? await loadJSON(nov.file) : {}; S.notion = N.rows || {}; S.mom = N.mom || {}; S.nLv = N.lv || {}; S.nOwn = N.owners || {}; S.nSent = N.emailed || {}; S.nEv = N.events || {}; }
+  const orv = (S.man.datasets.outreach || []).slice(-1)[0];
+  S.outr = orv ? await loadJSON(orv.file) : {out: {}, replied: {}}; S.loaded_outr = orv || null; S.loaded_notion = nov || null;
+  const fv = (S.man.datasets.fees || []).slice(-1)[0];
+  S.fees = fv ? (await loadJSON(fv.file)).rows : []; S.loaded_fees = fv || null;
+  S.feeBy = {};
+  S.fees.forEach(f => { const k = f.h.toLowerCase(), a = S.feeBy[k] || (S.feeBy[k] = {fee: 0, posts: 0, actual: 0, paid: 0, camps: [], live: false});
+    a.camps.push(f); if (f.status !== 'archived') a.live = true; });
+  Object.values(S.feeBy).forEach(a => { const use = a.camps.filter(f => a.live ? f.status !== 'archived' : true);
+    use.forEach(f => { a.fee += f.fee || 0; a.posts += f.posts || 0; a.actual += f.postsActual || 0; a.paid += f.paid || 0; });
+    a.perVideo = a.posts ? a.fee / a.posts : null; });
+  if (!pool.length) throw new Error('RAW 파일이 비어 있습니다 (' + pv.file + ')');
+  /* JP v0: videos 0건 허용 — FastMoss API 키 수령 전 풀 시드만 탑재 */
+  S.pool = pool; S.videos = videos; S.loaded = {pool: pv, videos: vv};
+  S.poolH = new Map(pool.map(p => [p.h, p])); S.byH = new Map();
+  videos.forEach(v => { if (!S.byH.has(v.h)) S.byH.set(v.h, []); S.byH.get(v.h).push(v); });
+}
+
+/* ---------- 공유 저장소 ---------- */
+async function initShared(){
+  try { S.db = await claude.use('db'); } catch { S.db = null; }
+  try { S.user = await claude.use('user'); S.me = S.user ? await S.user.id() : null; } catch { S.user = null; }
+  try { S.dl = await claude.use('downloads'); } catch { S.dl = null; }
+  if (!S.db){ banner('공유 저장소에 연결되지 않아 상태·기준값 저장이 꺼져 있습니다. 숫자 계산은 그대로 됩니다.'); render(); return; }
+  const err = e => banner('공유 저장소 오류: ' + (e && e.code || 'unavailable') + ' — 새로고침해 주세요.', true);
+  S.db.doc('config/assumptions').onSnapshot(async s => {
+    if (!s.exists) return;
+    const d = s.data(), verChanged = d.poolVer !== S.A.poolVer || d.videosVer !== S.A.videosVer;
+    S.savedA = d; S.A = {...DEFAULT_A, ...d};
+    if (verChanged){ try { await loadData(); } catch (e){ banner('RAW 로드 실패: ' + e.message, true); } }
+    render();
+  }, err);
+  S.db.collection('status').onSnapshot(s => { S.status = {}; s.docs.forEach(d => S.status[d.id] = d.data()); render(); }, err);
+  S.db.collection('queue').onSnapshot(s => { S.queue = {}; s.docs.forEach(d => S.queue[d.id] = d.data()); render(); }, err);
+  S.db.collection('ads').onSnapshot(s => { S.ads = {}; s.docs.forEach(d => S.ads[d.id] = d.data()); render(); }, err);
+  S.db.collection('assumption_log').orderBy('at', 'desc').limit(30).onSnapshot(s => { S.log = s.docs.map(d => d.data()); if (S.tab === 'assume') render(); }, err);
+}
+async function names(ids){
+  ids = ids.filter(id => id && !(id in S.names));
+  if (!S.user || !ids.length) return;
+  try { const ps = await S.user.profiles(ids); ids.forEach(id => S.names[id] = (ps[id] && ps[id].name) || '팀원'); render(); } catch {}
+}
+const who = id => !id ? '–' : id === S.me ? '나' : (S.names[id] || '…');
+
+async function setStatus(h, patch){
+  if (!S.db) return;
+  const id = safeId(h), ref = S.db.doc('status/' + id), cur = S.status[id];
+  const body = {...patch, h, updatedBy: S.me, updatedAt: nowIso()};
+  try {
+    const nb = cur ? null : notionStatus(h), base = nb ? {stage: nb.stage, owner: nb.owner, contact: nb.contact, fee: nb.fee, memo: nb.memo, src: 'notion'} : {stage:'접근 대상'};
+    cur ? await ref.update(body) : await ref.set({...base, ...body});
+    const changes = cur ? Object.keys(patch).filter(k => (cur[k] ?? null) !== (patch[k] ?? null)).map(k => ({k, from: cur[k] ?? null, to: patch[k] ?? null}))
+                        : [{k:'stage', from:null, to: patch.stage ?? base.stage}];
+    if (changes.length) await ref.collection('log').add({at: nowIso(), by: S.me, changes});
+  }
+  catch (e){ banner('저장 실패 (' + (e.code || 'unavailable') + '): ' + h, true); }
+}
+const FL = {stage:'상태', team:'담당팀', owner:'담당자', contact:'접촉일', fee:'Fee', memo:'메모', emailed:'이메일 발송', emailedAt:'이메일 발송 시각'};
+async function addNote(h, text){
+  text = text.trim(); if (!S.db || !text) return;
+  const id = safeId(h), ref = S.db.doc('status/' + id), at = nowIso();
+  try {
+    await ref.collection('notes').add({at, by: S.me, text});
+    await ref.update({lastNoteAt: at, lastNoteBy: S.me, lastNote: text.slice(0, 80)});
+    delete S.drafts['note|' + h]; render();
+  } catch (e){ banner('노트 저장 실패 (' + (e.code || 'unavailable') + ')', true); }
+}
+function toggleDetail(h){
+  const id = safeId(h), k = 'st:' + h;
+  if (S.open[k]){ (S.subs[id] || []).forEach(u => u()); delete S.subs[id]; S.open[k] = false; render(); return; }
+  S.open[k] = true; if (!S.db){ render(); return; }
+  const ref = S.db.doc('status/' + id), err = e => banner('노트·이력 불러오기 실패 (' + (e && e.code || 'unavailable') + ')', true);
+  S.subs[id] = [
+    ref.collection('notes').orderBy('at', 'desc').limit(50).onSnapshot(s => { S.notes[id] = s.docs.map(d => d.data()); render(); }, err),
+    ref.collection('log').orderBy('at', 'desc').limit(30).onSnapshot(s => { S.logs[id] = s.docs.map(d => d.data()); render(); }, err),
+  ];
+  render();
+}
+async function requestRoi(h){
+  if (!S.db) return;
+  const m = metrics(h);
+  if (!m || !m.recent.length){ banner(h + ': 기간 안 영상이 없어 ROI 수집 대상이 없습니다.'); return; }
+  try {
+    await S.db.doc('queue/' + safeId(h)).set({h, state:'pending', requestedAt: nowIso(), requestedBy: S.me,
+      videoIds: m.recent.map(v => v.id), days: S.A.days, recentN: S.A.recentN, baseDate: S.A.baseDate,
+      videosVer: S.loaded.videos.id});
+  } catch (e){ banner('요청 실패 (' + (e.code || 'unavailable') + ')', true); }
+}
+async function downloadRaw(h){
+  const m = metrics(h); if (!m) return;
+  const rows = m.recent.map(v => ({video_id: v.id, posted: v.t, units: v.units, gmv_fastmoss: v.gmv, views: v.views, ...(S.ads[v.id] || {})}));
+  const file = {creator: h, exportedAt: nowIso(), assumptions: S.A, videosVersion: S.loaded.videos.id, queue: S.queue[safeId(h)] || null, videos: rows};
+  if (!S.dl){ banner('이 화면에서는 파일 저장을 쓸 수 없습니다.'); return; }
+  try { await S.dl.save({filename: 'roi_raw_' + safeId(h) + '_' + S.A.baseDate + '.json', data: JSON.stringify(file, null, 1)}); }
+  catch (e){ if (e && e.code !== 'declined') banner('파일 저장 실패: ' + (e.code || 'unavailable'), true); }
+}
+async function saveAssumptions(){
+  if (!S.db) return;
+  const before = S.savedA || DEFAULT_A, diff = Object.keys(S.A).filter(k => JSON.stringify(S.A[k]) !== JSON.stringify(before[k]));
+  try {
+    await S.db.doc('config/assumptions').set({...S.A, updatedBy: S.me, updatedAt: nowIso()});
+    await S.db.collection('assumption_log').add({at: nowIso(), by: S.me, changes: diff.map(k => ({k, from: before[k] ?? null, to: S.A[k]}))});
+  } catch (e){ banner('기준값 저장 실패 (' + (e.code || 'unavailable') + ')', true); }
+}
+
+/* ---------- 렌더 ---------- */
+function render(){
+  if (!S.loaded) return;
+  const ae = document.activeElement, ak = ae && ae.dataset ? ae.dataset.key : null;
+  let sel = null; try { if (ak && ae.selectionStart != null) sel = [ae.selectionStart, ae.selectionEnd]; } catch {}
+  // 다시 그려도 보던 위치 유지 (같은 탭일 때 페이지 스크롤 + 표 안 스크롤)
+  const sameTab = S.lastTab === S.tab, sy = window.scrollY, sc = [...document.querySelectorAll('.tbl')].map(e => [e.scrollTop, e.scrollLeft]);
+  draw();
+  applySorts();
+  if (sameTab){ document.querySelectorAll('.tbl').forEach((e, i) => { if (sc[i]){ e.scrollTop = sc[i][0]; e.scrollLeft = sc[i][1]; } }); window.scrollTo(0, sy); }
+  S.lastTab = S.tab;
+  if (ak){ const el = [...document.querySelectorAll('[data-key]')].find(n => n.dataset.key === ak);
+    if (el){ el.focus({preventScroll: true}); if (sel) try { el.setSelectionRange(sel[0], sel[1]); } catch {} } }
+}
+const dv = (key, v) => S.drafts[key] ?? v ?? '';
+function draw(){
+  const u = universe();
+  $('chips').innerHTML =
+    `<span class="chip">풀 <b>${esc(S.loaded.pool.id)}</b> · ${fmtN(S.pool.length)}명</span>` +
+    `<span class="chip">영상 <b>${esc(S.loaded.videos.id)}</b> · ${fmtN(S.videos.length)}개</span>` +
+    `<span class="chip">${S.db ? '공유 저장 <b>연결됨</b>' : '공유 저장 <b>꺼짐</b>'}</span>`;
+  $('tabs').innerHTML = TABS.map(([k, l]) => `<button role="tab" aria-selected="${S.tab === k}" data-tab="${k}">${l}</button>`).join('');
+  TABS.forEach(([k]) => $('v-' + k).hidden = S.tab !== k);
+  ({pipeline: renderPipeline, flow: () => {}, pool: renderPool, market: renderMarket, fee: renderFee, price: renderPrice, status: renderStatus, roi: renderRoi, assume: renderAssume, data: renderData})[S.tab](u);
+}
+
+function renderPipeline(u){
+  const A = S.A, inPool = u.filter(x => x.p), pass = inPool.filter(x => poolPass(x.p));
+  const withVid = u.filter(x => x.m && x.m.n), short = u.filter(x => shortPass(x.m));
+  const active = u.filter(x => x.st && ACTIVE.includes(x.st.stage)), done = u.filter(x => x.st && x.st.stage === '네고완료');
+  const qd = Object.values(S.queue), pend = qd.filter(q => q.state === 'pending' || q.state === 'running').length, qdone = qd.filter(q => q.state === 'done').length;
+  const roiC = done.map(x => x.m).filter(m => m && m.withAd), roiAll = roiC.reduce((a, m) => a + m.withAd, 0);
+  const roiPass = roiC.reduce((a, m) => a + Math.round(m.roiRatio * m.withAd), 0);
+  const st = (cls, k, v, d) => `<div class="stage ${cls}"><span class="k">${k}</span><span class="v">${v}</span><span class="d">${d}</span></div>`;
+  const tierRows = A.gmvTiers.map(t => { const ms = withVid.map(x => x.m), all = ms.reduce((a, m) => a + m.n, 0);
+    const hit = ms.reduce((a, m) => a + Math.round(m.tier[t] * m.n), 0);
+    return `<tr><td>영상 GMV ≥ ${fmt$(t)}</td><td class="num">${fmtN(hit)} / ${fmtN(all)}</td><td class="num">${fmtP(all ? hit / all : null)}</td><td class="num">${withVid.filter(x => (x.m.tier[t] ?? 0) >= A.shortMinRatio).length}명</td></tr>`; }).join('');
+  const unitRows = A.unitTiers.map(t => { const ms = withVid.map(x => x.m), all = ms.reduce((a, m) => a + m.n, 0);
+    const hit = ms.reduce((a, m) => a + Math.round(m.unit[t] * m.n), 0);
+    return `<tr><td>영상 판매량 ≥ ${fmtN(t)}개</td><td class="num">${fmtN(hit)} / ${fmtN(all)}</td><td class="num">${fmtP(all ? hit / all : null)}</td><td class="num">${withVid.filter(x => (x.m.unit[t] ?? 0) >= A.shortMinRatio).length}명</td></tr>`; }).join('');
+  $('v-pipeline').innerHTML = `
+    <div class="stages">
+      ${st('reacher', '① 크리에이터 풀', fmtN(inPool.length), 'FastMoss JP 풀 · ' + esc(S.loaded.pool.id) + ' · 2주마다 갱신, 신규만 영상 수집')}
+      ${st('reacher', '풀 기준 통과', fmtN(pass.length), `L${A.minLevel}+ · GMV ≥ ${fmt$(A.minGmv)} · 팔로워 ≥ ${fmtK(A.minFol)}`)}
+      ${st('fm', '② 영상 데이터 있음', fmtN(withVid.length), `최근 ${A.days}일 ∩ 최근 ${A.screenN}개 · FastMoss 웹 엑셀`)}
+      ${st('fm', '추림 통과', fmtN(short.length), `GMV ≥ ${fmt$(A.shortTier)} 비율 ≥ ${fmtP(A.shortMinRatio)}${A.shortMedian ? ' · 중간값 ≥ ' + fmt$(A.shortMedian) : ''}`)}
+      ${st('team', '③ 접근·네고 중', fmtN(active.length), ACTIVE.join(' · '))}
+      ${st('team', '네고완료', fmtN(done.length), `ROI 요청 대기 ${pend} · 완료 ${qdone}`)}
+      ${OWNERS.map(o => { const mine = u.filter(x => ownerOf(x) === o), byS = STAGES.map(sg => [sg, mine.filter(x => x.st && x.st.stage === sg).length]).filter(([, n]) => n);
+        return st('own-' + o, `<span class="pill own-${o}">${o}</span> 담당`, fmtN(mine.length), byS.length ? byS.map(([sg, n]) => sg + ' ' + n).join(' · ') : '배정만 · 진행 상태 없음'); }).join('')}
+      ${(() => { const ps = u.filter(x => x.st && x.st.stage === '포스팅 완료'), fees = ps.map(x => Number(x.st.fee)).filter(v => v > 0);
+        return st('team', '포스팅 완료', fmtN(ps.length), `노션 기준 ${ps.filter(x => x.st.fromNotion).length}명 포함 · 편당 단가 평균 ${fees.length ? fmt$(fees.reduce((a, b) => a + b, 0) / fees.length) + ' (' + fees.length + '명)' : '–'}`); })()}
+      ${(() => { const F = feeStats(); return st('team', '우리 유상 협업 단가', F.perVideo != null ? fmt$(F.perVideo) + '/건' : '–',
+        `${fmt$(F.fee)} ÷ ${F.posts}건 · ${F.n}명 · TikTok 포함 채널 ${F.tt.per != null ? fmt$(F.tt.per) + '/건 (' + F.tt.posts + '건)' : '–'} · gifted ${fmtN(F.gifted)}건`); })()}
+      ${(() => { const rs = u.map(x => partnerROI(x.h)).filter(r => r && r.roi != null); const ok = rs.filter(r => r.roi >= thrR()).length;
+        return st('reacher', '④ Partnered ' + MN() + ' ≥ ' + thrL(), rs.length ? ok + ' / ' + rs.length + '명' : '–', MDEF[S.metric]); })()}
+    </div>
+    <h2>영상 기준별 비율 · 영상 데이터가 있는 ${withVid.length}명 전체</h2>
+    <div class="tbl"><table data-sid="pipe"><thead><tr><th>기준</th><th class="num">해당 영상</th><th class="num">비율</th><th class="num">비율 ≥ ${fmtP(A.shortMinRatio)}인 크리에이터</th></tr></thead><tbody>${tierRows}${unitRows}</tbody></table></div>
+    <p class="note">기준값 탭에서 GMV·판매량 기준을 여러 개 넣으면 이 표와 풀 표에 비율 열이 그만큼 생깁니다. FastMoss 영상 GMV·판매량은 추정치이고, 그 영상에 걸린 다른 브랜드 상품 매출까지 포함합니다.</p>`;
+}
+
+/* 팀 편집: 상태·담당자·이메일 발송은 바로 저장하지 않고 모았다가 [변경사항 저장]으로 한 번에 저장 (저장한 사람·시각은 이력에 남음) */
+const anchorCell = m => { if (!m || m.anchor == null) return '<span class="muted">–</span>'; const b = (Number(S.A.anchorBand) || 0) / 100, a = m.anchor;
+  if (a <= 0) return '<span class="muted" title="기준 금액이 0 (영상 GMV 대부분 $0)">$0</span>';
+  const few = m.aN < 10;
+  return `<span class="anc" title="(중간값+평균)÷2 = ${fmt$(m.aBase)} × 그 값 넘긴 비율 ${fmtP(m.aP)} = ${fmt$(a)} · 영상 ${m.aN}개"><b>${fmt$(a)}</b><br><span class="muted">(${fmt$(a * (1 - b))}–${fmt$(a * (1 + b))})</span>${few ? `<br><span class="pill warn" title="영상 수가 적어 확률이 거칠게 나옵니다">영상 ${m.aN}개</span>` : ''}</span>`; };
+const pend = (h, k) => (S.pending[h] || {})[k];
+function stagePend(h, k, v){ const cur = (S.status[safeId(h)] || {})[k]; const p = S.pending[h] || (S.pending[h] = {});
+  if ((cur ?? (k === 'emailed' ? false : '')) === v) delete p[k]; else p[k] = v; if (!Object.keys(p).length) delete S.pending[h]; }
+function saveBar(){ const n = Object.keys(S.pending).length;
+  return `<div class="savebar ${n ? 'on' : ''}" role="status"><span>${n ? `<b>저장 안 된 변경 ${n}명</b> · ${Object.entries(S.pending).slice(0, 4).map(([h, p]) => '@' + esc(h) + ' (' + Object.keys(p).map(k => FL[k] || k).join('·') + ')').join(', ')}${n > 4 ? ' 외' : ''}` : '<span class="muted">상태 · 담당자 · 이메일 발송을 고친 뒤 [변경사항 저장]을 누르면 팀 전체에 저장됩니다</span>'}</span>
+    <span class="grow"></span>${S.saveMsg ? `<span class="pill good">${esc(S.saveMsg)}</span>` : ''}<button class="btn" id="pend-cancel" ${n ? '' : 'disabled'}>취소</button><button class="btn primary" id="pend-save" ${n && S.db ? '' : 'disabled'}>변경사항 저장${n ? ' (' + n + ')' : ''}</button></div>`; }
+async function savePending(){
+  const items = Object.entries(S.pending); let ok = 0, fail = [];
+  for (const [h, p] of items){ const patch = {...p}; if ('emailed' in patch) patch.emailedAt = patch.emailed ? nowIso() : null;
+    try { await setStatus(h, patch); ok++; delete S.pending[h]; } catch { fail.push(h); } }
+  S.saveMsg = `${ok}명 저장됨 · ${new Date().toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}`;
+  if (fail.length) banner('저장 실패: ' + fail.join(', '), true); render(); setTimeout(() => { S.saveMsg = ''; render(); }, 6000);
+}
+const affSwitch = () => `<div class="seg" role="group" aria-label="분석 영상 범위"><span class="muted" style="font-size:12px;align-self:center">분석 영상</span><button data-aff="0" aria-pressed="${!S.affOnly}">전체 숏폼</button><button data-aff="1" aria-pressed="${S.affOnly}">상품 연결 영상만 (TTS affiliate)</button></div>`;
+function ourStats(h){ // 우리 파트너 콘텐츠 실측 (Reacher): 영상별 누적 GMV, GMV Max 광고비, 리테이너 Fee(없으면 gifted $0)
+  const k = h.toLowerCase(), vs = S.ourBy[k]; if (!vs || !vs.length) return null;
+  const g = vs.reduce((s, v) => s + v.gmv, 0), sp = (S.gmBy[k] || []).reduce((s, v) => s + v.spend, 0);
+  const fee = S.feeBy[k] ? S.feeBy[k].camps.filter(f => f.status !== 'archived').reduce((s, f) => s + (f.fee || 0), 0) : 0;
+  return {n: vs.length, avg: g / vs.length, gmv: g, pT: T => vs.filter(v => v.gmv >= T).length / vs.length, spend: sp, fee, roi: sp + fee ? g / (sp + fee) : null};
+}
+/* 이메일: Reacher 풀 엑셀의 '바이오 속 이메일' (Reacher가 가진 이메일 주소는 API로 안 나옴) */
+const emailLine = h => { const k = h.toLowerCase(), e = (S.emails || {})[k], c = (S.emailsCrm || {})[k], p = S.poolH.get(h);
+  const a = (x, src) => `<a href="mailto:${esc(x)}">${esc(x)}</a> <span class="muted" style="font-size:12px">${src}</span>`;
+  if (e || c) return `<div class="row" style="font-size:14px"><b>이메일</b> ${e ? a(e, '바이오에서 추출') : ''}${c && (!e || c.toLowerCase() !== e.toLowerCase()) ? (e ? ' · ' : '') + a(c, '사내 CRM (오비툴즈)') : ''}</div>`;
+  if (p && p.email) return `<div class="row" style="font-size:13px"><b>이메일</b> <span class="muted">Reacher에 있음 · 주소는 Reacher 포털에서 확인 (바이오에는 없음)</span></div>`;
+  return `<div class="row" style="font-size:13px"><b>이메일</b> <span class="muted">없음</span></div>`; };
+function videoDetail(x){ // 핸들 펼침: FastMoss 수집 영상 전부 + 우리 샵 영상(Reacher) — 사실 값만
+  const vids = [...(S.byH.get(x.h) || [])].sort((a, b) => b.t.localeCompare(a.t));
+  const ours = [...(S.ourBy[x.h.toLowerCase()] || [])].sort((a, b) => String(b.posted).localeCompare(String(a.posted)));
+  const sp = {}; (S.gmBy[x.h.toLowerCase()] || []).forEach(v => sp[v.id] = v);
+  const link = id => `https://www.tiktok.com/@${encodeURIComponent(x.h)}/video/${esc(id)}`;
+  const prodCell = v => (v.pp || []).map(([pid, g]) => { const p = S.products[pid]; return p ? `<span class="pill ${p.ours ? 're' : p.c === BABY ? 'fm' : ''}" title="${esc(p.t)} · ${esc(p.c)}${p.pr != null ? ' · $' + p.pr : ''}">${esc(p.b)} ${fmt$(g)}</span>` : ''; }).join(' ') || '<span class="muted">–</span>';
+  const uidv = S.cargo[x.h.toLowerCase()]?.uid;
+  return `${emailLine(x.h)}<div class="row"><a href="https://www.tiktok.com/@${encodeURIComponent(x.h)}" target="_blank" rel="noopener">TikTok 프로필 열기</a>${uidv ? ` · <a href="https://www.fastmoss.com/influencer/detail/${esc(uidv)}" target="_blank" rel="noopener">FastMoss 프로필</a>` : ''} · <a href="https://www.tiktok.com/@${encodeURIComponent(x.h)}/live" target="_blank" rel="noopener" title="방송 중일 때만 열림">TikTok 라이브 (방송 중일 때)</a><span class="muted">FastMoss 수집 ${vids.length}개 · 우리 샵 영상 ${ours.length}개</span></div>
+    <h2>FastMoss 영상 (최신순 · 다른 브랜드 포함 · 추정)</h2>
+    <div class="tbl"><table data-sid="vd-fm"><thead><tr><th>게시일</th><th class="num">GMV</th><th class="num">판매량</th><th class="num">조회</th><th class="num">참여율 (좋아요+댓글+공유)÷조회</th><th>광고</th><th>연결 상품 (브랜드 · 영상 GMV)</th><th>링크</th></tr></thead><tbody>
+      ${vids.map(v => `<tr><td><a href="${link(v.id)}" target="_blank" rel="noopener">${esc(v.t.slice(0, 10))}</a></td><td class="num">${fmt$(v.gmv)}</td><td class="num">${fmtN(v.units)}</td><td class="num">${fmtK(v.views)}</td><td class="num">${v.er != null ? (v.er * 100).toFixed(2) + '%' : '–'}</td>
+        <td>${v.ad == null ? '–' : v.ad ? '<span class="pill">광고</span>' : '<span class="muted">아님</span>'}</td><td class="comp">${prodCell(v)}</td><td><a href="${link(v.id)}" target="_blank" rel="noopener">TikTok</a> · <a href="https://www.fastmoss.com/media-source/video/${esc(v.id)}" target="_blank" rel="noopener">FastMoss</a></td></tr>`).join('') || '<tr><td colspan="8" class="muted">수집된 영상 없음</td></tr>'}
+    </tbody></table></div>
+    ${(() => { const l = [...(S.livesBy[x.h.toLowerCase()] || [])].sort((p, q) => String(q.t).localeCompare(String(p.t))), c = S.cargo[x.h.toLowerCase()]; if (!l.length && !c) return '';
+      return `<h2>FastMoss 라이브${c && c.liveShare != null ? ` · 누적 GMV 중 라이브 ${c.liveShare.toFixed(0)}% · 라이브 1회당 ${fmt$(c.avg_gmv_per_live)} · 영상 1개당 ${fmt$(c.avg_gmv_per_video)}` : ''}</h2>
+      ${l.length ? `<div class="tbl"><table data-sid="vd-live"><thead><tr><th>시작 (UTC)</th><th class="num">GMV</th><th class="num">판매량</th><th class="num">시청자</th><th class="num">시청자당 GMV</th><th class="num">방송 시간</th><th class="num">연결 상품</th><th>링크</th></tr></thead><tbody>
+        ${l.map(z => `<tr><td>${esc((z.t || '').replace('T', ' '))}</td><td class="num">${fmt$(z.gmv)}</td><td class="num">${fmtN(z.units)}</td><td class="num">${fmtK(z.viewers)}</td><td class="num">${z.gpv != null ? '$' + Number(z.gpv).toFixed(2) : '–'}</td><td class="num">${z.dur ? Math.round(z.dur / 60) + '분' : '–'}</td><td class="num">${fmtN(z.prods)}</td><td><a href="https://www.fastmoss.com/live/detail/${esc(z.room)}" target="_blank" rel="noopener">FastMoss 라이브</a></td></tr>`).join('')}
+      </tbody></table></div>` : '<p class="note">라이브 회차 목록은 아직 받지 않았습니다 (라이브 비중이 기준 이상인 크리에이터만 수집).</p>'}`; })()}
+    ${(() => { const a = S.collabBy[x.h.toLowerCase()]; if (!a) return ''; return `<h2>우리 협업 이력 (PayPal 정산 · Reacher 리테이너 · TTS 샘플)</h2>
+    <div class="tbl"><table><thead><tr><th>소스</th><th>채널</th><th>날짜</th><th class="num">Fee</th><th class="num">콘텐츠 수</th><th>상품 / 캠페인</th><th>링크</th></tr></thead><tbody>
+      ${[...a.rows].sort((p, q) => String(q.date).localeCompare(String(p.date))).map(r => `<tr><td>${SRC[r.src]}</td><td>${esc(r.ch || '')}</td><td>${esc(r.date || '')}</td><td class="num">${r.paid && r.fee ? fmt$(r.fee) : 'gifted $0'}${r.status === 'archived' ? ' <span class="muted">(아카이브)</span>' : ''}</td><td class="num">${r.posts || 1}</td><td class="muted">${esc(r.product || '')}</td><td>${r.link ? `<a href="${esc(r.link)}" target="_blank" rel="noopener">열기</a>` : '–'}</td></tr>`).join('')}
+    </tbody></table></div>`; })()}
+    ${(() => { const ids = new Set(ours.map(v => v.id)), adOnly = Object.values(sp).filter(g => !ids.has(g.id));
+      const rowsU = ours.map(v => ({...v, g: sp[v.id]})).concat(adOnly.map(g => ({id: g.id, posted: g.posted, gmv: null, units: null, views: null, p: g.title, g, out: true})))
+        .sort((p, q) => String(q.posted).localeCompare(String(p.posted)));
+      if (!rowsU.length) return '';
+      const pr = partnerROI(x.h), feePer = pr && pr.n ? pr.fee / pr.n : 0;
+      return `<h2>우리 파트너 콘텐츠 (Reacher 실측 · 영상 GMV = 누적 광고+자연 · ${MDEF[S.metric]})</h2>
+    <div class="tbl"><table data-sid="vd-our"><thead><tr><th>게시일</th><th class="num">영상 GMV</th><th class="num">판매량</th><th class="num">조회</th><th class="num">GMV Max 광고비</th><th class="num">Fee 배분</th><th class="num">${MN()}<br><small>${MSUB()}</small></th><th>상품 / 제목</th><th>링크</th></tr></thead><tbody>
+      ${rowsU.map(v => `<tr><td><a href="${link(v.id)}" target="_blank" rel="noopener">${esc(String(v.posted || '').slice(0, 10))}</a></td><td class="num">${v.out ? '<span class="muted" title="우리 영상 목록에 없음 (Reacher 제휴 영상 목록 밖)">목록 밖</span>' : fmt$(v.gmv)}</td><td class="num">${v.out ? '–' : fmtN(v.units)}</td><td class="num">${v.out ? '–' : fmtK(v.views)}</td>
+        <td class="num">${v.g ? fmt$(v.g.spend) : '–'}</td><td class="num">${v.out ? '–' : (feePer ? fmt$(feePer) : 'gifted $0')}</td><td class="num">${v.out ? '–' : (() => { const c = (v.g ? v.g.spend : 0) + feePer; const rv = retOf(v.gmv, v.g ? v.g.spend : 0, feePer); return rv != null ? fmtM(rv) : '<span class="muted">계산 안 함</span>'; })()}</td><td class="muted">${esc(v.p || '')}</td>
+        <td><a href="${link(v.id)}" target="_blank" rel="noopener">TikTok</a> · <a href="https://www.fastmoss.com/media-source/video/${esc(v.id)}" target="_blank" rel="noopener">FastMoss</a></td></tr>`).join('')}
+    </tbody></table></div>`; })()}`;
+}
+/* 노션 CRM (TTS Influencer Management): 핸들(소문자)별 행 배열 */
+const notionOf = h => (S.notion || {})[h.toLowerCase()] || null;
+const ownerOf = x => x.st?.owner || (S.nOwn || {})[x.h.toLowerCase()] || nLatest(notionOf(x.h))?.owner || momOf(x.h)?.owner || '';
+const sentOf = x => !!(x.st?.emailed || (S.nSent || {})[x.h.toLowerCase()]);
+const outrOf = h => { const l = ((S.outr || {}).out || {})[h.toLowerCase()] || [], by = {};
+  l.forEach(r => { const t = by[r.t] || (by[r.t] = {first: r.d, last: r.d, n: 0, s: r.s}); t.n++; if (r.d < t.first){ t.first = r.d; t.s = r.s; } if (r.d > t.last) t.last = r.d; });
+  const th = Object.values(by).sort((a, b) => a.first.localeCompare(b.first)); return {th, n: l.length, last: l.length ? l.map(r => r.d).sort().pop() : ''}; };
+const momOf = h => (S.mom || {})[h.toLowerCase()] || null;
+/* 레벨: Reacher 풀 → 풀 밖이면 Reacher 개별 조회 → 그래도 없으면 노션 MOM SELLER Tier */
+const lvOf = x => { if (x.p?.lv != null) return {v: x.p.lv, src: ''}; const k = x.h.toLowerCase();
+  if (S.nLv && S.nLv[k] != null) return {v: S.nLv[k], src: 'Reacher 개별 조회'}; const t = momOf(x.h)?.tier; return t ? {v: Number(String(t).replace(/\D/g, '')), src: '노션 Tier'} : {v: null, src: ''}; };
+const OWNERS = ['Sue', 'Lea'];   // 앞으로 지정 가능한 담당자 (노션에 있던 Sunny 등은 기존 값으로만 남김)
+const ownerSel = (h, cur, attrs, dirty) => { const opts = ['', ...OWNERS, ...(cur && !OWNERS.includes(cur) ? [cur] : [])];
+  return `<span class="${dirty ? 'dirty' : ''} own-${esc(cur || 'none')}"><select ${attrs} aria-label="@${esc(h)} 담당자">${opts.map(o => `<option value="${esc(o)}" ${o === (cur || '') ? 'selected' : ''}>${o ? esc(o) : '미지정'}</option>`).join('')}</select></span>`; };
+const TRACK = {'Deep': '우리샵 판매 있음', 'Second chance': '샘플 받고 영상 게시, 판매 0', 'Re-approach': '컨택했지만 무응답·미수락·만료, 샘플·영상 없음', 'New': '접점 기록 없음'};
+const TRK = {'Deep': 'good', 'Second chance': 'warn', 'Re-approach': 'fm', 'New': ''};
+const CC = {'1st time': '첫 협업', '2nd time': '재협업 2회차', '3rd time': '재협업 3회차', '4th+ time': '재협업 4회차+'};
+const nPill = s => /정산 완료|영상 게시 완료|협업 확정|영상 제작 중/.test(s || '') ? 'good' : /거절|무응답 종료/.test(s || '') ? 'bad' : s === '보류' || s === '미접촉' ? '' : 'warn';
+const nLatest = l => l ? [...l].sort((p, q) => String(q.confirmed || q.outreach || '').localeCompare(String(p.confirmed || p.outreach || '')))[0] : null;
+/* 노션 상태 → 보드 단계. 보드에 팀이 저장한 상태가 없을 때만 노션 값을 보여주고, 팀이 한 번 저장하면 그 값이 우선 */
+const N2S = {'미접촉': '접근 대상', '영상 검토 완료': '접근 대상', '이메일 발송': '이메일 발송', 'DM 발송': '이메일 발송', '회신 옴': '회신', '조건 조율 중': '네고중', '협업 확정': '네고완료', '영상 제작 중': '네고완료', '영상 게시 완료': '포스팅 완료', '정산 완료': '포스팅 완료', '보류': '보류', '거절': '거절', '무응답 종료': '거절'};
+function notionStatus(h){ const n = nLatest(notionOf(h)); if (!n){ const mo = momOf(h); if (!mo || !mo.status || mo.status === '미접촉'){ const sk = h.toLowerCase(); return (S.nSent || {})[sk] ? {h, stage: '이메일 발송', owner: (S.nOwn || {})[sk] || '', contact: S.nSent[sk], fee: null, memo: '구글 폼 이메일 발송', fromNotion: true, nStatus: '이메일 발송', nUrl: '', updatedAt: ''} : null; }
+    return {h, stage: N2S[mo.status] || '접근 대상', owner: mo.owner || '', contact: '', fee: mo.rate ?? null, memo: ['노션 MOM ' + mo.status, mo.track ? 'Track ' + mo.track : '', mo.rate ? '편당 $' + mo.rate : ''].filter(Boolean).join(' · '), fromNotion: true, nStatus: mo.status, nUrl: mo.url, updatedAt: ''}; }
+  const memo = ['노션 ' + n.status, CC[n.cc] || n.cc, n.rate ? '편당 $' + n.rate : '', n.total ? '총 $' + n.total : '', n.confirmed ? '확정 ' + n.confirmed : ''].filter(Boolean).join(' · ');
+  return {h, stage: N2S[n.status] || '접근 대상', owner: n.owner || '', contact: n.outreach || '', fee: n.rate ?? null, memo, fromNotion: true, nStatus: n.status, nUrl: n.url, updatedAt: n.confirmed || n.outreach || ''}; }
+/* 컨택 이력: 보드에 있는 데이터만 모음 (팀 상태·이메일 발송, Reacher DM, 협업·샘플·리테이너, 우리 샵 영상) — 최신순 */
+function contactInfo(h){
+  const k = h.toLowerCase(), ev = [], st = S.status[safeId(h)];
+  if (st){ ev.push({d: String(st.contact || st.updatedAt || '').slice(0, 10), t: '보드 상태 (팀)', s: [st.stage, st.team ? '담당팀 ' + st.team : '', st.owner ? '담당 ' + st.owner : '', st.fee != null && st.fee !== '' ? '합의 Fee $' + st.fee : '', st.memo || ''].filter(Boolean).join(' · ')});
+    if (st.emailed) ev.push({d: String(st.emailedAt || '').slice(0, 10), t: '이메일 발송', s: '팀이 발송 체크'}); }
+  (notionOf(h) || []).forEach(n => { const base = [n.project, CC[n.cc] || n.cc, '담당 ' + (n.owner || '–'), n.status, (n.brand || []).join('/'), (n.product || []).join(', ')].filter(Boolean).join(' · ');
+    const amt = n.total ? '$' + n.total + (n.rate ? ` · 편당 $${n.rate}` : '') : null;
+    if (n.confirmed) ev.push({d: n.confirmed, t: '노션 CRM · 협업 확정', kind: CC[n.cc] || null, amt, s: base + (n.partner ? ' · Reacher 파트너' : '') + (n.notes ? ' · ' + n.notes : ''), link: n.url});
+    ev.push({d: n.outreach || '', t: '노션 CRM · ' + (n.outreach ? '아웃리치' : '등록 (아웃리치 전)'), kind: n.confirmed ? null : (CC[n.cc] || null), amt: n.confirmed ? null : amt, s: base + (!n.confirmed && n.notes ? ' · ' + n.notes : ''), link: n.url}); });
+  { const mo = momOf(h); if (mo){ const yn = (v, l) => v === '있음' ? l : null;
+    ev.push({d: '2026-10-20', t: '노션 MOM SELLER · 컨택 차수', kind: mo.track ? 'Track ' + mo.track : null, track: mo.track,
+      s: [mo.track ? `${mo.track} = ${TRACK[mo.track] || ''}` : '', mo.contacted ? '컨택 ' + mo.contacted : '', mo.gift && mo.gift !== '없음' ? mo.gift : '', mo.samples ? '샘플 ' + mo.samples + '회' : '', mo.ourvids ? '우리 영상 ' + mo.ourvids + '편' : '', mo.shopgmv ? '우리샵 GMV ' + fmt$(mo.shopgmv) : '',
+        yn(mo.paid, 'Paid 제안함'), yn(mo.flatfee, '플랫피 제안함'), yn(mo.amount, '금액 제시함'), mo.rate ? '네고 단가 $' + mo.rate : '', mo.status && mo.status !== '미접촉' ? '상태 ' + mo.status : '', mo.owner ? '담당 ' + mo.owner : '', mo.rank != null ? '순위 ' + mo.rank : '', mo.history || ''].filter(Boolean).join(' · '), link: mo.url}); } }
+  ((S.nEv || {})[k] || []).forEach(e => ev.push({...e}));
+  if (!st?.emailed && (S.nSent || {})[k]) ev.push({d: S.nSent[k], t: '이메일 발송', s: '구글 폼 아웃리치 · 담당 ' + (ownerOf({h, st}) || '–')});
+  const c = S.contacts[k]; if (c) ev.push({d: String(c.last || '').slice(0, 10), t: 'Reacher DM', s: '마지막 메시지: ' + (/creator/i.test(c.sender || '') ? '크리에이터가 보냄' : '우리가 보냄')});
+  const a = S.collabBy[k]; if (a) a.rows.forEach(r => { const paid = r.paid && r.fee > 0, n = r.posts || 1;
+    const kind = r.src === 'tts_sample' ? '샘플 (무상)' : !paid ? '무상 협업 (gifted)' : r.src === 'reacher' && /retainer/i.test(r.product || '') ? '리테이너' : 'Flat fee';
+    const amt = paid ? '$' + Math.round(r.fee).toLocaleString('en-US') + (n > 1 ? ` · ${n}개 계약 · 개당 $${Math.round(r.fee / n)}` : ' · 1개') : '$0';
+    const s = r.src === 'reacher' ? [r.product, `게시 ${r.postsActual ?? 0}/${n}개`, `지급 $${Math.round(r.paidAmt || 0)}`, r.status === 'archived' ? '종료(아카이브)' : '진행 중'].join(' · ')
+      : [r.ch, r.product, r.views != null ? '조회 ' + fmtK(r.views) : '', r.gmv ? '우리 GMV ' + fmt$(r.gmv) : ''].filter(Boolean).join(' · ');
+    ev.push({d: r.date || '', t: r.src === 'reacher' ? 'Reacher 캠페인' : (SRC[r.src] || r.src), kind, amt, paid: paid ? r.fee : 0, s, link: /^https?:/.test(r.link || '') ? r.link : null}); });
+  const o = S.ourBy[k]; if (o && o.length){ const ds = o.map(v => String(v.posted || '').slice(0, 10)).sort();
+    ev.push({d: ds[ds.length - 1], t: '우리 샵 영상 (Reacher)', s: `${o.length}개 게시 · ${ds[0]} ~ ${ds[ds.length - 1]} · 우리 GMV ${fmt$(o.reduce((t, v) => t + (v.gmv || 0), 0))} · ${[...new Set(o.map(v => v.p).filter(Boolean))].slice(0, 3).join(', ')}`}); }
+  return ev.sort((p, q) => String(q.d).localeCompare(String(p.d)));
+}
+const contactSum = ev => { const by = kd => ev.filter(e => e.kind === kd), sum = l => l.reduce((t, e) => t + (e.paid || 0), 0), out = [];
+  const fl = by('Flat fee'), rt = by('리테이너'), sp = by('샘플 (무상)'), gf = by('무상 협업 (gifted)');
+  if (fl.length) out.push(`Flat fee ${fl.length}건 $${Math.round(sum(fl)).toLocaleString('en-US')}`);
+  if (rt.length) out.push(`리테이너 ${rt.length}건 $${Math.round(sum(rt)).toLocaleString('en-US')}`);
+  if (sp.length) out.push(`샘플 ${sp.length}개`); if (gf.length) out.push(`gifted ${gf.length}건`);
+  return out; };
+const contactDetail = h => { const ev = contactInfo(h), sm = contactSum(ev), o = outrOf(h);
+  return `${emailLine(h)}<h2>@${esc(h)} · 아웃리치 ${o.th.length}회 · 메일 ${o.n}통${(S.outr.replied || {})[h.toLowerCase()] ? ' · 회신 있음' : ''}</h2>
+    ${o.th.length ? `<div class="tbl"><table><thead><tr><th>#</th><th>첫 메일</th><th>마지막 메일</th><th class="num">보낸 메일</th><th>제목</th></tr></thead><tbody>${o.th.map((t, i) => `<tr><td class="num">${i + 1}</td><td>${esc(t.first)}</td><td>${esc(t.last)}</td><td class="num">${t.n}</td><td style="white-space:normal">${esc(t.s)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="note">affiliates@에서 보낸 메일이 없습니다.</p>'}
+    <p class="note">Gmail affiliates@onzenna.com 보낸편지함 기준${S.loaded_outr ? ' (' + esc(S.loaded_outr.builtAt) + ')' : ''} · 대화(스레드) 1개 = 아웃리치 1회, 같은 대화 안의 팔로업·답장은 "보낸 메일"로 셉니다 · 보드에 이메일이 등록된 크리에이터만 집계</p>
+    <h2>참고 기록 ${ev.length}건 (샘플·협업·노션·보드, 최신순)${sm.length ? ' · ' + esc(sm.join(' · ')) : ''}</h2>
+    <div class="tbl"><table><thead><tr><th>날짜</th><th>경로</th><th>유형</th><th class="num">금액</th><th>내용</th></tr></thead><tbody>
+      ${ev.map(e => `<tr><td style="white-space:nowrap">${esc(e.d || '–')}</td><td style="white-space:nowrap">${esc(e.t)}</td><td style="white-space:nowrap">${e.kind ? `<span class="pill ${e.kind === 'Flat fee' || e.kind === '리테이너' ? 're' : ''}">${esc(e.kind)}</span>` : '<span class="muted">–</span>'}</td><td class="num" style="white-space:nowrap">${e.amt ? esc(e.amt) : '–'}</td><td style="white-space:normal">${esc(e.s)}${e.link ? ` · <a href="${esc(e.link)}" target="_blank" rel="noopener">열기</a>` : ''}</td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="note">보드에 있는 데이터만 모은 것입니다: 노션 TTS MOM SELLER L2~L3(Track = 몇 번째 접근인지: Deep 우리샵 판매 있음 · Second chance 샘플·영상 있으나 판매 0 · Re-approach 컨택했지만 무응답·만료 · New 접점 없음, 10/20 기준), 노션 TTS Influencer Management(담당자·상태·아웃리치·확정일·재협업 회차·메모${S.loaded_notion ? ' · ' + esc(S.loaded_notion.builtAt) + ' 기준' : ''}), 팀이 입력한 상태·이메일 발송, Reacher DM(현재 일부만 수집), PayPal 정산 · Reacher 유상 캠페인 · TTS 샘플, 우리 샵 제휴 영상. Reacher 대량 초대·자동 메시지 전체는 아직 들어 있지 않습니다. 유형: <b>리테이너</b> = Reacher 캠페인 이름에 Retainer가 들어간 월 단위 계약, <b>Flat fee</b> = 그 밖의 유상 건(영상 패키지·단건, PayPal 정산 포함), 샘플·gifted = $0. TikTok Shop Target Collab으로 건 flat fee는 아직 데이터에 없습니다.</p>`; };
+const PF0 = {lv: 'any', liveMin: '', owner: '', babyMin: '', ours: 'any', comp: 'any', brand: '', T: 250, pMin: '', email: 'any', sent: 'any', dm: 'any', stage: 'any', partner: 'any', track: 'any', ncc: 'any', pass: false};
+function renderPool(u){
+  const A = S.A, V = S.poolView, P = V.pf || (V.pf = {...PF0});
+  let rows = u;
+  const yn = (sel, val) => sel === 'any' || (sel === 'yes') === !!val;
+  if (P.lv === undefined) P.lv = 'any';
+  if (P.lv === 'none') rows = rows.filter(x => lvOf(x).v == null); else if (P.lv !== 'any') rows = rows.filter(x => String(lvOf(x).v) === String(P.lv));
+  if (P.pass) rows = rows.filter(x => poolPass(x.p));
+  if (P.babyMin !== '') rows = rows.filter(x => (x.m?.babyShare ?? -1) >= P.babyMin / 100);
+  rows = rows.filter(x => yn(P.ours, x.m && x.m.ours.videos));
+  if (P.comp === 'feed') rows = rows.filter(x => x.m && x.m.compList.some(c => c.feed)); else rows = rows.filter(x => yn(P.comp, x.m && x.m.compList.length));
+  if (P.brand) rows = rows.filter(x => x.m && x.m.compList.some(c => c.b === P.brand));
+  if (P.pMin !== '') rows = rows.filter(x => x.m && x.m.n && shareG(x, P.T) >= P.pMin / 100);
+  if (P.liveMin !== '') rows = rows.filter(x => (S.cargo[x.h.toLowerCase()]?.liveShare ?? -1) >= P.liveMin);
+  rows = rows.filter(x => yn(P.email, x.p?.email) && yn(P.sent, sentOf(x)) && yn(P.dm, S.contacts[x.h.toLowerCase()]) && yn(P.partner, ourStats(x.h)));
+  if (P.stage === 'none') rows = rows.filter(x => !x.st); else if (P.stage !== 'any') rows = rows.filter(x => x.st && x.st.stage === P.stage);
+  if (P.track && P.track !== 'any') rows = rows.filter(x => P.track === 'none' ? !momOf(x.h)?.track : momOf(x.h)?.track === P.track);
+  if (P.ncc && P.ncc !== 'any') rows = rows.filter(x => (notionOf(x.h) || []).some(n => P.ncc === 're' ? n.cc && n.cc !== '1st time' : n.cc === '1st time'));
+  if (P.owner === '__none') rows = rows.filter(x => !ownerOf(x)); else if (P.owner) rows = rows.filter(x => ownerOf(x) === P.owner);
+  if (V.q) { const q = V.q.toLowerCase(); rows = rows.filter(x => x.h.toLowerCase().includes(q) || String(x.p?.cat || '').toLowerCase().includes(q) || String(x.m?.nick || '').toLowerCase().includes(q) || (x.m?.compList || []).some(c => c.b.toLowerCase().includes(q))); }
+  const ucut = A.unitTiers[0];
+  const dmCell = h => { const c = S.contacts[h.toLowerCase()]; return c ? `<span class="pill" title="마지막 메시지 ${esc(c.last || '')} · ${esc(c.sender || '')}">${esc(String(c.last || '').slice(5, 10))} · ${/creator/i.test(c.sender || '') ? '크리에이터' : '우리'}</span>` : '<span class="muted">–</span>'; };
+  const sm = s => `<small>${s}</small>`;
+  // 열 정의: 핸들·레벨은 고정(sticky), 나머지는 헤더를 끌어서 순서 변경 (보는 사람 브라우저에 저장)
+  const COLS = [
+    {id: 'fol', g: 'base', l: '팔로워', c: 'num', s: x => x.p?.fol, v: x => fmtK(x.p?.fol)},
+    {id: 'gmv', g: 'base', l: '플랫폼<br>GMV', c: 'num', s: x => x.p?.gmv, v: x => x.p?.gmv_show || fmtYen(x.p?.gmv)},
+    {id: 'er', g: 'base', l: '참여율' + sm('Reacher ER'), c: 'num', s: x => x.p?.er, v: x => x.p?.er != null ? x.p.er.toFixed(2) + '%' : '–'},
+    {id: 'cat', g: 'base', l: '카테고리', c: 'cat', s: x => x.p?.cat, v: x => `<span class="muted" title="${esc(x.p?.cat)}">${esc(String(x.p?.cat || '').split(',').slice(0, 2).join(','))}</span>`},
+    {id: 'cx', g: 'team', l: '아웃리치' + sm('affiliates@ 보낸 메일 · 대화 건수'), c: '', s: x => outrOf(x.h).th.length || null, v: x => { const o = outrOf(x.h), open = (S.cxOpen || {})[x.h], ref = contactInfo(x.h).length;
+      const tr = momOf(x.h)?.track, cc = nLatest(notionOf(x.h))?.cc;
+      const tags = `${(S.outr.replied || {})[x.h.toLowerCase()] ? ' <span class="pill good">회신</span>' : ''}${tr ? ` <span class="pill ${TRK[tr] || ''}" title="${esc(TRACK[tr] || '')}">${esc(tr)}</span>` : ''}${cc ? ` <span class="pill">${esc(CC[cc] || cc)}</span>` : ''}`;
+      if (!o.th.length) return (ref ? `<button class="hbtn sm" data-cx="${esc(x.h)}" aria-expanded="${!!open}" title="참고 기록 펼치기">${open ? '▾' : '▸'} 없음</button>` : '<span class="muted">없음</span>') + tags;
+      return `<button class="hbtn sm" data-cx="${esc(x.h)}" aria-expanded="${!!open}" title="아웃리치 내역 펼치기">${open ? '▾' : '▸'} ${o.th.length}회</button>${tags}<br><span class="muted" style="font-size:11px">메일 ${o.n}통 · 마지막 ${esc(o.last.slice(5))}</span>`; }},
+    {id: 'stage', g: 'team', l: '상태' + sm('노션 기록 포함'), c: '', s: x => x.st ? STAGES.indexOf(x.st.stage) : null, v: x => { const pv = pend(x.h, 'stage'), cur = pv !== undefined ? pv : x.st?.stage;
+      const n = nLatest(notionOf(x.h)), mo = momOf(x.h);
+      const sub = n ? `<a href="${esc(n.url)}" target="_blank" rel="noopener" title="${esc(n.notes || '')}">${esc(CC[n.cc] || '재협업')}</a> · ${n.outreach ? esc(n.outreach.slice(5)) : '아웃리치 전'}${n.confirmed ? ' → 확정 ' + esc(n.confirmed.slice(5)) : ''}${n.total ? ' · $' + n.total : ''}`
+        : mo && mo.rate ? `네고 $${mo.rate}` : '';
+      return `<span class="${pv !== undefined ? 'dirty' : ''}"><select data-ps="${esc(x.h)}" ${S.db ? '' : 'disabled'} aria-label="@${esc(x.h)} 상태"><option value="">–</option>${STAGES.map(o => `<option ${o === cur ? 'selected' : ''}>${o}</option>`).join('')}</select></span>${sub ? `<br><span class="muted" style="font-size:11px">${sub}</span>` : ''}`; }},
+    {id: 'anchor', g: 'team', l: '앵커 가격' + sm(`영상 1개 · ±${A.anchorBand}%`), c: 'num', s: x => x.m?.anchor ?? null, v: x => anchorCell(x.m)},
+    {id: 'amd', g: 'team', l: 'a 중간값' + sm('영상 GMV'), c: 'num', s: x => x.m?.aMd ?? null, v: x => x.m && x.m.aMd != null ? fmt$(x.m.aMd) : '–'},
+    {id: 'amn', g: 'team', l: 'b 평균' + sm(`영상 GMV${Number(A.anchorTrim) ? ' · 상위 ' + A.anchorTrim + '개 제외' : ''}`), c: 'num', s: x => x.m?.aMn ?? null, v: x => x.m && x.m.aMn != null ? fmt$(x.m.aMn) : '–'},
+    {id: 'abase', g: 'team', l: '기준값' + sm('(중간값 a + 평균 b) ÷ 2'), c: 'num', s: x => x.m?.aBase ?? null, v: x => x.m && x.m.aBase != null ? `<span title="a 중간값 · b 평균 (분석 영상 ${x.m.aN}개)">${fmt$(x.m.aBase)}</span>` : '–'},
+    {id: 'ap', g: 'team', l: '기준값 넘긴<br>확률', c: 'num', s: x => x.m?.aP ?? null, v: x => x.m && x.m.aP != null ? fmtP(x.m.aP) : '–'},
+    {id: 'owner', g: 'team', l: '담당자' + sm('Sue · Lea'), c: '', s: x => ownerOf(x) || null, v: x => { const pv = pend(x.h, 'owner');
+      return ownerSel(x.h, pv !== undefined ? pv : ownerOf(x), `data-po="${esc(x.h)}" ${S.db ? '' : 'disabled'}`, pv !== undefined); }},
+    {id: 'email', g: 'team', l: '이메일<br>보유', c: '', s: x => x.p?.email ? 1 : 0, v: x => x.p ? (x.p.email ? '<span class="pill good">있음</span>' : '<span class="muted">없음</span>') : '–'},
+    {id: 'sent', g: 'team', l: '이메일<br>발송', c: '', s: x => sentOf(x) ? 1 : 0, v: x => { const pv = pend(x.h, 'emailed'), on = pv !== undefined ? pv : sentOf(x);
+      return `<span class="${pv !== undefined ? 'dirty' : ''}"><input type="checkbox" data-sent="${esc(x.h)}" ${on ? 'checked' : ''} ${S.db ? '' : 'disabled'} aria-label="@${esc(x.h)} 이메일 발송함"></span>`; }},
+    {id: 'dm', g: 'team', l: 'Reacher<br>DM', c: '', s: x => S.contacts[x.h.toLowerCase()]?.last || null, v: x => dmCell(x.h)},
+    {id: 'asof', g: 'fm', l: '수집일' + sm('FastMoss 수집 · Reacher 풀'), c: '', s: x => S.fetched[x.h.toLowerCase()] || null,
+      v: x => { const f = S.fetched[x.h.toLowerCase()], pv = S.loaded.pool.id; return `<span class="muted" title="FastMoss 수집 ${esc(f || '없음')} · Reacher 풀 버전 ${esc(pv)}">${f ? f.slice(5, 10) : '–'} · ${pv.slice(4, 6)}-${pv.slice(6, 8)}</span>`; }},
+    {id: 'n28', g: 'fm', l: '최근 28일<br>영상 수' + sm(`기준일 ${A.baseDate.slice(5)} 이전 28일`), c: 'num', s: x => x.m ? x.m.n28 + (x.m.cap28 ? 0.5 : 0) : null, v: x => x.m ? x.m.n28 + (x.m.cap28 ? '+' : '') : '–'},
+    {id: 'n', g: 'fm', l: '분석 영상' + sm(`기준일 ${A.baseDate.slice(5)} 직전 ${A.days}일 ∩ 최근 ${A.screenN}개 · 개수 · 기간`), c: '', s: x => x.m?.n, v: x => x.m && x.m.n ? `<button class="hbtn sm" data-hx="${esc(x.h)}" title="영상 목록 펼치기">${x.m.n}개 · ${x.m.range[0].slice(5)}~${x.m.range[1].slice(5)}</button>` : '–'},
+    {id: 'age', g: 'fm', l: '분석 영상<br>평균 경과일' + sm('수집 시점 기준'), c: 'num', s: x => x.m?.ageAvg ?? null, v: x => x.m && x.m.ageAvg != null ? x.m.ageAvg.toFixed(1) + '일' : '–'},
+    {id: 'pday', g: 'fm', l: '하루<br>영상 수' + sm('분석 영상 기간'), c: 'num', s: x => x.m?.perDay ?? null, v: x => x.m && x.m.perDay != null ? x.m.perDay.toFixed(1) : '–'},
+    {id: 'aff', g: 'fm', l: '상품 연결<br>영상 비율' + sm('최근 30개'), c: 'num', s: x => x.m?.affShare, v: x => x.m ? fmtP(x.m.affShare) : '–'},
+    {id: 'med', g: 'fm', l: '영상 GMV<br>중간값', c: 'num', s: x => x.m?.median, v: x => x.m ? fmt$(x.m.median) : '–'},
+    {id: 'avg', g: 'fm', l: '영상 GMV<br>평균', c: 'num', s: x => x.m?.avg, v: x => x.m ? fmt$(x.m.avg) : '–'},
+    {id: 'pT', g: 'fm', l: '영상 GMV ≥' + fmt$(P.T) + '<br>확률', c: 'num', s: x => x.m && x.m.n ? shareG(x, P.T) : null, v: x => x.m && x.m.n ? fmtP(shareG(x, P.T)) : '–'},
+    {id: 'u1', g: 'fm', l: '판매 ≥' + ucut + '<br>확률', c: 'num', s: x => x.m?.unit[ucut], v: x => x.m ? fmtP(x.m.unit[ucut]) : '–'},
+    {id: 'ad', g: 'fm', l: '광고<br>영상%', c: 'num', s: x => x.m?.adShare, v: x => x.m ? fmtP(x.m.adShare) : '–'},
+    {id: 'baby', g: 'fm', l: '육아<br>비중', c: 'num', s: x => x.m?.babyShare, v: x => x.m ? fmtP(x.m.babyShare) : '–'},
+    {id: 'erfm', g: 'fm', l: '참여율' + sm('FM (좋+댓+공)÷조회'), c: 'num', s: x => x.m?.erFM, v: x => x.m && x.m.erFM != null ? (x.m.erFM * 100).toFixed(2) + '%' : '–'},
+    {id: 'comp', g: 'fm', l: '경쟁사 협업' + sm('브랜드 · 영상 GMV'), c: 'comp', s: x => x.m?.compList.length || null,
+      v: x => x.m && x.m.compList.length ? x.m.compList.slice(0, 3).map(c => `<span class="pill ${c.feed ? 'fm' : ''}" title="${c.videos}개 영상${c.feed ? ' · 수유·이유식' : ''}">${esc(c.b)} ${fmt$(c.gmv)}</span>`).join(' ') + (x.m.compList.length > 3 ? ` <span class="muted" title="${esc(x.m.compList.slice(3).map(c => c.b).join(', '))}">+${x.m.compList.length - 3}</span>` : '') : '<span class="muted">–</span>'},
+    {id: 'ours', g: 'fm', l: '우리 제품<br>판매', c: 'num', s: x => x.m ? x.m.ours.gmv || (x.m.ours.videos ? 0.001 : null) : null, v: x => x.m && x.m.ours.videos ? `<span class="pill re">${x.m.ours.videos}개 · ${fmt$(x.m.ours.gmv)}</span>` : '<span class="muted">–</span>'},
+    {id: 'lshare', g: 'live', l: '라이브<br>GMV 비중' + sm('누적 · 영상 대비'), c: 'num', s: x => S.cargo[x.h.toLowerCase()]?.liveShare ?? null, v: x => { const c = S.cargo[x.h.toLowerCase()]; return c && c.liveShare != null ? c.liveShare.toFixed(0) + '%' : '–'; }},
+    {id: 'lper', g: 'live', l: '라이브 1회당<br>GMV' + sm('누적 평균'), c: 'num', s: x => S.cargo[x.h.toLowerCase()]?.avg_gmv_per_live ?? null, v: x => fmtYen(S.cargo[x.h.toLowerCase()]?.avg_gmv_per_live)},
+    {id: 'vper', g: 'live', l: '영상 1개당<br>GMV' + sm('누적 평균'), c: 'num', s: x => S.cargo[x.h.toLowerCase()]?.avg_gmv_per_video ?? null, v: x => fmtYen(S.cargo[x.h.toLowerCase()]?.avg_gmv_per_video)},
+    {id: 'l90', g: 'live', l: '라이브 횟수' + sm('최근 90일'), c: 'num', s: x => S.livesBy[x.h.toLowerCase()]?.length ?? null, v: x => { const l = S.livesBy[x.h.toLowerCase()]; return l ? l.length + (l.length >= 30 ? '+' : '') : (S.cargo[x.h.toLowerCase()] ? '<span class="muted">미수집</span>' : '–'); }},
+    {id: 'lmed', g: 'live', l: '라이브 회차<br>GMV 중간값', c: 'num', s: x => { const l = S.livesBy[x.h.toLowerCase()]; if (!l || !l.length) return null; const g = l.map(z => z.gmv || 0).sort((a, b) => a - b); return g[Math.floor(g.length / 2)]; },
+      v: x => { const l = S.livesBy[x.h.toLowerCase()]; if (!l || !l.length) return '–'; const g = l.map(z => z.gmv || 0).sort((a, b) => a - b); return fmt$(g[Math.floor(g.length / 2)]); }},
+    {id: 'on', g: 're', l: '우리<br>영상 수', c: 'num', s: x => ourStats(x.h)?.n ?? null, v: x => ourStats(x.h)?.n ?? '–'},
+    {id: 'oavg', g: 're', l: '우리 영상당<br>GMV', c: 'num', s: x => ourStats(x.h)?.avg ?? null, v: x => { const o = ourStats(x.h); return o ? '$' + o.avg.toFixed(1) : '–'; }},
+    {id: 'opT', g: 're', l: '우리 GMV ≥' + fmt$(P.T) + '<br>확률', c: 'num', s: x => ourStats(x.h)?.pT(P.T) ?? null, v: x => { const o = ourStats(x.h); return o ? fmtP(o.pT(P.T)) : '–'; }},
+    {id: 'osp', g: 're', l: '광고비' + sm('GMV Max'), c: 'num', s: x => ourStats(x.h)?.spend ?? null, v: x => { const o = ourStats(x.h); return o ? fmt$(o.spend) : '–'; }},
+    {id: 'oroi', g: 're', l: MN() + sm(MSUB()), c: 'num', s: x => partnerROI(x.h)?.roi ?? null, v: x => { const r = partnerROI(x.h); return r ? fmtM(r.roi) : '–'; }},
+    {id: 'fee', g: 'collab', l: '우리 협업 이력' + sm('유상 · gifted'), c: '', s: x => { const a = S.collabBy[x.h.toLowerCase()]; return a ? (a.paidN ? a.paidFee / a.paidN : 0.001 * a.gifted) : null; }, v: x => ourFeeCell(x.h)},
+  ];
+  const byId = Object.fromEntries(COLS.map(c => [c.id, c]));
+  S.poolGroups = {}; COLS.forEach(c => (S.poolGroups[c.g] || (S.poolGroups[c.g] = [])).push(c.id));
+  let saved = []; try { saved = JSON.parse(localStorage.getItem('poolColOrder') || '[]'); } catch {}
+  const order = saved.filter(id => byId[id]).concat(COLS.map(c => c.id).filter(id => !saved.includes(id)));
+  S.poolOrder = order;
+  let hidden = []; try { hidden = JSON.parse(localStorage.getItem('poolHidden') || '[]'); } catch {}
+  const vis = order;   // 숨긴 열도 자리 유지 → 좁은 + 칸으로 접힘
+  // 엑셀식 묶음 접기: 접힌 묶음은 좁은 '+' 칸 하나로 남김 (보는 사람 브라우저에 저장)
+  let coll = []; try { coll = JSON.parse(localStorage.getItem('poolCollapsed') || '[]'); } catch {}
+  const visC = [], seenG = new Set();
+  vis.forEach(id => { const g = byId[id].g; if (coll.includes(g)){ if (!seenG.has(g)){ seenG.add(g); visC.push('__g_' + g); } return; }
+    visC.push(hidden.includes(id) ? '__c_' + id : id); });   // 열마다 따로 접힘 (옆 열과 묶지 않음)
+  const runIds = id => id.slice(4).split(','), runNames = id => runIds(id).map(k => plain(byId[k])).join(', ');
+  const gOf = id => id.startsWith('__g_') ? id.slice(4) : id.startsWith('__c_') ? byId[runIds(id)[0]].g : byId[id].g;
+  const runs = []; visC.forEach(id => { const g = gOf(id); if (runs.length && runs[runs.length - 1].g === g) runs[runs.length - 1].n++; else runs.push({g, n: 1}); });
+  const plain = c => c.l.replace(/<br>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const kf = V.sort === 'h' ? (x => x.h) : V.sort === 'lv' ? (x => lvOf(x).v) : (byId[V.sort]?.s || byId.gmv.s);
+  rows = [...rows].sort((a, b) => { const x = kf(a), y = kf(b); if (x == null) return 1; if (y == null) return -1; return (x > y ? 1 : x < y ? -1 : 0) * V.dir; });
+  const per = 100, pages = Math.max(1, Math.ceil(rows.length / per)); V.page = Math.min(V.page, pages - 1);
+  const slice = rows.slice(V.page * per, V.page * per + per);
+  const arrow = k => V.sort === k ? (V.dir < 0 ? ' ▼' : ' ▲') : '';
+  const brandCount = {}; u.forEach(x => (x.m?.compList || []).forEach(c => brandCount[c.b] = (brandCount[c.b] || 0) + 1));
+  const brands = Object.entries(brandCount).sort((a, b) => b[1] - a[1]).slice(0, 120);
+  const sel = (k, label, opts) => `<div class="field"><label for="pf-${k}">${label}</label><select id="pf-${k}" data-pfx="${k}">${opts.map(([v, l]) => `<option value="${esc(v)}" ${String(P[k]) === String(v) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div>`;
+  const num = (k, label, ph, step = 1) => `<div class="field"><label for="pf-${k}">${label}</label><input id="pf-${k}" type="number" min="0" step="${step}" placeholder="${ph}" data-pfx="${k}" data-key="pf|${k}" value="${esc(dv('pf|' + k, P[k]))}"></div>`;
+  const YN = [['any', '전체'], ['yes', '예'], ['no', '아니오']];
+  const owners = [...new Set(Object.values(S.status).map(s => s.owner).filter(Boolean))].sort();
+  const GL = {base: '기본 (Reacher)', team: '팀 · 연락', fm: `FastMoss 분석 영상 (숏폼 · 기준일 ${A.baseDate} 직전 ${A.days}일 ∩ 최근 ${A.screenN}개 · 라이브 제외 · 추정)`, live: 'FastMoss 라이브', re: '우리 파트너 콘텐츠 (Reacher 실측)', collab: '우리 협업 이력'};
+  $('v-pool').innerHTML = `
+    ${saveBar()}
+    <div class="form pf">
+      ${sel('lv', '레벨', [['any', '전체']].concat([...new Set(u.map(x => lvOf(x).v).filter(l => l != null))].sort((a, b) => a - b).map(l => [String(l), `L${l} (${u.filter(x => lvOf(x).v === l).length}명)`]), u.some(x => lvOf(x).v == null) ? [['none', `레벨 없음 (${u.filter(x => lvOf(x).v == null).length}명)`]] : []))}
+      ${num('T', '분석 영상 GMV 기준 ($)', '250', 25)}${num('pMin', 'GMV ≥ 기준 확률 최소 (%)', '예: 20', 5)}${num('babyMin', '육아 비중 최소 (%)', '예: 30', 5)}${num('liveMin', '라이브 GMV 비중 최소 (%)', '예: 30', 5)}
+      ${sel('ours', '우리 제품 판매 (FastMoss)', YN)}${sel('comp', '경쟁사 협업', [['any', '전체'], ['yes', '있음'], ['no', '없음'], ['feed', '수유·이유식 경쟁사만']])}
+      ${sel('brand', '경쟁사 브랜드', [['', '전체 브랜드']].concat(brands.map(([b, n]) => [b, `${b} (${n}명)`])))}
+      ${sel('partner', '우리 파트너 콘텐츠 (Reacher)', YN)}${sel('email', '이메일 보유 (Reacher)', YN)}${sel('sent', '이메일 발송함', YN)}${sel('dm', 'Reacher DM 이력', YN)}
+      ${sel('stage', '상태', [['any', '전체'], ['none', '미등록']].concat(STAGES.map(s => [s, s])))}
+      ${(() => { const all = [...new Set(u.map(ownerOf).filter(Boolean))], ex = all.filter(o => !OWNERS.includes(o)).sort();
+        return sel('owner', '담당자', [['', '전체'], ['__none', '미지정']].concat(OWNERS.map(o => [o, o]), ex.map(o => [o, o + ' (기존)'])))
+          + sel('track', 'Track (노션 MOM)', [['any', '전체']].concat(Object.keys(TRACK).map(t => [t, `${t} (${u.filter(x => momOf(x.h)?.track === t).length}명)`]), [['none', 'Track 없음']]))
+          + sel('ncc', '협업 회차 (노션)', [['any', '전체'], ['re', '재협업 (2회차+)'], ['first', '첫 협업']]); })()}
+      <div class="field"><label for="pool-q">검색</label><input type="search" id="pool-q" placeholder="핸들 · 닉네임 · 카테고리 · 브랜드" value="${esc(V.q)}"></div>
+    </div>
+    <div class="row">${affSwitch()}${metricSwitch()}<label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" id="pf-pass" data-pfx="pass" ${P.pass ? 'checked' : ''}> 풀 기준 통과만 (L${A.minLevel}+)</label>
+      <span class="grow"></span><span class="muted" style="font-size:12px">열 머리를 끌어서 순서를 바꿀 수 있어요</span><button class="btn" id="col-reset">열 순서 초기화</button><button class="btn" id="pf-reset">필터 초기화</button></div>
+    <div class="legend">${Object.entries(GL).map(([g, l]) => { const ids = COLS.filter(c => c.g === g).map(c => c.id), allHidden = ids.every(id => hidden.includes(id));
+      return `<button class="lg g-${g} gtog" data-gtoggle="${g}" aria-pressed="${!allHidden}" title="이 묶음 열 전체 ${allHidden ? '보이기' : '숨기기'}">${allHidden ? '+' : '−'} ${l}</button>`; }).join('')}</div>
+    ${hidden.length ? `<div class="hiddencols"><span class="muted">접힌 열 ${hidden.length}개 · 맨 위 '접기 / 펴기' 줄의 + 로 펼칩니다</span><button class="chipbtn" data-showall="1">모두 펼치기</button></div>` : ''}
+    <div class="sub">${fmtN(rows.length)}명 · FastMoss 분석 영상 = 최근 ${A.days}일 ∩ 최근 ${A.screenN}개 (기준일 ${esc(A.baseDate)}) · 핸들이나 "분석 영상"을 누르면 영상별 GMV와 링크가 펼쳐집니다</div>
+    <datalist id="owners">${owners.map(o => `<option value="${esc(o)}"></option>`).join('')}</datalist>
+    <div class="tbl pooltbl"><table class="pool"><thead>
+      <tr class="foldrow"><th class="stk1 foldlbl">접기 / 펴기</th><th class="stk2"></th>${visC.map(id => { if (id.startsWith('__g_')) return '<th></th>';
+        if (id.startsWith('__c_')) return `<th class="strip" title="접힌 열: ${esc(runNames(id))}"><button class="stripbtn" data-showmany="${runIds(id).join(',')}" title="${esc(runNames(id))} 펴기" aria-label="${esc(runNames(id))} 열 펴기">+</button></th>`;
+        const c = byId[id]; return `<th><button class="foldbtn" data-hide="${id}" title="${esc(plain(c))} 접기" aria-label="${esc(plain(c))} 열 접기">−</button></th>`; }).join('')}</tr>
+      <tr>
+      <th class="stk1" data-sort="h">핸들${arrow('h')}</th><th class="stk2 num" data-sort="lv">레벨${arrow('lv')}</th>
+      ${visC.map(id => { if (id.startsWith('__c_')) return `<th class="strip" title="접힌 열: ${esc(runNames(id))}"></th>`; if (id.startsWith('__g_')){ const g = id.slice(4); return `<th class="gcol g-${g}" title="${esc(GL[g])} (접힘)"><button class="gbtn" data-pgx="${g}" aria-label="${esc(GL[g])} 펼치기">+</button></th>`; } const c = byId[id]; return `<th class="${c.c} g-${c.g}" draggable="true" data-col="${id}" data-sort="${id}" title="끌어서 순서 변경 · 눌러서 정렬">${c.l}${arrow(id)}</th>`; }).join('')}
+    </tr></thead>
+      <tbody>${slice.map(x => { const open = V.open && V.open[x.h];
+        return `<tr>
+        <td class="stk1"><button class="hbtn" data-hx="${esc(x.h)}" aria-expanded="${!!open}">${open ? '▾' : '▸'} @${esc(x.h)}</button> <a class="ext" href="https://www.tiktok.com/@${encodeURIComponent(x.h)}" target="_blank" rel="noopener" aria-label="@${esc(x.h)} TikTok 프로필" title="TikTok 프로필">↗</a>${x.p ? '' : ' <span class="pill fm">풀 밖</span>'}</td>
+        <td class="stk2 num">${(() => { const l = lvOf(x); return l.v != null ? (l.src ? `<span title="${esc(l.src)}">L${l.v}<sup>*</sup></span>` : 'L' + l.v) : '–'; })()}</td>
+        ${visC.map(id => { if (id.startsWith('__c_')) return '<td class="strip"></td>'; if (id.startsWith('__g_')) return '<td class="gcol"></td>'; const c = byId[id]; return `<td class="${c.c}">${c.v(x)}</td>`; }).join('')}</tr>
+        ${(S.cxOpen || {})[x.h] ? `<tr class="detail"><td colspan="${visC.length + 2}"><div class="detailwrap">${contactDetail(x.h)}</div></td></tr>` : ''}
+        ${open ? `<tr class="detail"><td colspan="${visC.length + 2}"><div class="detailwrap">${videoDetail(x)}</div></td></tr>` : ''}`; }).join('')}</tbody></table></div>
+    <p class="note">레벨 옆 <sup>*</sup> = Reacher 풀(Baby &amp; Maternity L2+ 검색)에 없는 크리에이터라 Reacher에서 개별 조회한 레벨(없으면 노션 Tier). 담당자는 Sue · Lea 중 지정, 노션에 있던 기존 담당(Sunny 등)은 그대로 보입니다. 참여율 두 가지: <b>Reacher engagement rate</b>는 Reacher 크리에이터 검색 값(계산식 비공개). <b>FastMoss 참여율</b> = (좋아요 + 댓글 + 공유) ÷ 조회수, 분석 영상 평균(원본 310개로 공식 확인). "최근 28일 영상 수"의 + 표시는 수집 상한 30개가 28일 안에서 찬 경우(실제는 더 많음). 이메일 발송은 팀이 체크(Reacher 이메일 자동화는 받는 사람 명단이 API로 나오지 않음), DM 이력은 Reacher 대화 목록에서 자동.</p>
+    <div class="pager"><button class="btn" data-pg="-1" ${V.page ? '' : 'disabled'}>이전</button><span>${V.page + 1} / ${pages}</span><button class="btn" data-pg="1" ${V.page < pages - 1 ? '' : 'disabled'}>다음</button></div>`;
+}
+function renderMarket(u){
+  const M = S.mkt, br = {}, pr = {};
+  let total = 0, unb = 0;
+  u.forEach(x => { if (!x.m || !x.m.scr) return; x.m.scr.forEach(v => (v.pp || []).forEach(([pid, g, un]) => {
+    const p = S.products[pid]; if (!p || p.c !== BABY || (M.feed && !p.feed)) return;
+    total += g; if (p.b === '미분류') unb += g;
+    const b = br[p.b] || (br[p.b] = {gmv: 0, units: 0, videos: 0, cr: {}, ours: p.ours, feed: 0});
+    b.gmv += g; b.units += un; b.videos++; b.cr[x.h] = (b.cr[x.h] || 0) + g; if (p.feed) b.feed++;
+    const q = pr[pid] || (pr[pid] = {p, gmv: 0, units: 0, cr: new Set()}); q.gmv += g; q.units += un; q.cr.add(x.h); })); });
+  if (!Object.keys(S.products).length){ $('v-market').innerHTML = '<p class="note">연결 상품 데이터가 있는 영상 버전(FastMoss API 수집분)을 데이터 버전 탭에서 고르면 시장 정보가 나옵니다.</p>'; return; }
+  const brands = Object.entries(br).map(([b, v]) => ({b, ...v, nc: Object.keys(v.cr).length})).sort((a, b) => b.gmv - a.gmv);
+  const prods = Object.values(pr).sort((a, b) => b.gmv - a.gmv).slice(0, 30);
+  $('v-market').innerHTML = `
+    <div class="row"><h2 class="grow">유아 브랜드 시장 · 풀 크리에이터 최근 영상 기준</h2>
+      <div class="seg"><button data-mf="0" aria-pressed="${!M.feed}">유아 전체</button><button data-mf="1" aria-pressed="${M.feed}">수유·이유식만</button></div></div>
+    <div class="kv"><span>유아 상품 영상 GMV <b>${fmt$(total)}</b></span><span>브랜드 <b>${fmtN(brands.length - (br['미분류'] ? 1 : 0))}</b>개</span><span>브랜드 미분류 GMV <b>${fmtP(total ? unb / total : null)}</b></span></div>
+    <p class="note">FastMoss 영상 귀속 GMV(추정, 광고 포함) · 각 크리에이터의 최근 ${S.A.days}일 ∩ 최근 ${S.A.screenN}개 영상 · 브랜드는 상품명으로 판정(미분류 = 상품명에 브랜드 없음). 브랜드를 누르면 그 브랜드를 판 크리에이터가 나옵니다.</p>
+    <div class="tbl"><table data-sid="mkt-brand"><thead><tr><th class="num">#</th><th>브랜드</th><th class="num">영상 GMV</th><th class="num">비중</th><th class="num">판매량</th><th class="num">크리에이터</th><th class="num">영상</th><th></th></tr></thead><tbody>
+      ${brands.slice(0, 40).map((b, i) => `<tr><td class="num">${i + 1}</td><td>${esc(b.b)} ${b.ours ? '<span class="pill re">우리</span>' : ''}${b.feed ? ' <span class="pill fm">수유·이유식</span>' : ''}</td>
+        <td class="num">${fmt$(b.gmv)}</td><td class="num">${fmtP(total ? b.gmv / total : null)}</td><td class="num">${fmtN(b.units)}</td><td class="num">${b.nc}</td><td class="num">${b.videos}</td>
+        <td><button class="btn" data-mb="${esc(b.b)}" aria-expanded="${M.open === b.b}">${M.open === b.b ? '닫기' : '크리에이터'}</button></td></tr>
+        ${M.open === b.b ? `<tr class="detail"><td colspan="8">${Object.entries(b.cr).sort((a, c) => c[1] - a[1]).slice(0, 50).map(([h, g]) => { const st = S.status[safeId(h)];
+          return `<a class="pill" style="margin:2px" href="https://www.tiktok.com/@${encodeURIComponent(h)}" target="_blank" rel="noopener">@${esc(h)} · ${fmt$(g)}${st ? ' · ' + esc(st.stage) : ''}</a>`; }).join('')}</td></tr>` : ''}`).join('')}</tbody></table></div>
+    <h2>상품 순위 (상위 30)</h2>
+    <div class="tbl"><table data-sid="mkt-prod"><thead><tr><th class="num">#</th><th>상품</th><th>브랜드</th><th class="num">가격</th><th class="num">영상 GMV</th><th class="num">판매량</th><th class="num">크리에이터</th></tr></thead><tbody>
+      ${prods.map((q, i) => `<tr><td class="num">${i + 1}</td><td style="white-space:normal;min-width:260px">${esc(q.p.t)}</td><td>${esc(q.p.b)}</td><td class="num">${q.p.pr != null ? '$' + q.p.pr : '–'}</td><td class="num">${fmt$(q.gmv)}</td><td class="num">${fmtN(q.units)}</td><td class="num">${q.cr.size}</td></tr>`).join('')}</tbody></table></div>`;
+}
+/* ---------- Fee Table: FastMoss 영상 GMV 기준 비율 ↔ Reacher 우리 광고 ROI 기준 비율 ---------- */
+function ranks(xs){ const o = xs.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]), r = new Array(xs.length); let i = 0;
+  while (i < o.length){ let j = i; while (j + 1 < o.length && o[j + 1][0] === o[i][0]) j++; for (let k = i; k <= j; k++) r[o[k][1]] = (i + j) / 2; i = j + 1; } return r; }
+function pearson(a, b){ const n = a.length; if (n < 3) return null; const ma = a.reduce((s, v) => s + v, 0) / n, mb = b.reduce((s, v) => s + v, 0) / n;
+  let sab = 0, saa = 0, sbb = 0; for (let i = 0; i < n; i++){ const x = a[i] - ma, y = b[i] - mb; sab += x * y; saa += x * x; sbb += y * y; }
+  return saa && sbb ? sab / Math.sqrt(saa * sbb) : null; }
+const spearman = (a, b) => pearson(ranks(a), ranks(b));
+const shareG = (x, T) => x.m.scr.filter(v => (v.gmv || 0) >= T).length / x.m.n;
+/* ROI 정의 하나로 통일: ROI = 우리 영상 GMV 전체(광고+자연 누적) ÷ (GMV Max 광고비 + 협업 Fee) — Partnered ROI 탭과 동일
+   영상별 ROI = 그 영상 GMV ÷ (그 영상 광고비 + 크리에이터 Fee ÷ 우리 영상 수). 비용 0(gifted·광고 없음) 영상은 ROI 계산 제외 */
+function videoROIs(h){
+  const k = h.toLowerCase(), r = partnerROI(k); if (!r) return [];
+  const sp = {}; (S.gmBy[k] || []).forEach(g => sp[g.id] = g.spend);
+  const feePer = r.n ? r.fee / r.n : 0;
+  return (S.ourBy[k] || []).map(v => { const cost = (sp[v.id] || 0) + feePer; return {id: v.id, gmv: v.gmv, spend: sp[v.id] || 0, fee: feePer, cost, roi: retOf(v.gmv, sp[v.id] || 0, feePer)}; });
+}
+const MDEF = {roas: 'ROAS = 우리 영상 GMV 전체(광고+자연) ÷ 광고비', roi: 'ROI = (우리 영상 GMV 전체 − 광고비 − Fee) ÷ (광고비 + Fee)'};
+const MSUB = () => S.metric === 'roi' ? '(GMV−광고비−Fee)÷(광고비+Fee)' : 'GMV 전체÷광고비';
+const MN = () => S.metric === 'roi' ? 'ROI' : 'ROAS';
+const fmtM = v => v == null || isNaN(v) ? '–' : S.metric === 'roi' ? (v >= 0 ? '+' : '') + Math.round(v * 100) + '%' : v.toFixed(2) + 'x';
+// ROAS: 광고비만 분모 (광고비 0이면 계산 안 함) · ROI: 광고비+Fee 분모 (둘 다 0이면 계산 안 함). COGS·TikTok 수수료는 넣지 않음
+const retOf = (gmv, spend, fee) => S.metric === 'roi' ? ((spend + fee) > 0 ? (gmv - spend - fee) / (spend + fee) : null) : (spend > 0 ? gmv / spend : null);
+const thrR = () => S.metric === 'roi' ? (S.ft.Ri ?? 0) / 100 : S.ft.R;
+const thrL = () => S.metric === 'roi' ? (S.ft.Ri ?? 0) + '%' : S.ft.R + 'x';
+const thrFmt = R => S.metric === 'roi' ? Math.round(R * 100) + '%' : R + 'x';
+const RTS = () => S.metric === 'roi' ? [-0.5, 0, 0.5, 1] : RT;
+const metricSwitch = () => `<div class="seg" role="group" aria-label="수익 지표"><span class="muted" style="font-size:12px;align-self:center">지표</span><button data-metric="roas" aria-pressed="${S.metric === 'roas'}" title="${MDEF.roas}">ROAS (광고비만)</button><button data-metric="roi" aria-pressed="${S.metric === 'roi'}" title="${MDEF.roi}">ROI (광고비+Fee)</button></div>`;
+function renderFee(){
+  const ourIds = new Set(S.ourv.map(v => v.id));
+  const ex = x => x._ex || (x._ex = x.m.scr);   // 분석 영상 전체 (우리 파트너 콘텐츠 포함)
+  const sG = (x, T) => { const v = ex(x); return v.length ? v.filter(z => (z.gmv || 0) >= T).length / v.length : null; };
+  const mdn = x => { const g = ex(x).map(v => v.gmv || 0).sort((p, q) => p - q), n = g.length; return n ? (n % 2 ? g[(n - 1) / 2] : (g[n / 2 - 1] + g[n / 2]) / 2) : null; };
+  const avg = x => { const v = ex(x); return v.length ? v.reduce((t, z) => t + (z.gmv || 0), 0) / v.length : null; };
+  const F = S.ft, TR = thrR(), TL = thrL(), RTx = RTS();
+  if (!S.ourv.length){ $('v-fee').innerHTML = '<p class="note">우리 샵 영상 데이터(Reacher)가 아직 없습니다.</p>'; return; }
+  const all = Object.keys(S.ourBy).map(h => { const key = S.lowerKey[h]; if (!key) return null; const x = {h, key, m: metrics(key), r: partnerROI(h)};
+      if (!x.m || !x.m.n || !x.r) return null; x._ex = null; if (!ex(x).length) return null; x.vr = videoROIs(h).filter(v => v.roi != null); return x; }).filter(Boolean);
+  const el = all.filter(x => x.r.n >= F.minN);
+  const shareR = (x, R) => x.vr.length ? x.vr.filter(v => v.roi >= R).length / x.vr.length : null;
+  const pairs = (fa, fb) => { const a = [], b = []; el.forEach(x => { const p = fa(x), q = fb(x); if (p != null && q != null){ a.push(p); b.push(q); } }); return [a, b]; };
+  const mat = GT.map(T => RTx.map(R => { const [a, b] = pairs(x => sG(x, T), x => shareR(x, R)); return a.length >= 5 ? spearman(a, b) : null; }));
+  let best = null; mat.forEach((row, i) => row.forEach((c, j) => { if (c != null && (!best || c > best.c)) best = {c, T: GT[i], R: RTx[j]}; }));
+  const pts = el.map(x => ({x, a: sG(x, F.T), b: shareR(x, TR)})).filter(p => p.a != null && p.b != null);
+  const sp = pts.length >= 3 ? spearman(pts.map(p => p.a), pts.map(p => p.b)) : null, pe = pts.length >= 3 ? pearson(pts.map(p => p.a), pts.map(p => p.b)) : null;
+  const cell = (c, T, R) => { const sel = T === F.T && Math.abs(R - TR) < 1e-9 ? 'outline:2px solid var(--fg);outline-offset:-2px;' : '';
+    const bg = c == null ? '' : `background:color-mix(in srgb, ${c >= 0 ? 'var(--reacher)' : 'var(--fm)'} ${Math.round(Math.abs(c) * 70)}%, var(--panel));color:${Math.abs(c) > 0.55 ? 'var(--panel)' : 'var(--fg)'};`;
+    return `<td class="num${c == null ? ' muted' : ''}" data-ftc="${T}|${R}" style="cursor:pointer;${sel}${bg}" title="영상 GMV ≥ $${T} · ${MN()} ≥ ${thrFmt(R)}">${c == null ? '–' : c.toFixed(2)}</td>`; };
+  const W = 440, H = 300, L = 46, B = 40, Tp = 12, R0 = 12, px = v => L + v * (W - L - R0), py = v => H - B - v * (H - B - Tp);
+  const ticks = [0, .25, .5, .75, 1];
+  const svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="크리에이터별 FastMoss 영상 GMV 기준 이상 비율과 우리 영상 ROI 기준 이상 비율 산점도" style="width:100%;max-width:${W}px;height:auto">
+    ${ticks.map(t => `<line x1="${px(0)}" x2="${px(1)}" y1="${py(t)}" y2="${py(t)}" stroke="var(--line)"/><text x="${L - 6}" y="${py(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${t * 100}%</text>
+      <text x="${px(t)}" y="${H - B + 16}" text-anchor="middle" font-size="11" fill="var(--muted)">${t * 100}%</text>`).join('')}
+    <text x="${(L + W - R0) / 2}" y="${H - 6}" text-anchor="middle" font-size="12" fill="var(--fg)">FastMoss 영상 GMV ≥ ${fmt$(F.T)} 비율</text>
+    <text x="12" y="${(Tp + H - B) / 2}" text-anchor="middle" font-size="12" fill="var(--fg)" transform="rotate(-90 12 ${(Tp + H - B) / 2})">우리 영상 ${MN()} ≥ ${TL} 비율</text>
+    ${pts.map(p => `<circle cx="${px(p.a).toFixed(1)}" cy="${py(p.b).toFixed(1)}" r="${Math.min(9, 3 + p.x.r.n)}" fill="var(--reacher)" fill-opacity="0.45" stroke="var(--reacher)"><title>@${esc(p.x.h)} · 영상 GMV≥${F.T} ${fmtP(p.a)} · ${MN()}≥${TL} ${fmtP(p.b)} · 우리 영상 ${p.x.r.n}개</title></circle>`).join('')}
+  </svg>`;
+  const rows = [...el].sort((p, q) => q.r.gmv - p.r.gmv);
+  const BANDS = [['0%', p => p === 0], ['1–10%', p => p > 0 && p <= .1], ['11–30%', p => p > .1 && p <= .3], ['31%+', p => p > .3]];
+  const bands = BANDS.map(([l, f]) => { const xs = el.filter(x => { const v = sG(x, F.T); return v != null && f(v); }), vs = xs.flatMap(x => x.vr);
+    const g = xs.reduce((t, x) => t + x.r.gmv, 0), s = xs.reduce((t, x) => t + x.r.spend, 0), fe = xs.reduce((t, x) => t + x.r.fee, 0), n = xs.reduce((t, x) => t + x.r.n, 0);
+    const cr = xs.map(x => x.r.roi).filter(v => v != null).sort((a, b) => a - b);
+    return {l, n: xs.length, vids: n, g, s, fe, roi: retOf(g, s, fe), med: cr.length ? cr[Math.floor(cr.length / 2)] : null,
+      hit: vs.length ? vs.filter(v => v.roi >= TR).length / vs.length : null}; });
+  const [sa, sb] = pairs(x => sG(x, F.T), x => x.r.roi), spAll = sa.length >= 3 ? spearman(sa, sb) : null;
+  $('v-fee').innerHTML = `
+    <div class="row">${affSwitch()}${metricSwitch()}</div>
+    <p class="note"><b>${MDEF[S.metric]}</b> — Partnered 탭과 같은 정의, COGS · TikTok 수수료 미반영. Fee 는 TikTok 유상 협업(Reacher 리테이너 · PayPal 정산 중 TikTok 포함 건), gifted 는 $0. 영상별 값은 그 영상 GMV · 그 영상 광고비 · (크리에이터 Fee ÷ 우리 영상 수)로 계산하고, 분모가 0인 영상(ROAS: 광고 없음 · ROI: 광고·Fee 모두 없음)은 뺍니다.</p>
+    <div class="row"><h2 class="grow">ROI 수집 필요성 체크 · 과거 영상 GMV ≥ ${fmt$(F.T)} 확률별 우리 실측 ${MN()}</h2></div>
+    <div class="tbl"><table data-sid="roi-band"><thead>
+      <tr class="grp"><th class="g-fm">크리에이터 분석 영상 · FastMoss</th><th colspan="8" class="g-re">우리 파트너 콘텐츠 · Reacher 실측</th></tr>
+      <tr><th class="g-fm">영상 GMV ≥ ${fmt$(F.T)} 확률<br><small>최근 ${S.A.screenN}개</small></th><th class="num g-re">크리에이터</th><th class="num g-re">우리 영상</th><th class="num g-re">우리 GMV 전체</th><th class="num g-re">광고비</th><th class="num g-re">Fee</th><th class="num g-re">${MN()}<br><small>${MSUB()}</small></th><th class="num g-re">크리에이터별 ${MN()} 중간값</th><th class="num g-re">영상 중 ${MN()} ≥ ${TL} 비율</th></tr></thead><tbody>
+      ${bands.map(b => `<tr><td><b>${b.l}</b></td><td class="num">${b.n}</td><td class="num">${b.vids}</td><td class="num">${fmt$(b.g)}</td><td class="num">${fmt$(b.s)}</td><td class="num">${fmt$(b.fe)}</td><td class="num">${fmtM(b.roi)}</td><td class="num">${fmtM(b.med)}</td><td class="num">${fmtP(b.hit)}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="kv"><span>순위 상관 (영상 GMV ≥ ${fmt$(F.T)} 확률 ↔ 크리에이터 ${MN()}) <b>${spAll == null ? '–' : spAll.toFixed(2)}</b> · n=${sa.length}</span><span class="muted">아래 기준값을 바꾸면 이 표도 같이 바뀝니다</span></div>
+    <div class="row"><h2 class="grow">Fee Table · 소재당 GMV 확률 ↔ 우리 영상 ${MN()} 확률</h2></div>
+    <p class="note">x = FastMoss 영상(최근 ${S.A.days}일 ∩ 최근 ${S.A.screenN}개) 중 영상 GMV ≥ 기준 비율 · y = 우리 영상 중 ${MN()} ≥ 기준 비율 (${MDEF[S.metric]}).</p>
+    <div class="row">
+      <div class="field"><label for="ft-T">영상 GMV 기준 ($)</label><input id="ft-T" type="number" min="0" step="25" data-ft="T" value="${F.T}"></div>
+      ${S.metric === 'roi' ? `<div class="field"><label for="ft-Ri">ROI 기준 (%)</label><input id="ft-Ri" type="number" step="10" data-ft="Ri" value="${F.Ri ?? 0}"></div>` : `<div class="field"><label for="ft-R">ROAS 기준 (x)</label><input id="ft-R" type="number" min="0" step="0.1" data-ft="R" value="${F.R}"></div>`}
+      <div class="field"><label for="ft-N">최소 우리 영상 수</label><input id="ft-N" type="number" min="1" max="20" step="1" data-ft="minN" value="${F.minN}"></div>
+      <div class="kv grow"><span>크리에이터 <b>${el.length}</b>명 (전체 겹침 ${all.length})</span><span>Spearman <b>${sp == null ? '–' : sp.toFixed(2)}</b></span><span>Pearson <b>${pe == null ? '–' : pe.toFixed(2)}</b></span>
+        ${best ? `<span>가장 높은 조합 <b>영상 GMV ≥ ${fmt$(best.T)} · ${MN()} ≥ ${thrFmt(best.R)} = ${best.c.toFixed(2)}</b></span>` : ''}</div>
+    </div>
+    <div class="row" style="align-items:flex-start;gap:20px">
+      <div class="tbl" style="flex:0 1 auto"><table><thead><tr><th>영상 GMV ＼ ROI</th>${RTx.map(R => `<th class="num">≥ ${thrFmt(R)}</th>`).join('')}</tr></thead><tbody>
+        ${GT.map((T, i) => `<tr><td>≥ ${fmt$(T)}</td>${mat[i].map((c, j) => cell(c, T, RTx[j])).join('')}</tr>`).join('')}
+      </tbody></table></div>
+      <div style="flex:1 1 360px;min-width:0">${svg}</div>
+    </div>
+    <p class="note">칸을 누르면 그 기준으로 바뀝니다. 크리에이터 수가 적고 40개 조합 중 가장 높은 값을 고르는 것이라 우연히 높게 나올 수 있습니다. 경향은 여러 칸에서 비슷하게 나오는지로 봅니다.</p>
+    <div class="legend"><span class="lg g-fm">크리에이터 분석 영상 · FastMoss (크리에이터 풀과 같은 영상: 최근 ${S.A.days}일 ∩ 최근 ${S.A.screenN}개, 다른 브랜드 포함, 추정)</span><span class="lg g-re">우리 파트너 콘텐츠 · Reacher 실측 (우리 샵 영상 GMV 전체 · GMV Max 광고비 · 협업 Fee)</span></div>
+    <div class="tbl"><table data-sid="fee" class="fee"><thead>
+      <tr class="grp"><th></th><th colspan="5" class="g-fm">크리에이터 · 분석 영상 · Reacher 레벨 + FastMoss</th><th colspan="9" class="g-re">우리 파트너 콘텐츠 · Reacher</th><th colspan="2"></th></tr>
+      <tr><th>핸들</th>
+        <th class="num g-fm">레벨<br><small>Reacher</small></th><th class="g-fm">분석 영상<br><small>개수 · 기간</small></th><th class="num g-fm">영상 GMV<br>중간값</th><th class="num g-fm">영상 GMV<br>평균</th><th class="num g-fm">영상 GMV ≥ ${fmt$(F.T)}<br>확률</th>
+        <th class="num g-re">우리<br>영상 수</th><th class="num g-re">우리 GMV<br>전체</th><th class="num g-re">우리 영상당<br>GMV</th><th class="num g-re">우리 GMV ≥ ${fmt$(F.T)}<br>확률</th><th class="num g-re">광고비</th><th class="num g-re">영상당<br>광고비</th><th class="num g-re">Fee</th><th class="num g-re">${MN()}<br><small>${MSUB()}</small></th><th class="num g-re">${MN()} ≥ ${TL}<br>영상 비율</th>
+        <th>우리 협업 이력</th><th>상태</th></tr></thead><tbody>
+      ${rows.map(x => { const st = S.status[safeId(x.key)] || notionStatus(x.key), o = ourStats(x.key), m = x.m, r = x.r;
+        return `<tr><td><button class="hbtn" data-fx="${esc(x.key)}" aria-expanded="${!!S.feeOpen[x.key]}">${S.feeOpen[x.key] ? '▾' : '▸'} @${esc(x.key)}</button> <a class="ext" href="https://www.tiktok.com/@${encodeURIComponent(x.key)}" target="_blank" rel="noopener" aria-label="TikTok 프로필">↗</a></td>
+          <td class="num">${S.poolH.get(x.key)?.lv != null ? 'L' + S.poolH.get(x.key).lv : '–'}</td><td class="muted">${ex(x).length}개 · ${m.range ? m.range[0].slice(5) + '~' + m.range[1].slice(5) : ''}</td><td class="num">${fmt$(mdn(x))}</td><td class="num">${fmt$(avg(x))}</td><td class="num">${fmtP(sG(x, F.T))}</td>
+          <td class="num">${r.n}</td><td class="num">${fmt$(r.gmv)}</td><td class="num">$${r.perVideo.toFixed(1)}</td><td class="num">${o ? fmtP(o.pT(F.T)) : '–'}</td>
+          <td class="num">${fmt$(r.spend)}</td><td class="num">$${(r.spend / r.n).toFixed(1)}</td><td class="num">${r.feeN ? fmt$(r.fee) : '<span class="muted">gifted $0</span>'}</td><td class="num"><b>${fmtM(r.roi)}</b></td><td class="num">${fmtP(shareR(x, TR))}</td>
+          <td>${ourFeeCell(x.key)}</td><td>${st ? `<span class="pill ${pillCls(st.stage)}">${esc(st.stage)}</span>` : '<span class="muted">–</span>'}</td></tr>
+          ${S.feeOpen[x.key] ? `<tr class="detail"><td colspan="17"><div class="detailwrap">${videoDetail({h: x.key, m: x.m, p: S.poolH.get(x.key)})}</div></td></tr>` : ''}`; }).join('')}
+    </tbody></table></div>
+    <p class="note">우리 파트너 콘텐츠 = Reacher 우리 샵 제휴 영상 전체(누적 GMV 광고+자연) · ${esc(S.loaded_ov?.source || '')} · 광고비 = ${esc(S.loaded_gm?.source || '')}.</p>`;
+}
+/* ---------- 적정 단가: FastMoss GMV≥T 확률 구간별 우리 실측(영상당 GMV·광고비·Fee) → 목표 ROI 역산 ---------- */
+const BUCKETS = [['0%', p => p === 0], ['1–10%', p => p > 0 && p <= .1], ['10–30%', p => p > .1 && p <= .3], ['30%+', p => p > .3]];
+const bucketOf = p => (BUCKETS.find(([, f]) => f(p)) || ['–'])[0];
+function renderPrice(u){
+  const T = S.ft.T, R = S.A.roiTarget, P = S.price || (S.price = {ads: true, q: '', page: 0});
+  if (!S.ourv.length){ $('v-price').innerHTML = '<p class="note">우리 샵 영상별 GMV(Reacher) 데이터가 아직 없습니다.</p>'; return; }
+  const spendBy = {}; S.gm.forEach(x => { spendBy[x.h] = (spendBy[x.h] || 0) + x.spend; });
+  const feeOf = h => { const a = S.feeBy[h]; return a ? a.camps.filter(f => f.status !== 'archived').reduce((s, f) => s + (f.fee || 0), 0) : 0; }; // 리테이너 없으면 gifted = $0
+  const cal = BUCKETS.map(([b]) => ({b, hs: [], vids: 0, gmv: 0, spend: 0, fee: 0, per: []}));
+  Object.keys(S.ourBy).forEach(h => { const key = S.lowerKey[h]; const m = key && metrics(key); if (!m || !m.n) return;
+    const c = cal.find(c => c.b === bucketOf(shareG({m}, T))); const vs = S.ourBy[h];
+    c.hs.push(h); c.vids += vs.length; c.gmv += vs.reduce((s, v) => s + v.gmv, 0); c.spend += spendBy[h] || 0; c.fee += feeOf(h); vs.forEach(v => c.per.push(v.gmv)); });
+  cal.forEach(c => { c.gpv = c.vids ? c.gmv / c.vids : null; c.spv = c.vids ? c.spend / c.vids : null;
+    c.med = c.per.length ? [...c.per].sort((a, b) => a - b)[Math.floor(c.per.length / 2)] : null;
+    c.roi = c.spend + c.fee ? c.gmv / (c.spend + c.fee) : null;
+    c.fair = c.gpv == null ? null : Math.max(0, c.gpv / R - (P.ads ? c.spv : 0)); });
+  const fairCell = f => f == null ? '–' : f < 1 ? '<span class="pill good">Gifted ($0)</span>' : `<b>${fmt$(f)}</b>/개`;
+  const calBy = Object.fromEntries(cal.map(c => [c.b, c]));
+  let rows = u.filter(x => x.m && x.m.n).map(x => { const pg = shareG(x, T), b = bucketOf(pg); return {...x, pg, b, fair: calBy[b]?.fair, exp: calBy[b]?.gpv}; });
+  if (P.q){ const q = P.q.toLowerCase(); rows = rows.filter(x => x.h.toLowerCase().includes(q)); }
+  rows.sort((a, b) => b.pg - a.pg || (b.m.median || 0) - (a.m.median || 0));
+  const per = 100, pages = Math.max(1, Math.ceil(rows.length / per)); P.page = Math.min(P.page, pages - 1);
+  const F = feeStats();
+  $('v-price').innerHTML = `
+    <div class="row"><h2 class="grow">적정 단가 · 영상 1개당 얼마까지 줄 수 있나</h2>
+      <div class="seg"><button data-pa="1" aria-pressed="${P.ads}">광고비 포함 (GMV Max 집행)</button><button data-pa="0" aria-pressed="${!P.ads}">광고 없이 (오가닉)</button></div></div>
+    <p class="note">적정 단가 = 그 구간 크리에이터의 <b>우리 영상당 GMV(Reacher 실측, 광고+자연)</b> ÷ 목표 ROI ${R}${P.ads ? ' − 우리 영상당 광고비(GMV Max)' : ''}. 구간은 FastMoss 최근 영상 중 GMV ≥ ${fmt$(T)} 비율(기준은 Fee Table 탭, 목표 ROI는 기준값 탭에서 바꿈). 리테이너가 없는 협업은 Gifted로 보고 Fee $0. 계산 결과가 $1 미만이면 Gifted($0) 권장.</p>
+    <div class="tbl"><table><thead><tr><th>GMV ≥ ${fmt$(T)} 확률</th><th class="num">크리에이터</th><th class="num">우리 영상</th><th class="num">우리 영상당 GMV (평균)</th><th class="num">중간값</th><th class="num">영상당 광고비</th><th class="num">지급 Fee</th><th class="num">실제 ROI (GMV ÷ 광고비+Fee)</th><th>적정 단가</th></tr></thead><tbody>
+      ${cal.map(c => `<tr><td><b>${c.b}</b></td><td class="num">${c.hs.length}</td><td class="num">${c.vids}</td><td class="num">${c.gpv == null ? '–' : '$' + c.gpv.toFixed(1)}</td><td class="num">${c.med == null ? '–' : '$' + c.med.toFixed(0)}</td><td class="num">${c.spv == null ? '–' : '$' + c.spv.toFixed(1)}</td><td class="num">${fmt$(c.fee)}</td><td class="num">${fmtX(c.roi)}</td><td>${fairCell(c.fair)}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="kv"><span>지금 우리 평균 계약 단가 <b>${F.perVideo != null ? fmt$(F.perVideo) + '/개' : '–'}</b></span><span>우리 영상 데이터 <b>${fmtN(S.ourv.length)}</b>개 · ${esc(S.loaded_ov?.source || '')}</span></div>
+    <p class="note">표본이 작습니다(구간당 크리에이터 수 확인). 우리 영상 GMV는 대부분 $0이고 소수 영상이 평균을 끌어올려, 구간 평균이 영상 몇 개로 크게 바뀝니다. 2주마다 데이터가 쌓이면 다시 봅니다.</p>
+    <h2>크리에이터별 적정 단가 (풀 ${fmtN(rows.length)}명)</h2>
+    <div class="row"><input type="search" id="price-q" class="grow" placeholder="핸들 검색" value="${esc(P.q)}" aria-label="핸들 검색"></div>
+    <div class="tbl"><table><thead><tr><th>핸들</th><th class="num fmcol">GMV ≥ ${fmt$(T)} 확률</th><th>구간</th><th class="num fmcol">FastMoss GMV 중간값</th><th class="num">예상 우리 영상당 GMV</th><th>적정 단가</th><th class="num">업계 기준 (팔로워)</th><th>우리 과거 단가</th><th>상태</th></tr></thead><tbody>
+      ${rows.slice(P.page * per, P.page * per + per).map(x => `<tr><td><a href="https://www.tiktok.com/@${encodeURIComponent(x.h)}" target="_blank" rel="noopener">@${esc(x.h)}</a></td><td class="num">${fmtP(x.pg)}</td><td>${x.b}</td><td class="num">${fmt$(x.m.median)}</td><td class="num">${x.exp == null ? '–' : '$' + x.exp.toFixed(1)}</td><td>${fairCell(x.fair)}</td><td class="num">${fmtB(bench(x.p?.fol))}</td><td>${ourFeeCell(x.h)}</td><td>${x.st ? `<span class="pill ${pillCls(x.st.stage)}">${esc(x.st.stage)}</span>` : '<span class="muted">–</span>'}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="pager"><button class="btn" data-pp="-1" ${P.page ? '' : 'disabled'}>이전</button><span>${P.page + 1} / ${pages}</span><button class="btn" data-pp="1" ${P.page < pages - 1 ? '' : 'disabled'}>다음</button></div>`;
+}
+const pillCls = s => s === '네고완료' || s === '포스팅 완료' ? 'good' : s === '거절' ? 'bad' : s === '보류' ? '' : 'warn';
+
+function renderStatus(u){
+  const A = S.A, rows = u.filter(x => x.st).sort((a, b) => STAGES.indexOf(a.st.stage) - STAGES.indexOf(b.st.stage) || a.h.localeCompare(b.h));
+  const ids = rows.flatMap(x => [x.st.updatedBy, x.st.lastNoteBy]);
+  Object.values(S.notes).forEach(l => l.forEach(n => ids.push(n.by))); Object.values(S.logs).forEach(l => l.forEach(n => ids.push(n.by)));
+  names(ids);
+  const t16 = s => esc((s || '').slice(5, 16).replace('T', ' '));
+  const shown = v => v == null || v === '' ? '(빈칸)' : String(v);
+  const inp = (h, f, v, cls, label, type = 'text', extra = '') => `<input class="${cls}" type="${type}" ${extra} data-f="${f}" data-key="${esc(h + '|' + f)}" value="${esc(dv(h + '|' + f, v))}" aria-label="${label}">`;
+  $('v-status').innerHTML = rows.length ? `
+    ${saveBar()}
+    <div class="sub">${rows.length}명 (노션 기준 ${rows.filter(x => x.st.fromNotion).length}명 포함 · 노션 상태 → 보드 단계: 협업 확정·영상 제작 중 = 네고완료, 게시·정산 완료 = 포스팅 완료, 무응답 종료 = 거절, Fee = 노션 편당 단가) · 담당팀·접촉일·Fee·메모는 칸을 벗어나면 바로 저장, 상태·이메일 발송은 [변경사항 저장]으로 저장되고, 고친 사람과 시각이 이력에 남습니다 · 상태가 네고완료면 ROI 계산을 요청할 수 있습니다</div>
+    <div class="tbl"><table><thead><tr><th>핸들</th><th>상태</th><th>담당팀</th><th>담당자</th><th>최근 접촉일</th><th class="num">합의 Fee ($)</th><th>메모</th>
+      <th class="num">앵커 가격<br><small>±${A.anchorBand}%</small></th><th class="num">a 중간값</th><th class="num">b 평균</th><th class="num">기준값<br><small>(a+b)÷2</small></th><th class="num">기준값 넘긴<br>확률</th><th class="num fmcol">GMV 중간값</th><th class="num fmcol">≥${fmt$(A.shortTier)} 비율</th><th class="num fmcol">ROI ≥ ${A.roiTarget}</th><th>우리 협업 이력</th><th>이메일 발송</th><th class="num">Partnered ${MN()}</th><th>최근 수정</th><th>노트·이력</th></tr></thead>
+    <tbody>${rows.map(x => { const s = x.st, id = safeId(x.h), q = S.queue[id], open = S.open['st:' + x.h];
+      return `<tr data-h="${esc(x.h)}">
+        <td><a href="https://www.tiktok.com/@${encodeURIComponent(x.h)}" target="_blank" rel="noopener">@${esc(x.h)}</a></td>
+        <td><span class="${pend(x.h, 'stage') !== undefined ? 'dirty' : ''}"><select data-ps="${esc(x.h)}" aria-label="상태">${STAGES.map(o => `<option ${o === (pend(x.h, 'stage') ?? s.stage) ? 'selected' : ''}>${o}</option>`).join('')}</select></span></td>
+        <td>${inp(x.h, 'team', s.team, 'w-s', '담당팀')}</td>
+        <td>${ownerSel(x.h, s.owner, 'data-f="owner"', false)}</td>
+        <td>${inp(x.h, 'contact', s.contact, '', '최근 접촉일', 'date')}</td>
+        <td>${inp(x.h, 'fee', s.fee, 'w-s', '합의 Fee', 'number', 'min="0" step="1"')}</td>
+        <td>${inp(x.h, 'memo', s.memo, 'w-l', '메모')}</td>
+        <td class="num">${anchorCell(x.m)}</td><td class="num">${x.m && x.m.aMd != null ? fmt$(x.m.aMd) : '–'}</td><td class="num">${x.m && x.m.aMn != null ? fmt$(x.m.aMn) : '–'}</td><td class="num">${x.m && x.m.aBase != null ? fmt$(x.m.aBase) : '–'}</td><td class="num">${x.m && x.m.aP != null ? fmtP(x.m.aP) : '–'}</td><td class="num">${x.m ? fmt$(x.m.median) : '–'}</td><td class="num">${x.m ? fmtP(x.m.tier[A.shortTier]) : '–'}</td><td class="num">${x.m ? fmtP(x.m.roiRatio) : '–'}</td>
+        <td>${ourFeeCell(x.h)}</td><td><span class="${pend(x.h, 'emailed') !== undefined ? 'dirty' : ''}"><input type="checkbox" data-sent="${esc(x.h)}" ${(pend(x.h, 'emailed') ?? !!s.emailed) ? 'checked' : ''} ${S.db ? '' : 'disabled'} aria-label="@${esc(x.h)} 이메일 발송함"></span></td>
+        <td class="num">${(() => { const r = partnerROI(x.h); return r ? fmtM(r.roi) : '<span class="muted">–</span>'; })()}</td>
+        <td class="muted">${s.fromNotion ? `<a class="pill re" href="${esc(s.nUrl)}" target="_blank" rel="noopener" style="text-decoration:none" title="보드에 저장된 상태가 없어 노션 값을 보여줍니다. 칸을 고쳐 저장하면 보드 값이 우선합니다">노션 기준 · ${esc(s.nStatus)}</a>` : `<b>${esc(who(s.updatedBy))}</b> · ${t16(s.updatedAt)}`}</td>
+        <td><button class="btn" data-detail="${esc(x.h)}" aria-expanded="${!!open}">${open ? '닫기' : '노트' + (s.lastNoteAt ? ' · ' + esc(who(s.lastNoteBy)) + ' ' + t16(s.lastNoteAt).slice(0, 5) : '')}</button></td></tr>
+      ${open ? `<tr class="detail"><td colspan="20"><div class="notes">
+        <div class="col"><h2>노트</h2>
+          <div class="row"><textarea class="grow" rows="2" data-key="${esc('note|' + x.h)}" placeholder="노트 남기기 · 이름과 시각이 같이 저장됩니다" aria-label="노트">${esc(dv('note|' + x.h, ''))}</textarea>
+            <button class="btn primary" data-addnote="${esc(x.h)}" ${S.db ? '' : 'disabled'}>남기기</button></div>
+          ${(S.notes[id] || []).map(n => `<div class="nitem"><div class="nmeta"><b>${esc(who(n.by))}</b> · ${t16(n.at)}</div><div>${esc(n.text)}</div></div>`).join('') || '<p class="note">아직 노트가 없습니다.</p>'}</div>
+        <div class="col"><h2>변경 이력</h2>
+          ${(S.logs[id] || []).map(l => `<div class="nitem"><div class="nmeta"><b>${esc(who(l.by))}</b> · ${t16(l.at)}</div><div>${(l.changes || []).map(c => `${esc(FL[c.k] || c.k)}: ${esc(shown(c.from))} → <b>${esc(shown(c.to))}</b>`).join('<br>')}</div></div>`).join('') || '<p class="note">이력이 아직 없습니다.</p>'}</div>
+      </div></td></tr>` : ''}`; }).join('')}</tbody></table></div>`
+    : `<p class="note">아직 접근 대상이 없습니다. 크리에이터 풀 탭에서 "추림 통과"로 거른 뒤 <b>접근 대상 추가</b>를 누르면 여기에 쌓이고, 팀이 상태·담당·Fee·메모를 같이 고칠 수 있습니다.</p>`;
+}
+function roiBtn(h, q){
+  if (q && (q.state === 'pending' || q.state === 'running')) return `<span class="pill warn">${q.state === 'running' ? '수집 중' : '수집 대기'}</span>`;
+  return `<button class="btn fm" data-roi="${esc(h)}" ${S.db ? '' : 'disabled'}>${q && q.state === 'done' ? 'ROI 재계산' : 'ROI 계산'}</button>`;
+}
+
+/* Partnered ROI: 파트너십 이후 우리 파트너 콘텐츠 실측만 (Reacher). FastMoss 광고 ROI 는 쓰지 않음 */
+function partnerROI(h){
+  const k = h.toLowerCase(), vs = S.ourBy[k]; if (!vs || !vs.length) return null;
+  const gmv = vs.reduce((t, v) => t + v.gmv, 0), gm = S.gmBy[k] || [], spend = gm.reduce((t, v) => t + v.spend, 0), adRev = gm.reduce((t, v) => t + v.rev, 0);
+  const a = S.collabBy[k], feeRows = a ? a.rows.filter(r => r.paid && r.fee > 0 && /tiktok/i.test(r.ch || '') && !(r.src === 'reacher' && r.status === 'archived')) : [];
+  const fee = feeRows.reduce((t, r) => t + r.fee, 0), cost = spend + fee;
+  return {n: vs.length, gmv, perVideo: gmv / vs.length, spend, adRev, fee, feeN: feeRows.length, cost, get roi(){ return retOf(gmv, spend, fee); }};
+}
+/* 크리에이터별 우리 파트너 영상 목록 (Reacher 실측) — 영상마다 GMV · 광고비 · Fee 배분 · ROAS/ROI · 링크 */
+function partnerVideos(h){
+  const k = h.toLowerCase(), r = partnerROI(k), ours = [...(S.ourBy[k] || [])], sp = {}; (S.gmBy[k] || []).forEach(g => sp[g.id] = g);
+  const feePer = r && r.n ? r.fee / r.n : 0, ids = new Set(ours.map(v => v.id)), link = id => `https://www.tiktok.com/@${encodeURIComponent(h)}/video/${esc(id)}`;
+  const rowsU = ours.map(v => ({...v, g: sp[v.id]})).concat(Object.values(sp).filter(g => !ids.has(g.id)).map(g => ({id: g.id, posted: g.posted, gmv: null, p: g.title, g, out: true})))
+    .sort((p, q) => String(q.posted).localeCompare(String(p.posted)));
+  if (!rowsU.length) return '<p class="note">우리 파트너 영상이 없습니다.</p>';
+  return `<h2>@${esc(h)} · 우리 파트너 영상 ${rowsU.length}개 (Reacher 실측 · 영상 GMV = 누적 광고+자연)</h2>
+    <div class="tbl"><table data-sid="pv"><thead><tr><th>게시일</th><th class="num">영상 GMV</th><th class="num">판매량</th><th class="num">조회</th><th class="num">GMV Max 광고비</th><th class="num">Fee 배분</th><th class="num">${MN()}<br><small>${MSUB()}</small></th><th>상품 / 제목</th><th>링크</th></tr></thead><tbody>
+      ${rowsU.map(v => { const spd = v.g ? v.g.spend : 0, rv = v.out ? null : retOf(v.gmv, spd, feePer);
+        return `<tr><td><a href="${link(v.id)}" target="_blank" rel="noopener">${esc(String(v.posted || '').slice(0, 10))}</a></td><td class="num">${v.out ? '<span class="muted" title="우리 영상 목록 밖 (광고만 집행)">목록 밖</span>' : fmt$(v.gmv)}</td><td class="num">${v.out ? '–' : fmtN(v.units)}</td><td class="num">${v.out ? '–' : fmtK(v.views)}</td>
+          <td class="num">${v.g ? fmt$(v.g.spend) : '–'}</td><td class="num">${v.out ? '–' : (feePer ? fmt$(feePer) : 'gifted $0')}</td><td class="num">${v.out ? '–' : (rv != null ? fmtM(rv) : '<span class="muted">계산 안 함</span>')}</td>
+          <td class="muted">${esc(v.p || '')}</td><td><a href="${link(v.id)}" target="_blank" rel="noopener">TikTok</a> · <a href="https://www.fastmoss.com/media-source/video/${esc(v.id)}" target="_blank" rel="noopener">FastMoss</a></td></tr>`; }).join('')}
+    </tbody></table></div>`;
+}
+function renderRoi(u){
+  const A = S.A, rows = u.map(x => ({...x, r: partnerROI(x.h)})).filter(x => x.r);
+  const tot = rows.reduce((t, x) => ({gmv: t.gmv + x.r.gmv, spend: t.spend + x.r.spend, fee: t.fee + x.r.fee, n: t.n + x.r.n}), {gmv: 0, spend: 0, fee: 0, n: 0});
+  $('v-roi').innerHTML = `
+    <div class="row"><h2 class="grow">Partnered ${MN()} · 파트너십 이후 우리 콘텐츠 실측 (Reacher)</h2>${metricSwitch()}</div>
+    <p class="note"><b>${MDEF[S.metric]}</b> — Fee Table 과 같은 정의, COGS · TikTok 수수료 미반영. Fee 는 TikTok 채널 유상 협업(Reacher 리테이너 · PayPal 정산 중 TikTok 포함 건)만, gifted 는 $0. FastMoss 추정 광고 ROI 는 쓰지 않습니다. 데이터: ${esc(S.loaded_ov?.source || '')} · ${esc(S.loaded_gm?.source || '')}</p>
+    <div class="kv"><span>크리에이터 <b>${rows.length}</b>명</span><span>우리 영상 <b>${fmtN(tot.n)}</b>개</span><span>GMV <b>${fmt$(tot.gmv)}</b></span><span>광고비 <b>${fmt$(tot.spend)}</b></span><span>Fee <b>${fmt$(tot.fee)}</b></span>
+      <span>전체 ${MN()} <b>${fmtM(retOf(tot.gmv, tot.spend, tot.fee))}</b></span><span>${MN()} ≥ ${thrL()} <b>${rows.filter(x => x.r.roi != null && x.r.roi >= thrR()).length}</b>명</span></div>
+    <div class="tbl"><table data-sid="proi"><thead><tr><th>핸들</th><th>상태</th><th class="num">우리 영상</th><th class="num">우리 GMV</th><th class="num">영상당 GMV</th><th class="num">GMV Max 광고비</th><th class="num">영상당 광고비</th><th class="num">협업 Fee</th><th class="num">${MN()}<br><small>${MSUB()}</small></th><th>협업 이력</th></tr></thead><tbody>
+      ${rows.sort((p, q) => q.r.gmv - p.r.gmv).map(x => `<tr><td><button class="hbtn" data-rx="${esc(x.h)}" aria-expanded="${!!S.roiOpen[x.h]}">${S.roiOpen[x.h] ? '▾' : '▸'} @${esc(x.h)}</button> <a class="ext" href="https://www.tiktok.com/@${encodeURIComponent(x.h)}" target="_blank" rel="noopener" aria-label="TikTok 프로필">↗</a></td>
+        <td>${x.st ? `<span class="pill ${pillCls(x.st.stage)}">${esc(x.st.stage)}</span>` : '<span class="muted">–</span>'}</td>
+        <td class="num">${x.r.n}</td><td class="num">${fmt$(x.r.gmv)}</td><td class="num">$${x.r.perVideo.toFixed(1)}</td><td class="num">${fmt$(x.r.spend)}</td><td class="num">$${(x.r.spend / x.r.n).toFixed(1)}</td>
+        <td class="num">${x.r.feeN ? fmt$(x.r.fee) : '<span class="muted">gifted $0</span>'}</td><td class="num"><b>${fmtM(x.r.roi)}</b></td><td>${ourFeeCell(x.h)}</td></tr>
+        ${S.roiOpen[x.h] ? `<tr class="detail"><td colspan="10"><div class="detailwrap">${partnerVideos(x.h)}</div></td></tr>` : ''}`).join('') || '<tr><td colspan="10" class="muted">우리 파트너 콘텐츠가 있는 크리에이터가 없습니다</td></tr>'}
+    </tbody></table></div>`;
+}
+function renderAssume(){
+  const A = S.A, dirty = S.savedA ? Object.keys(DEFAULT_A).some(k => JSON.stringify(A[k]) !== JSON.stringify(S.savedA[k] ?? DEFAULT_A[k])) : true;
+  names(S.log.map(l => l.by).concat(S.savedA ? [S.savedA.updatedBy] : []));
+  const f = (id, label, val, hint, type = 'text', extra = '') => `<div class="field"><label for="a-${id}">${label}</label><input id="a-${id}" data-a="${id}" type="${type}" value="${esc(val)}" ${extra}><span class="hint">${hint}</span></div>`;
+  $('v-assume').innerHTML = `
+    <div class="row"><h2 class="grow">기준값</h2>
+      ${dirty ? '<span class="pill warn">이 화면에만 적용 중 · 저장 전</span>' : '<span class="pill good">팀 기준과 같음</span>'}
+      <button class="btn" id="a-reset">기본값</button><button class="btn" id="a-revert" ${S.savedA ? '' : 'disabled'}>팀 기준으로 되돌리기</button>
+      <button class="btn primary" id="a-save" ${S.db && dirty ? '' : 'disabled'}>팀 기준으로 저장</button></div>
+    <p class="note">입력하는 즉시 모든 탭이 다시 계산됩니다. 저장하면 팀 전체 화면에 같은 기준이 적용되고, 아래 변경 이력에 남습니다.</p>
+    <div class="form">
+      ${f('gmvTiers', '영상 GMV 기준 ($, 여러 개)', A.gmvTiers.join(', '), '쉼표로 구분 · 기준마다 비율 열이 생깁니다')}
+      ${f('unitTiers', '영상 판매량 기준 (개, 여러 개)', A.unitTiers.join(', '), '쉼표로 구분')}
+      ${f('shortTier', '추림 기준 GMV ($)', A.shortTier, '이 GMV 이상 영상 비율로 추립니다', 'number', 'min="0" step="10"')}
+      ${f('shortMinRatio', '추림 최소 비율 (%)', Math.round(A.shortMinRatio * 100), '위 기준 이상 영상 비율이 이 값 이상이면 통과', 'number', 'min="0" max="100" step="5"')}
+      ${f('shortMedian', '추림 최소 GMV 중간값 ($)', A.shortMedian, '0 = 조건 안 씀 · 영상 GMV 중간값이 이 값 이상이어야 통과', 'number', 'min="0" step="10"')}
+      ${f('babyMin', '육아 비중 기준 (%)', Math.round(A.babyMin * 100), '상품 붙은 영상 중 Baby & Maternity 상품 영상 비율 · 풀 필터에 사용', 'number', 'min="0" max="100" step="5"')}
+      ${f('screenN', '추림 지표 최근 영상 수', A.screenN, '기간 안 ∩ 최근 N개로 중간값·비율 계산 (웹 엑셀, 0크레딧)', 'number', 'min="1" max="200" step="1"')}
+      ${f('minLevel', '풀 최소 레벨', A.minLevel, 'Reacher 레벨 L0~L7', 'number', 'min="0" max="7" step="1"')}
+      ${f('minGmv', '풀 최소 플랫폼 GMV (円)', A.minGmv, 'FastMoss 28일 GMV', 'number', 'min="0" step="1000"')}
+      ${f('minFol', '풀 최소 팔로워', A.minFol, '', 'number', 'min="0" step="1000"')}
+      ${f('days', '영상 기간 (일)', A.days, '기준일로부터 최근 N일', 'number', 'min="1" step="1"')}
+      ${f('recentN', 'ROI 대상 최근 영상 수', A.recentN, '기간 안 ∩ 최근 N개만 FastMoss 수집', 'number', 'min="1" max="50" step="1"')}
+      ${f('anchorBand', '앵커 가격 범위 (± %)', A.anchorBand, '앵커 가격 = (영상 GMV 중간값 + 평균) ÷ 2 × 그 값을 넘긴 영상 비율 · 범위 = 앵커 × (1 ± 이 값)', 'number', 'min="0" max="100" step="5"')}
+      ${f('anchorTrim', '앵커 평균에서 뺄 상위 영상 수', A.anchorTrim, '한 방 영상으로 평균이 튀는 걸 막을 때 1 이상 (기본 0 = 빼지 않음)', 'number', 'min="0" max="5" step="1"')}
+      ${f('roiTarget', 'ROAS 기준 (x)', A.roiTarget, 'ROAS로 계산 · 자연 매출이 거의 없어 GMV Max ROI와 같게 봄', 'number', 'min="0" step="0.1"')}
+      ${f('baseDate', '기준일', A.baseDate, '보통 영상 RAW 버전 날짜', 'date')}
+    </div>
+    <h2>변경 이력</h2>
+    ${S.log.length ? `<div class="tbl"><table><thead><tr><th>시각</th><th>누가</th><th>변경</th></tr></thead><tbody>${S.log.map(l => `<tr><td>${esc(l.at.slice(0, 16).replace('T', ' '))}</td><td>${esc(who(l.by))}</td><td style="white-space:normal">${(l.changes || []).map(c => `${esc(c.k)}: ${esc(JSON.stringify(c.from))} → ${esc(JSON.stringify(c.to))}`).join('<br>') || '–'}</td></tr>`).join('')}</tbody></table></div>` : '<p class="note">저장된 변경이 아직 없습니다.</p>'}`;
+}
+
+function renderData(){
+  const ds = S.man.datasets, ads = Object.values(S.ads);
+  const due = v => { if (!v.refreshDays) return '–'; const d = new Date(v.id.slice(0,4) + '-' + v.id.slice(4,6) + '-' + v.id.slice(6,8)); d.setDate(d.getDate() + v.refreshDays); return d.toISOString().slice(0, 10); };
+  const block = (key, label) => `<h2>${label}</h2><div class="tbl"><table><thead><tr><th>사용</th><th>버전</th><th class="num">행</th><th>원천</th><th>빌드</th><th>다음 갱신</th><th>NAS 원본</th></tr></thead><tbody>
+    ${(ds[key] || []).slice().reverse().map(v => `<tr><td><input type="radio" name="ver-${key}" data-ver="${key}" value="${esc(v.id)}" ${S.loaded[key].id === v.id ? 'checked' : ''} aria-label="${esc(v.id)} 사용"></td>
+      <td><b>${esc(v.id)}</b></td><td class="num">${fmtN(v.rows)}</td><td>${esc(v.source)}</td><td class="muted">${esc(v.builtAt)}</td><td>${due(v)}</td><td class="muted" style="white-space:normal;word-break:break-all">${esc(v.nas)}</td></tr>`).join('')}</tbody></table></div>`;
+  const pv = S.loaded.pool, nextDue = due(pv), overdue = nextDue !== '–' && nextDue < new Date().toISOString().slice(0, 10);
+  const vid = (ds.videos || []).filter(v => v.notes && v.notes.api_ok), creditsLeft = vid.length ? vid[vid.length - 1].notes.credits_left : null;
+  $('v-data').innerHTML = `
+    <h2>보드 수정하기 (편집 권한 있는 누구나)</h2>
+    <p class="note">자기 Claude(Claude Code 또는 claude.ai)에 이 보드 링크를 주고 <b>"이 아티팩트 읽고 ○○ 로직 바꿔서 같은 링크로 다시 게시해줘"</b>라고 하면 됩니다. Claude는 먼저 <a href="data/README.md" target="_blank" rel="noopener">data/README.md</a>(탭·함수·공식·데이터 파일 정리)를 읽고 <code>index.html</code>만 고칩니다. 데이터 파일과 팀 입력(접근·네고 상태·노트)은 그대로 남습니다. 데이터를 새로 받는 일(Reacher·FastMoss 재수집)은 API 키가 있는 WJ PC에서만 할 수 있습니다.</p>
+    <h2>갱신 규칙</h2>
+    <div class="tbl"><table><thead><tr><th>대상</th><th>언제</th><th>무엇을</th><th class="num">FastMoss 비용</th></tr></thead><tbody>
+      <tr><td><b>Reacher 전체</b> (풀 · 우리 영상 · GMV Max · 협업 · DM)</td><td>2주마다 · 다음 <span class="pill ${overdue ? 'bad' : 'warn'}">${nextDue}${overdue ? ' 지남' : ''}</span></td><td>같은 조건으로 Reacher 검색을 다시 돌려 새 풀 버전 생성 · 마지막 갱신일 기록</td><td class="num">0</td></tr>
+      <tr><td><b>신규 크리에이터 영상</b></td><td>풀 갱신 직후</td><td>새 풀에서 <b>처음 보는 핸들만</b> 최근 ${S.A.days}일 ∩ 최근 ${S.A.screenN}개 수집 → 영상 새 버전 (기존 크리에이터 행은 그대로 이어 붙임)</td><td class="num">1명당 ${Math.ceil(S.A.screenN / 10)}크레딧</td></tr>
+      <tr><td><b>FastMoss 라이브</b></td><td>2주마다 (신규만)</td><td>라이브 분해(영상 vs 라이브 GMV 비중) 신규 전원 → 라이브 비중 높은 사람만 라이브 회차 목록 · 원본 NAS <code>Fastmoss/live_api/날짜/@핸들/</code></td><td class="num">1명당 1 + 10회차당 1크레딧</td></tr>
+      <tr><td><b>기존 크리에이터 영상 (FastMoss)</b></td><td>필요할 때만 (수동)</td><td>키 정보가 바뀐 크리에이터만 재수집: Reacher 레벨·플랫폼 GMV 변동, 연락 직전 최신 확인 등 (<code>--handles</code>)</td><td class="num">1명당 ${Math.ceil(S.A.screenN / 10)}크레딧</td></tr>
+      <tr><td><b>우리 협업 단가</b></td><td>2주마다 (풀 갱신과 같이)${S.loaded_fees ? ' · 마지막 ' + esc(S.loaded_fees.builtAt) : ''}</td><td>Reacher 리테이너 캠페인의 계약 Fee ÷ 계약 영상 수 = 크리에이터별·평균 단가, 실지급 ÷ 게시 영상 = 실지급 단가 · 아카이브 캠페인은 평균에서 제외 · 9/14 이전 PayPal 지급분은 Reacher 밖이라 미포함 · 업계 기준은 FastMoss 문서의 팔로워 구간표</td><td class="num">0</td></tr>
+      <tr><td><b>우리 콘텐츠 ROI</b> (계약 후 실측)</td><td>우리 제품 영상이 올라온 뒤 · 정기 갱신</td><td><b>Reacher 실측만 사용, FastMoss 안 씀</b> · 영상별 우리 샵 GMV(광고+자연) ÷ GMV Max 광고비 = 광고 ROI, ÷ (광고비 + 리테이너 Fee) = 총 ROI</td><td class="num">0</td></tr>
+    </tbody></table></div>
+    <p class="note">원본은 항상 NAS에 먼저 저장하고(크리에이터별 응답 원문 + 수집 기록), 보드는 그걸 날짜 버전으로 묶어 읽기만 합니다. 이전 버전은 지우지 않습니다.${creditsLeft != null ? ` 마지막 수집 후 FastMoss 잔여 크레딧 <b>${fmtN(creditsLeft)}</b>.` : ''}</p>
+    <p class="note">RAW는 버전별 파일로 쌓이고 지우지 않습니다. 사용 버전을 바꾸면 모든 계산이 그 버전 기준으로 다시 돌아가며, 저장된 기준값(팀 공유)에 함께 기록됩니다. NAS 사본: <span class="muted">reacher_fastmoss\\raw_data\\versions\\</span></p>
+    ${block('pool', '크리에이터 풀 (Reacher)')}${block('videos', '영상 (FastMoss 웹 엑셀)')}
+    <h2>광고비 RAW (FastMoss, ROI 수집분)</h2>
+    <div class="kv"><span>영상 <b>${fmtN(ads.length)}</b>개</span><span>크리에이터 <b>${fmtN(new Set(ads.map(a => a.h)).size)}</b>명</span>
+      <span>최근 수집 <b>${esc((ads.map(a => a.collectedAt || '').sort().pop() || '–').slice(0, 16).replace('T', ' '))}</b></span></div>`;
+}
+
+/* ---------- 이벤트 ---------- */
+const parseList = s => String(s).split(/[,\s]+/).map(Number).filter(n => !isNaN(n) && n >= 0).sort((a, b) => a - b);
+/* 열 끌어서 순서 바꾸기 (크리에이터 풀) — 보는 사람 브라우저에 저장 */
+document.addEventListener('dragstart', e => { const th = e.target.closest && e.target.closest('th[data-col]'); if (!th) return; S.dragCol = th.dataset.col; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', th.dataset.col); } catch {} });
+document.addEventListener('dragover', e => { const th = e.target.closest && e.target.closest('th[data-col]'); if (th && S.dragCol){ e.preventDefault(); document.querySelectorAll('th.dropto').forEach(x => x.classList.remove('dropto')); th.classList.add('dropto'); } });
+document.addEventListener('drop', e => { const th = e.target.closest && e.target.closest('th[data-col]'); if (!th || !S.dragCol) return; e.preventDefault();
+  const o = [...S.poolOrder], from = o.indexOf(S.dragCol), to = o.indexOf(th.dataset.col); S.dragCol = null;
+  if (from < 0 || to < 0 || from === to) { render(); return; }
+  o.splice(to, 0, o.splice(from, 1)[0]); try { localStorage.setItem('poolColOrder', JSON.stringify(o)); } catch {} S.noSortClick = Date.now(); render(); });
+document.addEventListener('dragend', () => { S.dragCol = null; document.querySelectorAll('th.dropto').forEach(x => x.classList.remove('dropto')); });
+/* 공용 정렬: data-sid 표의 머리를 누르면 내림차순 → 오름차순 (셀 텍스트를 숫자로 읽음) */
+const parseCell = t => { t = (t || '').trim(); if (!t || t === '–') return null; const m = t.replace(/,/g, '').match(/-?\d+(\.\d+)?/); if (!m) return t.toLowerCase();
+  let n = parseFloat(m[0]); const rest = t.slice(t.indexOf(m[0]) + m[0].length, t.indexOf(m[0]) + m[0].length + 1); if (rest === 'K') n *= 1e3; if (rest === 'M') n *= 1e6; return n; };
+const hidGet = sid => { try { return JSON.parse(localStorage.getItem('hid:' + sid) || '[]'); } catch { return []; } };
+const hidSet = (sid, v) => { try { localStorage.setItem('hid:' + sid, JSON.stringify([...new Set(v)])); } catch {} };
+function applySorts(){
+  document.querySelectorAll('table[data-sid]').forEach(tbl => { const sid = tbl.dataset.sid, st = S.tsort[sid];
+    const hr = tbl.tHead ? tbl.tHead.rows[tbl.tHead.rows.length - 1] : null; if (!hr) return;
+    const ths = [...hr.cells], keys = ths.map(th => th.textContent.replace(/\s+/g, ' ').trim()), hid = hidGet(sid);
+    ths.forEach((th, i) => { th.dataset.si = i; th.classList.add('sortable'); th.dataset.arrow = st && st.i === i ? (st.dir < 0 ? ' ▼' : ' ▲') : '';
+    });
+    if (!tbl.tHead.querySelector('tr.foldrow')){ const fr = document.createElement('tr'); fr.className = 'foldrow';
+      ths.forEach((th, i) => { const c = document.createElement('th'); if (i === 0){ c.textContent = '접기 / 펴기'; c.className = 'foldlbl'; }
+        else { const col = hid.includes(keys[i]), b = document.createElement('button'); b.className = 'foldbtn' + (col ? ' is-col' : ''); b.textContent = col ? '+' : '−';
+          b.title = keys[i] + (col ? ' 펴기' : ' 접기'); b.setAttribute('aria-label', keys[i] + ' 열 ' + (col ? '펴기' : '접기'));
+          if (col) b.dataset.tshow = sid + '|' + keys[i]; else b.dataset.thide = sid + '|' + keys[i]; c.append(b); }
+        fr.append(c); });
+      tbl.tHead.insertBefore(fr, hr); }
+    // 정렬
+    if (st){ const tb = tbl.tBodies[0], groups = [];
+      [...tb.rows].forEach(r => { if (r.classList.contains('detail') && groups.length) groups[groups.length - 1].push(r); else groups.push([r]); });
+      const val = g => parseCell(g[0].cells[st.i]?.innerText);
+      groups.sort((a, b) => { const x = val(a), y = val(b); if (x == null) return 1; if (y == null) return -1;
+        if (typeof x === 'number' && typeof y === 'number') return (x - y) * st.dir; return String(x).localeCompare(String(y)) * st.dir; });
+      groups.flat().forEach(r => tb.appendChild(r)); }
+    // 열 접기 (헤더 텍스트 기준 · 보는 사람 브라우저에 저장): 연속으로 접힌 열은 사라지고 그 자리에 얇은 띠 하나 + 펴기 버튼
+    const hideIdx = new Set(keys.map((k, i) => hid.includes(k) ? i : -1).filter(i => i > 0));
+    const runStart = new Map(); let prev = -2, cur = null;
+    [...hideIdx].sort((x, y) => x - y).forEach(i => runStart.set(i, [i]));   // 열마다 따로 접힘
+    const grp = tbl.tHead.rows.length > 2 ? tbl.tHead.rows[0] : null;
+    [...tbl.rows].forEach(r => { if (r.classList.contains('detail') || r === grp) return;
+      [...r.cells].forEach((c, i) => { if (!hideIdx.has(i)) return;
+        if (!runStart.has(i)){ c.style.display = 'none'; return; }
+        const run = runStart.get(i), names = run.map(k => keys[k]).join(', ');
+        c.className = 'strip'; c.innerHTML = ''; c.title = '접힌 열: ' + names;
+        if (r.classList.contains('foldrow')){ const b = document.createElement('button'); b.className = 'stripbtn'; b.textContent = '+'; b.title = names + ' 펴기';
+          b.setAttribute('aria-label', names + ' 열 펴기'); b.dataset.tshowmany = sid + '|' + run.map(k => keys[k]).join('§'); c.append(b); } }); });
+    // 묶음 머리줄: 접힌 열만큼 colspan 줄이고(띠는 1칸으로 셈), 묶음 접기 버튼
+    if (grp){ let col = 0; [...grp.cells].forEach(c => { const span = Number(c.dataset.span0 || c.colSpan || 1), idx = [...Array(span).keys()].map(k => col + k); col += span;
+        c.dataset.span0 = span; const vis = idx.filter(i => !hideIdx.has(i) || runStart.has(i)).length;
+        if (vis === 0) c.style.display = 'none'; else c.colSpan = vis;
+        if (span > 1 && c.textContent.trim() && !c.querySelector('.gbtn')){ const b = document.createElement('button'); b.className = 'gbtn';
+          b.textContent = '− 접기'; b.dataset.tgrp = sid + '|' + idx.filter(i => i > 0).map(i => keys[i]).join('§'); c.append(' ', b); } }); }
+    // 숨긴 열 목록 (+ 다시 보이기)
+    const wrap = tbl.closest('.tbl'); let bar = wrap && wrap.previousElementSibling && wrap.previousElementSibling.classList.contains('hiddencols') ? wrap.previousElementSibling : null;
+    const shown = hid.filter(k => keys.includes(k));
+    if (shown.length && wrap){ if (!bar){ bar = document.createElement('div'); bar.className = 'hiddencols'; wrap.before(bar); }
+      bar.innerHTML = `<span class="muted">접힌 열 ${shown.length}개 · 맨 위 '접기 / 펴기' 줄의 + 로 펼칩니다</span><button class="chipbtn" data-tshowall="${esc(sid)}">모두 펼치기</button>`; }
+  });
+}
+document.addEventListener('click', async e => {
+  const hb = e.target.closest('[data-thide],[data-tshow],[data-tshowall],[data-tgrp],[data-tshowmany]');
+  if (hb){ const d = hb.dataset; if (d.tshowmany){ const [sid, ks] = d.tshowmany.split('|'); const list = ks.split('§'); hidSet(sid, hidGet(sid).filter(k => !list.includes(k))); }
+    if (d.thide){ const [sid, k] = d.thide.split('|'); hidSet(sid, hidGet(sid).concat(k)); }
+    if (d.tshow){ const [sid, k] = d.tshow.split('|'); hidSet(sid, hidGet(sid).filter(x => x !== k)); }
+    if (d.tshowall) hidSet(d.tshowall, []);
+    if (d.tgrp){ const [sid, ks] = d.tgrp.split('|'); const list = ks.split('§'); const h = hidGet(sid); const allHidden = list.every(k => h.includes(k)); hidSet(sid, allHidden ? h.filter(k => !list.includes(k)) : h.concat(list)); }
+    render(); return; }
+  const sth = e.target.closest('table[data-sid] thead th');
+  if (sth && !sth.closest('tr.foldrow') && !sth.closest('tr.grp') && !e.target.closest('button, a, input, select')){ const sid = sth.closest('table').dataset.sid, i = Number(sth.dataset.si), cur = S.tsort[sid];
+    S.tsort[sid] = {i, dir: cur && cur.i === i ? -cur.dir : -1}; render(); return; }
+  const c = e.target.closest('td[data-ftc]');
+  if (c){ const [T, R] = c.dataset.ftc.split('|').map(Number); S.ft.T = T; S.ft.R = R; render(); return; }
+  const t = e.target.closest('button, th[data-sort]'); if (!t) return;
+  if (t.dataset.tab){ S.tab = t.dataset.tab; try { history.replaceState(null, '', '#' + S.tab); } catch {} render(); return; }
+  if (t.dataset.pf){ S.poolView.f = t.dataset.pf; S.poolView.page = 0; render(); return; }
+  if (t.dataset.sort && S.noSortClick && Date.now() - S.noSortClick < 400) return;
+  if (t.dataset.sort){ const V = S.poolView; V.dir = V.sort === t.dataset.sort ? -V.dir : -1; V.sort = t.dataset.sort; render(); return; }
+  if (t.dataset.pg){ S.poolView.page += Number(t.dataset.pg); render(); return; }
+  if (t.dataset.add){ t.disabled = true; await setStatus(t.dataset.add, {}); return; }
+  if (t.dataset.roi){ t.disabled = true; await requestRoi(t.dataset.roi); return; }
+  if (t.dataset.raw){ await downloadRaw(t.dataset.raw); return; }
+  if (t.dataset.open){ S.open[t.dataset.open] = !S.open[t.dataset.open]; render(); return; }
+  if (t.dataset.detail){ toggleDetail(t.dataset.detail); return; }
+  if (t.dataset.showmany){ let h = []; try { h = JSON.parse(localStorage.getItem('poolHidden') || '[]'); } catch {} const list = t.dataset.showmany.split(','); h = h.filter(x => !list.includes(x)); try { localStorage.setItem('poolHidden', JSON.stringify(h)); } catch {} S.noSortClick = Date.now(); render(); return; }
+  if (t.dataset.pgx){ let c = []; try { c = JSON.parse(localStorage.getItem('poolCollapsed') || '[]'); } catch {} const g = t.dataset.pgx; c = c.includes(g) ? c.filter(x => x !== g) : c.concat(g); try { localStorage.setItem('poolCollapsed', JSON.stringify(c)); } catch {} S.noSortClick = Date.now(); render(); return; }
+  if (t.dataset.rx){ S.roiOpen[t.dataset.rx] = !S.roiOpen[t.dataset.rx]; render(); return; }
+  if (t.dataset.fx){ S.feeOpen[t.dataset.fx] = !S.feeOpen[t.dataset.fx]; render(); return; }
+  if (t.dataset.cx){ S.cxOpen = S.cxOpen || {}; S.cxOpen[t.dataset.cx] = !S.cxOpen[t.dataset.cx]; render(); return; }
+  if (t.dataset.hx){ const V = S.poolView; V.open = V.open || {}; V.open[t.dataset.hx] = !V.open[t.dataset.hx]; render(); return; }
+  if (t.dataset.metric){ S.metric = t.dataset.metric; try { localStorage.setItem('metric', S.metric); } catch {} render(); return; }
+  if (t.dataset.aff){ S.affOnly = t.dataset.aff === '1'; try { localStorage.setItem('affOnly', S.affOnly ? '1' : '0'); } catch {} render(); return; }
+  if (t.id === 'pend-save'){ t.disabled = true; await savePending(); return; }
+  if (t.id === 'pend-cancel'){ S.pending = {}; render(); return; }
+  if (t.id === 'col-reset'){ try { localStorage.removeItem('poolColOrder'); localStorage.removeItem('poolHidden'); localStorage.removeItem('poolCollapsed'); } catch {} render(); return; }
+  if (t.dataset.hide || t.dataset.show || t.dataset.showall || t.dataset.gtoggle){ let h = []; try { h = JSON.parse(localStorage.getItem('poolHidden') || '[]'); } catch {}
+    if (t.dataset.hide) h.push(t.dataset.hide); if (t.dataset.show) h = h.filter(x => x !== t.dataset.show); if (t.dataset.showall) h = [];
+    if (t.dataset.gtoggle){ const ids = [...document.querySelectorAll('th[data-col].g-' + t.dataset.gtoggle)].map(th => th.dataset.col); const hid = t.getAttribute('aria-pressed') === 'false';
+      if (hid) h = h.filter(x => !(S.poolGroups[t.dataset.gtoggle] || []).includes(x)); else h = h.concat(ids); }
+    h = [...new Set(h)]; try { localStorage.setItem('poolHidden', JSON.stringify(h)); } catch {} S.noSortClick = Date.now(); render(); return; }
+  if (t.id === 'pf-reset'){ S.poolView.pf = {...PF0}; Object.keys(S.drafts).filter(k => k.startsWith('pf|')).forEach(k => delete S.drafts[k]); S.poolView.page = 0; render(); return; }
+  if (t.dataset.pa){ S.price.ads = t.dataset.pa === '1'; render(); return; }
+  if (t.dataset.pp){ S.price.page += Number(t.dataset.pp); render(); return; }
+  if (t.dataset.mf){ S.mkt.feed = t.dataset.mf === '1'; S.mkt.open = null; render(); return; }
+  if (t.dataset.mb){ S.mkt.open = S.mkt.open === t.dataset.mb ? null : t.dataset.mb; render(); return; }
+  if (t.dataset.addnote){ t.disabled = true; await addNote(t.dataset.addnote, S.drafts['note|' + t.dataset.addnote] || ''); return; }
+  if (t.id === 'a-save'){ t.disabled = true; await saveAssumptions(); return; }
+  if (t.id === 'a-reset'){ S.A = {...DEFAULT_A, poolVer: S.A.poolVer, videosVer: S.A.videosVer}; render(); return; }
+  if (t.id === 'a-revert' && S.savedA){ S.A = {...DEFAULT_A, ...S.savedA}; render(); return; }
+});
+const applyPf = t => { const P = S.poolView.pf || (S.poolView.pf = {...PF0}), k = t.dataset.pfx;
+  P[k] = t.type === 'checkbox' ? t.checked : t.type === 'number' ? (t.value === '' ? (k === 'T' ? 250 : '') : Number(t.value)) : t.value; S.poolView.page = 0; };
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.pfx && t.type === 'number'){ S.drafts[t.dataset.key] = t.value; applyPf(t); clearTimeout(S.pft); S.pft = setTimeout(render, 300); return; }
+  if (t.dataset.key){ S.drafts[t.dataset.key] = t.value; return; }
+  if (t.dataset.ft){ if (t.value !== '' && !isNaN(Number(t.value))){ S.ft[t.dataset.ft] = Number(t.value); clearTimeout(S.ftt);
+    S.ftt = setTimeout(() => { render(); const el = document.querySelector(`[data-ft="${t.dataset.ft}"]`); if (el) el.focus({preventScroll: true}); }, 250); } return; }
+  if (t.id === 'price-q'){ S.price.q = t.value; S.price.page = 0; clearTimeout(S.pq); S.pq = setTimeout(() => { render(); const q = $('price-q'); if (q){ q.focus({preventScroll: true}); q.setSelectionRange(q.value.length, q.value.length); } }, 200); return; }
+  if (t.id === 'pool-q'){ S.poolView.q = t.value; S.poolView.page = 0; clearTimeout(S.qt); S.qt = setTimeout(() => { render(); const q = $('pool-q'); if (q){ q.focus({preventScroll: true}); q.setSelectionRange(q.value.length, q.value.length); } }, 200); return; }
+  if (t.dataset.a){
+    const k = t.dataset.a, v = t.value;
+    if (k === 'gmvTiers' || k === 'unitTiers'){ const l = parseList(v); if (l.length) S.A[k] = l; }
+    else if (k === 'anchorBand' || k === 'anchorTrim'){ if (v !== '') S.A[k] = Number(v); }
+    else if (k === 'shortMinRatio' || k === 'babyMin'){ if (v !== '') S.A[k] = Number(v) / 100; }
+    else if (k === 'baseDate'){ if (v) S.A[k] = v; }
+    else if (v !== '') S.A[k] = Number(v);
+    clearTimeout(S.at); S.at = setTimeout(() => { render(); const el = document.querySelector(`[data-a="${k}"]`); if (el){ el.focus({preventScroll: true}); try { el.setSelectionRange(el.value.length, el.value.length); } catch {} } }, 250);
+  }
+});
+document.addEventListener('change', async e => {
+  const t = e.target;
+  if (t.dataset.pfx && t.type !== 'number'){ applyPf(t); render(); return; }
+  if (t.dataset.ps){ if (t.value) stagePend(t.dataset.ps, 'stage', t.value); render(); return; }
+  if (t.dataset.po){ stagePend(t.dataset.po, 'owner', t.value.trim()); delete S.drafts[t.dataset.key]; render(); return; }
+  if (t.dataset.sent){ stagePend(t.dataset.sent, 'emailed', t.checked); render(); return; }
+  if (t.dataset.ver){ S.A[t.dataset.ver === 'pool' ? 'poolVer' : 'videosVer'] = t.value; try { await loadData(); } catch (er){ banner('RAW 로드 실패: ' + er.message, true); } render(); return; }
+  const tr = t.closest('tr[data-h]'); if (!tr || !t.dataset.f) return;
+  const f = t.dataset.f, v = f === 'fee' ? (t.value === '' ? null : Number(t.value)) : t.value;
+  await setStatus(tr.dataset.h, {[f]: v});
+  if (t.dataset.key) delete S.drafts[t.dataset.key];
+});
+
+(async () => {
+  const h = (location.hash || '').slice(1); if (TABS.some(([k]) => k === h)) S.tab = h;
+  try {
+    S.man = await loadJSON('data/versions.json');
+    await loadData();
+    render();
+  } catch (e){ banner('RAW 데이터를 불러오지 못했습니다: ' + e.message, true); return; }
+  initShared();
+})();
+</script>
+
+</body></html>

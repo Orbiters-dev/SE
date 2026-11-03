@@ -1,0 +1,46 @@
+{
+ "datasets": {
+  "pool": [
+   {
+    "id": "20261030-v0",
+    "file": "data/pool_20261030-v0.json",
+    "rows": 807,
+    "builtAt": "2026-10-30T16:01",
+    "source": "JP 맘 크리에이터 타깃 시드 (2026-10-26 맘풀 산정 · FastMoss JP 웹 실측) — 지표 미보강 시드",
+    "nas": "Z:\\fastmoss_jp\\raw_data\\versions",
+    "refreshDays": 14
+   },
+   {
+    "id": "20261103",
+    "file": "data/pool_20261103.json",
+    "rows": 802,
+    "builtAt": "2026-11-03",
+    "source": "FastMoss JP 웹 Pro 2축 전수 실측 (cid=10 유아 171 + sale_category_l1=18 642, uid 중복제거 802) — 28일 GMV·팔로워·판매수·참여율·라이브비중·90일 GMV·이메일보유 포함. 807 시드 교집합 620(seed807 플래그). 레벨은 미제공(어필리에이트 센터·샵 개통 후)",
+    "nas": "Z:\\fastmoss_jp\\raw_data\\versions",
+    "refreshDays": 14
+   }
+  ],
+  "videos": [
+   {
+    "id": "20261030-v0",
+    "file": "data/videos_20261030-v0.json",
+    "rows": 0,
+    "builtAt": "2026-10-30T16:01",
+    "source": "빈 v0 — FastMoss API video_search (region=JP) 키 수령 후 수집 (tools/fastmoss_jp.py)",
+    "nas": "Z:\\fastmoss_jp\\raw_data\\Fastmoss\\creator_videos_api",
+    "refreshDays": null
+   }
+  ],
+  "ads": [],
+  "fees": [],
+  "gmvmax": [],
+  "ourvideos": [],
+  "collab": [],
+  "contacts": [],
+  "fetched": [],
+  "live": [],
+  "emails": [],
+  "notion": [],
+  "outreach": []
+ }
+}
