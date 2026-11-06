@@ -30,6 +30,7 @@ import requests
 sys.path.insert(0, str(Path(__file__).parent))
 from env_loader import load_env
 load_env()
+from data_keeper_client import query_rows
 
 # ── 설정 ──────────────────────────────────────────────────────────────
 PST = timezone(timedelta(hours=-8))
@@ -238,19 +239,18 @@ def get_naeiae_ppc_tracking_html() -> str:
         from datetime import date as _date, timedelta, datetime as _dt
         today = _date.today()
         cutoff_7d = (today - timedelta(days=7)).isoformat()
-        r = requests.get(f"{ORBITOOLS_BASE}/query/",
-                         params={"table": "amazon_ads_daily", "limit": 5000},
-                         auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=15)
-        if r.ok:
-            rows = [row for row in r.json().get("rows", [])
-                    if row.get("brand") == "Naeiae" and row.get("date", "") >= cutoff_7d]
-            if rows:
-                spend = sum(float(row.get("spend", 0) or 0) for row in rows)
-                sales = sum(float(row.get("sales", 0) or 0) for row in rows)
-                current_spend_7d = spend
-                current_sales_7d = sales
-                current_roas_7d  = round(sales / spend, 2) if spend > 0 else 0
-                current_acos_7d  = round(spend / sales * 100, 1) if sales > 0 else 0
+        try:
+            rows = query_rows({"table": "amazon_ads_daily", "brand": "Naeiae", "date_from": cutoff_7d})
+        except Exception as e:
+            print(f"  [WARN] Naeiae 7d ROAS 조회 실패: {e}")
+            rows = []
+        if rows:
+            spend = sum(float(row.get("spend", 0) or 0) for row in rows)
+            sales = sum(float(row.get("sales", 0) or 0) for row in rows)
+            current_spend_7d = spend
+            current_sales_7d = sales
+            current_roas_7d  = round(sales / spend, 2) if spend > 0 else 0
+            current_acos_7d  = round(spend / sales * 100, 1) if sales > 0 else 0
         if exec_date:
             days_since = (today - _dt.strptime(exec_date, "%Y-%m-%d").date()).days
     except Exception:
@@ -377,28 +377,16 @@ def get_seo_insights_html() -> str:
         cutoff = (_date.today() - timedelta(days=7)).isoformat()
 
         # DataForSEO keywords
-        r = requests.get(f"{ORBITOOLS_BASE}/query/",
-                         params={"table": "dataforseo_keywords", "limit": 500},
-                         auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=15)
-        dfs_rows = []
-        if r.ok:
-            dfs_rows = [row for row in r.json().get("rows", [])
-                        if row.get("date", "") >= cutoff]
+        dfs_rows = query_rows({"table": "dataforseo_keywords", "date_from": cutoff})
 
         # GSC top queries
-        r2 = requests.get(f"{ORBITOOLS_BASE}/query/",
-                          params={"table": "gsc_daily", "limit": 5000},
-                          auth=(ORBITOOLS_USER, ORBITOOLS_PASS), timeout=15)
         gsc_agg = {}
-        if r2.ok:
-            for row in r2.json().get("rows", []):
-                if row.get("date", "") < cutoff:
-                    continue
-                q = row.get("query", "")
-                if q not in gsc_agg:
-                    gsc_agg[q] = {"clicks": 0, "impressions": 0, "site": row.get("site_url", "")}
-                gsc_agg[q]["clicks"] += int(row.get("clicks", 0))
-                gsc_agg[q]["impressions"] += int(row.get("impressions", 0))
+        for row in query_rows({"table": "gsc_daily", "date_from": cutoff}):
+            q = row.get("query", "")
+            if q not in gsc_agg:
+                gsc_agg[q] = {"clicks": 0, "impressions": 0, "site": row.get("site_url", "")}
+            gsc_agg[q]["clicks"] += int(row.get("clicks", 0))
+            gsc_agg[q]["impressions"] += int(row.get("impressions", 0))
 
         if not dfs_rows and not gsc_agg:
             return ""

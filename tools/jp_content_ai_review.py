@@ -20,7 +20,6 @@ import re
 import json
 import argparse
 import datetime as dt
-from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
@@ -30,13 +29,14 @@ try:
     load_env()
 except Exception:
     pass
+import requests  # noqa: E402
+from data_keeper_client import query_rows  # noqa: E402
 from sheets_utils import get_sheets_client, safe_range  # noqa: E402
 try:
     from ci.frame_vision import fetch_frame_vision  # noqa: E402
 except Exception:
     fetch_frame_vision = None
 
-DK_BASE = "https://orbitools.orbiters.co.kr/api/datakeeper"
 FRAMES_KEY = os.getenv("DK_CONTENT_FRAMES_KEY", "")
 DK_TOKEN = os.getenv("DK_SE_READ_TOKEN") or "dk_SE_7de6ec154f3d7b7bd0cc571a9e5b7220e125af197cf9dc1d40b893b086e13023"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
@@ -61,18 +61,12 @@ AXES = ["km", "voice", "cta", "product3s", "face", "problem", "hook"]
 AX_MAX = {"km": 2, "voice": 1, "cta": 1, "product3s": 1, "face": 1, "problem": 1, "hook": 2}
 
 
-def dk_query(table: str, **params) -> list[dict]:
-    params["table"] = table
-    url = f"{DK_BASE}/query/?{urlencode(params)}"
-    req = Request(url, headers={"Authorization": f"Bearer {DK_TOKEN}"})
+def dk_query(table: str, limit: int | None = None, **params) -> list[dict]:
+    """limit = 최대 행 수(None = 끝까지). 서버 한 응답 1만 행 상한은 query_rows 가 이어 읽는다."""
     try:
-        with urlopen(req, timeout=90) as r:
-            data = json.loads(r.read().decode("utf-8"))
-    except HTTPError as e:
-        sys.exit(f"[DK {table}] HTTP {e.code}: {e.read().decode('utf-8','replace')[:200]}")
-    if isinstance(data, list):
-        return data
-    return data.get("rows", [])
+        return query_rows({"table": table, **params}, max_rows=limit, token=DK_TOKEN)
+    except requests.RequestException as e:
+        sys.exit(f"[DK {table}] {e}")
 
 
 def resolve_d3_likes(post_date: str, rows: list[dict]) -> int | None:
@@ -100,7 +94,7 @@ def build_queue() -> list[dict]:
         "content_posts", region="jp", days=30, limit=2000,
         fields="id,post_id,post_date,username,platform,content_type,brand,url,caption,transcript,ci_analysis",
     )
-    metrics = dk_query("content_metrics_daily", days=60, limit=50000, fields="post_id,date,likes")
+    metrics = dk_query("content_metrics_daily", days=60, fields="post_id,date,likes")
     by_post: dict[str, list[dict]] = {}
     for m in metrics:
         by_post.setdefault(m.get("post_id"), []).append(m)

@@ -131,7 +131,7 @@ def fetch_metrics_window(days_buffer: int) -> dict[tuple, int]:
     """content_metrics_daily 윈도우 fetch. {(post_id, date_str): views} 반환."""
     dk = DataKeeper()
     date_from = (date.today() - timedelta(days=days_buffer)).isoformat()
-    rows = dk.get("content_metrics_daily", date_from=date_from, limit=50000)
+    rows = dk.get("content_metrics_daily", date_from=date_from)
     result: dict[tuple, int] = {}
     for r in rows:
         pid = r.get("post_id")

@@ -11,26 +11,20 @@ Usage:
     python tools/export_to_shared.py --from-pg # Pull fresh data from PG first
 """
 
-import os
 import sys
 import json
 import argparse
 from datetime import datetime, timezone
 from pathlib import Path
 
-import requests
-
 DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(DIR))
 from env_loader import load_env
 load_env()
+from data_keeper_client import query_rows
 
 CACHE_DIR = DIR.parent / ".tmp" / "datakeeper"
 SHARED_DIR = DIR.parent.parent / "Shared" / "datakeeper" / "latest"
-
-ORBITOOLS_BASE = os.getenv("ORBITOOLS_BASE", "https://orbitools.orbiters.co.kr/api/datakeeper")
-ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "admin")
-ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
 
 TABLES = [
     "amazon_ads_daily",
@@ -46,14 +40,7 @@ TABLES = [
 def pull_from_pg(table: str) -> list[dict]:
     """Pull all rows for a table from PG via orbitools API."""
     try:
-        r = requests.get(
-            f"{ORBITOOLS_BASE}/query/",
-            params={"table": table},
-            auth=(ORBITOOLS_USER, ORBITOOLS_PASS),
-            timeout=30,
-        )
-        r.raise_for_status()
-        return r.json().get("rows", [])
+        return query_rows({"table": table})
     except Exception as e:
         print(f"  [PG] Failed to pull {table}: {e}")
         return []

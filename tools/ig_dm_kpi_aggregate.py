@@ -296,37 +296,26 @@ def fetch_contract_periods(gc) -> dict[str, str]:
 def fetch_dk_first_posts() -> dict[str, str]:
     """DK 실투고 (grosmimi 키워드, post_date >= 2026-08) — 핸들별 최초 투고일.
     실패 시 빈 dict (여정 표의 포스팅 컬럼만 공란 — 다음 실행 재시도)."""
-    import os
-    import urllib.request
-    try:
-        from dotenv import load_dotenv
-        load_dotenv(ROOT / ".env")
-    except Exception:
-        pass
-    from ig_dm_follower_enrich import DK_TOKEN_FALLBACK
-    tok = os.environ.get("DK_SE_READ_TOKEN") or DK_TOKEN_FALLBACK
+    from data_keeper_client import query_rows
+    from ig_dm_follower_enrich import dk_read_token
     out: dict[str, str] = {}
-    # limit=20000 은 서버 상한 흡수용 여유값 — content_posts 는 서버가 항상 "최신 1만행"만
-    # 반환 (2026-08-24 실측, lib/influencer-kpi.ts 동일 주석). region=jp + 글로벌 유니온으로
-    # region 오기록분 구제 (meta-app fetchGrosmimiPosts 와 동일 전략).
-    for extra in ["&region=jp", ""]:
-        url = ("https://orbitools.orbiters.co.kr/api/datakeeper/query/?table=content_posts"
-               "&limit=20000&fields=post_date,username,source_keywords" + extra)
-        try:
-            req = urllib.request.Request(url, headers={"Authorization": f"Bearer {tok}"})
-            d = json.loads(urllib.request.urlopen(req, timeout=120).read())
-        except Exception as e:
-            print(f"  [WARN] DK 투고 조회 실패({extra or 'global'}): {str(e)[:80]}")
+    # 서버는 한 응답에 1만 행까지만 준다 — 끝까지 이어 읽는다. 전 지역을 다 읽으므로
+    # region 오기록분도 들어온다(예전 region=jp 따로 읽기는 1만 행 잘림을 메우던 것).
+    try:
+        rows = query_rows({"table": "content_posts", "fields": "post_date,username,source_keywords"},
+                          token=dk_read_token())
+    except Exception as e:
+        print(f"  [WARN] DK 투고 조회 실패: {str(e)[:80]}")
+        return out
+    for r in rows:
+        pd = (r.get("post_date") or "")[:10]
+        if pd < "2026-08":
             continue
-        for r in (d if isinstance(d, list) else d.get("rows", [])):
-            pd = (r.get("post_date") or "")[:10]
-            if pd < "2026-08":
-                continue
-            if "grosmimi" not in (r.get("source_keywords") or "").lower():
-                continue
-            h = (r.get("username") or "").strip().lstrip("@").lower()
-            if h and (h not in out or pd < out[h]):
-                out[h] = pd
+        if "grosmimi" not in (r.get("source_keywords") or "").lower():
+            continue
+        h = (r.get("username") or "").strip().lstrip("@").lower()
+        if h and (h not in out or pd < out[h]):
+            out[h] = pd
     return out
 
 
