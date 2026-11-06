@@ -269,9 +269,19 @@ def query_rows(params: dict, max_rows: int | None = None, *,
         time.sleep(PAGE_GAP_SEC)
 
 
-def _query_page(params: dict, auth: dict, timeout: int) -> dict:
+def table_counts(*, token: str | None = None, timeout: int = 60) -> dict[str, int]:
+    """GET /tables/ 한 번으로 표마다 전체 행 수 — 행을 읽어 세면 한도(1만)에서 멈춰 큰 표가 1만으로 보인다."""
+    tok = token or DK_TOKEN
+    auth = ({"headers": {"Authorization": f"Bearer {tok}"}} if tok
+            else {"auth": (ORBITOOLS_USER, ORBITOOLS_PASS)})
+    body = _query_page({}, auth, timeout, path="/tables/")
+    tables = body.get("tables") or (body.get("data") or {}).get("tables") or {}
+    return {name: (meta or {}).get("count") for name, meta in tables.items()}
+
+
+def _query_page(params: dict, auth: dict, timeout: int, path: str = "/query/") -> dict:
     for attempt in range(1, MAX_TRIES + 1):
-        r = requests.get(f"{ORBITOOLS_BASE}/query/", params=params, timeout=timeout, **auth)
+        r = requests.get(f"{ORBITOOLS_BASE}{path}", params=params, timeout=timeout, **auth)
         if r.status_code not in RETRY_STATUS or attempt == MAX_TRIES:
             r.raise_for_status()
             return r.json()
@@ -279,6 +289,6 @@ def _query_page(params: dict, auth: dict, timeout: int) -> dict:
             wait = int(r.headers.get("Retry-After", ""))
         except ValueError:
             wait = PAGE_GAP_SEC * 2 ** attempt
-        print(f"[DataKeeper] {params.get('table')} offset={params['offset']}: HTTP {r.status_code}, "
+        print(f"[DataKeeper] {params.get('table', path)} offset={params.get('offset')}: HTTP {r.status_code}, "
               f"{wait}s 뒤 다시 묻는다 ({attempt}/{MAX_TRIES - 1})", file=sys.stderr)
         time.sleep(wait)

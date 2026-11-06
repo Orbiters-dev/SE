@@ -12,6 +12,7 @@ Usage:
 """
 
 import argparse
+import functools
 import json
 import os
 import subprocess
@@ -109,13 +110,16 @@ def git_info():
 
 # ── PG row counts ────────────────────────────────────────────────────────
 
+@functools.lru_cache(maxsize=1)
+def _dk_table_counts():
+    from data_keeper_client import table_counts
+    return table_counts()
+
+
 def pg_table_count(table):
-    """Query orbitools API for row count via DataKeeper client."""
+    """DK /tables/ 의 표별 전체 행 수 — 행을 읽어 세면 한도(1만)에서 멈춰 큰 표가 1만으로 보였다."""
     try:
-        from data_keeper_client import DataKeeper
-        dk = DataKeeper()
-        rows = dk.get(table, days=3650, limit=10000)  # 끝까지 읽으면 수십 번 묻는다 — 1만에서 멈추는 옛 값 유지
-        return len(rows)
+        return _dk_table_counts().get(table)
     except Exception:
         return None
 

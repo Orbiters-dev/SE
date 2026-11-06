@@ -195,3 +195,21 @@ def test_first_post_from_second_page(server):
     ]
     server(rows)
     assert agg.fetch_dk_first_posts() == {"han": "2026-08-03", "other": "2026-09-15"}
+
+
+def test_ci_daily_row_count_comes_from_tables_not_a_capped_read(monkeypatch):
+    # 행을 읽어 세면 한도(1만)에서 멈춰 큰 표가 1만으로 보였다 — /tables/ 의 전체 수를 써야 한다.
+    import run_ci_daily
+
+    calls = []
+
+    def fake_get(url, params=None, **kw):
+        calls.append(url)
+        assert url.endswith("/tables/"), url
+        return FakeResp(body={"tables": {"content_posts": {"count": 32406, "domain": "content"}}})
+
+    monkeypatch.setattr(dkc.requests, "get", fake_get)
+    run_ci_daily._dk_table_counts.cache_clear()
+    assert run_ci_daily.pg_table_count("content_posts") == 32406
+    assert run_ci_daily.pg_table_count("missing_table") is None
+    assert len(calls) == 1   # 표마다 묻지 않고 한 번
