@@ -114,7 +114,7 @@ def pg_table_count(table):
     try:
         from data_keeper_client import DataKeeper
         dk = DataKeeper()
-        rows = dk.get(table, days=3650)
+        rows = dk.get(table, days=3650, limit=10000)  # 끝까지 읽으면 수십 번 묻는다 — 1만에서 멈추는 옛 값 유지
         return len(rows)
     except Exception:
         return None

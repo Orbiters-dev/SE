@@ -403,18 +403,9 @@ def _get_jp_zero_view_urls():
     Returns up to 100 URLs per run to avoid excessive Apify costs.
     """
     try:
-        import requests as _req
-        load_env()
-        user = os.getenv("ORBITOOLS_USER", "admin")
-        pw = os.getenv("ORBITOOLS_PASS", "")
-        resp = _req.get(
-            "https://orbitools.orbiters.co.kr/api/datakeeper/query/",
-            params={"table": "content_posts", "region": "jp", "limit": 500},
-            auth=(user, pw),
-            timeout=30,
-            verify=False,
-        )
-        rows = resp.json().get("rows", [])
+        from data_keeper_client import query_rows
+        rows = query_rows({"table": "content_posts", "region": "jp",
+                           "fields": "post_id,url,views_30d,platform"})
         result = []
         for r in rows:
             if (not r.get("views_30d")

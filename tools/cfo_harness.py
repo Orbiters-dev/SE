@@ -85,6 +85,7 @@ sys.path.insert(0, 'tools')
 from data_keeper_client import DataKeeper
 dk = DataKeeper()
 params = {params_json}
+params.setdefault("limit", 200)
 rows = dk.get("{table}", **params)
 print(json.dumps(rows[:200]))
 """

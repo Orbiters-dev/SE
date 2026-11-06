@@ -45,6 +45,11 @@ ORBITOOLS_USER = os.getenv("ORBITOOLS_USER", "admin")
 ORBITOOLS_PASS = os.getenv("ORBITOOLS_PASS", "")
 DK_TOKEN = os.getenv("DK_SE_READ_TOKEN") or os.getenv("DK_READ_TOKEN")
 
+PAGE_ROWS = 10000   # /query/ 한 응답의 서버 상한 — 넘는 limit 은 잘리고 next_offset 으로 다음 장을 알린다
+PAGE_GAP_SEC = 4    # 한 키의 /query/ 는 분당 30회이고 여러 작업이 나눠 쓴다 — 이어 읽기는 그 절반만 쓴다
+RETRY_STATUS = (429, 503)
+MAX_TRIES = 5
+
 VALID_TABLES = [
     "shopify_orders_daily", "shopify_orders_sku_daily",
     "amazon_sales_daily", "amazon_sales_sku_daily",
@@ -77,11 +82,12 @@ class DataKeeper:
     def get(self, table: str, days: int = None,
             date_from: str = None, date_to: str = None,
             brand: str = None, campaign_id: str = None,
-            channel: str = None, limit: int = 10000) -> list[dict]:
+            channel: str = None, limit: int | None = None) -> list[dict]:
         """Get rows from Data Keeper.
 
         Default: PG API first, NAS cache fallback, local cache last resort.
         If prefer_cache=True: NAS cache first, local cache, PG last.
+        limit = 최대 행 수. None 이면 서버 한도(장당 10,000행)를 넘어도 끝까지 이어 읽는다.
         """
         if table not in VALID_TABLES:
             raise ValueError(f"Unknown table: {table}. Valid: {VALID_TABLES}")
@@ -148,7 +154,7 @@ class DataKeeper:
     def _read_pg(self, table, date_from, date_to, brand,
                  campaign_id, channel, limit) -> list[dict]:
         """Query from PostgreSQL via orbitools API."""
-        params = {"table": table, "limit": limit}
+        params = {"table": table}
         if date_from:
             params["date_from"] = date_from
         if date_to:
@@ -161,14 +167,7 @@ class DataKeeper:
             params["channel"] = channel
 
         try:
-            kwargs = {"params": params, "timeout": 30}
-            if DK_TOKEN:
-                kwargs["headers"] = {"Authorization": f"Bearer {DK_TOKEN}"}
-            else:
-                kwargs["auth"] = (ORBITOOLS_USER, ORBITOOLS_PASS)
-            r = requests.get(f"{ORBITOOLS_BASE}/query/", **kwargs)
-            r.raise_for_status()
-            return r.json().get("rows", [])
+            return query_rows(params, max_rows=limit)
         except Exception as e:
             # 401(자격증명 없음)도 빈 결과와 구분 안 되면 호출부가 "데이터 없음"으로 오진한다
             print(f"[DataKeeper] PG query failed ({table}): {e}", file=sys.stderr)
@@ -235,3 +234,51 @@ class DataKeeper:
             if not found:
                 result[table] = {"rows": 0, "cached": False}
         return result
+
+
+def query_rows(params: dict, max_rows: int | None = None, *,
+               token: str | None = None, timeout: int = 60) -> list[dict]:
+    """GET /query/ 를 next_offset 이 null 이 될 때까지 이어 읽는다.
+
+    max_rows 가 있으면 그 수까지만 읽고, 행이 더 남았으면 stderr 에 남긴다.
+    429·503 은 기다렸다 다시 묻고, 그 밖의 실패는 예외로 올린다 — 일부 장만 받은 결과는 돌려주지 않는다.
+    장 사이에 새 행이 앞에 끼면 offset 이 밀려 같은 행이 다시 오므로 id 로 한 번만 담는다.
+    """
+    tok = token or DK_TOKEN
+    auth = ({"headers": {"Authorization": f"Bearer {tok}"}} if tok
+            else {"auth": (ORBITOOLS_USER, ORBITOOLS_PASS)})
+    rows, seen, offset = [], set(), 0
+    while True:
+        want = PAGE_ROWS if max_rows is None else min(PAGE_ROWS, max_rows - len(rows))
+        body = _query_page({**params, "limit": want, "offset": offset}, auth, timeout)
+        for r in body.get("rows", []):
+            rid = r.get("id")
+            if rid is not None:
+                if rid in seen:
+                    continue
+                seen.add(rid)
+            rows.append(r)
+        nxt = body.get("next_offset")
+        if nxt is None:
+            return rows
+        if max_rows is not None and len(rows) >= max_rows:
+            print(f"[DataKeeper] {params.get('table')}: limit {max_rows} 에서 멈췄다 — 행이 더 있다",
+                  file=sys.stderr)
+            return rows
+        offset = nxt
+        time.sleep(PAGE_GAP_SEC)
+
+
+def _query_page(params: dict, auth: dict, timeout: int) -> dict:
+    for attempt in range(1, MAX_TRIES + 1):
+        r = requests.get(f"{ORBITOOLS_BASE}/query/", params=params, timeout=timeout, **auth)
+        if r.status_code not in RETRY_STATUS or attempt == MAX_TRIES:
+            r.raise_for_status()
+            return r.json()
+        try:
+            wait = int(r.headers.get("Retry-After", ""))
+        except ValueError:
+            wait = PAGE_GAP_SEC * 2 ** attempt
+        print(f"[DataKeeper] {params.get('table')} offset={params['offset']}: HTTP {r.status_code}, "
+              f"{wait}s 뒤 다시 묻는다 ({attempt}/{MAX_TRIES - 1})", file=sys.stderr)
+        time.sleep(wait)

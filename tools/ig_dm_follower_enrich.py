@@ -45,8 +45,6 @@ CACHE = ROOT / "data" / "ig_dm_followers.json"
 TRACKER_ID = "13S1cST2ukuNNHNUmyXAr1HuaYPsuuK_EfUQ10IWIQsE"
 MASTER_GID = 1589913586
 WL_GID = 751080099        # "WL Code & Payment" 탭 (계약 핸들 = D열, 헤더 3행)
-DK_URL = ("https://orbitools.orbiters.co.kr/api/datakeeper/query/"
-          "?table=content_posts&limit=20000&fields=username,followers")
 # meta-app lib/datakeeper.ts 와 동일 read 토큰 (로테이션 시 함께 교체)
 DK_TOKEN_FALLBACK = "dk_SE_7de6ec154f3d7b7bd0cc571a9e5b7220e125af197cf9dc1d40b893b086e13023"
 APIFY_ACTOR = "apify~instagram-profile-scraper"
@@ -119,16 +117,21 @@ def reachout_peers() -> dict[str, str]:
     return peers
 
 
+def dk_read_token() -> str:
+    return os.environ.get("DK_SE_READ_TOKEN") or DK_TOKEN_FALLBACK
+
+
 def fetch_dk_followers() -> dict[str, int] | None:
-    """실패 시 None (빈 dict 와 구분 — 호출부에서 Apify 스킵 판단)."""
-    tok = os.environ.get("DK_SE_READ_TOKEN") or DK_TOKEN_FALLBACK
+    """실패 시 None (빈 dict 와 구분 — 호출부에서 Apify 스킵 판단).
+    서버는 한 응답에 1만 행까지만 준다 — query_rows 가 끝까지 이어 읽는다."""
+    import requests
+    from data_keeper_client import query_rows
     try:
-        req = urllib.request.Request(DK_URL, headers={"Authorization": f"Bearer {tok}"})
-        d = json.loads(urllib.request.urlopen(req, timeout=120).read())
-    except (urllib.error.URLError, TimeoutError, ValueError) as e:
+        rows = query_rows({"table": "content_posts", "fields": "username,followers"},
+                          token=dk_read_token())
+    except (requests.RequestException, ValueError) as e:
         print(f"  [WARN] DK 조회 실패: {str(e)[:120]}")
         return None
-    rows = d if isinstance(d, list) else d.get("rows", [])
     out: dict[str, int] = {}
     for r in rows:
         if not isinstance(r, dict):

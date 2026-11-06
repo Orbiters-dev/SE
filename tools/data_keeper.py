@@ -33,6 +33,7 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, DIR)
 from env_loader import load_env
 load_env()
+from data_keeper_client import query_rows
 
 # ── Config ────────────────────────────────────────────────────────────────
 CACHE_DIR = os.path.join(DIR, "..", ".tmp", "datakeeper")
@@ -392,19 +393,12 @@ def _sync_nas_from_pg():
     success_count = 0
     for channel, (table, _) in CHANNEL_COLLECTORS.items():
         try:
-            params = {"table": table, "limit": 50000}
+            params = {"table": table}
             # Metadata tables (campaigns) don't have date field
             if "campaigns" not in table:
                 params["date_from"] = date_from
                 params["date_to"] = date_to
-            r = requests.get(
-                f"{ORBITOOLS_BASE}/query/",
-                params=params,
-                auth=(ORBITOOLS_USER, ORBITOOLS_PASS),
-                timeout=60,
-            )
-            r.raise_for_status()
-            rows = r.json().get("rows", [])
+            rows = query_rows(params)
 
             if not rows:
                 print(f"  [{table}] 0 rows from PG - skipping")

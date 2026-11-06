@@ -62,7 +62,7 @@ jobs:
 
       - name: Install deps
         run: |
-          pip install --quiet python-dotenv gspread google-auth playwright
+          pip install --quiet python-dotenv requests gspread google-auth playwright
           python -m playwright install --with-deps chromium
 
       - name: Write Google SA credentials

@@ -30,7 +30,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 from env_loader import load_env
 load_env()
 
-from data_keeper_client import DataKeeper
+from data_keeper_client import DataKeeper, query_rows
 
 OUTPUT = ROOT / "docs" / "financial-dashboard" / "fin_data.js"
 PST = timezone(timedelta(hours=-8))
@@ -362,7 +362,7 @@ def generate():
             if pid and pid not in _cp_all:
                 _cp_all[pid] = p
     content_posts = list(_cp_all.values())
-    content_metrics = dk.get("content_metrics_daily", days=90, limit=50000)
+    content_metrics = dk.get("content_metrics_daily", days=90)
     google_search_terms = dk.get("google_ads_search_terms", days=30)
     print(f"  Shopify: {len(shopify)} rows, Amazon Sales: {len(amazon_sales)}")
     print(f"  Amazon Ads: {len(amazon_ads)}, Meta: {len(meta_ads)}, Google: {len(google_ads)}")
@@ -4628,36 +4628,26 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
     content_weekly_by_creator = defaultdict(lambda: defaultdict(int))  # {username: {week: views}}
     jp_post_ids = set()
     _jp_seen = set()
-    import requests as _req
-    _dk_base = "https://orbitools.orbiters.co.kr/api/datakeeper"
-    _dk_auth = (os.environ.get("ORBITOOLS_USER", "admin"), os.environ.get("ORBITOOLS_PASS", "orbit1234"))
-    for _offset in range(0, 50000, 10000):
-        try:
-            _r = _req.get(
-                f"{_dk_base}/query/",
-                params={"table": "content_posts", "days": 365, "limit": 10000, "offset": _offset},
-                auth=_dk_auth, timeout=30, verify=False,
-            )
-            _page = _r.json().get("rows", []) if _r.status_code == 200 else []
-        except Exception:
-            _page = []
-        if not _page:
-            break
-        for p in _page:
-            if (p.get("region") or "").lower() != "jp":
-                continue
-            pid = p.get("post_id")
-            if not pid or pid in _jp_seen:
-                continue
-            _jp_seen.add(pid)
-            jp_post_ids.add(pid)
-            uname = p.get("username") or "unknown"
-            views = int(p.get("views_30d") or 0)
-            posted = p.get("post_date") or p.get("posted_at") or p.get("date") or ""
-            if len(str(posted)) >= 10 and views > 0:
-                wk = _week_key(str(posted)[:10])
-                content_weekly[wk] += views
-                content_weekly_by_creator[uname][wk] += views
+    try:
+        _jp_rows = query_rows({"table": "content_posts", "days": 365})
+    except Exception as e:
+        print(f"[WARN] content_posts JP 조회 실패 — JP 콘텐츠 주간 조회수 비움: {e}", file=sys.stderr)
+        _jp_rows = []
+    for p in _jp_rows:
+        if (p.get("region") or "").lower() != "jp":
+            continue
+        pid = p.get("post_id")
+        if not pid or pid in _jp_seen:
+            continue
+        _jp_seen.add(pid)
+        jp_post_ids.add(pid)
+        uname = p.get("username") or "unknown"
+        views = int(p.get("views_30d") or 0)
+        posted = p.get("post_date") or p.get("posted_at") or p.get("date") or ""
+        if len(str(posted)) >= 10 and views > 0:
+            wk = _week_key(str(posted)[:10])
+            content_weekly[wk] += views
+            content_weekly_by_creator[uname][wk] += views
 
     # Build sorted week arrays (last 12 weeks)
     all_wk_keys = sorted(set(amz_weekly) | set(rak_weekly) | set(conv_weekly) | set(traffic_weekly) | set(content_weekly))
