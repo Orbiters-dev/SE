@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-11-08 14:06 PST",
+ "generated_pst": "2026-11-08 15:35 PST",
  "through_date": "2026-11-07",
  "months": [
   "2025-08",
@@ -68687,11 +68687,11 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU - Taza de paja para bebé, etapa 1, 6oz, a prueba de derrames | Beb"
      },
      {
-      "asin": "B0DY6SKQ2N",
+      "asin": "B0DY6SM9Y7",
       "name": "GROSMIMI PPSU - Taza de paja para bebé, etapa 2, 12 m, a prueba de derrames | Fl"
      },
      {
-      "asin": "B0DY6SM9Y7",
+      "asin": "B0DY6SKQ2N",
       "name": "GROSMIMI PPSU - Taza de paja para bebé, etapa 2, 12 m, a prueba de derrames | Fl"
      },
      {
@@ -68775,7 +68775,7 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Baby Straw Cup Stage 2, 12M+, Spill-Proof, 6oz (Sugar Bear) | Flip"
      },
      {
-      "asin": "B0F9PX51FX",
+      "asin": "B0F9PZPMH8",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -68791,15 +68791,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZPMH8",
+      "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B082SSPN4X",
+      "asin": "B07YKJ18D5",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B07YKJ18D5",
+      "asin": "B082SSPN4X",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -68819,11 +68819,11 @@ const FIN_DATA = {
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
-      "asin": "B0842D5Z17",
+      "asin": "B0842DMZ3H",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 300ML with Handle for Baby and Toddlers from "
      },
      {
-      "asin": "B0842DMZ3H",
+      "asin": "B0842D5Z17",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 300ML with Handle for Baby and Toddlers from "
      }
     ]
@@ -69225,11 +69225,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0H2CQ4LWL",
+      "asin": "B0H2CS5DLJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0H2CS5DLJ",
+      "asin": "B0H2CQ4LWL",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -84044,10 +84044,10 @@ const FIN_DATA = {
     53382710,
     23644307,
     33949307,
-    37631909,
+    37631917,
     14251496,
     6227465,
-    9314328
+    9314329
    ],
    "content_by_creator": {
     "shooochan_days": [
@@ -125695,7 +125695,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     928,
+     936,
      0,
      0,
      0
@@ -141392,7 +141392,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1580
+     1581
     ],
     "kaho_koha": [
      0,
