@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-11-09 14:06 PST",
+ "generated_pst": "2026-11-09 15:35 PST",
  "through_date": "2026-11-08",
  "months": [
   "2025-08",
@@ -67759,6 +67759,10 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Baby Straw Cup Stage 2, 12M+, Spill-Proof, 6oz (Sugar Bear) | Flip"
      },
      {
+      "asin": "B0F9PZPMH8",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
       "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
@@ -67767,15 +67771,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZPMH8",
+      "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
       "asin": "B0F9PVZMR1",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PX51FX",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -68189,11 +68189,7 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H2CQ4LWL",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0H2CS5DLJ",
+      "asin": "B0H2CGC2FB",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -68201,7 +68197,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0H2CGC2FB",
+      "asin": "B0H2CQ4LWL",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0H2CS5DLJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -83004,15 +83004,15 @@ const FIN_DATA = {
    "content_views": [
     55062410,
     57607007,
-    47550178,
+    47550179,
     48549447,
     53382710,
     23644307,
     33949307,
-    37631917,
+    37631927,
     14251496,
     6227465,
-    9314329,
+    9314333,
     0
    ],
    "content_by_creator": {
@@ -112055,7 +112055,7 @@ const FIN_DATA = {
     "grosmimi_japan": [
      0,
      0,
-     53838,
+     53839,
      286,
      119400,
      229,
@@ -124660,7 +124660,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     936,
+     946,
      0,
      0,
      0,
@@ -140357,7 +140357,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1581,
+     1585,
      0
     ],
     "kaho_koha": [
