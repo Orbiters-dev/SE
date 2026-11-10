@@ -50,6 +50,10 @@ PAGE_GAP_SEC = 4    # 한 키의 /query/ 는 분당 30회이고 여러 작업이
 RETRY_STATUS = (429, 503)
 MAX_TRIES = 5
 
+# 재시도 끝에 실패한 /query/ 읽기의 (표, 사유). DataKeeper.get 은 실패를 [] 로 돌려주므로
+# 출력을 쓰는 쪽은 이 목록으로 '행 0건' 과 '읽기 실패' 를 가른다.
+FAILED_READS: list[tuple[str, str]] = []
+
 VALID_TABLES = [
     "shopify_orders_daily", "shopify_orders_sku_daily",
     "amazon_sales_daily", "amazon_sales_sku_daily",
@@ -242,6 +246,7 @@ def query_rows(params: dict, max_rows: int | None = None, *,
 
     max_rows 가 있으면 그 수까지만 읽고, 행이 더 남았으면 stderr 에 남긴다.
     429·503 은 기다렸다 다시 묻고, 그 밖의 실패는 예외로 올린다 — 일부 장만 받은 결과는 돌려주지 않는다.
+    올리는 실패는 FAILED_READS 에도 남긴다 — 호출부가 예외를 삼켜도 출력 관문이 본다.
     장 사이에 새 행이 앞에 끼면 offset 이 밀려 같은 행이 다시 오므로 id 로 한 번만 담는다.
     """
     tok = token or DK_TOKEN
@@ -250,7 +255,11 @@ def query_rows(params: dict, max_rows: int | None = None, *,
     rows, seen, offset = [], set(), 0
     while True:
         want = PAGE_ROWS if max_rows is None else min(PAGE_ROWS, max_rows - len(rows))
-        body = _query_page({**params, "limit": want, "offset": offset}, auth, timeout)
+        try:
+            body = _query_page({**params, "limit": want, "offset": offset}, auth, timeout)
+        except Exception as e:
+            FAILED_READS.append((params.get("table"), str(e)))
+            raise
         for r in body.get("rows", []):
             rid = r.get("id")
             if rid is not None:
