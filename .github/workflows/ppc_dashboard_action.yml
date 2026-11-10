@@ -156,10 +156,13 @@ jobs:
             echo "=== No proposal/execution JSONs found, skipping data.js regeneration ==="
           fi
 
+      # DK 읽기가 실패하면 fin_data.js 를 쓰지 않고 1 로 끝난다. PPC data.js 는 그대로 push 하고 실행은 마지막에 빨갛게 끝낸다.
       - name: Update Financial KPIs data
+        id: fin_data
+        continue-on-error: true
         run: |
           echo "=== Regenerating Financial KPIs data ==="
-          python -u tools/generate_fin_data.py 2>&1 || echo "[WARN] fin_data.js generation had issues"
+          python -u tools/generate_fin_data.py 2>&1
 
       - name: Push updated data to GitHub Pages
         run: |
@@ -182,3 +185,9 @@ jobs:
             .tmp/ppc_audit/verdict_*.json
           retention-days: 7
           if-no-files-found: warn
+
+      - name: Fail run if fin_data.js generation failed
+        if: steps.fin_data.outcome == 'failure'
+        run: |
+          echo "::error::fin_data.js 생성이 실패해 이전 값을 그대로 두었다 — 'Update Financial KPIs data' 단계 로그를 봐라"
+          exit 1

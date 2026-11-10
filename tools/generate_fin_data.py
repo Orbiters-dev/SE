@@ -30,10 +30,17 @@ sys.path.insert(0, str(TOOLS_DIR))
 from env_loader import load_env
 load_env()
 
-from data_keeper_client import DataKeeper, query_rows
+from data_keeper_client import DataKeeper, FAILED_READS, query_rows
 
 OUTPUT = ROOT / "docs" / "financial-dashboard" / "fin_data.js"
 PST = timezone(timedelta(hours=-8))
+
+# 읽기가 실패해도 fin_data.js 를 쓰는 표 — 원래 매번 실패해 그 키가 늘 비어 있던 표만 넣는다.
+OPTIONAL_TABLES = {
+    # WONGI datakeeper 에 등록된 표가 아니라 /query/ 가 매번 400(unknown table)을 준다.
+    # 2026-10-27~11-09 재무·PPC 실행 28회 모두 실패했고, 05-06~11-09 fin_data.js 커밋 59개에 SQP 키워드가 한 번도 없다.
+    "amazon_sqp_brand",
+}
 
 # Brand / channel config (reuse from run_kpi_monthly)
 BRAND_ORDER = ["Grosmimi", "Naeiae", "CHA&MOM", "Alpremio", "Other"]
@@ -4263,6 +4270,14 @@ def generate():
                              partial_month_info=partial_month_info),
     }
 
+    # ── Read-failure gate: 실패한 읽기는 [] 로 와서 키가 빈 값이 된다 — 쓰지 않고 이전 커밋 값을 둔다 ──
+    failed = {t: why for t, why in FAILED_READS if t not in OPTIONAL_TABLES}
+    if failed:
+        for t, why in failed.items():
+            print(f"::error::DK 읽기 실패 ({t}): {why}")
+        print(f"\n  fin_data.js 를 쓰지 않는다 — 읽기 실패 표 {len(failed)}개")
+        sys.exit(1)
+
     # ── Write output ──────────────────────────────────────────────────────────
     os.makedirs(OUTPUT.parent, exist_ok=True)
     js_content = "const FIN_DATA = " + json.dumps(fin_data, ensure_ascii=False, indent=1) + ";"
@@ -4735,7 +4750,7 @@ def _build_jp_data(amazon_sales: list, amazon_ads: list, meta_ads: list, dk,
 
 
 def _build_search_ranking_data() -> dict:
-    """Load Amazon product search ranking data — PG first, fallback to local cache.
+    """Load Amazon product search ranking data from PG.
 
     Returns dict consumed by Tab 8:
     {
@@ -4750,7 +4765,6 @@ def _build_search_ranking_data() -> dict:
     """
     rows = []
 
-    # Try PG first
     try:
         from data_keeper_client import DataKeeper
         dk = DataKeeper()
@@ -4758,19 +4772,7 @@ def _build_search_ranking_data() -> dict:
         if rows:
             print(f"  [search_ranking] {len(rows)} rows from PG")
     except Exception as e:
-        print(f"  [search_ranking] PG failed ({e}), trying cache")
-
-    # Fallback to local cache
-    if not rows:
-        cache_path = os.path.join(os.path.dirname(__file__), "..", ".tmp", "datakeeper", "amazon_search_ranking.json")
-        if os.path.exists(cache_path):
-            try:
-                with open(cache_path, "r", encoding="utf-8") as f:
-                    rows = json.load(f)
-                if rows:
-                    print(f"  [search_ranking] {len(rows)} rows from cache")
-            except Exception:
-                pass
+        print(f"  [search_ranking] PG failed ({e})")
 
     if not rows:
         print("  [search_ranking] No data found")
