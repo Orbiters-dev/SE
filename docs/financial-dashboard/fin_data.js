@@ -1,6 +1,6 @@
 const FIN_DATA = {
- "generated_pst": "2026-11-14 15:35 PST",
- "through_date": "2026-11-13",
+ "generated_pst": "2026-11-15 14:06 PST",
+ "through_date": "2026-11-14",
  "months": [
   "2025-08",
   "2025-09",
@@ -23,131 +23,131 @@ const FIN_DATA = {
   {
    "name": "shopify_orders_daily",
    "label": "Shopify Orders",
-   "rows": 4255,
-   "min_date": "2025-07-07",
-   "max_date": "2026-11-13",
+   "rows": 4252,
+   "min_date": "2025-07-08",
+   "max_date": "2026-11-14",
    "refresh": "2x daily"
   },
   {
    "name": "amazon_sales_daily",
    "label": "Amazon Sales (SP-API)",
-   "rows": 1660,
-   "min_date": "2025-07-07",
-   "max_date": "2026-11-14",
+   "rows": 1659,
+   "min_date": "2025-07-08",
+   "max_date": "2026-11-15",
    "refresh": "2x daily"
   },
   {
    "name": "amazon_ads_daily",
    "label": "Amazon Ads",
-   "rows": 11186,
+   "rows": 11252,
    "min_date": "2025-12-10",
-   "max_date": "2026-11-14",
+   "max_date": "2026-11-15",
    "refresh": "2x daily"
   },
   {
    "name": "meta_ads_daily",
    "label": "Meta Ads",
-   "rows": 23836,
-   "min_date": "2025-07-07",
-   "max_date": "2026-11-14",
+   "rows": 23872,
+   "min_date": "2025-07-08",
+   "max_date": "2026-11-15",
    "refresh": "2x daily"
   },
   {
    "name": "google_ads_daily",
    "label": "Google Ads",
-   "rows": 1052,
-   "min_date": "2025-07-07",
+   "rows": 1050,
+   "min_date": "2025-07-08",
    "max_date": "2026-10-21",
    "refresh": "2x daily"
   },
   {
    "name": "ga4_daily",
    "label": "GA4 Analytics",
-   "rows": 5319,
-   "min_date": "2025-07-07",
-   "max_date": "2026-11-13",
+   "rows": 5320,
+   "min_date": "2025-07-08",
+   "max_date": "2026-11-14",
    "refresh": "2x daily"
   },
   {
    "name": "amazon_ads_search_terms",
    "label": "Amazon Search Terms",
-   "rows": 26414,
+   "rows": 27508,
    "min_date": "2026-10-16",
-   "max_date": "2026-11-13",
+   "max_date": "2026-11-14",
    "refresh": "1x daily"
   },
   {
    "name": "gsc_daily",
    "label": "Google Search Console",
-   "rows": 122744,
-   "min_date": "2026-10-15",
-   "max_date": "2026-11-13",
+   "rows": 124231,
+   "min_date": "2026-10-16",
+   "max_date": "2026-11-14",
    "refresh": "2x daily"
   },
   {
    "name": "klaviyo_daily",
    "label": "Klaviyo Email",
-   "rows": 7281,
+   "rows": 7309,
    "min_date": "2025-07-09",
-   "max_date": "2026-11-14",
+   "max_date": "2026-11-15",
    "refresh": "2x daily"
   }
  ],
  "partial_month": {
   "month": "2026-11",
-  "days_elapsed": 13,
+  "days_elapsed": 14,
   "days_in_month": 30,
   "is_partial": true,
-  "multiplier": 2.3077
+  "multiplier": 2.1429
  },
  "summary": {
   "7d": {
-   "total_revenue": 16831,
-   "shopify_revenue": 16831,
+   "total_revenue": 15757,
+   "shopify_revenue": 15757,
    "amazon_revenue": 0,
-   "total_orders": 6066,
-   "total_ad_spend": 2161647,
-   "ad_attributed_sales": 92468,
+   "total_orders": 6001,
+   "total_ad_spend": 2116876,
+   "ad_attributed_sales": 87107,
    "organic_revenue": 0,
-   "gross_margin": 16831,
+   "gross_margin": 15757,
    "gm_pct": 100.0,
-   "contribution_margin": -2146796,
-   "cm_pct": -12754.8,
+   "contribution_margin": -2102737,
+   "cm_pct": -13345.0,
    "mer": 0.01,
    "roas": 0.04,
-   "discount_rate": 10.5
+   "discount_rate": 9.3
   },
   "30d": {
-   "total_revenue": 72613,
-   "shopify_revenue": 72613,
+   "total_revenue": 71296,
+   "shopify_revenue": 71296,
    "amazon_revenue": 0,
-   "total_orders": 25419,
-   "total_ad_spend": 11045734,
-   "ad_attributed_sales": 337077,
+   "total_orders": 25400,
+   "total_ad_spend": 10847533,
+   "ad_attributed_sales": 347060,
    "organic_revenue": 0,
-   "gross_margin": 72613,
+   "gross_margin": 71296,
    "gm_pct": 100.0,
-   "contribution_margin": -10981423,
-   "cm_pct": -15123.2,
+   "contribution_margin": -10784056,
+   "cm_pct": -15125.7,
    "mer": 0.01,
    "roas": 0.03,
-   "discount_rate": 10.3
+   "discount_rate": 9.9
   },
   "mtd": {
-   "total_revenue": 31974,
-   "shopify_revenue": 31974,
+   "total_revenue": 33275,
+   "shopify_revenue": 33275,
    "amazon_revenue": 0,
-   "total_orders": 11568,
-   "total_ad_spend": 4113744,
-   "ad_attributed_sales": 160319,
+   "total_orders": 12326,
+   "total_ad_spend": 4360357,
+   "ad_attributed_sales": 174394,
    "organic_revenue": 0,
-   "gross_margin": 31974,
+   "gross_margin": 33275,
    "gm_pct": 100.0,
-   "contribution_margin": -4084894,
-   "cm_pct": -12775.6,
+   "contribution_margin": -4330299,
+   "cm_pct": -13013.6,
    "mer": 0.01,
    "roas": 0.04,
-   "discount_rate": 8.9
+   "discount_rate": 8.8
   }
  },
  "brand_revenue": {
@@ -168,7 +168,7 @@ const FIN_DATA = {
     92054,
     86481,
     69176,
-    26015
+    26909
    ],
    "monthly_proj": [
     100682,
@@ -186,7 +186,7 @@ const FIN_DATA = {
     92054,
     86481,
     69176,
-    60035
+    57663
    ],
    "color": "#8b5cf6"
   },
@@ -225,7 +225,7 @@ const FIN_DATA = {
     1984,
     1893,
     1365,
-    1618
+    1502
    ],
    "color": "#eab308"
   },
@@ -264,7 +264,7 @@ const FIN_DATA = {
     665,
     3078,
     2845,
-    2866
+    2661
    ],
    "color": "#0ea5e9"
   },
@@ -285,7 +285,7 @@ const FIN_DATA = {
     4302,
     3189,
     2918,
-    1757
+    1779
    ],
    "monthly_proj": [
     2752,
@@ -303,7 +303,7 @@ const FIN_DATA = {
     4302,
     3189,
     2918,
-    4055
+    3812
    ],
    "color": "#f97316"
   },
@@ -324,7 +324,7 @@ const FIN_DATA = {
     4139,
     16384,
     6470,
-    2260
+    2644
    ],
    "monthly_proj": [
     12838,
@@ -342,7 +342,7 @@ const FIN_DATA = {
     4139,
     16384,
     6470,
-    5215
+    5666
    ],
    "color": "#94a3b8"
   }
@@ -404,7 +404,7 @@ const FIN_DATA = {
     5823,
     5352,
     4216,
-    2241
+    2347
    ],
    "monthly_proj": [
     749,
@@ -422,7 +422,7 @@ const FIN_DATA = {
     5823,
     5352,
     4216,
-    5172
+    5029
    ],
    "color": "#ec4899"
   },
@@ -443,7 +443,7 @@ const FIN_DATA = {
     30018,
     23877,
     17743,
-    7947
+    8206
    ],
    "monthly_proj": [
     9399,
@@ -461,7 +461,7 @@ const FIN_DATA = {
     30018,
     23877,
     17743,
-    18339
+    17585
    ],
    "color": "#ef4444"
   }
@@ -484,7 +484,7 @@ const FIN_DATA = {
     266110,
     601962,
     634301,
-    218664
+    232257
    ],
    "spend_proj": [
     0,
@@ -502,7 +502,7 @@ const FIN_DATA = {
     266110,
     601962,
     634301,
-    504611
+    497704
    ],
    "sales": [
     0,
@@ -520,7 +520,7 @@ const FIN_DATA = {
     354467,
     376669,
     368645,
-    155180
+    169140
    ],
    "sales_proj": [
     0,
@@ -538,7 +538,7 @@ const FIN_DATA = {
     354467,
     376669,
     368645,
-    358109
+    362450
    ],
    "impressions": [
     0,
@@ -556,7 +556,7 @@ const FIN_DATA = {
     17899025,
     15332281,
     15958469,
-    6541833
+    7227073
    ],
    "clicks": [
     0,
@@ -574,7 +574,7 @@ const FIN_DATA = {
     97318,
     88345,
     96098,
-    30785
+    33857
    ],
    "color": "#f59e0b"
   },
@@ -595,7 +595,7 @@ const FIN_DATA = {
     41120,
     14746,
     18405,
-    4057
+    4181
    ],
    "spend_proj": [
     9258,
@@ -613,7 +613,7 @@ const FIN_DATA = {
     41120,
     14746,
     18405,
-    9362
+    8959
    ],
    "sales": [
     38960,
@@ -631,7 +631,7 @@ const FIN_DATA = {
     59760,
     30780,
     20886,
-    5106
+    5222
    ],
    "sales_proj": [
     38960,
@@ -649,7 +649,7 @@ const FIN_DATA = {
     59760,
     30780,
     20886,
-    11783
+    11190
    ],
    "impressions": [
     520941,
@@ -667,7 +667,7 @@ const FIN_DATA = {
     1401078,
     348688,
     371549,
-    91428
+    94912
    ],
    "clicks": [
     12477,
@@ -685,7 +685,7 @@ const FIN_DATA = {
     32366,
     8266,
     7715,
-    1777
+    1859
    ],
    "color": "#3b82f6"
   },
@@ -724,7 +724,7 @@ const FIN_DATA = {
     5833,
     4570,
     5779,
-    429
+    399
    ],
    "sales": [
     193,
@@ -760,7 +760,7 @@ const FIN_DATA = {
     50,
     57,
     0,
-    76
+    71
    ],
    "impressions": [
     294771,
@@ -930,7 +930,7 @@ const FIN_DATA = {
     45737,
     20280,
     22058,
-    4057
+    4181
    ],
    "spend_proj": [
     22638,
@@ -948,7 +948,7 @@ const FIN_DATA = {
     45737,
     20280,
     22058,
-    9362
+    8959
    ],
    "revenue": [
     617,
@@ -1006,7 +1006,7 @@ const FIN_DATA = {
     271943,
     606532,
     640080,
-    218850
+    232443
    ],
    "spend_proj": [
     2273,
@@ -1024,7 +1024,7 @@ const FIN_DATA = {
     271943,
     606532,
     640080,
-    505040
+    498102
    ],
    "revenue": [
     0,
@@ -1080,7 +1080,7 @@ const FIN_DATA = {
     92054,
     86481,
     69176,
-    26015
+    26909
    ],
    "total_sales_proj": [
     107354,
@@ -1093,7 +1093,7 @@ const FIN_DATA = {
     92054,
     86481,
     69176,
-    60035
+    57663
    ],
    "ad_spend": [
     111098,
@@ -1106,7 +1106,7 @@ const FIN_DATA = {
     109149,
     84107,
     90160,
-    26850
+    29358
    ],
    "ad_spend_proj": [
     111098,
@@ -1119,7 +1119,7 @@ const FIN_DATA = {
     109149,
     84107,
     90160,
-    61962
+    62911
    ],
    "ad_sales": [
     432258,
@@ -1132,7 +1132,7 @@ const FIN_DATA = {
     332648,
     279961,
     273894,
-    87184
+    95519
    ],
    "ad_sales_proj": [
     432258,
@@ -1145,7 +1145,7 @@ const FIN_DATA = {
     332648,
     279961,
     273894,
-    201195
+    204688
    ],
    "organic": [
     0,
@@ -1200,7 +1200,7 @@ const FIN_DATA = {
     1984,
     1893,
     1365,
-    1618
+    1502
    ],
    "ad_spend": [
     2744,
@@ -1213,7 +1213,7 @@ const FIN_DATA = {
     6014,
     2718,
     3345,
-    969
+    1143
    ],
    "ad_spend_proj": [
     2744,
@@ -1226,7 +1226,7 @@ const FIN_DATA = {
     6014,
     2718,
     3345,
-    2236
+    2449
    ],
    "ad_sales": [
     5929,
@@ -1239,7 +1239,7 @@ const FIN_DATA = {
     7292,
     3385,
     4538,
-    1123
+    1227
    ],
    "ad_sales_proj": [
     5929,
@@ -1252,7 +1252,7 @@ const FIN_DATA = {
     7292,
     3385,
     4538,
-    2592
+    2629
    ],
    "organic": [
     0,
@@ -1307,7 +1307,7 @@ const FIN_DATA = {
     665,
     3078,
     2845,
-    2866
+    2661
    ],
    "ad_spend": [
     2842,
@@ -1385,7 +1385,7 @@ const FIN_DATA = {
     493,
     3078,
     2845,
-    2866
+    2661
    ],
    "color": "#0ea5e9"
   },
@@ -1401,7 +1401,7 @@ const FIN_DATA = {
     4302,
     3189,
     2918,
-    1757
+    1779
    ],
    "total_sales_proj": [
     6391,
@@ -1414,7 +1414,7 @@ const FIN_DATA = {
     4302,
     3189,
     2918,
-    4055
+    3812
    ],
    "ad_spend": [
     344,
@@ -1479,7 +1479,7 @@ const FIN_DATA = {
     4302,
     3189,
     2918,
-    1757
+    1779
    ],
    "organic_proj": [
     6391,
@@ -1492,7 +1492,7 @@ const FIN_DATA = {
     4302,
     3189,
     2918,
-    4055
+    3812
    ],
    "color": "#f97316"
   },
@@ -1508,7 +1508,7 @@ const FIN_DATA = {
     4139,
     16384,
     6470,
-    2260
+    2644
    ],
    "total_sales_proj": [
     4131,
@@ -1521,7 +1521,7 @@ const FIN_DATA = {
     4139,
     16384,
     6470,
-    5215
+    5666
    ],
    "ad_spend": [
     1127,
@@ -1534,7 +1534,7 @@ const FIN_DATA = {
     202254,
     539986,
     568633,
-    195088
+    206124
    ],
    "ad_spend_proj": [
     1127,
@@ -1547,7 +1547,7 @@ const FIN_DATA = {
     202254,
     539986,
     568633,
-    450205
+    441703
    ],
    "ad_sales": [
     1762,
@@ -1560,7 +1560,7 @@ const FIN_DATA = {
     80483,
     131791,
     116847,
-    72012
+    77648
    ],
    "ad_sales_proj": [
     1762,
@@ -1573,7 +1573,7 @@ const FIN_DATA = {
     80483,
     131791,
     116847,
-    166182
+    166392
    ],
    "organic": [
     2369,
@@ -1621,7 +1621,7 @@ const FIN_DATA = {
    420595,
    415138,
    395280,
-   160319
+   174394
   ],
   "paid_proj": [
    99352,
@@ -1639,7 +1639,7 @@ const FIN_DATA = {
    420595,
    415138,
    395280,
-   369968
+   373709
   ],
   "organic": [
    670202,
@@ -1657,7 +1657,7 @@ const FIN_DATA = {
    796394,
    426905,
    500172,
-   180682
+   187263
   ],
   "organic_proj": [
    670202,
@@ -1675,7 +1675,7 @@ const FIN_DATA = {
    796394,
    426905,
    500172,
-   416960
+   401286
   ]
  },
  "waterfall": {
@@ -1695,7 +1695,7 @@ const FIN_DATA = {
    1216989,
    842043,
    895452,
-   341001
+   361657
   ],
   "revenue_proj": [
    769554,
@@ -1713,7 +1713,7 @@ const FIN_DATA = {
    1216989,
    842043,
    895452,
-   786928
+   774995
   ],
   "cogs": [
    0,
@@ -1767,7 +1767,7 @@ const FIN_DATA = {
    1216989,
    842043,
    895452,
-   341001
+   361657
   ],
   "gross_margin_proj": [
    769554,
@@ -1785,7 +1785,7 @@ const FIN_DATA = {
    1216989,
    842043,
    895452,
-   786928
+   774995
   ],
   "shipping_cost": [
    192389,
@@ -1803,7 +1803,7 @@ const FIN_DATA = {
    304247,
    210511,
    223863,
-   85250
+   90414
   ],
   "shipping_cost_proj": [
    192389,
@@ -1821,7 +1821,7 @@ const FIN_DATA = {
    304247,
    210511,
    223863,
-   196731
+   193748
   ],
   "platform_fees": [
    625237,
@@ -1839,7 +1839,7 @@ const FIN_DATA = {
    1105149,
    703112,
    795200,
-   303367
+   322204
   ],
   "platform_fees_detail": {
    "amz_ref_fee": [
@@ -1858,7 +1858,7 @@ const FIN_DATA = {
     1105149,
     703112,
     795200,
-    303367
+    322204
    ],
    "fba_fulfillment": [
     0,
@@ -1895,7 +1895,7 @@ const FIN_DATA = {
    -192406,
    -71580,
    -123611,
-   -47616
+   -50961
   ],
   "cm_before_mkt_proj": [
    -48072,
@@ -1913,7 +1913,7 @@ const FIN_DATA = {
    -192406,
    -71580,
    -123611,
-   -109883
+   -109204
   ],
   "ad_spend": [
    24911,
@@ -1931,7 +1931,7 @@ const FIN_DATA = {
    317680,
    626812,
    662138,
-   222908
+   236624
   ],
   "ad_spend_proj": [
    24911,
@@ -1949,7 +1949,7 @@ const FIN_DATA = {
    317680,
    626812,
    662138,
-   514405
+   507062
   ],
   "discounts": [
    9836,
@@ -1967,7 +1967,7 @@ const FIN_DATA = {
    4559,
    11523,
    11008,
-   3400
+   3534
   ],
   "discounts_proj": [
    9836,
@@ -1985,7 +1985,7 @@ const FIN_DATA = {
    4559,
    11523,
    11008,
-   7846
+   7573
   ],
   "discounts_detail": {
    "shopify_disc": [
@@ -2004,7 +2004,7 @@ const FIN_DATA = {
     4559,
     11523,
     11008,
-    3400
+    3534
    ]
   },
   "seeding": [
@@ -2097,7 +2097,7 @@ const FIN_DATA = {
    322238,
    638335,
    673146,
-   226308
+   240158
   ],
   "mkt_total_proj": [
    34746,
@@ -2115,7 +2115,7 @@ const FIN_DATA = {
    322238,
    638335,
    673146,
-   522251
+   514635
   ],
   "contribution_margin": [
    -82819,
@@ -2133,7 +2133,7 @@ const FIN_DATA = {
    -514645,
    -709914,
    -796757,
-   -273924
+   -291119
   ],
   "contribution_margin_proj": [
    -82819,
@@ -2151,7 +2151,7 @@ const FIN_DATA = {
    -514645,
    -709914,
    -796757,
-   -632134
+   -623839
   ]
  },
  "search_queries": [
@@ -2169,133 +2169,133 @@ const FIN_DATA = {
   },
   {
    "query": "sippy cups for toddlers 1-3",
-   "impressions": 533430,
-   "clicks": 2945,
+   "impressions": 536450,
+   "clicks": 2971,
    "ctr": 0.55,
-   "spend": 2162.1,
-   "sales": 6703.4,
+   "spend": 2187.09,
+   "sales": 6728.3,
    "orders": 0,
-   "acos": 32.3,
+   "acos": 32.5,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "grosmimi straw cup",
-   "impressions": 184626,
-   "clicks": 2751,
-   "ctr": 1.49,
-   "spend": 1630.53,
-   "sales": 17147.3,
+   "impressions": 198278,
+   "clicks": 2972,
+   "ctr": 1.5,
+   "spend": 1827.05,
+   "sales": 18252.3,
    "orders": 0,
-   "acos": 9.5,
+   "acos": 10.0,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "silicone straw cup for baby",
-   "impressions": 21614,
-   "clicks": 976,
-   "ctr": 4.52,
-   "spend": 1279.73,
+   "impressions": 21955,
+   "clicks": 977,
+   "ctr": 4.45,
+   "spend": 1281.14,
    "sales": 2257.5,
    "orders": 0,
-   "acos": 56.7,
+   "acos": 56.8,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "baby straw cup",
-   "impressions": 254725,
-   "clicks": 1143,
+   "impressions": 261540,
+   "clicks": 1185,
    "ctr": 0.45,
-   "spend": 1118.97,
-   "sales": 4065.7,
+   "spend": 1149.77,
+   "sales": 4188.7,
    "orders": 0,
-   "acos": 27.5,
+   "acos": 27.4,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "straw cups for toddlers 1-3",
-   "impressions": 139887,
-   "clicks": 585,
+   "impressions": 149154,
+   "clicks": 624,
    "ctr": 0.42,
-   "spend": 510.2,
-   "sales": 2045.9,
+   "spend": 540.06,
+   "sales": 2255.6,
    "orders": 0,
-   "acos": 24.9,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "sippy cup for 6+ month old",
-   "impressions": 41465,
-   "clicks": 569,
-   "ctr": 1.37,
-   "spend": 439.8,
-   "sales": 796.1,
-   "orders": 0,
-   "acos": 55.2,
+   "acos": 23.9,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "baby sippy cup",
-   "impressions": 99185,
-   "clicks": 629,
-   "ctr": 0.63,
-   "spend": 417.27,
-   "sales": 2110.3,
+   "impressions": 107870,
+   "clicks": 663,
+   "ctr": 0.61,
+   "spend": 446.18,
+   "sales": 2190.5,
    "orders": 0,
-   "acos": 19.8,
+   "acos": 20.4,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "sippy cup for 6+ month old",
+   "impressions": 41862,
+   "clicks": 571,
+   "ctr": 1.36,
+   "spend": 441.5,
+   "sales": 796.1,
+   "orders": 0,
+   "acos": 55.5,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "grossini straw cup",
-   "impressions": 74066,
-   "clicks": 623,
-   "ctr": 0.84,
-   "spend": 388.51,
-   "sales": 5163.2,
+   "impressions": 79299,
+   "clicks": 696,
+   "ctr": 0.88,
+   "spend": 439.82,
+   "sales": 5561.3,
    "orders": 0,
-   "acos": 7.5,
+   "acos": 7.9,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "grosmimi straw cup stage 2",
-   "impressions": 29290,
-   "clicks": 649,
-   "ctr": 2.22,
-   "spend": 352.57,
-   "sales": 5548.7,
+   "impressions": 30923,
+   "clicks": 694,
+   "ctr": 2.24,
+   "spend": 386.64,
+   "sales": 5948.6,
    "orders": 0,
-   "acos": 6.4,
+   "acos": 6.5,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "grosmimi",
-   "impressions": 87995,
-   "clicks": 725,
-   "ctr": 0.82,
-   "spend": 342.28,
-   "sales": 5108.6,
+   "impressions": 91593,
+   "clicks": 761,
+   "ctr": 0.83,
+   "spend": 363.47,
+   "sales": 5162.4,
    "orders": 0,
-   "acos": 6.7,
+   "acos": 7.0,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "nuk sippy cup",
-   "impressions": 198370,
-   "clicks": 463,
-   "ctr": 0.23,
-   "spend": 328.89,
-   "sales": 730.7,
+   "impressions": 209749,
+   "clicks": 495,
+   "ctr": 0.24,
+   "spend": 350.87,
+   "sales": 759.4,
    "orders": 0,
-   "acos": 45.0,
+   "acos": 46.2,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
@@ -2313,25 +2313,25 @@ const FIN_DATA = {
   },
   {
    "query": "sippy cup",
-   "impressions": 75580,
-   "clicks": 300,
-   "ctr": 0.4,
-   "spend": 274.16,
-   "sales": 860.9,
+   "impressions": 85966,
+   "clicks": 312,
+   "ctr": 0.36,
+   "spend": 286.22,
+   "sales": 912.5,
    "orders": 0,
-   "acos": 31.8,
+   "acos": 31.4,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "toddler straw cups",
-   "impressions": 118811,
-   "clicks": 299,
+   "impressions": 127795,
+   "clicks": 316,
    "ctr": 0.25,
-   "spend": 271.61,
-   "sales": 847.9,
+   "spend": 284.8,
+   "sales": 964.6,
    "orders": 0,
-   "acos": 32.0,
+   "acos": 29.5,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
@@ -2348,50 +2348,50 @@ const FIN_DATA = {
    "brand": "Grosmimi"
   },
   {
-   "query": "sippy cup for 6 month old",
-   "impressions": 120764,
-   "clicks": 241,
-   "ctr": 0.2,
-   "spend": 235.39,
-   "sales": 1019.1,
+   "query": "sippy cups",
+   "impressions": 94435,
+   "clicks": 333,
+   "ctr": 0.35,
+   "spend": 256.36,
+   "sales": 624.3,
    "orders": 0,
-   "acos": 23.1,
+   "acos": 41.1,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
-   "query": "sippy cups",
-   "impressions": 80159,
-   "clicks": 308,
-   "ctr": 0.38,
-   "spend": 232.71,
-   "sales": 624.3,
+   "query": "sippy cup for 6 month old",
+   "impressions": 120770,
+   "clicks": 242,
+   "ctr": 0.2,
+   "spend": 235.9,
+   "sales": 1044.0,
    "orders": 0,
-   "acos": 37.3,
+   "acos": 22.6,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "glass straw cup baby",
-   "impressions": 4565,
-   "clicks": 149,
-   "ctr": 3.26,
-   "spend": 219.96,
+   "impressions": 4684,
+   "clicks": 150,
+   "ctr": 3.2,
+   "spend": 221.39,
    "sales": 332.2,
    "orders": 0,
-   "acos": 66.2,
+   "acos": 66.6,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "comotomo sippy cup",
-   "impressions": 3923,
-   "clicks": 416,
-   "ctr": 10.6,
-   "spend": 181.81,
+   "impressions": 3941,
+   "clicks": 417,
+   "ctr": 10.58,
+   "spend": 182.5,
    "sales": 124.6,
    "orders": 0,
-   "acos": 145.9,
+   "acos": 146.5,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
@@ -2409,13 +2409,25 @@ const FIN_DATA = {
   },
   {
    "query": "toddler sippy cups",
-   "impressions": 69481,
-   "clicks": 230,
+   "impressions": 71114,
+   "clicks": 233,
    "ctr": 0.33,
-   "spend": 169.76,
+   "spend": 172.54,
    "sales": 287.9,
    "orders": 0,
-   "acos": 59.0,
+   "acos": 59.9,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "toddler straw cup",
+   "impressions": 40025,
+   "clicks": 174,
+   "ctr": 0.43,
+   "spend": 164.82,
+   "sales": 596.3,
+   "orders": 0,
+   "acos": 27.6,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
@@ -2428,18 +2440,6 @@ const FIN_DATA = {
    "sales": 142.8,
    "orders": 0,
    "acos": 113.0,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "toddler straw cup",
-   "impressions": 38374,
-   "clicks": 169,
-   "ctr": 0.44,
-   "spend": 159.77,
-   "sales": 571.4,
-   "orders": 0,
-   "acos": 28.0,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
@@ -2457,61 +2457,61 @@ const FIN_DATA = {
   },
   {
    "query": "straw sippy cup",
-   "impressions": 63970,
-   "clicks": 159,
-   "ctr": 0.25,
-   "spend": 146.8,
+   "impressions": 66831,
+   "clicks": 163,
+   "ctr": 0.24,
+   "spend": 150.52,
    "sales": 292.8,
    "orders": 0,
-   "acos": 50.1,
+   "acos": 51.4,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "grosmimi stainless steel straw cup",
-   "impressions": 8470,
-   "clicks": 229,
-   "ctr": 2.7,
-   "spend": 136.37,
+   "impressions": 8635,
+   "clicks": 239,
+   "ctr": 2.77,
+   "spend": 147.14,
    "sales": 2332.9,
    "orders": 0,
-   "acos": 5.8,
-   "cvr": 0.0,
-   "brand": "Grosmimi"
-  },
-  {
-   "query": "elk and friends cups",
-   "impressions": 3879,
-   "clicks": 184,
-   "ctr": 4.74,
-   "spend": 126.41,
-   "sales": 93.6,
-   "orders": 0,
-   "acos": 135.1,
+   "acos": 6.3,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "toddler water bottle",
-   "impressions": 69177,
-   "clicks": 160,
-   "ctr": 0.23,
-   "spend": 124.28,
+   "impressions": 75926,
+   "clicks": 167,
+   "ctr": 0.22,
+   "spend": 130.27,
    "sales": 440.8,
    "orders": 0,
-   "acos": 28.2,
+   "acos": 29.6,
+   "cvr": 0.0,
+   "brand": "Grosmimi"
+  },
+  {
+   "query": "elk and friends cups",
+   "impressions": 3979,
+   "clicks": 186,
+   "ctr": 4.67,
+   "spend": 127.17,
+   "sales": 93.6,
+   "orders": 0,
+   "acos": 135.9,
    "cvr": 0.0,
    "brand": "Grosmimi"
   },
   {
    "query": "straw cup",
-   "impressions": 14594,
-   "clicks": 164,
+   "impressions": 14870,
+   "clicks": 167,
    "ctr": 1.12,
-   "spend": 107.82,
+   "spend": 110.01,
    "sales": 605.5,
    "orders": 0,
-   "acos": 17.8,
+   "acos": 18.2,
    "cvr": 0.0,
    "brand": "Grosmimi"
   }
@@ -2531,123 +2531,123 @@ const FIN_DATA = {
    },
    {
     "query": "sippy cups for toddlers 1-3",
-    "impressions": 533430,
-    "clicks": 2945,
+    "impressions": 536450,
+    "clicks": 2971,
     "ctr": 0.55,
-    "spend": 2162.1,
-    "sales": 6703.4,
+    "spend": 2187.09,
+    "sales": 6728.3,
     "orders": 0,
-    "acos": 32.3,
+    "acos": 32.5,
     "cvr": 0.0
    },
    {
     "query": "grosmimi straw cup",
-    "impressions": 184626,
-    "clicks": 2751,
-    "ctr": 1.49,
-    "spend": 1630.53,
-    "sales": 17147.3,
+    "impressions": 198278,
+    "clicks": 2972,
+    "ctr": 1.5,
+    "spend": 1827.05,
+    "sales": 18252.3,
     "orders": 0,
-    "acos": 9.5,
+    "acos": 10.0,
     "cvr": 0.0
    },
    {
     "query": "silicone straw cup for baby",
-    "impressions": 21614,
-    "clicks": 976,
-    "ctr": 4.52,
-    "spend": 1279.73,
+    "impressions": 21955,
+    "clicks": 977,
+    "ctr": 4.45,
+    "spend": 1281.14,
     "sales": 2257.5,
     "orders": 0,
-    "acos": 56.7,
+    "acos": 56.8,
     "cvr": 0.0
    },
    {
     "query": "baby straw cup",
-    "impressions": 254725,
-    "clicks": 1143,
+    "impressions": 261540,
+    "clicks": 1185,
     "ctr": 0.45,
-    "spend": 1118.97,
-    "sales": 4065.7,
+    "spend": 1149.77,
+    "sales": 4188.7,
     "orders": 0,
-    "acos": 27.5,
+    "acos": 27.4,
     "cvr": 0.0
    },
    {
     "query": "straw cups for toddlers 1-3",
-    "impressions": 139887,
-    "clicks": 585,
+    "impressions": 149154,
+    "clicks": 624,
     "ctr": 0.42,
-    "spend": 510.2,
-    "sales": 2045.9,
+    "spend": 540.06,
+    "sales": 2255.6,
     "orders": 0,
-    "acos": 24.9,
-    "cvr": 0.0
-   },
-   {
-    "query": "sippy cup for 6+ month old",
-    "impressions": 41465,
-    "clicks": 569,
-    "ctr": 1.37,
-    "spend": 439.8,
-    "sales": 796.1,
-    "orders": 0,
-    "acos": 55.2,
+    "acos": 23.9,
     "cvr": 0.0
    },
    {
     "query": "baby sippy cup",
-    "impressions": 99185,
-    "clicks": 629,
-    "ctr": 0.63,
-    "spend": 417.27,
-    "sales": 2110.3,
+    "impressions": 107870,
+    "clicks": 663,
+    "ctr": 0.61,
+    "spend": 446.18,
+    "sales": 2190.5,
     "orders": 0,
-    "acos": 19.8,
+    "acos": 20.4,
+    "cvr": 0.0
+   },
+   {
+    "query": "sippy cup for 6+ month old",
+    "impressions": 41862,
+    "clicks": 571,
+    "ctr": 1.36,
+    "spend": 441.5,
+    "sales": 796.1,
+    "orders": 0,
+    "acos": 55.5,
     "cvr": 0.0
    },
    {
     "query": "grossini straw cup",
-    "impressions": 74066,
-    "clicks": 623,
-    "ctr": 0.84,
-    "spend": 388.51,
-    "sales": 5163.2,
+    "impressions": 79299,
+    "clicks": 696,
+    "ctr": 0.88,
+    "spend": 439.82,
+    "sales": 5561.3,
     "orders": 0,
-    "acos": 7.5,
+    "acos": 7.9,
     "cvr": 0.0
    },
    {
     "query": "grosmimi straw cup stage 2",
-    "impressions": 29290,
-    "clicks": 649,
-    "ctr": 2.22,
-    "spend": 352.57,
-    "sales": 5548.7,
+    "impressions": 30923,
+    "clicks": 694,
+    "ctr": 2.24,
+    "spend": 386.64,
+    "sales": 5948.6,
     "orders": 0,
-    "acos": 6.4,
+    "acos": 6.5,
     "cvr": 0.0
    },
    {
     "query": "grosmimi",
-    "impressions": 87995,
-    "clicks": 725,
-    "ctr": 0.82,
-    "spend": 342.28,
-    "sales": 5108.6,
+    "impressions": 91593,
+    "clicks": 761,
+    "ctr": 0.83,
+    "spend": 363.47,
+    "sales": 5162.4,
     "orders": 0,
-    "acos": 6.7,
+    "acos": 7.0,
     "cvr": 0.0
    },
    {
     "query": "nuk sippy cup",
-    "impressions": 198370,
-    "clicks": 463,
-    "ctr": 0.23,
-    "spend": 328.89,
-    "sales": 730.7,
+    "impressions": 209749,
+    "clicks": 495,
+    "ctr": 0.24,
+    "spend": 350.87,
+    "sales": 759.4,
     "orders": 0,
-    "acos": 45.0,
+    "acos": 46.2,
     "cvr": 0.0
    },
    {
@@ -2663,24 +2663,24 @@ const FIN_DATA = {
    },
    {
     "query": "sippy cup",
-    "impressions": 75580,
-    "clicks": 300,
-    "ctr": 0.4,
-    "spend": 274.16,
-    "sales": 860.9,
+    "impressions": 85966,
+    "clicks": 312,
+    "ctr": 0.36,
+    "spend": 286.22,
+    "sales": 912.5,
     "orders": 0,
-    "acos": 31.8,
+    "acos": 31.4,
     "cvr": 0.0
    },
    {
     "query": "toddler straw cups",
-    "impressions": 118811,
-    "clicks": 299,
+    "impressions": 127795,
+    "clicks": 316,
     "ctr": 0.25,
-    "spend": 271.61,
-    "sales": 847.9,
+    "spend": 284.8,
+    "sales": 964.6,
     "orders": 0,
-    "acos": 32.0,
+    "acos": 29.5,
     "cvr": 0.0
    },
    {
@@ -2695,93 +2695,104 @@ const FIN_DATA = {
     "cvr": 0.0
    },
    {
-    "query": "sippy cup for 6 month old",
-    "impressions": 120764,
-    "clicks": 241,
-    "ctr": 0.2,
-    "spend": 235.39,
-    "sales": 1019.1,
+    "query": "sippy cups",
+    "impressions": 94435,
+    "clicks": 333,
+    "ctr": 0.35,
+    "spend": 256.36,
+    "sales": 624.3,
     "orders": 0,
-    "acos": 23.1,
+    "acos": 41.1,
     "cvr": 0.0
    },
    {
-    "query": "sippy cups",
-    "impressions": 80159,
-    "clicks": 308,
-    "ctr": 0.38,
-    "spend": 232.71,
-    "sales": 624.3,
+    "query": "sippy cup for 6 month old",
+    "impressions": 120770,
+    "clicks": 242,
+    "ctr": 0.2,
+    "spend": 235.9,
+    "sales": 1044.0,
     "orders": 0,
-    "acos": 37.3,
+    "acos": 22.6,
     "cvr": 0.0
    },
    {
     "query": "glass straw cup baby",
-    "impressions": 4565,
-    "clicks": 149,
-    "ctr": 3.26,
-    "spend": 219.96,
+    "impressions": 4684,
+    "clicks": 150,
+    "ctr": 3.2,
+    "spend": 221.39,
     "sales": 332.2,
     "orders": 0,
-    "acos": 66.2,
+    "acos": 66.6,
     "cvr": 0.0
    },
    {
     "query": "comotomo sippy cup",
-    "impressions": 3923,
-    "clicks": 416,
-    "ctr": 10.6,
-    "spend": 181.81,
+    "impressions": 3941,
+    "clicks": 417,
+    "ctr": 10.58,
+    "spend": 182.5,
     "sales": 124.6,
     "orders": 0,
-    "acos": 145.9,
+    "acos": 146.5,
     "cvr": 0.0
    }
   ],
   "Naeiae": [
    {
     "query": "rice crackers",
-    "impressions": 16575,
-    "clicks": 86,
-    "ctr": 0.52,
-    "spend": 90.46,
+    "impressions": 17074,
+    "clicks": 87,
+    "ctr": 0.51,
+    "spend": 91.66,
     "sales": 98.4,
     "orders": 0,
-    "acos": 91.9,
+    "acos": 93.2,
     "cvr": 0.0
    },
    {
     "query": "puffed rice",
-    "impressions": 3773,
-    "clicks": 33,
-    "ctr": 0.87,
-    "spend": 35.06,
+    "impressions": 3785,
+    "clicks": 34,
+    "ctr": 0.9,
+    "spend": 36.26,
     "sales": 49.2,
     "orders": 0,
-    "acos": 71.3,
+    "acos": 73.7,
     "cvr": 0.0
    },
    {
     "query": "low calorie snacks",
-    "impressions": 571,
-    "clicks": 41,
-    "ctr": 7.18,
-    "spend": 33.01,
+    "impressions": 588,
+    "clicks": 42,
+    "ctr": 7.14,
+    "spend": 33.85,
     "sales": 73.8,
     "orders": 0,
-    "acos": 44.7,
+    "acos": 45.9,
     "cvr": 0.0
    },
    {
     "query": "white rice cakes",
-    "impressions": 516,
-    "clicks": 25,
-    "ctr": 4.84,
-    "spend": 23.03,
+    "impressions": 545,
+    "clicks": 26,
+    "ctr": 4.77,
+    "spend": 23.91,
     "sales": 98.4,
     "orders": 0,
-    "acos": 23.4,
+    "acos": 24.3,
+    "cvr": 0.0
+   },
+   {
+    "query": "baby snacks",
+    "impressions": 1164,
+    "clicks": 20,
+    "ctr": 1.72,
+    "spend": 21.47,
+    "sales": 49.2,
+    "orders": 0,
+    "acos": 43.6,
     "cvr": 0.0
    },
    {
@@ -2796,44 +2807,33 @@ const FIN_DATA = {
     "cvr": 0.0
    },
    {
-    "query": "baby snacks",
-    "impressions": 1063,
-    "clicks": 19,
-    "ctr": 1.79,
-    "spend": 20.32,
-    "sales": 49.2,
-    "orders": 0,
-    "acos": 41.3,
-    "cvr": 0.0
-   },
-   {
     "query": "rice cracker",
-    "impressions": 775,
-    "clicks": 14,
-    "ctr": 1.81,
-    "spend": 15.02,
+    "impressions": 838,
+    "clicks": 15,
+    "ctr": 1.79,
+    "spend": 16.05,
     "sales": 24.6,
     "orders": 0,
-    "acos": 61.1,
+    "acos": 65.2,
     "cvr": 0.0
    },
    {
     "query": "japanese rice crackers",
-    "impressions": 1984,
-    "clicks": 16,
-    "ctr": 0.81,
-    "spend": 13.91,
+    "impressions": 2125,
+    "clicks": 17,
+    "ctr": 0.8,
+    "spend": 14.79,
     "sales": 24.6,
     "orders": 0,
-    "acos": 56.5,
+    "acos": 60.1,
     "cvr": 0.0
    },
    {
     "query": "b0fk9w1rbz",
-    "impressions": 562,
-    "clicks": 15,
-    "ctr": 2.67,
-    "spend": 13.68,
+    "impressions": 656,
+    "clicks": 16,
+    "ctr": 2.44,
+    "spend": 14.76,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
@@ -2873,6 +2873,17 @@ const FIN_DATA = {
     "cvr": 0.0
    },
    {
+    "query": "crackers",
+    "impressions": 476,
+    "clicks": 12,
+    "ctr": 2.52,
+    "spend": 11.34,
+    "sales": 24.6,
+    "orders": 0,
+    "acos": 46.1,
+    "cvr": 0.0
+   },
+   {
     "query": "puffed rice crackers",
     "impressions": 67,
     "clicks": 11,
@@ -2884,14 +2895,14 @@ const FIN_DATA = {
     "cvr": 0.0
    },
    {
-    "query": "crackers",
-    "impressions": 455,
-    "clicks": 11,
-    "ctr": 2.42,
-    "spend": 10.46,
-    "sales": 24.6,
+    "query": "b0bzhvzswq",
+    "impressions": 203,
+    "clicks": 10,
+    "ctr": 4.93,
+    "spend": 10.38,
+    "sales": 0.0,
     "orders": 0,
-    "acos": 42.5,
+    "acos": 0,
     "cvr": 0.0
    },
    {
@@ -2917,11 +2928,22 @@ const FIN_DATA = {
     "cvr": 0.0
    },
    {
-    "query": "b0bzhvzswq",
-    "impressions": 154,
-    "clicks": 9,
-    "ctr": 5.84,
-    "spend": 9.26,
+    "query": "organic rice cakes",
+    "impressions": 152,
+    "clicks": 11,
+    "ctr": 7.24,
+    "spend": 9.22,
+    "sales": 49.2,
+    "orders": 0,
+    "acos": 18.7,
+    "cvr": 0.0
+   },
+   {
+    "query": "b0dwwywhpb",
+    "impressions": 130,
+    "clicks": 8,
+    "ctr": 6.15,
+    "spend": 8.88,
     "sales": 0.0,
     "orders": 0,
     "acos": 0,
@@ -2936,28 +2958,6 @@ const FIN_DATA = {
     "sales": 24.6,
     "orders": 0,
     "acos": 36.0,
-    "cvr": 0.0
-   },
-   {
-    "query": "rice chips",
-    "impressions": 76,
-    "clicks": 9,
-    "ctr": 11.84,
-    "spend": 8.78,
-    "sales": 0.0,
-    "orders": 0,
-    "acos": 0,
-    "cvr": 0.0
-   },
-   {
-    "query": "rice snacks",
-    "impressions": 234,
-    "clicks": 10,
-    "ctr": 4.27,
-    "spend": 8.77,
-    "sales": 73.8,
-    "orders": 0,
-    "acos": 11.9,
     "cvr": 0.0
    }
   ]
@@ -3080,17 +3080,6 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "stage 1 grosmimi straw",
-        "spend": 0.15,
-        "sales": 22.8,
-        "clicks": 1,
-        "impressions": 6,
-        "purchases": 1,
-        "roas": 152.0,
-        "cpc": 0.15,
-        "ctr": 16.67
-       },
-       {
         "keyword": "grosmimi with straw",
         "spend": 0.33,
         "sales": 49.8,
@@ -3102,17 +3091,6 @@ const FIN_DATA = {
         "ctr": 33.33
        },
        {
-        "keyword": "grosmimi 10oz",
-        "spend": 0.64,
-        "sales": 88.4,
-        "clicks": 1,
-        "impressions": 4,
-        "purchases": 3,
-        "roas": 138.12,
-        "cpc": 0.64,
-        "ctr": 25.0
-       },
-       {
         "keyword": "phillip agent glass bottles with straw",
         "spend": 0.4,
         "sales": 49.8,
@@ -3122,28 +3100,6 @@ const FIN_DATA = {
         "roas": 124.5,
         "cpc": 0.4,
         "ctr": 50.0
-       },
-       {
-        "keyword": "bottle for toddler",
-        "spend": 0.63,
-        "sales": 77.4,
-        "clicks": 1,
-        "impressions": 5,
-        "purchases": 1,
-        "roas": 122.86,
-        "cpc": 0.63,
-        "ctr": 20.0
-       },
-       {
-        "keyword": "bottle grosmimi",
-        "spend": 0.45,
-        "sales": 51.6,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 1,
-        "roas": 114.67,
-        "cpc": 0.45,
-        "ctr": 100.0
        },
        {
         "keyword": "grosmimi metal cup",
@@ -3166,17 +3122,6 @@ const FIN_DATA = {
         "roas": 110.67,
         "cpc": 0.45,
         "ctr": 100.0
-       },
-       {
-        "keyword": "grosmimi 10oz straw cup",
-        "spend": 0.45,
-        "sales": 49.8,
-        "clicks": 1,
-        "impressions": 16,
-        "purchases": 1,
-        "roas": 110.67,
-        "cpc": 0.45,
-        "ctr": 6.25
        },
        {
         "keyword": "sippy vip with straw no spill 8oz",
@@ -3245,6 +3190,17 @@ const FIN_DATA = {
         "ctr": 33.33
        },
        {
+        "keyword": "grosmimi for toddler",
+        "spend": 0.33,
+        "sales": 28.7,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 86.97,
+        "cpc": 0.33,
+        "ctr": 50.0
+       },
+       {
         "keyword": "grosmimi straw cup metal",
         "spend": 0.45,
         "sales": 38.9,
@@ -3267,28 +3223,6 @@ const FIN_DATA = {
         "ctr": 22.22
        },
        {
-        "keyword": "double walled stainless sippy cup toddler",
-        "spend": 0.55,
-        "sales": 46.8,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 1,
-        "roas": 85.09,
-        "cpc": 0.55,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "grosmimi baby water bottle",
-        "spend": 0.55,
-        "sales": 46.8,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 1,
-        "roas": 85.09,
-        "cpc": 0.55,
-        "ctr": 100.0
-       },
-       {
         "keyword": "brumate tumbler kids",
         "spend": 0.55,
         "sales": 46.8,
@@ -3300,6 +3234,17 @@ const FIN_DATA = {
         "ctr": 20.0
        },
        {
+        "keyword": "double walled stainless sippy cup toddler",
+        "spend": 0.55,
+        "sales": 46.8,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 85.09,
+        "cpc": 0.55,
+        "ctr": 100.0
+       },
+       {
         "keyword": "training bottle for toddlers 1-3",
         "spend": 0.68,
         "sales": 57.4,
@@ -3309,17 +3254,6 @@ const FIN_DATA = {
         "roas": 84.41,
         "cpc": 0.68,
         "ctr": 25.0
-       },
-       {
-        "keyword": "toddler open cup",
-        "spend": 0.63,
-        "sales": 49.8,
-        "clicks": 1,
-        "impressions": 3,
-        "purchases": 1,
-        "roas": 79.05,
-        "cpc": 0.63,
-        "ctr": 33.33
        },
        {
         "keyword": "grosmimi 6 oz stage 2 cup",
@@ -3344,6 +3278,17 @@ const FIN_DATA = {
         "ctr": 50.0
        },
        {
+        "keyword": "b0c54cydn9",
+        "spend": 0.39,
+        "sales": 28.7,
+        "clicks": 1,
+        "impressions": 28,
+        "purchases": 1,
+        "roas": 73.59,
+        "cpc": 0.39,
+        "ctr": 3.57
+       },
+       {
         "keyword": "onzenna grosmimi straw cups",
         "spend": 0.54,
         "sales": 38.9,
@@ -3355,15 +3300,15 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "grosmimi baby cup",
-        "spend": 0.68,
-        "sales": 48.7,
+        "keyword": "stage 2 grosmimi straw cup",
+        "spend": 0.93,
+        "sales": 66.3,
         "clicks": 1,
-        "impressions": 2,
-        "purchases": 2,
-        "roas": 71.62,
-        "cpc": 0.68,
-        "ctr": 50.0
+        "impressions": 4,
+        "purchases": 3,
+        "roas": 71.29,
+        "cpc": 0.93,
+        "ctr": 25.0
        },
        {
         "keyword": "grosmimi stage 2 nipple",
@@ -3386,6 +3331,28 @@ const FIN_DATA = {
         "roas": 67.83,
         "cpc": 0.69,
         "ctr": 100.0
+       },
+       {
+        "keyword": "silicone cup 1 year old",
+        "spend": 0.86,
+        "sales": 57.4,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 2,
+        "roas": 66.74,
+        "cpc": 0.86,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "water bottle kids grossini",
+        "spend": 0.44,
+        "sales": 28.7,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 65.23,
+        "cpc": 0.44,
+        "ctr": 50.0
        },
        {
         "keyword": "grosmimi straw cup bear",
@@ -3421,17 +3388,6 @@ const FIN_DATA = {
         "ctr": 20.0
        },
        {
-        "keyword": "grosmimi straw cup stage 2 10 oz",
-        "spend": 0.45,
-        "sales": 28.7,
-        "clicks": 1,
-        "impressions": 7,
-        "purchases": 1,
-        "roas": 63.78,
-        "cpc": 0.45,
-        "ctr": 14.29
-       },
-       {
         "keyword": "grosmimi straw cup 8oz",
         "spend": 1.17,
         "sales": 73.6,
@@ -3441,6 +3397,17 @@ const FIN_DATA = {
         "roas": 62.91,
         "cpc": 0.58,
         "ctr": 20.0
+       },
+       {
+        "keyword": "sippy cups mushie",
+        "spend": 0.85,
+        "sales": 51.8,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 2,
+        "roas": 60.94,
+        "cpc": 0.85,
+        "ctr": 50.0
        },
        {
         "keyword": "grosmimi weighted straw 6oz",
@@ -3487,17 +3454,6 @@ const FIN_DATA = {
         "ctr": 7.69
        },
        {
-        "keyword": "grosmimi straw cup stage 2 stainless steel",
-        "spend": 1.59,
-        "sales": 93.6,
-        "clicks": 3,
-        "impressions": 12,
-        "purchases": 2,
-        "roas": 58.87,
-        "cpc": 0.53,
-        "ctr": 25.0
-       },
-       {
         "keyword": "toddler water cups",
         "spend": 1.32,
         "sales": 77.4,
@@ -3507,6 +3463,17 @@ const FIN_DATA = {
         "roas": 58.64,
         "cpc": 1.32,
         "ctr": 4.76
+       },
+       {
+        "keyword": "grosmimi straw cup 2 pack",
+        "spend": 1.3,
+        "sales": 75.6,
+        "clicks": 2,
+        "impressions": 12,
+        "purchases": 3,
+        "roas": 58.15,
+        "cpc": 0.65,
+        "ctr": 16.67
        },
        {
         "keyword": "grosmimi ppsu baby straw cup",
@@ -3575,17 +3542,6 @@ const FIN_DATA = {
         "ctr": 13.33
        },
        {
-        "keyword": "toddler travel sippy cups",
-        "spend": 1.03,
-        "sales": 57.4,
-        "clicks": 1,
-        "impressions": 4,
-        "purchases": 1,
-        "roas": 55.73,
-        "cpc": 1.03,
-        "ctr": 25.0
-       },
-       {
         "keyword": "grosmimi straw cup 12+",
         "spend": 1.03,
         "sales": 57.4,
@@ -3597,6 +3553,17 @@ const FIN_DATA = {
         "ctr": 7.14
        },
        {
+        "keyword": "toddler travel sippy cups",
+        "spend": 1.03,
+        "sales": 57.4,
+        "clicks": 1,
+        "impressions": 4,
+        "purchases": 1,
+        "roas": 55.73,
+        "cpc": 1.03,
+        "ctr": 25.0
+       },
+       {
         "keyword": "grosmimi replacement topstage 2",
         "spend": 0.57,
         "sales": 31.0,
@@ -3606,17 +3573,6 @@ const FIN_DATA = {
         "roas": 54.39,
         "cpc": 0.57,
         "ctr": 50.0
-       },
-       {
-        "keyword": "gossimini straw cup",
-        "spend": 1.83,
-        "sales": 98.6,
-        "clicks": 2,
-        "impressions": 15,
-        "purchases": 3,
-        "roas": 53.88,
-        "cpc": 0.92,
-        "ctr": 13.33
        },
        {
         "keyword": "tommee tippee replacement lids",
@@ -3685,6 +3641,17 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
+        "keyword": "nipple transition bottles",
+        "spend": 0.5,
+        "sales": 25.8,
+        "clicks": 1,
+        "impressions": 4,
+        "purchases": 1,
+        "roas": 51.6,
+        "cpc": 0.5,
+        "ctr": 25.0
+       },
+       {
         "keyword": "18 month milk bottle stainless steel or glass microwaveable",
         "spend": 0.5,
         "sales": 25.8,
@@ -3707,17 +3674,6 @@ const FIN_DATA = {
         "ctr": 50.0
        },
        {
-        "keyword": "nipple transition bottles",
-        "spend": 0.5,
-        "sales": 25.8,
-        "clicks": 1,
-        "impressions": 4,
-        "purchases": 1,
-        "roas": 51.6,
-        "cpc": 0.5,
-        "ctr": 25.0
-       },
-       {
         "keyword": "grosmimi spill proof no spill magic sippy cup w",
         "spend": 0.45,
         "sales": 22.8,
@@ -3727,6 +3683,17 @@ const FIN_DATA = {
         "roas": 50.67,
         "cpc": 0.45,
         "ctr": 100.0
+       },
+       {
+        "keyword": "grosmimi gravity straw",
+        "spend": 1.03,
+        "sales": 51.8,
+        "clicks": 1,
+        "impressions": 4,
+        "purchases": 2,
+        "roas": 50.29,
+        "cpc": 1.03,
+        "ctr": 25.0
        },
        {
         "keyword": "toddler milk bottles",
@@ -3759,17 +3726,6 @@ const FIN_DATA = {
         "purchases": 1,
         "roas": 46.06,
         "cpc": 0.99,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "baby led weaning supplies",
-        "spend": 0.5,
-        "sales": 22.8,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 1,
-        "roas": 45.6,
-        "cpc": 0.5,
         "ctr": 50.0
        },
        {
@@ -3806,15 +3762,15 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "grosmimi bottle",
-        "spend": 2.25,
-        "sales": 98.6,
-        "clicks": 5,
-        "impressions": 24,
-        "purchases": 2,
-        "roas": 43.82,
-        "cpc": 0.45,
-        "ctr": 20.83
+        "keyword": "toddler insulated water bottle",
+        "spend": 1.08,
+        "sales": 46.8,
+        "clicks": 1,
+        "impressions": 8,
+        "purchases": 1,
+        "roas": 43.33,
+        "cpc": 1.08,
+        "ctr": 12.5
        },
        {
         "keyword": "olee cup with straw",
@@ -3839,6 +3795,17 @@ const FIN_DATA = {
         "ctr": 14.29
        },
        {
+        "keyword": "milk bottle",
+        "spend": 1.28,
+        "sales": 54.5,
+        "clicks": 3,
+        "impressions": 16,
+        "purchases": 2,
+        "roas": 42.58,
+        "cpc": 0.43,
+        "ctr": 18.75
+       },
+       {
         "keyword": "insulated baby bottle",
         "spend": 1.1,
         "sales": 46.8,
@@ -3851,6 +3818,28 @@ const FIN_DATA = {
        },
        {
         "keyword": "spill proof cup with handles for kids",
+        "spend": 1.1,
+        "sales": 46.8,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 42.55,
+        "cpc": 1.1,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b0fkfn91x9",
+        "spend": 1.1,
+        "sales": 46.8,
+        "clicks": 1,
+        "impressions": 11,
+        "purchases": 1,
+        "roas": 42.55,
+        "cpc": 1.1,
+        "ctr": 9.09
+       },
+       {
+        "keyword": "1year old cups",
         "spend": 1.1,
         "sales": 46.8,
         "clicks": 1,
@@ -3881,6 +3870,17 @@ const FIN_DATA = {
         "roas": 42.55,
         "cpc": 1.1,
         "ctr": 100.0
+       },
+       {
+        "keyword": "grosmimi tumbler",
+        "spend": 1.48,
+        "sales": 62.3,
+        "clicks": 2,
+        "impressions": 67,
+        "purchases": 2,
+        "roas": 42.09,
+        "cpc": 0.74,
+        "ctr": 2.99
        },
        {
         "keyword": "lids push button pop up straw drink cup",
@@ -3938,15 +3938,15 @@ const FIN_DATA = {
         "ctr": 9.52
        },
        {
-        "keyword": "grosmimi nipple replacement stage 2",
-        "spend": 2.34,
-        "sales": 93.0,
-        "clicks": 4,
-        "impressions": 9,
-        "purchases": 4,
-        "roas": 39.74,
-        "cpc": 0.59,
-        "ctr": 44.44
+        "keyword": "toddler travel cups with straw spill proof",
+        "spend": 1.17,
+        "sales": 46.6,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 2,
+        "roas": 39.83,
+        "cpc": 1.17,
+        "ctr": 100.0
        },
        {
         "keyword": "one year old straw cup spill proof",
@@ -3958,6 +3958,28 @@ const FIN_DATA = {
         "roas": 39.67,
         "cpc": 1.2,
         "ctr": 12.5
+       },
+       {
+        "keyword": "baby cup with straw 6-12 months",
+        "spend": 1.2,
+        "sales": 47.6,
+        "clicks": 1,
+        "impressions": 18,
+        "purchases": 2,
+        "roas": 39.67,
+        "cpc": 1.2,
+        "ctr": 5.56
+       },
+       {
+        "keyword": "onzenna straw cup",
+        "spend": 1.2,
+        "sales": 46.8,
+        "clicks": 2,
+        "impressions": 11,
+        "purchases": 1,
+        "roas": 39.0,
+        "cpc": 0.6,
+        "ctr": 18.18
        },
        {
         "keyword": "sippy cup with nipple and straw",
@@ -3982,17 +4004,6 @@ const FIN_DATA = {
         "ctr": 1.45
        },
        {
-        "keyword": "onzenna straw cup",
-        "spend": 1.2,
-        "sales": 46.8,
-        "clicks": 2,
-        "impressions": 11,
-        "purchases": 1,
-        "roas": 39.0,
-        "cpc": 0.6,
-        "ctr": 18.18
-       },
-       {
         "keyword": "grosmimi flip top straw cup",
         "spend": 3.73,
         "sales": 145.1,
@@ -4004,17 +4015,6 @@ const FIN_DATA = {
         "ctr": 19.44
        },
        {
-        "keyword": "b0c54cydn9",
-        "spend": 0.74,
-        "sales": 28.7,
-        "clicks": 2,
-        "impressions": 48,
-        "purchases": 1,
-        "roas": 38.78,
-        "cpc": 0.37,
-        "ctr": 4.17
-       },
-       {
         "keyword": "grosmimi character design straw cup",
         "spend": 0.75,
         "sales": 28.7,
@@ -4024,6 +4024,17 @@ const FIN_DATA = {
         "roas": 38.27,
         "cpc": 0.75,
         "ctr": 20.0
+       },
+       {
+        "keyword": "2 year old cup",
+        "spend": 0.75,
+        "sales": 28.7,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 38.27,
+        "cpc": 0.75,
+        "ctr": 50.0
        },
        {
         "keyword": "gosomimi sippy cup",
@@ -4057,536 +4068,30 @@ const FIN_DATA = {
         "roas": 37.76,
         "cpc": 0.76,
         "ctr": 33.33
-       },
-       {
-        "keyword": "toddler straw cup spill proof steel",
-        "spend": 1.24,
-        "sales": 46.8,
-        "clicks": 1,
-        "impressions": 3,
-        "purchases": 1,
-        "roas": 37.74,
-        "cpc": 1.24,
-        "ctr": 33.33
        }
       ],
       "worst": [
        {
-        "keyword": "toddler water bottle",
-        "spend": 40.26,
-        "sales": 0.0,
-        "clicks": 48,
-        "impressions": 25377,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.84,
-        "ctr": 0.19
-       },
-       {
-        "keyword": "straw cup for milk",
-        "spend": 6.02,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 213,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.75,
-        "ctr": 3.76
-       },
-       {
-        "keyword": "squeeze and sip straw cup",
-        "spend": 5.06,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 103,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.26,
-        "ctr": 3.88
-       },
-       {
-        "keyword": "no leak straw cup",
-        "spend": 5.13,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 19,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.28,
-        "ctr": 21.05
-       },
-       {
-        "keyword": "munchkin simple clean straw cup",
-        "spend": 6.13,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 182,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.23,
-        "ctr": 2.75
-       },
-       {
-        "keyword": "milk straw cup",
-        "spend": 5.5,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 310,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.92,
-        "ctr": 1.94
-       },
-       {
-        "keyword": "dr browns straw cup",
-        "spend": 6.24,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 630,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.89,
-        "ctr": 1.11
-       },
-       {
-        "keyword": "bottles for babies from 12 to 24 months",
-        "spend": 9.27,
-        "sales": 0.0,
-        "clicks": 12,
-        "impressions": 212,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.77,
-        "ctr": 5.66
-       },
-       {
-        "keyword": "bottle with straw for toddler",
-        "spend": 5.09,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 12,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.27,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "baby straw cup leak proof",
-        "spend": 7.16,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 110,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.43,
-        "ctr": 4.55
-       },
-       {
-        "keyword": "baby owala",
-        "spend": 5.26,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 63,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.05,
-        "ctr": 7.94
-       },
-       {
-        "keyword": "baby cup",
-        "spend": 10.66,
-        "sales": 0.0,
-        "clicks": 14,
-        "impressions": 641,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.76,
-        "ctr": 2.18
-       },
-       {
-        "keyword": "tommee tippee straw cup",
-        "spend": 12.96,
-        "sales": 0.0,
-        "clicks": 15,
-        "impressions": 2811,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.86,
-        "ctr": 0.53
-       },
-       {
-        "keyword": "toddler owala",
-        "spend": 7.21,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 171,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.2,
-        "ctr": 3.51
-       },
-       {
-        "keyword": "toddler bottle",
-        "spend": 10.68,
-        "sales": 0.0,
-        "clicks": 13,
-        "impressions": 270,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.82,
-        "ctr": 4.81
-       },
-       {
-        "keyword": "stainless steel straw cup toddler",
-        "spend": 12.95,
-        "sales": 0.0,
-        "clicks": 21,
-        "impressions": 338,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.62,
-        "ctr": 6.21
-       },
-       {
-        "keyword": "stainless steel sippy cup 6 month old",
-        "spend": 72.66,
-        "sales": 0.0,
-        "clicks": 74,
-        "impressions": 74,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.98,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "sippy cup for milk",
-        "spend": 12.22,
-        "sales": 0.0,
-        "clicks": 13,
-        "impressions": 395,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.94,
-        "ctr": 3.29
-       },
-       {
-        "keyword": "sippy cup for baby",
-        "spend": 5.17,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 137,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.29,
-        "ctr": 2.92
-       },
-       {
-        "keyword": "pigeon straw cup",
-        "spend": 7.62,
-        "sales": 0.0,
-        "clicks": 10,
-        "impressions": 523,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.76,
-        "ctr": 1.91
-       },
-       {
-        "keyword": "oxo tot cup",
-        "spend": 6.85,
-        "sales": 0.0,
-        "clicks": 18,
-        "impressions": 174,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.38,
-        "ctr": 10.34
-       },
-       {
-        "keyword": "leakproof straw cup baby",
-        "spend": 7.58,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 46,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.9,
-        "ctr": 8.7
-       },
-       {
-        "keyword": "infant water bottle",
-        "spend": 5.97,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 57,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.0,
-        "ctr": 10.53
-       },
-       {
-        "keyword": "grosmimi insulated straw cup",
-        "spend": 7.85,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 48,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.98,
-        "ctr": 16.67
-       },
-       {
-        "keyword": "glass straw cup baby",
-        "spend": 9.79,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 705,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.4,
-        "ctr": 0.99
-       },
-       {
-        "keyword": "glass sippy cups for toddlers 1-3",
-        "spend": 6.48,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 74,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.93,
-        "ctr": 9.46
-       },
-       {
-        "keyword": "glass sippy cup",
-        "spend": 8.12,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 266,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.74,
-        "ctr": 4.14
-       },
-       {
-        "keyword": "glass bear cup with straw",
-        "spend": 7.06,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 8789,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.78,
-        "ctr": 0.1
-       },
-       {
-        "keyword": "first straw cup",
-        "spend": 10.81,
-        "sales": 0.0,
-        "clicks": 10,
-        "impressions": 697,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 1.43
-       },
-       {
-        "keyword": "elk and friends cups",
-        "spend": 11.73,
-        "sales": 0.0,
-        "clicks": 23,
-        "impressions": 545,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.51,
-        "ctr": 4.22
-       },
-       {
-        "keyword": "cup for baby",
-        "spend": 5.04,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 45,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.84,
-        "ctr": 13.33
-       },
-       {
-        "keyword": "baby straw cups",
-        "spend": 7.12,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 3191,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.42,
-        "ctr": 0.16
-       },
-       {
-        "keyword": "baby straw cup no valve",
-        "spend": 5.28,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 641,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.32,
-        "ctr": 0.62
-       },
-       {
-        "keyword": "baby cups 6-12 months",
-        "spend": 8.06,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 173,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.01,
-        "ctr": 4.62
-       },
-       {
-        "keyword": "baby bottles",
-        "spend": 22.77,
-        "sales": 0.0,
-        "clicks": 29,
-        "impressions": 1230,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 2.36
-       },
-       {
-        "keyword": "b0fjskzv2d",
-        "spend": 5.32,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 73,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.89,
-        "ctr": 8.22
-       },
-       {
-        "keyword": "b0cngy8xgd",
-        "spend": 7.9,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 291,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.99,
-        "ctr": 2.75
-       },
-       {
-        "keyword": "b0cngxx8kz",
-        "spend": 5.13,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 101,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 4.95
-       },
-       {
-        "keyword": "b08398kz2b",
-        "spend": 7.84,
-        "sales": 0.0,
-        "clicks": 23,
-        "impressions": 23,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.34,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "valve free straw cup toddler",
-        "spend": 6.73,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 58,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 10.34
-       },
-       {
-        "keyword": "straw cup for milk 1+ year old",
-        "spend": 5.9,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 81,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.18,
-        "ctr": 6.17
-       },
-       {
-        "keyword": "spill proof sippy cups for toddlers",
-        "spend": 5.04,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 158,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.01,
-        "ctr": 3.16
-       },
-       {
-        "keyword": "munchkin straw cup",
-        "spend": 12.14,
-        "sales": 0.0,
-        "clicks": 12,
-        "impressions": 1098,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.01,
-        "ctr": 1.09
-       },
-       {
-        "keyword": "milk bottle for toddlers 3-5",
-        "spend": 5.3,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 61,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.88,
-        "ctr": 9.84
-       },
-       {
-        "keyword": "baby first cup",
-        "spend": 5.5,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 371,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.92,
-        "ctr": 1.62
-       },
-       {
-        "keyword": "weighted straw cup baby",
+        "keyword": "trainer cup for 2 year old baby",
         "spend": 5.11,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 108,
+        "clicks": 5,
+        "impressions": 88,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.02,
+        "ctr": 5.68
+       },
+       {
+        "keyword": "toddler water bottle",
+        "spend": 40.69,
+        "sales": 0.0,
+        "clicks": 48,
+        "impressions": 30547,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 0.85,
-        "ctr": 5.56
-       },
-       {
-        "keyword": "tum tum straw cup",
-        "spend": 6.24,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 176,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.04,
-        "ctr": 3.41
+        "ctr": 0.16
        },
        {
         "keyword": "toddler stainless steel water bottle",
@@ -4611,6 +4116,149 @@ const FIN_DATA = {
         "ctr": 2.37
        },
        {
+        "keyword": "straw bottle baby",
+        "spend": 6.67,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 77,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.11,
+        "ctr": 7.79
+       },
+       {
+        "keyword": "squeeze and sip straw cup",
+        "spend": 6.06,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 131,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.21,
+        "ctr": 3.82
+       },
+       {
+        "keyword": "spill proof sippy cups for toddlers",
+        "spend": 5.04,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 158,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.01,
+        "ctr": 3.16
+       },
+       {
+        "keyword": "ppsu straw cup",
+        "spend": 9.51,
+        "sales": 0.0,
+        "clicks": 13,
+        "impressions": 1695,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.73,
+        "ctr": 0.77
+       },
+       {
+        "keyword": "owala baby cup",
+        "spend": 5.9,
+        "sales": 0.0,
+        "clicks": 3,
+        "impressions": 83,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.97,
+        "ctr": 3.61
+       },
+       {
+        "keyword": "milk bottle for toddlers 3-5",
+        "spend": 5.3,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 57,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.88,
+        "ctr": 10.53
+       },
+       {
+        "keyword": "infant water bottle",
+        "spend": 5.97,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 57,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.0,
+        "ctr": 10.53
+       },
+       {
+        "keyword": "glass sippy cups for toddlers 1-3",
+        "spend": 5.38,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 72,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.9,
+        "ctr": 8.33
+       },
+       {
+        "keyword": "baby straw cup with handles",
+        "spend": 5.3,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 1052,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.32,
+        "ctr": 0.38
+       },
+       {
+        "keyword": "baby owala",
+        "spend": 5.26,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 63,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.05,
+        "ctr": 7.94
+       },
+       {
+        "keyword": "zak toddler cup with straw",
+        "spend": 5.93,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 1085,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.66,
+        "ctr": 0.83
+       },
+       {
+        "keyword": "tommee tippee straw cup",
+        "spend": 13.67,
+        "sales": 0.0,
+        "clicks": 16,
+        "impressions": 3484,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.85,
+        "ctr": 0.46
+       },
+       {
+        "keyword": "toddler cup",
+        "spend": 17.59,
+        "sales": 0.0,
+        "clicks": 21,
+        "impressions": 1962,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 1.07
+       },
+       {
         "keyword": "toddler bottles",
         "spend": 5.16,
         "sales": 0.0,
@@ -4629,96 +4277,85 @@ const FIN_DATA = {
         "impressions": 13,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.32,
+        "cpc": 1.31,
         "ctr": 30.77
        },
        {
-        "keyword": "straw bottle baby",
-        "spend": 5.57,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 75,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.11,
-        "ctr": 6.67
-       },
-       {
-        "keyword": "stainless steel straw cup",
-        "spend": 5.1,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 119,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.27,
-        "ctr": 3.36
-       },
-       {
-        "keyword": "dr brown sippy cups",
-        "spend": 6.25,
+        "keyword": "straw cup for milk",
+        "spend": 6.92,
         "sales": 0.0,
         "clicks": 8,
-        "impressions": 331,
+        "impressions": 232,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.78,
-        "ctr": 2.42
+        "cpc": 0.86,
+        "ctr": 3.45
        },
        {
-        "keyword": "b0bk9y9y6l",
-        "spend": 8.65,
+        "keyword": "stainless steel straw cup toddler",
+        "spend": 12.6,
         "sales": 0.0,
-        "clicks": 8,
-        "impressions": 703,
+        "clicks": 20,
+        "impressions": 328,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 1.14
+        "cpc": 0.63,
+        "ctr": 6.1
        },
        {
-        "keyword": "milk straw cup baby",
-        "spend": 6.5,
+        "keyword": "stainless steel sippy cup",
+        "spend": 11.53,
+        "sales": 0.0,
+        "clicks": 10,
+        "impressions": 137,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.15,
+        "ctr": 7.3
+       },
+       {
+        "keyword": "sippy cup for baby",
+        "spend": 6.71,
         "sales": 0.0,
         "clicks": 5,
-        "impressions": 78,
+        "impressions": 185,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.3,
-        "ctr": 6.41
+        "cpc": 1.34,
+        "ctr": 2.7
        },
        {
-        "keyword": "cups for 1+ year old",
-        "spend": 5.68,
+        "keyword": "no leak straw cup",
+        "spend": 5.13,
         "sales": 0.0,
         "clicks": 4,
-        "impressions": 13,
+        "impressions": 19,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.42,
-        "ctr": 30.77
+        "cpc": 1.28,
+        "ctr": 21.05
        },
        {
-        "keyword": "toddler cups straw",
-        "spend": 7.03,
+        "keyword": "munchkin straw cup",
+        "spend": 10.65,
         "sales": 0.0,
-        "clicks": 1,
-        "impressions": 87,
+        "clicks": 11,
+        "impressions": 988,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 7.03,
-        "ctr": 1.15
+        "cpc": 0.97,
+        "ctr": 1.11
        },
        {
-        "keyword": "straw cup with handles",
-        "spend": 6.04,
+        "keyword": "milk straw cup",
+        "spend": 5.74,
         "sales": 0.0,
-        "clicks": 5,
-        "impressions": 65,
+        "clicks": 6,
+        "impressions": 291,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.21,
-        "ctr": 7.69
+        "cpc": 0.96,
+        "ctr": 2.06
        },
        {
         "keyword": "large sippy cup",
@@ -4732,444 +4369,807 @@ const FIN_DATA = {
         "ctr": 16.75
        },
        {
-        "keyword": "training straw cups for babies",
-        "spend": 107.03,
-        "sales": 47.6,
-        "clicks": 70,
-        "impressions": 190,
-        "purchases": 2,
-        "roas": 0.44,
-        "cpc": 1.53,
-        "ctr": 36.84
+        "keyword": "grosmimi insulated straw cup",
+        "spend": 7.85,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 48,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.98,
+        "ctr": 16.67
        },
        {
-        "keyword": "toddler straw cup",
-        "spend": 63.12,
-        "sales": 38.3,
-        "clicks": 67,
-        "impressions": 14192,
-        "purchases": 2,
-        "roas": 0.61,
-        "cpc": 0.94,
-        "ctr": 0.47
+        "keyword": "glass sippy cup",
+        "spend": 6.14,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 159,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.77,
+        "ctr": 5.03
        },
        {
-        "keyword": "straw sippy cup",
-        "spend": 36.29,
-        "sales": 28.7,
-        "clicks": 44,
-        "impressions": 17352,
-        "purchases": 1,
-        "roas": 0.79,
-        "cpc": 0.82,
-        "ctr": 0.25
-       },
-       {
-        "keyword": "nuk straw cup",
-        "spend": 19.45,
-        "sales": 15.5,
-        "clicks": 31,
-        "impressions": 2026,
-        "purchases": 1,
-        "roas": 0.8,
-        "cpc": 0.63,
-        "ctr": 1.53
+        "keyword": "glass bear cup with straw",
+        "spend": 7.06,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 8789,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.78,
+        "ctr": 0.1
        },
        {
         "keyword": "first straw cups for babies 6 months",
-        "spend": 24.08,
-        "sales": 22.8,
-        "clicks": 16,
-        "impressions": 5451,
-        "purchases": 1,
-        "roas": 0.95,
-        "cpc": 1.5,
-        "ctr": 0.29
-       },
-       {
-        "keyword": "weighted straw cups for toddlers",
-        "spend": 22.24,
-        "sales": 22.8,
-        "clicks": 34,
-        "impressions": 2421,
-        "purchases": 1,
-        "roas": 1.03,
-        "cpc": 0.65,
-        "ctr": 1.4
-       },
-       {
-        "keyword": "munchkin sippy cup",
-        "spend": 20.82,
-        "sales": 23.8,
-        "clicks": 21,
-        "impressions": 1587,
-        "purchases": 1,
-        "roas": 1.14,
-        "cpc": 0.99,
-        "ctr": 1.32
-       },
-       {
-        "keyword": "comotomo sippy cup",
-        "spend": 33.88,
-        "sales": 38.9,
-        "clicks": 91,
-        "impressions": 906,
-        "purchases": 1,
-        "roas": 1.15,
-        "cpc": 0.37,
-        "ctr": 10.04
-       },
-       {
-        "keyword": "toddler bottles for milk",
-        "spend": 18.85,
-        "sales": 23.8,
-        "clicks": 21,
-        "impressions": 404,
-        "purchases": 1,
-        "roas": 1.26,
-        "cpc": 0.9,
-        "ctr": 5.2
-       },
-       {
-        "keyword": "dr browns sippy cup",
-        "spend": 15.77,
-        "sales": 22.8,
-        "clicks": 19,
-        "impressions": 1675,
-        "purchases": 1,
-        "roas": 1.45,
-        "cpc": 0.83,
-        "ctr": 1.13
-       },
-       {
-        "keyword": "milk cup for toddlers 1-3",
-        "spend": 14.88,
-        "sales": 23.8,
-        "clicks": 16,
-        "impressions": 478,
-        "purchases": 1,
-        "roas": 1.6,
-        "cpc": 0.93,
-        "ctr": 3.35
-       },
-       {
-        "keyword": "baby bottle with straw",
-        "spend": 13.73,
-        "sales": 23.8,
-        "clicks": 10,
-        "impressions": 149,
-        "purchases": 1,
-        "roas": 1.73,
-        "cpc": 1.37,
-        "ctr": 6.71
-       },
-       {
-        "keyword": "weighted straw cup",
-        "spend": 29.12,
-        "sales": 54.5,
-        "clicks": 35,
-        "impressions": 12800,
-        "purchases": 2,
-        "roas": 1.87,
-        "cpc": 0.83,
-        "ctr": 0.27
-       },
-       {
-        "keyword": "toddler milk bottle",
-        "spend": 15.01,
-        "sales": 28.7,
+        "spend": 24.27,
+        "sales": 0.0,
         "clicks": 17,
-        "impressions": 351,
-        "purchases": 1,
-        "roas": 1.91,
-        "cpc": 0.88,
-        "ctr": 4.84
-       },
-       {
-        "keyword": "sippy cup",
-        "spend": 122.15,
-        "sales": 237.5,
-        "clicks": 124,
-        "impressions": 37210,
-        "purchases": 9,
-        "roas": 1.94,
-        "cpc": 0.99,
-        "ctr": 0.33
-       },
-       {
-        "keyword": "water sippy cup for 6 month old baby",
-        "spend": 11.59,
-        "sales": 22.8,
-        "clicks": 13,
-        "impressions": 33,
-        "purchases": 1,
-        "roas": 1.97,
-        "cpc": 0.89,
-        "ctr": 39.39
-       },
-       {
-        "keyword": "silicone straw cup for baby",
-        "spend": 83.06,
-        "sales": 166.7,
-        "clicks": 57,
-        "impressions": 3317,
-        "purchases": 7,
-        "roas": 2.01,
-        "cpc": 1.46,
-        "ctr": 1.72
-       },
-       {
-        "keyword": "toddler sippy cup",
-        "spend": 13.19,
-        "sales": 28.7,
-        "clicks": 13,
-        "impressions": 256,
-        "purchases": 1,
-        "roas": 2.18,
-        "cpc": 1.01,
-        "ctr": 5.08
-       },
-       {
-        "keyword": "straw cup for 1 year old",
-        "spend": 11.87,
-        "sales": 25.9,
-        "clicks": 14,
-        "impressions": 536,
-        "purchases": 1,
-        "roas": 2.18,
-        "cpc": 0.85,
-        "ctr": 2.61
-       },
-       {
-        "keyword": "toddler cups spill proof",
-        "spend": 12.63,
-        "sales": 28.7,
-        "clicks": 14,
-        "impressions": 1125,
-        "purchases": 1,
-        "roas": 2.27,
-        "cpc": 0.9,
-        "ctr": 1.24
-       },
-       {
-        "keyword": "nuk sippy cup",
-        "spend": 102.91,
-        "sales": 235.8,
-        "clicks": 133,
-        "impressions": 48168,
-        "purchases": 7,
-        "roas": 2.29,
-        "cpc": 0.77,
+        "impressions": 6179,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.43,
         "ctr": 0.28
        },
        {
-        "keyword": "sippy cup for 6+ month old",
-        "spend": 111.63,
-        "sales": 257.8,
-        "clicks": 120,
-        "impressions": 6069,
-        "purchases": 11,
-        "roas": 2.31,
-        "cpc": 0.93,
-        "ctr": 1.98
-       },
-       {
-        "keyword": "straw bottle for toddlers 1-3",
-        "spend": 11.84,
-        "sales": 28.7,
+        "keyword": "first straw cup",
+        "spend": 11.25,
+        "sales": 0.0,
         "clicks": 11,
-        "impressions": 291,
-        "purchases": 1,
-        "roas": 2.42,
-        "cpc": 1.08,
-        "ctr": 3.78
+        "impressions": 682,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.02,
+        "ctr": 1.61
        },
        {
-        "keyword": "transition sippy cup",
-        "spend": 11.79,
-        "sales": 28.7,
-        "clicks": 14,
-        "impressions": 648,
-        "purchases": 1,
-        "roas": 2.43,
-        "cpc": 0.84,
-        "ctr": 2.16
+        "keyword": "elk and friends cups",
+        "spend": 8.17,
+        "sales": 0.0,
+        "clicks": 18,
+        "impressions": 247,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.45,
+        "ctr": 7.29
        },
        {
-        "keyword": "honey bear straw cup",
-        "spend": 9.41,
-        "sales": 23.8,
-        "clicks": 12,
-        "impressions": 4567,
-        "purchases": 1,
-        "roas": 2.53,
+        "keyword": "dr browns straw cup",
+        "spend": 5.5,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 550,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.92,
+        "ctr": 1.09
+       },
+       {
+        "keyword": "dr brown sippy cups",
+        "spend": 5.74,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 275,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.82,
+        "ctr": 2.55
+       },
+       {
+        "keyword": "bottles for babies from 12 to 24 months",
+        "spend": 8.61,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 193,
+        "purchases": 0,
+        "roas": 0.0,
         "cpc": 0.78,
+        "ctr": 5.7
+       },
+       {
+        "keyword": "baby straw cup no valve",
+        "spend": 5.28,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 641,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.32,
+        "ctr": 0.62
+       },
+       {
+        "keyword": "baby straw cup leak proof",
+        "spend": 9.88,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 122,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.41,
+        "ctr": 5.74
+       },
+       {
+        "keyword": "baby cup",
+        "spend": 9.28,
+        "sales": 0.0,
+        "clicks": 12,
+        "impressions": 718,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.77,
+        "ctr": 1.67
+       },
+       {
+        "keyword": "baby bottles",
+        "spend": 29.1,
+        "sales": 0.0,
+        "clicks": 36,
+        "impressions": 1471,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.81,
+        "ctr": 2.45
+       },
+       {
+        "keyword": "b0cngy8xgd",
+        "spend": 7.9,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 285,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.99,
+        "ctr": 2.81
+       },
+       {
+        "keyword": "b09zzt1g69",
+        "spend": 6.05,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 219,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.01,
+        "ctr": 2.74
+       },
+       {
+        "keyword": "first sippy cups for babies 6 months",
+        "spend": 8.19,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 1141,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.36,
+        "ctr": 0.53
+       },
+       {
+        "keyword": "bottle with straw for toddler",
+        "spend": 5.09,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 12,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.27,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "bottle transition sippy cup for milk",
+        "spend": 5.14,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 72,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.86,
+        "ctr": 8.33
+       },
+       {
+        "keyword": "b083jc7w2w",
+        "spend": 5.43,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 147,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.6,
+        "ctr": 6.12
+       },
+       {
+        "keyword": "toddler owala",
+        "spend": 8.4,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 187,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.2,
+        "ctr": 3.74
+       },
+       {
+        "keyword": "stainless steel sippy cup 6 month old",
+        "spend": 73.5,
+        "sales": 0.0,
+        "clicks": 75,
+        "impressions": 75,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.98,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "pigeon straw cup",
+        "spend": 7.55,
+        "sales": 0.0,
+        "clicks": 10,
+        "impressions": 540,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.76,
+        "ctr": 1.85
+       },
+       {
+        "keyword": "nuk cup",
+        "spend": 5.3,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 68,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.06,
+        "ctr": 7.35
+       },
+       {
+        "keyword": "gros mimi straw cup",
+        "spend": 5.18,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 67,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.74,
+        "ctr": 10.45
+       },
+       {
+        "keyword": "glass straw cup baby",
+        "spend": 7.62,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 500,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.27,
+        "ctr": 1.2
+       },
+       {
+        "keyword": "cup for baby",
+        "spend": 6.07,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 50,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.87,
+        "ctr": 14.0
+       },
+       {
+        "keyword": "baby straw cups",
+        "spend": 5.78,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 2526,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.44,
+        "ctr": 0.16
+       },
+       {
+        "keyword": "baby cups 6-12 months",
+        "spend": 5.69,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 118,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.95,
+        "ctr": 5.08
+       },
+       {
+        "keyword": "b0cngxx8kz",
+        "spend": 6.23,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 116,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.04,
+        "ctr": 5.17
+       },
+       {
+        "keyword": "spill proof straw cups for toddlers",
+        "spend": 5.1,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 439,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.02,
+        "ctr": 1.14
+       },
+       {
+        "keyword": "non toxic straw cup for baby",
+        "spend": 5.25,
+        "sales": 0.0,
+        "clicks": 3,
+        "impressions": 199,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.75,
+        "ctr": 1.51
+       },
+       {
+        "keyword": "munchkin perfect angle straw cup",
+        "spend": 5.54,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 551,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.11,
+        "ctr": 0.91
+       },
+       {
+        "keyword": "weighted straw cup baby",
+        "spend": 6.04,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 143,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.86,
+        "ctr": 4.9
+       },
+       {
+        "keyword": "stainless steel straw cup",
+        "spend": 5.94,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 119,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.48,
+        "ctr": 3.36
+       },
+       {
+        "keyword": "spill proof sippy cups for 6 month old",
+        "spend": 5.28,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 6,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.88,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "milk cups for toddlers 1-3",
+        "spend": 6.85,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 104,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.86,
+        "ctr": 7.69
+       },
+       {
+        "keyword": "b0bk9y9y6l",
+        "spend": 8.52,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 966,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.07,
+        "ctr": 0.83
+       },
+       {
+        "keyword": "milk straw cup baby",
+        "spend": 6.5,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 78,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.3,
+        "ctr": 6.41
+       },
+       {
+        "keyword": "baby straw cup for milk",
+        "spend": 9.06,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 61,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.13,
+        "ctr": 13.11
+       },
+       {
+        "keyword": "straw sippy cup",
+        "spend": 31.59,
+        "sales": 28.7,
+        "clicks": 38,
+        "impressions": 17048,
+        "purchases": 1,
+        "roas": 0.91,
+        "cpc": 0.83,
+        "ctr": 0.22
+       },
+       {
+        "keyword": "toddler straw cup",
+        "spend": 63.43,
+        "sales": 63.2,
+        "clicks": 68,
+        "impressions": 14789,
+        "purchases": 3,
+        "roas": 1.0,
+        "cpc": 0.93,
+        "ctr": 0.46
+       },
+       {
+        "keyword": "weighted straw cups for toddlers",
+        "spend": 22.27,
+        "sales": 22.8,
+        "clicks": 28,
+        "impressions": 2621,
+        "purchases": 1,
+        "roas": 1.02,
+        "cpc": 0.8,
+        "ctr": 1.07
+       },
+       {
+        "keyword": "toddler bottles for milk",
+        "spend": 19.88,
+        "sales": 23.8,
+        "clicks": 22,
+        "impressions": 457,
+        "purchases": 1,
+        "roas": 1.2,
+        "cpc": 0.9,
+        "ctr": 4.81
+       },
+       {
+        "keyword": "munchkin sippy cup",
+        "spend": 18.57,
+        "sales": 23.8,
+        "clicks": 18,
+        "impressions": 1500,
+        "purchases": 1,
+        "roas": 1.28,
+        "cpc": 1.03,
+        "ctr": 1.2
+       },
+       {
+        "keyword": "comotomo sippy cup",
+        "spend": 30.05,
+        "sales": 38.9,
+        "clicks": 86,
+        "impressions": 487,
+        "purchases": 1,
+        "roas": 1.29,
+        "cpc": 0.35,
+        "ctr": 17.66
+       },
+       {
+        "keyword": "dr browns sippy cup",
+        "spend": 17.4,
+        "sales": 22.8,
+        "clicks": 20,
+        "impressions": 1754,
+        "purchases": 1,
+        "roas": 1.31,
+        "cpc": 0.87,
+        "ctr": 1.14
+       },
+       {
+        "keyword": "milk cup for toddlers 1-3",
+        "spend": 13.38,
+        "sales": 23.8,
+        "clicks": 14,
+        "impressions": 451,
+        "purchases": 1,
+        "roas": 1.78,
+        "cpc": 0.96,
+        "ctr": 3.1
+       },
+       {
+        "keyword": "sippy cup",
+        "spend": 120.41,
+        "sales": 243.5,
+        "clicks": 120,
+        "impressions": 45758,
+        "purchases": 9,
+        "roas": 2.02,
+        "cpc": 1.0,
         "ctr": 0.26
        },
        {
-        "keyword": "toddler cups",
-        "spend": 19.58,
-        "sales": 51.5,
-        "clicks": 22,
-        "impressions": 2087,
-        "purchases": 2,
-        "roas": 2.63,
-        "cpc": 0.89,
-        "ctr": 1.05
-       },
-       {
-        "keyword": "sippy cup for 1+ year old",
-        "spend": 9.53,
-        "sales": 25.9,
-        "clicks": 11,
-        "impressions": 376,
+        "keyword": "toddler sippy cups",
+        "spend": 22.44,
+        "sales": 46.8,
+        "clicks": 21,
+        "impressions": 6904,
         "purchases": 1,
-        "roas": 2.72,
-        "cpc": 0.87,
-        "ctr": 2.93
-       },
-       {
-        "keyword": "nuk sippy cups",
-        "spend": 73.29,
-        "sales": 209.4,
-        "clicks": 91,
-        "impressions": 1671,
-        "purchases": 8,
-        "roas": 2.86,
-        "cpc": 0.81,
-        "ctr": 5.45
-       },
-       {
-        "keyword": "baby cups",
-        "spend": 7.78,
-        "sales": 22.8,
-        "clicks": 9,
-        "impressions": 444,
-        "purchases": 1,
-        "roas": 2.93,
-        "cpc": 0.86,
-        "ctr": 2.03
-       },
-       {
-        "keyword": "leak proof straw cups for toddlers",
-        "spend": 9.67,
-        "sales": 28.7,
-        "clicks": 9,
-        "impressions": 966,
-        "purchases": 1,
-        "roas": 2.97,
+        "roas": 2.09,
         "cpc": 1.07,
-        "ctr": 0.93
+        "ctr": 0.3
        },
        {
-        "keyword": "nuk straw sippy cup",
-        "spend": 9.25,
-        "sales": 28.7,
-        "clicks": 9,
-        "impressions": 1609,
+        "keyword": "bottle for toddlers 1-3",
+        "spend": 7.39,
+        "sales": 15.5,
+        "clicks": 8,
+        "impressions": 117,
         "purchases": 1,
-        "roas": 3.1,
-        "cpc": 1.03,
-        "ctr": 0.56
+        "roas": 2.1,
+        "cpc": 0.92,
+        "ctr": 6.84
+       },
+       {
+        "keyword": "nuk straw cup",
+        "spend": 20.08,
+        "sales": 44.2,
+        "clicks": 30,
+        "impressions": 1995,
+        "purchases": 2,
+        "roas": 2.2,
+        "cpc": 0.67,
+        "ctr": 1.5
        },
        {
         "keyword": "baby sippy cups 12-18 months",
-        "spend": 8.35,
+        "spend": 11.49,
         "sales": 25.9,
-        "clicks": 9,
-        "impressions": 423,
+        "clicks": 12,
+        "impressions": 476,
         "purchases": 1,
-        "roas": 3.1,
-        "cpc": 0.93,
-        "ctr": 2.13
+        "roas": 2.25,
+        "cpc": 0.96,
+        "ctr": 2.52
        },
        {
-        "keyword": "straw cup for 6+ month old",
-        "spend": 22.15,
-        "sales": 70.4,
-        "clicks": 20,
-        "impressions": 1351,
-        "purchases": 2,
-        "roas": 3.18,
-        "cpc": 1.11,
-        "ctr": 1.48
+        "keyword": "nuk sippy cup",
+        "spend": 114.72,
+        "sales": 264.5,
+        "clicks": 151,
+        "impressions": 52231,
+        "purchases": 8,
+        "roas": 2.31,
+        "cpc": 0.76,
+        "ctr": 0.29
        },
        {
-        "keyword": "toddler milk cup",
-        "spend": 29.06,
-        "sales": 92.8,
-        "clicks": 32,
-        "impressions": 666,
-        "purchases": 4,
-        "roas": 3.19,
-        "cpc": 0.91,
-        "ctr": 4.8
+        "keyword": "sippy cup for 6+ month old",
+        "spend": 99.13,
+        "sales": 234.0,
+        "clicks": 108,
+        "impressions": 5128,
+        "purchases": 10,
+        "roas": 2.36,
+        "cpc": 0.92,
+        "ctr": 2.11
        },
        {
-        "keyword": "straw cup baby",
-        "spend": 8.07,
-        "sales": 25.8,
-        "clicks": 8,
-        "impressions": 253,
-        "purchases": 1,
-        "roas": 3.2,
-        "cpc": 1.01,
-        "ctr": 3.16
-       },
-       {
-        "keyword": "ppsu straw cup",
-        "spend": 7.97,
+        "keyword": "straw cup for 1 year old",
+        "spend": 10.61,
         "sales": 25.9,
-        "clicks": 11,
-        "impressions": 1482,
+        "clicks": 12,
+        "impressions": 548,
         "purchases": 1,
-        "roas": 3.25,
-        "cpc": 0.72,
-        "ctr": 0.74
+        "roas": 2.44,
+        "cpc": 0.88,
+        "ctr": 2.19
        },
        {
-        "keyword": "baby water cup",
-        "spend": 23.49,
-        "sales": 76.3,
-        "clicks": 24,
-        "impressions": 523,
-        "purchases": 3,
-        "roas": 3.25,
-        "cpc": 0.98,
-        "ctr": 4.59
+        "keyword": "transition sippy cup",
+        "spend": 11.68,
+        "sales": 28.7,
+        "clicks": 13,
+        "impressions": 792,
+        "purchases": 1,
+        "roas": 2.46,
+        "cpc": 0.9,
+        "ctr": 1.64
+       },
+       {
+        "keyword": "honey bear straw cup",
+        "spend": 9.68,
+        "sales": 23.8,
+        "clicks": 12,
+        "impressions": 5781,
+        "purchases": 1,
+        "roas": 2.46,
+        "cpc": 0.81,
+        "ctr": 0.21
+       },
+       {
+        "keyword": "baby bottle with straw",
+        "spend": 9.16,
+        "sales": 23.8,
+        "clicks": 7,
+        "impressions": 105,
+        "purchases": 1,
+        "roas": 2.6,
+        "cpc": 1.31,
+        "ctr": 6.67
+       },
+       {
+        "keyword": "silicone straw cup for baby",
+        "spend": 8.91,
+        "sales": 23.8,
+        "clicks": 6,
+        "impressions": 2467,
+        "purchases": 1,
+        "roas": 2.67,
+        "cpc": 1.49,
+        "ctr": 0.24
        },
        {
         "keyword": "sippy cups",
-        "spend": 92.22,
+        "spend": 111.34,
         "sales": 302.9,
-        "clicks": 99,
-        "impressions": 37907,
+        "clicks": 119,
+        "impressions": 50583,
         "purchases": 13,
-        "roas": 3.28,
-        "cpc": 0.93,
+        "roas": 2.72,
+        "cpc": 0.94,
+        "ctr": 0.24
+       },
+       {
+        "keyword": "nuk sippy cups",
+        "spend": 85.27,
+        "sales": 232.2,
+        "clicks": 118,
+        "impressions": 1770,
+        "purchases": 9,
+        "roas": 2.72,
+        "cpc": 0.72,
+        "ctr": 6.67
+       },
+       {
+        "keyword": "b08398kz2b",
+        "spend": 8.34,
+        "sales": 23.8,
+        "clicks": 24,
+        "impressions": 25,
+        "purchases": 1,
+        "roas": 2.85,
+        "cpc": 0.35,
+        "ctr": 96.0
+       },
+       {
+        "keyword": "baby cups",
+        "spend": 7.83,
+        "sales": 22.8,
+        "clicks": 9,
+        "impressions": 595,
+        "purchases": 1,
+        "roas": 2.91,
+        "cpc": 0.87,
+        "ctr": 1.51
+       },
+       {
+        "keyword": "straw cup for baby",
+        "spend": 7.72,
+        "sales": 22.8,
+        "clicks": 9,
+        "impressions": 636,
+        "purchases": 1,
+        "roas": 2.95,
+        "cpc": 0.86,
+        "ctr": 1.42
+       },
+       {
+        "keyword": "baby water cup",
+        "spend": 25.43,
+        "sales": 76.3,
+        "clicks": 26,
+        "impressions": 572,
+        "purchases": 3,
+        "roas": 3.0,
+        "cpc": 0.98,
+        "ctr": 4.55
+       },
+       {
+        "keyword": "straw cup for 1+ year old",
+        "spend": 17.27,
+        "sales": 52.5,
+        "clicks": 20,
+        "impressions": 1352,
+        "purchases": 2,
+        "roas": 3.04,
+        "cpc": 0.86,
+        "ctr": 1.48
+       },
+       {
+        "keyword": "water sippy cup for 6 month old baby",
+        "spend": 7.48,
+        "sales": 22.8,
+        "clicks": 8,
+        "impressions": 21,
+        "purchases": 1,
+        "roas": 3.05,
+        "cpc": 0.94,
+        "ctr": 38.1
+       },
+       {
+        "keyword": "thyseed straw cup",
+        "spend": 8.04,
+        "sales": 24.9,
+        "clicks": 9,
+        "impressions": 696,
+        "purchases": 1,
+        "roas": 3.1,
+        "cpc": 0.89,
+        "ctr": 1.29
+       },
+       {
+        "keyword": "sippy cup for 1+ year old",
+        "spend": 8.22,
+        "sales": 25.9,
+        "clicks": 9,
+        "impressions": 314,
+        "purchases": 1,
+        "roas": 3.15,
+        "cpc": 0.91,
+        "ctr": 2.87
+       },
+       {
+        "keyword": "baby sippy cups 6-12 months",
+        "spend": 21.92,
+        "sales": 69.4,
+        "clicks": 25,
+        "impressions": 4411,
+        "purchases": 3,
+        "roas": 3.17,
+        "cpc": 0.88,
+        "ctr": 0.57
+       },
+       {
+        "keyword": "weighted straw cup",
+        "spend": 25.25,
+        "sales": 83.2,
+        "clicks": 31,
+        "impressions": 11802,
+        "purchases": 3,
+        "roas": 3.3,
+        "cpc": 0.81,
         "ctr": 0.26
        },
        {
-        "keyword": "baby straw cups 6-12 months",
-        "spend": 14.1,
-        "sales": 46.6,
-        "clicks": 17,
-        "impressions": 951,
-        "purchases": 2,
+        "keyword": "nuk straw sippy cup",
+        "spend": 8.69,
+        "sales": 28.7,
+        "clicks": 9,
+        "impressions": 1901,
+        "purchases": 1,
         "roas": 3.3,
-        "cpc": 0.83,
-        "ctr": 1.79
+        "cpc": 0.97,
+        "ctr": 0.47
        },
        {
-        "keyword": "straw cup for 6 month old",
-        "spend": 25.1,
-        "sales": 84.9,
-        "clicks": 23,
-        "impressions": 3406,
-        "purchases": 4,
-        "roas": 3.38,
-        "cpc": 1.09,
-        "ctr": 0.68
+        "keyword": "weighted straw sippy cup",
+        "spend": 8.68,
+        "sales": 28.7,
+        "clicks": 9,
+        "impressions": 3211,
+        "purchases": 1,
+        "roas": 3.31,
+        "cpc": 0.96,
+        "ctr": 0.28
        }
       ]
      },
@@ -5198,17 +5198,6 @@ const FIN_DATA = {
         "ctr": 25.0
        },
        {
-        "keyword": "b0hnvsrc2k",
-        "spend": 0.38,
-        "sales": 24.6,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 1,
-        "roas": 64.74,
-        "cpc": 0.38,
-        "ctr": 100.0
-       },
-       {
         "keyword": "feeding pillow for newborn",
         "spend": 1.08,
         "sales": 54.9,
@@ -5229,17 +5218,6 @@ const FIN_DATA = {
         "roas": 50.83,
         "cpc": 1.08,
         "ctr": 50.0
-       },
-       {
-        "keyword": "mini rice cakes",
-        "spend": 0.61,
-        "sales": 24.6,
-        "clicks": 1,
-        "impressions": 15,
-        "purchases": 1,
-        "roas": 40.33,
-        "cpc": 0.61,
-        "ctr": 6.67
        },
        {
         "keyword": "rice balls",
@@ -5308,17 +5286,6 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "white rice cakes made with white rice",
-        "spend": 1.07,
-        "sales": 24.6,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 1,
-        "roas": 22.99,
-        "cpc": 1.07,
-        "ctr": 50.0
-       },
-       {
         "keyword": "rice cake toddler korea",
         "spend": 1.07,
         "sales": 24.6,
@@ -5330,15 +5297,37 @@ const FIN_DATA = {
         "ctr": 50.0
        },
        {
-        "keyword": "b01fgdlvjy",
-        "spend": 1.3,
+        "keyword": "davus crispy sushi rice patties",
+        "spend": 1.07,
+        "sales": 24.6,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 22.99,
+        "cpc": 1.07,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "white rice cakes made with white rice",
+        "spend": 1.07,
+        "sales": 24.6,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 22.99,
+        "cpc": 1.07,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "nori punch",
+        "spend": 1.86,
         "sales": 24.6,
         "clicks": 2,
-        "impressions": 18,
+        "impressions": 2,
         "purchases": 1,
-        "roas": 18.92,
-        "cpc": 0.65,
-        "ctr": 11.11
+        "roas": 13.23,
+        "cpc": 0.93,
+        "ctr": 100.0
        },
        {
         "keyword": "white rice crackers",
@@ -5352,17 +5341,6 @@ const FIN_DATA = {
         "ctr": 11.76
        },
        {
-        "keyword": "low calorie snacks",
-        "spend": 4.16,
-        "sales": 24.6,
-        "clicks": 5,
-        "impressions": 74,
-        "purchases": 1,
-        "roas": 5.91,
-        "cpc": 0.83,
-        "ctr": 6.76
-       },
-       {
         "keyword": "떡뻥",
         "spend": 4.29,
         "sales": 24.6,
@@ -5374,183 +5352,579 @@ const FIN_DATA = {
         "ctr": 33.33
        },
        {
-        "keyword": "puffed rice",
-        "spend": 9.79,
-        "sales": 24.6,
-        "clicks": 9,
-        "impressions": 1405,
-        "purchases": 1,
-        "roas": 2.51,
-        "cpc": 1.09,
-        "ctr": 0.64
-       },
-       {
         "keyword": "rice crackers",
-        "spend": 30.12,
+        "spend": 26.74,
         "sales": 24.6,
-        "clicks": 27,
-        "impressions": 5626,
+        "clicks": 23,
+        "impressions": 4930,
         "purchases": 1,
-        "roas": 0.82,
-        "cpc": 1.12,
-        "ctr": 0.48
+        "roas": 0.92,
+        "cpc": 1.16,
+        "ctr": 0.47
        },
        {
-        "keyword": "한국 과자",
-        "spend": 1.98,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 5,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.99,
-        "ctr": 40.0
-       },
-       {
-        "keyword": "thin sliced korean rice cakes",
-        "spend": 1.07,
+        "keyword": "seasnax+chomperz+onion+crunchy+seaweed+chips",
+        "spend": 0.79,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.07,
+        "cpc": 0.79,
         "ctr": 100.0
        },
        {
-        "keyword": "savory rice crisp",
-        "spend": 1.07,
+        "keyword": "organic thin light salted rice cakes",
+        "spend": 0.79,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.07,
+        "cpc": 0.79,
         "ctr": 100.0
        },
        {
-        "keyword": "new seasons natures path puffed rice",
-        "spend": 1.07,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.07,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "kunin tteokbokki crunchy mochi",
-        "spend": 1.01,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.01,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "japanese rice crackers",
-        "spend": 2.56,
-        "sales": 0.0,
-        "clicks": 3,
-        "impressions": 365,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.85,
-        "ctr": 0.82
-       },
-       {
-        "keyword": "healthy chips",
-        "spend": 0.8,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.8,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "edible rice ears",
-        "spend": 0.92,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.92,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "cooked sticky rice",
-        "spend": 0.81,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.81,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "clean snacks",
-        "spend": 0.73,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.73,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0dflwkfz7",
-        "spend": 1.71,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 22,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.85,
-        "ctr": 9.09
-       },
-       {
-        "keyword": "b0d2wgd41x",
-        "spend": 2.24,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 17,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 11.76
-       },
-       {
-        "keyword": "b0cn4x123r",
+        "keyword": "obleas de arroz",
         "spend": 0.96,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.96,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "naeiae pop rice snack, 100% korean rice, air-popped",
+        "spend": 1.14,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.14,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "korean zero calorie food",
+        "spend": 0.84,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "korean baby rice",
+        "spend": 1.07,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.07,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "k-pop sorghum",
+        "spend": 0.79,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.79,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "baby korean snack",
+        "spend": 1.14,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 2,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.96,
+        "cpc": 1.14,
         "ctr": 50.0
        },
        {
-        "keyword": "b0ck77sqjw",
-        "spend": 5.0,
+        "keyword": "b0g6ykxdc2",
+        "spend": 1.12,
         "sales": 0.0,
-        "clicks": 5,
-        "impressions": 49,
+        "clicks": 1,
+        "impressions": 18,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.0,
-        "ctr": 10.2
+        "cpc": 1.12,
+        "ctr": 5.56
        },
        {
-        "keyword": "b083x741xx",
+        "keyword": "b0dhghh4zs",
+        "spend": 1.12,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "winglet nursing pillow",
+        "spend": 1.09,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.09,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "winglet lap seat baby airplane",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 4,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 25.0
+       },
+       {
+        "keyword": "white rice cake",
+        "spend": 0.0,
+        "sales": 24.6,
+        "clicks": 0,
+        "impressions": 0,
+        "purchases": 1,
+        "roas": 0,
+        "cpc": 0,
+        "ctr": 0
+       },
+       {
+        "keyword": "wash chair for babies",
+        "spend": 0.72,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.72,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "veggie sticks",
+        "spend": 1.11,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.11,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "the perfect noggin",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "rice snacks",
+        "spend": 2.7,
+        "sales": 0.0,
+        "clicks": 3,
+        "impressions": 72,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.9,
+        "ctr": 4.17
+       },
+       {
+        "keyword": "rice snack baby",
+        "spend": 1.02,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.02,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "reflux seat for baby",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "puffed rice snacks",
+        "spend": 2.4,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 17,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.2,
+        "ctr": 11.76
+       },
+       {
+        "keyword": "puffed rice",
+        "spend": 8.59,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 1017,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.07,
+        "ctr": 0.79
+       },
+       {
+        "keyword": "pop rice cracker",
+        "spend": 1.2,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.2,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "new born bottle seat",
+        "spend": 1.04,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.04,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "naeiae pop rice snack",
+        "spend": 1.02,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.02,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "milk bottle holder for feeding newborn",
+        "spend": 0.84,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "japanese snacks",
+        "spend": 1.15,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 33,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.15,
+        "ctr": 3.03
+       },
+       {
+        "keyword": "ingenuity baby base 2-in-1 booster feeding and floor seat with self-storing tray",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "inflatable baby seat 1 month",
+        "spend": 1.08,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.08,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "infant feeding seat 4 months travel",
+        "spend": 0.33,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.33,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "huggapod infant support",
+        "spend": 0.77,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.77,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "feeding chair",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "crackers",
+        "spend": 3.55,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 139,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.89,
+        "ctr": 2.88
+       },
+       {
+        "keyword": "collar de lactancia",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "baby prop up",
+        "spend": 1.44,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.44,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "baby feed positioner",
+        "spend": 0.65,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.65,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b0h1sn3x6r",
+        "spend": 0.78,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 8,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.78,
+        "ctr": 12.5
+       },
+       {
+        "keyword": "b0gwxkj6hd",
+        "spend": 1.08,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 51,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.08,
+        "ctr": 1.96
+       },
+       {
+        "keyword": "b0fqg7jzmz",
+        "spend": 0.78,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 12,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.78,
+        "ctr": 8.33
+       },
+       {
+        "keyword": "b001htifdc",
+        "spend": 1.44,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 13,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.72,
+        "ctr": 15.38
+       },
+       {
+        "keyword": "adjuster for feeding chair",
+        "spend": 0.94,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.94,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "8-10 oz. baby bottle plastic milk holders to fit playtex bothles",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "3 month baby seat",
+        "spend": 1.08,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.08,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "seaweed snacks",
+        "spend": 0.79,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.79,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "plain rice puffs",
+        "spend": 0.97,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.97,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "organic white rice crisps",
+        "spend": 0.84,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "onigiri",
+        "spend": 0.79,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.79,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "mochi crunch",
+        "spend": 1.91,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 17,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.96,
+        "ctr": 11.76
+       },
+       {
+        "keyword": "korean popped rice cakes",
+        "spend": 1.14,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.14,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "korean milk crackers",
+        "spend": 1.07,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.07,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "crispy rice grains",
+        "spend": 0.97,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 5,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.97,
+        "ctr": 20.0
+       },
+       {
+        "keyword": "crispy rice cake",
+        "spend": 0.65,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.65,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "b0h6vnt5rx",
         "spend": 1.12,
         "sales": 0.0,
         "clicks": 1,
@@ -5561,26 +5935,81 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "twin feeding bottle holder",
-        "spend": 0.96,
+        "keyword": "b0fr4fqw6n",
+        "spend": 0.86,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 8,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.86,
+        "ctr": 12.5
+       },
+       {
+        "keyword": "b0f98fdd6w",
+        "spend": 1.07,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 2,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.96,
+        "cpc": 1.07,
         "ctr": 50.0
        },
        {
-        "keyword": "rice crisp",
-        "spend": 1.2,
+        "keyword": "b0cq64w963",
+        "spend": 1.12,
         "sales": 0.0,
         "clicks": 1,
-        "impressions": 30,
+        "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.2,
-        "ctr": 3.33
+        "cpc": 1.12,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "supported seat for baby 4 months",
+        "spend": 0.9,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.9,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "supplemental nursing system",
+        "spend": 1.89,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 23,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.94,
+        "ctr": 8.7
+       },
+       {
+        "keyword": "supplemental feeding tube",
+        "spend": 0.84,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 5,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 20.0
+       },
+       {
+        "keyword": "sticky rice snacks organic",
+        "spend": 1.02,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.02,
+        "ctr": 100.0
        },
        {
         "keyword": "rice cracker snacks",
@@ -5594,62 +6023,29 @@ const FIN_DATA = {
         "ctr": 2.97
        },
        {
-        "keyword": "perfect noggin infant head shaping",
-        "spend": 0.62,
+        "keyword": "rice cracker",
+        "spend": 1.74,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 138,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.87,
+        "ctr": 1.45
+       },
+       {
+        "keyword": "reflux baby lounger",
+        "spend": 0.87,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.62,
+        "cpc": 0.87,
         "ctr": 100.0
        },
        {
-        "keyword": "newborn holder feeding",
-        "spend": 0.9,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 3,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.9,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "mesh and cotton baby feeding support",
-        "spend": 1.3,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 3,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.3,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "korean rice crackers snack",
-        "spend": 3.6,
-        "sales": 0.0,
-        "clicks": 3,
-        "impressions": 157,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.2,
-        "ctr": 1.91
-       },
-       {
-        "keyword": "crackers",
-        "spend": 2.67,
-        "sales": 0.0,
-        "clicks": 3,
-        "impressions": 118,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.89,
-        "ctr": 2.54
-       },
-       {
-        "keyword": "chinese rice wraps",
+        "keyword": "pediatric bath chair for kids with special needs",
         "spend": 0.59,
         "sales": 0.0,
         "clicks": 1,
@@ -5660,18 +6056,7 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "breast feeding pillow arm rest",
-        "spend": 0.96,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 3,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.96,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "baby seat 5 month",
+        "keyword": "nuk first choice sippy cup handles",
         "spend": 0.88,
         "sales": 0.0,
         "clicks": 1,
@@ -5682,73 +6067,95 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "baby bottle holder to feed baby",
-        "spend": 0.48,
+        "keyword": "newborn feeding seat",
+        "spend": 0.33,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.48,
+        "cpc": 0.33,
         "ctr": 100.0
        },
        {
-        "keyword": "baby bottle feeder hands free pillow",
-        "spend": 1.04,
+        "keyword": "newborn baby shower holder",
+        "spend": 0.84,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.04,
+        "cpc": 0.84,
         "ctr": 100.0
        },
        {
-        "keyword": "b0grcmbvrn",
-        "spend": 0.78,
+        "keyword": "lounge pillow baby",
+        "spend": 1.08,
         "sales": 0.0,
         "clicks": 1,
-        "impressions": 3,
+        "impressions": 2,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.78,
-        "ctr": 33.33
+        "cpc": 1.08,
+        "ctr": 50.0
        },
        {
-        "keyword": "b0fqhx4qz2",
-        "spend": 0.78,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 3,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.78,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "b0d79r8vjh",
-        "spend": 1.9,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 86,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.95,
-        "ctr": 2.33
-       },
-       {
-        "keyword": "b0bmjcwyb6",
+        "keyword": "high palate baby cup",
         "spend": 1.02,
         "sales": 0.0,
         "clicks": 1,
-        "impressions": 3,
+        "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 1.02,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "high chair feeding carthing food",
+        "spend": 1.24,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.24,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "high chair accessories",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "hands free bottle feeder",
+        "spend": 1.01,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.01,
         "ctr": 33.33
        },
        {
-        "keyword": "45 degree baby seat",
+        "keyword": "feeding pillow bed",
+        "spend": 0.83,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "cooling arm holder while holding a baby",
         "spend": 0.72,
         "sales": 0.0,
         "clicks": 1,
@@ -5759,348 +6166,95 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "sweet rice snacks",
-        "spend": 1.07,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.07,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "savory rice snacks",
-        "spend": 1.14,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 4,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.14,
-        "ctr": 25.0
-       },
-       {
-        "keyword": "rice chips",
-        "spend": 1.87,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 14,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.93,
-        "ctr": 14.29
-       },
-       {
-        "keyword": "quaker rice crisps",
-        "spend": 1.37,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 5,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.69,
-        "ctr": 40.0
-       },
-       {
-        "keyword": "mochi rice nuggets",
-        "spend": 0.97,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 9,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.97,
-        "ctr": 11.11
-       },
-       {
-        "keyword": "mexican rice",
-        "spend": 1.2,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 2,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.6,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "krupuk",
-        "spend": 1.14,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 4,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.14,
-        "ctr": 25.0
-       },
-       {
-        "keyword": "korean traditional snacks",
-        "spend": 0.61,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.61,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "korean rice crackers",
-        "spend": 3.09,
-        "sales": 0.0,
-        "clicks": 3,
-        "impressions": 43,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 6.98
-       },
-       {
-        "keyword": "crunchy rice rolls",
-        "spend": 0.79,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "crispy rice",
-        "spend": 1.47,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 37,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.73,
-        "ctr": 5.41
-       },
-       {
-        "keyword": "cloud 9 mango rice crisps",
-        "spend": 1.02,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.02,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0hcx5s6zg",
-        "spend": 1.12,
+        "keyword": "breast feeding pillow for women",
+        "spend": 0.83,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 2,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.12,
+        "cpc": 0.83,
         "ctr": 50.0
        },
        {
-        "keyword": "b0h4xrf45t",
-        "spend": 0.61,
+        "keyword": "bottle feeding",
+        "spend": 1.08,
         "sales": 0.0,
         "clicks": 1,
-        "impressions": 34,
+        "impressions": 2,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.61,
-        "ctr": 2.94
+        "cpc": 1.08,
+        "ctr": 50.0
        },
        {
-        "keyword": "b0gzb9r7ks",
-        "spend": 1.12,
+        "keyword": "baby snacks",
+        "spend": 5.28,
         "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
+        "clicks": 5,
+        "impressions": 321,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 100.0
+        "cpc": 1.06,
+        "ctr": 1.56
        },
        {
-        "keyword": "b0gsz9qv2t",
-        "spend": 1.12,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0ggbpnj1p",
+        "keyword": "baby sling breastfeeding",
         "spend": 0.86,
         "sales": 0.0,
         "clicks": 1,
-        "impressions": 6,
+        "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 0.86,
-        "ctr": 16.67
+        "ctr": 100.0
        },
        {
-        "keyword": "b0g6p3sfkg",
-        "spend": 1.12,
+        "keyword": "baby sitting worm",
+        "spend": 0.87,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.87,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "baby seats",
+        "spend": 0.84,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 10,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 10.0
+       },
+       {
+        "keyword": "baby seat for restaurant portable",
+        "spend": 1.08,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 5,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.08,
+        "ctr": 20.0
+       },
+       {
+        "keyword": "baby reflux chair",
+        "spend": 1.08,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 3,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.12,
+        "cpc": 1.08,
         "ctr": 33.33
        },
        {
-        "keyword": "b0fw4z9nbg",
-        "spend": 1.12,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0dlmnx4bq",
-        "spend": 1.12,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 7,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 14.29
-       },
-       {
-        "keyword": "b0d945c8th",
-        "spend": 0.88,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.88,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b09s2kllbx",
-        "spend": 1.07,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 9,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.54,
-        "ctr": 22.22
-       },
-       {
-        "keyword": "b07bb3y6bk",
-        "spend": 1.12,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b01c5rac5i",
-        "spend": 1.71,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 19,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.85,
-        "ctr": 10.53
-       },
-       {
-        "keyword": "air-fried foods:",
-        "spend": 0.79,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "rice wheels",
-        "spend": 1.1,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.1,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "rice pop for baby",
-        "spend": 2.3,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 2,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.15,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "popped rice",
-        "spend": 2.14,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 14,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.07,
-        "ctr": 14.29
-       },
-       {
-        "keyword": "mochi snacks",
-        "spend": 1.84,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 4,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.92,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "korean rice snacks",
-        "spend": 3.1,
-        "sales": 0.0,
-        "clicks": 3,
-        "impressions": 64,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 4.69
-       },
-       {
-        "keyword": "korean rice",
-        "spend": 1.91,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 88,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.95,
-        "ctr": 2.27
-       },
-       {
-        "keyword": "fried mochi snack",
+        "keyword": "baby pool chair",
         "spend": 0.59,
         "sales": 0.0,
         "clicks": 1,
@@ -6111,172 +6265,40 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "bubu arare rice pearls",
-        "spend": 2.3,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 9,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.15,
-        "ctr": 22.22
-       },
-       {
-        "keyword": "bottle feeding pillow",
-        "spend": 1.37,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 26,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.68,
-        "ctr": 7.69
-       },
-       {
-        "keyword": "baby snacks",
-        "spend": 7.43,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 297,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 2.36
-       },
-       {
-        "keyword": "thin rice cakes",
-        "spend": 1.76,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 242,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.88,
-        "ctr": 0.83
-       },
-       {
-        "keyword": "snacks korean",
-        "spend": 0.84,
+        "keyword": "baby nursing pillow airplane seat",
+        "spend": 1.22,
         "sales": 0.0,
         "clicks": 1,
-        "impressions": 4,
+        "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.84,
-        "ctr": 25.0
-       },
-       {
-        "keyword": "rise and puff tortillas",
-        "spend": 0.73,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 7,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.73,
-        "ctr": 14.29
-       },
-       {
-        "keyword": "rice roll",
-        "spend": 1.14,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 4,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.14,
-        "ctr": 25.0
-       },
-       {
-        "keyword": "rice popcorn",
-        "spend": 1.79,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 6,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.9,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "rice krispies",
-        "spend": 0.79,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 37,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 2.7
-       },
-       {
-        "keyword": "rice cakes organic",
-        "spend": 0.84,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.84,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "puffed white rice cereal",
-        "spend": 1.63,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 6,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.81,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "milk rice cracker",
-        "spend": 2.03,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 13,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.02,
-        "ctr": 15.38
-       },
-       {
-        "keyword": "mango sticky rice",
-        "spend": 1.14,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 9,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.14,
-        "ctr": 11.11
-       },
-       {
-        "keyword": "garlic rice paper snack",
-        "spend": 0.79,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "fresh wide rice noodles",
-        "spend": 1.58,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 6,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 33.33
+        "cpc": 1.22,
+        "ctr": 100.0
        }
       ],
       "worst": [
+       {
+        "keyword": "puffed rice",
+        "spend": 8.59,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 1017,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.07,
+        "ctr": 0.79
+       },
+       {
+        "keyword": "baby snacks",
+        "spend": 5.28,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 321,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.06,
+        "ctr": 1.56
+       },
        {
         "keyword": "b0ck77sqjw",
         "spend": 5.0,
@@ -6289,55 +6311,22 @@ const FIN_DATA = {
         "ctr": 10.2
        },
        {
-        "keyword": "baby snacks",
-        "spend": 7.43,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 297,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 2.36
-       },
-       {
-        "keyword": "rice crisps",
-        "spend": 5.95,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 380,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.19,
-        "ctr": 1.32
-       },
-       {
         "keyword": "rice crackers",
-        "spend": 30.12,
+        "spend": 26.74,
         "sales": 24.6,
-        "clicks": 27,
-        "impressions": 5626,
+        "clicks": 23,
+        "impressions": 4930,
         "purchases": 1,
-        "roas": 0.82,
-        "cpc": 1.12,
-        "ctr": 0.48
-       },
-       {
-        "keyword": "puffed rice",
-        "spend": 9.79,
-        "sales": 24.6,
-        "clicks": 9,
-        "impressions": 1405,
-        "purchases": 1,
-        "roas": 2.51,
-        "cpc": 1.09,
-        "ctr": 0.64
+        "roas": 0.92,
+        "cpc": 1.16,
+        "ctr": 0.47
        }
       ]
      }
     },
     "actual": {
-     "from": "2026-11-07",
-     "to": "2026-11-13",
+     "from": "2026-11-09",
+     "to": "2026-11-14",
      "days": 6
     }
    },
@@ -6468,17 +6457,6 @@ const FIN_DATA = {
         "ctr": 50.0
        },
        {
-        "keyword": "grosmimi stage 2 straws",
-        "spend": 0.78,
-        "sales": 123.2,
-        "clicks": 2,
-        "impressions": 4,
-        "purchases": 6,
-        "roas": 157.95,
-        "cpc": 0.39,
-        "ctr": 50.0
-       },
-       {
         "keyword": "grosslini straw",
         "spend": 0.1,
         "sales": 15.5,
@@ -6545,15 +6523,15 @@ const FIN_DATA = {
         "ctr": 20.0
        },
        {
-        "keyword": "pura kiki vacuum insulated",
-        "spend": 0.4,
-        "sales": 50.7,
+        "keyword": "grosmimi ppsu straw cup with flip top - 10oz (12 months+) stage 2 straw",
+        "spend": 0.45,
+        "sales": 57.4,
         "clicks": 1,
-        "impressions": 2,
+        "impressions": 1,
         "purchases": 2,
-        "roas": 126.75,
-        "cpc": 0.4,
-        "ctr": 50.0
+        "roas": 127.56,
+        "cpc": 0.45,
+        "ctr": 100.0
        },
        {
         "keyword": "phillip agent glass bottles with straw",
@@ -6721,6 +6699,17 @@ const FIN_DATA = {
         "ctr": 33.33
        },
        {
+        "keyword": "grosmimi for toddler",
+        "spend": 0.33,
+        "sales": 28.7,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 86.97,
+        "cpc": 0.33,
+        "ctr": 50.0
+       },
+       {
         "keyword": "grosmimi straw cup metal",
         "spend": 0.45,
         "sales": 38.9,
@@ -6743,26 +6732,15 @@ const FIN_DATA = {
         "ctr": 22.22
        },
        {
-        "keyword": "infant bottle water with filter",
+        "keyword": "brumate tumbler kids",
         "spend": 0.55,
         "sales": 46.8,
         "clicks": 1,
-        "impressions": 2,
+        "impressions": 5,
         "purchases": 1,
         "roas": 85.09,
         "cpc": 0.55,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "b0cr6x46nl",
-        "spend": 0.55,
-        "sales": 46.8,
-        "clicks": 1,
-        "impressions": 21,
-        "purchases": 1,
-        "roas": 85.09,
-        "cpc": 0.55,
-        "ctr": 4.76
+        "ctr": 20.0
        },
        {
         "keyword": "double walled stainless sippy cup toddler",
@@ -6787,17 +6765,6 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "brumate tumbler kids",
-        "spend": 0.55,
-        "sales": 46.8,
-        "clicks": 1,
-        "impressions": 5,
-        "purchases": 1,
-        "roas": 85.09,
-        "cpc": 0.55,
-        "ctr": 20.0
-       },
-       {
         "keyword": "training bottle for toddlers 1-3",
         "spend": 0.68,
         "sales": 57.4,
@@ -6807,6 +6774,17 @@ const FIN_DATA = {
         "roas": 84.41,
         "cpc": 0.68,
         "ctr": 25.0
+       },
+       {
+        "keyword": "grosmimi stage 2 straws",
+        "spend": 0.78,
+        "sales": 62.1,
+        "clicks": 2,
+        "impressions": 4,
+        "purchases": 3,
+        "roas": 79.62,
+        "cpc": 0.39,
+        "ctr": 50.0
        },
        {
         "keyword": "toddler open cup",
@@ -6840,17 +6818,6 @@ const FIN_DATA = {
         "roas": 77.57,
         "cpc": 0.37,
         "ctr": 100.0
-       },
-       {
-        "keyword": "gromini straw",
-        "spend": 0.2,
-        "sales": 15.5,
-        "clicks": 2,
-        "impressions": 4,
-        "purchases": 1,
-        "roas": 77.5,
-        "cpc": 0.1,
-        "ctr": 50.0
        },
        {
         "keyword": "grosmimi 6 oz stage 2 cup",
@@ -6930,17 +6897,6 @@ const FIN_DATA = {
         "ctr": 50.0
        },
        {
-        "keyword": "toddler stainless steel bottle",
-        "spend": 1.1,
-        "sales": 77.8,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 1,
-        "roas": 70.73,
-        "cpc": 1.1,
-        "ctr": 50.0
-       },
-       {
         "keyword": "grosmimi nipple replacement for straw cup",
         "spend": 0.22,
         "sales": 15.5,
@@ -6963,15 +6919,26 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "toddler sippy cups munchkin",
-        "spend": 0.68,
+        "keyword": "nuk sippy cup glass",
+        "spend": 0.69,
         "sales": 46.8,
         "clicks": 1,
-        "impressions": 7,
+        "impressions": 1,
         "purchases": 1,
-        "roas": 68.82,
-        "cpc": 0.68,
-        "ctr": 14.29
+        "roas": 67.83,
+        "cpc": 0.69,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "silicone cup 1 year old",
+        "spend": 0.86,
+        "sales": 57.4,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 2,
+        "roas": 66.74,
+        "cpc": 0.86,
+        "ctr": 33.33
        },
        {
         "keyword": "leak proof metal sippy cup toddler",
@@ -7007,6 +6974,17 @@ const FIN_DATA = {
         "ctr": 16.67
        },
        {
+        "keyword": "water bottle kids grossini",
+        "spend": 0.44,
+        "sales": 28.7,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 65.23,
+        "cpc": 0.44,
+        "ctr": 50.0
+       },
+       {
         "keyword": "b0cr5fz6tv",
         "spend": 0.73,
         "sales": 46.8,
@@ -7016,6 +6994,17 @@ const FIN_DATA = {
         "roas": 64.11,
         "cpc": 0.73,
         "ctr": 11.11
+       },
+       {
+        "keyword": "grosmini",
+        "spend": 0.45,
+        "sales": 28.7,
+        "clicks": 1,
+        "impressions": 7,
+        "purchases": 1,
+        "roas": 63.78,
+        "cpc": 0.45,
+        "ctr": 14.29
        },
        {
         "keyword": "milk bottle grosmimi",
@@ -7073,28 +7062,6 @@ const FIN_DATA = {
         "ctr": 20.0
        },
        {
-        "keyword": "grosmimi straw cup stage 2 10 oz",
-        "spend": 0.45,
-        "sales": 28.7,
-        "clicks": 1,
-        "impressions": 7,
-        "purchases": 1,
-        "roas": 63.78,
-        "cpc": 0.45,
-        "ctr": 14.29
-       },
-       {
-        "keyword": "grosmimi ppsu straw cup with flip top - 10oz (12 months+) stage 2 straw",
-        "spend": 0.45,
-        "sales": 28.7,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 1,
-        "roas": 63.78,
-        "cpc": 0.45,
-        "ctr": 100.0
-       },
-       {
         "keyword": "grosi sippy stage 1",
         "spend": 0.81,
         "sales": 51.6,
@@ -7137,6 +7104,17 @@ const FIN_DATA = {
         "roas": 61.24,
         "cpc": 0.54,
         "ctr": 23.08
+       },
+       {
+        "keyword": "sippy cups mushie",
+        "spend": 0.85,
+        "sales": 51.8,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 2,
+        "roas": 60.94,
+        "cpc": 0.85,
+        "ctr": 50.0
        },
        {
         "keyword": "nighttime bottles for toddlers",
@@ -7293,17 +7271,6 @@ const FIN_DATA = {
         "ctr": 16.67
        },
        {
-        "keyword": "b0cqpp9gsm",
-        "spend": 1.65,
-        "sales": 93.6,
-        "clicks": 2,
-        "impressions": 48,
-        "purchases": 2,
-        "roas": 56.73,
-        "cpc": 0.83,
-        "ctr": 4.17
-       },
-       {
         "keyword": "smoothie bottle for kids with handle",
         "spend": 0.88,
         "sales": 49.8,
@@ -7313,17 +7280,6 @@ const FIN_DATA = {
         "roas": 56.59,
         "cpc": 0.44,
         "ctr": 13.33
-       },
-       {
-        "keyword": "gossimini straw cup",
-        "spend": 2.28,
-        "sales": 127.3,
-        "clicks": 3,
-        "impressions": 26,
-        "purchases": 4,
-        "roas": 55.83,
-        "cpc": 0.76,
-        "ctr": 11.54
        },
        {
         "keyword": "grosmimi straw cup 12+",
@@ -7445,96 +7401,173 @@ const FIN_DATA = {
         "roas": 51.87,
         "cpc": 0.75,
         "ctr": 25.0
+       },
+       {
+        "keyword": "insulated straw cup for toddlers",
+        "spend": 0.75,
+        "sales": 38.9,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 51.87,
+        "cpc": 0.75,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "nipple transition bottles",
+        "spend": 0.5,
+        "sales": 25.8,
+        "clicks": 1,
+        "impressions": 4,
+        "purchases": 1,
+        "roas": 51.6,
+        "cpc": 0.5,
+        "ctr": 25.0
+       },
+       {
+        "keyword": "18 month milk bottle stainless steel or glass microwaveable",
+        "spend": 0.5,
+        "sales": 25.8,
+        "clicks": 1,
+        "impressions": 4,
+        "purchases": 1,
+        "roas": 51.6,
+        "cpc": 0.5,
+        "ctr": 25.0
        }
       ],
       "worst": [
        {
-        "keyword": "valveless straw cup toddler",
-        "spend": 10.53,
+        "keyword": "zak toddler cup with straw",
+        "spend": 12.31,
         "sales": 0.0,
-        "clicks": 8,
-        "impressions": 57,
+        "clicks": 24,
+        "impressions": 1187,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.32,
-        "ctr": 14.04
+        "cpc": 0.51,
+        "ctr": 2.02
+       },
+       {
+        "keyword": "valveless straw cup toddler",
+        "spend": 8.97,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 52,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.28,
+        "ctr": 13.46
+       },
+       {
+        "keyword": "trainer cup for 2 year old baby",
+        "spend": 7.0,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 100,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.88,
+        "ctr": 8.0
        },
        {
         "keyword": "toddler water bottle",
-        "spend": 56.3,
+        "spend": 58.16,
         "sales": 0.0,
-        "clicks": 68,
-        "impressions": 36180,
+        "clicks": 70,
+        "impressions": 41134,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 0.83,
-        "ctr": 0.19
+        "ctr": 0.17
        },
        {
-        "keyword": "toddler straw cup for milk",
-        "spend": 8.41,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 69,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.4,
-        "ctr": 8.7
-       },
-       {
-        "keyword": "straw sippy cups for toddlers",
-        "spend": 9.47,
+        "keyword": "toddler stainless steel water bottle",
+        "spend": 6.8,
         "sales": 0.0,
         "clicks": 7,
-        "impressions": 255,
+        "impressions": 83,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.35,
-        "ctr": 2.75
+        "cpc": 0.97,
+        "ctr": 8.43
        },
        {
-        "keyword": "straw cup for milk 1+ year old",
-        "spend": 6.68,
+        "keyword": "toddler bottles",
+        "spend": 6.96,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 89,
+        "clicks": 8,
+        "impressions": 96,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.11,
-        "ctr": 6.74
+        "cpc": 0.87,
+        "ctr": 8.33
        },
        {
-        "keyword": "straw cup for milk",
-        "spend": 7.9,
+        "keyword": "straw cup with handles",
+        "spend": 9.73,
         "sales": 0.0,
-        "clicks": 11,
-        "impressions": 277,
+        "clicks": 9,
+        "impressions": 124,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.72,
-        "ctr": 3.97
+        "cpc": 1.08,
+        "ctr": 7.26
+       },
+       {
+        "keyword": "straw cup no spill",
+        "spend": 5.29,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 37,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.32,
+        "ctr": 10.81
+       },
+       {
+        "keyword": "straw baby cup",
+        "spend": 5.62,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 75,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 6.67
+       },
+       {
+        "keyword": "stainless steel straw cup toddler",
+        "spend": 22.62,
+        "sales": 0.0,
+        "clicks": 31,
+        "impressions": 1388,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.73,
+        "ctr": 2.23
        },
        {
         "keyword": "stainless steel straw cup",
-        "spend": 13.15,
+        "spend": 11.98,
         "sales": 0.0,
-        "clicks": 12,
-        "impressions": 181,
+        "clicks": 11,
+        "impressions": 172,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.1,
-        "ctr": 6.63
+        "cpc": 1.09,
+        "ctr": 6.4
        },
        {
         "keyword": "stainless steel sippy cups for toddlers",
-        "spend": 10.81,
+        "spend": 9.71,
         "sales": 0.0,
-        "clicks": 9,
-        "impressions": 192,
+        "clicks": 8,
+        "impressions": 189,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.2,
-        "ctr": 4.69
+        "cpc": 1.21,
+        "ctr": 4.23
        },
        {
         "keyword": "stainless steel baby cup",
@@ -7548,103 +7581,136 @@ const FIN_DATA = {
         "ctr": 3.45
        },
        {
-        "keyword": "stainless steel baby bottle",
-        "spend": 10.89,
+        "keyword": "spill proof sippy cups for toddlers",
+        "spend": 14.95,
         "sales": 0.0,
-        "clicks": 9,
+        "clicks": 12,
+        "impressions": 248,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.25,
+        "ctr": 4.84
+       },
+       {
+        "keyword": "soft spout sippy cup",
+        "spend": 5.47,
+        "sales": 0.0,
+        "clicks": 6,
         "impressions": 52,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.21,
-        "ctr": 17.31
-       },
-       {
-        "keyword": "spill-proof straw cups for toddlers",
-        "spend": 6.72,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 62,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.34,
-        "ctr": 8.06
-       },
-       {
-        "keyword": "sippy cup for milk 1+ year old",
-        "spend": 5.46,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 22,
-        "purchases": 0,
-        "roas": 0.0,
         "cpc": 0.91,
-        "ctr": 27.27
+        "ctr": 11.54
        },
        {
-        "keyword": "ppsu sippy cup",
-        "spend": 8.19,
+        "keyword": "sippy cups for 1 year old",
+        "spend": 7.6,
         "sales": 0.0,
         "clicks": 9,
-        "impressions": 210,
+        "impressions": 121,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.91,
-        "ctr": 4.29
+        "cpc": 0.84,
+        "ctr": 7.44
+       },
+       {
+        "keyword": "silicone straw cup baby",
+        "spend": 5.4,
+        "sales": 0.0,
+        "clicks": 3,
+        "impressions": 29,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.8,
+        "ctr": 10.34
+       },
+       {
+        "keyword": "pura kiki sippy cup",
+        "spend": 6.63,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 80,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.33,
+        "ctr": 6.25
        },
        {
         "keyword": "pigeon straw cup",
-        "spend": 11.97,
+        "spend": 12.06,
         "sales": 0.0,
-        "clicks": 15,
-        "impressions": 753,
+        "clicks": 16,
+        "impressions": 777,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.8,
+        "cpc": 0.75,
+        "ctr": 2.06
+       },
+       {
+        "keyword": "perfect angle straw cup",
+        "spend": 7.05,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 239,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.18,
+        "ctr": 2.51
+       },
+       {
+        "keyword": "owala baby cup",
+        "spend": 7.01,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 87,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.75,
+        "ctr": 4.6
+       },
+       {
+        "keyword": "nuk",
+        "spend": 8.24,
+        "sales": 0.0,
+        "clicks": 13,
+        "impressions": 527,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.63,
+        "ctr": 2.47
+       },
+       {
+        "keyword": "no spill sippy cup",
+        "spend": 5.33,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 301,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.89,
         "ctr": 1.99
        },
        {
-        "keyword": "oxo tot cup",
-        "spend": 12.49,
-        "sales": 0.0,
-        "clicks": 32,
-        "impressions": 221,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.39,
-        "ctr": 14.48
-       },
-       {
-        "keyword": "no valve straw cup toddler",
-        "spend": 7.41,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 151,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.24,
-        "ctr": 3.97
-       },
-       {
-        "keyword": "no spill straw cups for toddlers",
-        "spend": 5.68,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 85,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.42,
-        "ctr": 4.71
-       },
-       {
         "keyword": "munchkin straw cup",
-        "spend": 19.09,
+        "spend": 20.02,
         "sales": 0.0,
-        "clicks": 19,
-        "impressions": 1393,
+        "clicks": 20,
+        "impressions": 1528,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 1.0,
-        "ctr": 1.36
+        "ctr": 1.31
+       },
+       {
+        "keyword": "munchkin perfect angle straw cup",
+        "spend": 13.7,
+        "sales": 0.0,
+        "clicks": 12,
+        "impressions": 1684,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.14,
+        "ctr": 0.71
        },
        {
         "keyword": "milk cup for 1 year old",
@@ -7658,345 +7724,15 @@ const FIN_DATA = {
         "ctr": 20.0
        },
        {
-        "keyword": "leak proof sippy cups toddlers",
-        "spend": 6.52,
+        "keyword": "leak proof straw cups for toddlers 1-3",
+        "spend": 8.54,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 89,
+        "clicks": 8,
+        "impressions": 27,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.09,
-        "ctr": 6.74
-       },
-       {
-        "keyword": "insulated sippy cup",
-        "spend": 6.35,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 17,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.27,
-        "ctr": 29.41
-       },
-       {
-        "keyword": "hegen straw cup",
-        "spend": 7.61,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 763,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.85,
-        "ctr": 1.18
-       },
-       {
-        "keyword": "free flow straw cup toddler",
-        "spend": 6.5,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 82,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.3,
-        "ctr": 6.1
-       },
-       {
-        "keyword": "first years straw cup",
-        "spend": 6.36,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 57,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.91,
-        "ctr": 12.28
-       },
-       {
-        "keyword": "first sippy cups for babies 6 months",
-        "spend": 7.85,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 831,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 0.84
-       },
-       {
-        "keyword": "first cups for babies 6 months",
-        "spend": 5.87,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 32,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.98,
-        "ctr": 18.75
-       },
-       {
-        "keyword": "elk and friends cups",
-        "spend": 29.07,
-        "sales": 0.0,
-        "clicks": 46,
-        "impressions": 1007,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.63,
-        "ctr": 4.57
-       },
-       {
-        "keyword": "dr isla sippy cup",
-        "spend": 7.39,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 774,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.82,
-        "ctr": 1.16
-       },
-       {
-        "keyword": "dr browns straw cup",
-        "spend": 8.92,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 831,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.81,
-        "ctr": 1.32
-       },
-       {
-        "keyword": "cup for toddlers 1-3",
-        "spend": 9.97,
-        "sales": 0.0,
-        "clicks": 10,
-        "impressions": 214,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.0,
-        "ctr": 4.67
-       },
-       {
-        "keyword": "bottles for babies from 12 to 24 months",
-        "spend": 19.6,
-        "sales": 0.0,
-        "clicks": 27,
-        "impressions": 344,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.73,
-        "ctr": 7.85
-       },
-       {
-        "keyword": "best sippy cups for 1+ year old",
-        "spend": 5.69,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 15,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.42,
-        "ctr": 26.67
-       },
-       {
-        "keyword": "baby water bottle with straw",
-        "spend": 5.69,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 86,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.14,
-        "ctr": 5.81
-       },
-       {
-        "keyword": "baby straw cup with handles",
-        "spend": 6.84,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 568,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.37,
-        "ctr": 0.88
-       },
-       {
-        "keyword": "baby straw cup leak proof",
-        "spend": 8.36,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 111,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.39,
-        "ctr": 5.41
-       },
-       {
-        "keyword": "baby stainless steel straw cup",
-        "spend": 5.03,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 23,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.26,
-        "ctr": 17.39
-       },
-       {
-        "keyword": "baby cups with straw spill proof",
-        "spend": 6.22,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 12,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.56,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "6 month sippy cups for baby",
-        "spend": 14.59,
-        "sales": 0.0,
-        "clicks": 17,
-        "impressions": 412,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.86,
-        "ctr": 4.13
-       },
-       {
-        "keyword": "12 month old straw cup",
-        "spend": 6.18,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 60,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.24,
-        "ctr": 8.33
-       },
-       {
-        "keyword": "1 year old cup",
-        "spend": 6.99,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 64,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.17,
-        "ctr": 9.38
-       },
-       {
-        "keyword": "zak toddler cup with straw",
-        "spend": 9.71,
-        "sales": 0.0,
-        "clicks": 21,
-        "impressions": 249,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.46,
-        "ctr": 8.43
-       },
-       {
-        "keyword": "transition straw cup",
-        "spend": 5.36,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 66,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.34,
-        "ctr": 6.06
-       },
-       {
-        "keyword": "sippy cup no spill",
-        "spend": 5.54,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 43,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.11,
-        "ctr": 11.63
-       },
-       {
-        "keyword": "sipping cups for toddlers 1-3",
-        "spend": 5.31,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 31,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 16.13
-       },
-       {
-        "keyword": "owala baby",
-        "spend": 6.37,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 21,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.27,
-        "ctr": 23.81
-       },
-       {
-        "keyword": "mombella straw cup",
-        "spend": 11.12,
-        "sales": 0.0,
-        "clicks": 10,
-        "impressions": 311,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.11,
-        "ctr": 3.22
-       },
-       {
-        "keyword": "milk cups for toddlers 1-3",
-        "spend": 7.84,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 122,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.87,
-        "ctr": 7.38
-       },
-       {
-        "keyword": "grosmimi insulated straw cup",
-        "spend": 8.81,
-        "sales": 0.0,
-        "clicks": 10,
-        "impressions": 51,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.88,
-        "ctr": 19.61
-       },
-       {
-        "keyword": "glass toddler cup with straw",
-        "spend": 5.16,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 52,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.29,
-        "ctr": 7.69
-       },
-       {
-        "keyword": "glass sippy cups for toddlers 1-3",
-        "spend": 8.31,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 83,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.92,
-        "ctr": 10.84
+        "cpc": 1.07,
+        "ctr": 29.63
        },
        {
         "keyword": "glass sippy cup",
@@ -8021,26 +7757,554 @@ const FIN_DATA = {
         "ctr": 0.8
        },
        {
-        "keyword": "dr brown sippy cups",
-        "spend": 9.11,
+        "keyword": "elk and friends cups",
+        "spend": 27.28,
         "sales": 0.0,
-        "clicks": 12,
-        "impressions": 526,
+        "clicks": 45,
+        "impressions": 1000,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.76,
-        "ctr": 2.28
+        "cpc": 0.61,
+        "ctr": 4.5
+       },
+       {
+        "keyword": "dr browns straw cup conversion kit",
+        "spend": 5.79,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 1104,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.96,
+        "ctr": 0.54
+       },
+       {
+        "keyword": "dr brown sippy cups",
+        "spend": 9.96,
+        "sales": 0.0,
+        "clicks": 13,
+        "impressions": 586,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.77,
+        "ctr": 2.22
+       },
+       {
+        "keyword": "bottle transition sippy cup for milk",
+        "spend": 14.8,
+        "sales": 0.0,
+        "clicks": 15,
+        "impressions": 233,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.99,
+        "ctr": 6.44
+       },
+       {
+        "keyword": "best sippy cups for 1+ year old",
+        "spend": 6.11,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 11,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.53,
+        "ctr": 36.36
+       },
+       {
+        "keyword": "baby straw cup no valve",
+        "spend": 10.64,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 821,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.33,
+        "ctr": 0.97
+       },
+       {
+        "keyword": "baby straw cup for milk",
+        "spend": 12.61,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 94,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.15,
+        "ctr": 11.7
+       },
+       {
+        "keyword": "baby straw bottle",
+        "spend": 6.65,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 163,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.11,
+        "ctr": 3.68
        },
        {
         "keyword": "baby cups 6-12 months",
-        "spend": 13.58,
+        "spend": 13.33,
         "sales": 0.0,
-        "clicks": 15,
-        "impressions": 246,
+        "clicks": 14,
+        "impressions": 254,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.95,
+        "ctr": 5.51
+       },
+       {
+        "keyword": "baby bottles",
+        "spend": 33.18,
+        "sales": 0.0,
+        "clicks": 42,
+        "impressions": 1567,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.79,
+        "ctr": 2.68
+       },
+       {
+        "keyword": "b0clhgd922",
+        "spend": 9.25,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 268,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.03,
+        "ctr": 3.36
+       },
+       {
+        "keyword": "b0c23nd5gz",
+        "spend": 6.6,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 78,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.1,
+        "ctr": 7.69
+       },
+       {
+        "keyword": "1 year old sippy cup for milk",
+        "spend": 6.79,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 45,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.97,
+        "ctr": 15.56
+       },
+       {
+        "keyword": "1 year old cup",
+        "spend": 7.85,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 77,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 9.09
+       },
+       {
+        "keyword": "toddler straw cup for milk",
+        "spend": 6.85,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 54,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.37,
+        "ctr": 9.26
+       },
+       {
+        "keyword": "straw sippy cups for toddlers",
+        "spend": 9.47,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 255,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.35,
+        "ctr": 2.75
+       },
+       {
+        "keyword": "straw cups for 1 year old",
+        "spend": 5.62,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 96,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.8,
+        "ctr": 7.29
+       },
+       {
+        "keyword": "straw cup for milk 1+ year old",
+        "spend": 6.68,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 89,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.11,
+        "ctr": 6.74
+       },
+       {
+        "keyword": "straw cup for milk",
+        "spend": 10.18,
+        "sales": 0.0,
+        "clicks": 13,
+        "impressions": 319,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.78,
+        "ctr": 4.08
+       },
+       {
+        "keyword": "stainless steel baby bottle",
+        "spend": 9.79,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 47,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.22,
+        "ctr": 17.02
+       },
+       {
+        "keyword": "sippy cup for milk 1+ year old",
+        "spend": 5.46,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 22,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 0.91,
-        "ctr": 6.1
+        "ctr": 27.27
+       },
+       {
+        "keyword": "owala kids tumbler",
+        "spend": 5.45,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 165,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.61,
+        "ctr": 5.45
+       },
+       {
+        "keyword": "no valve straw cup toddler",
+        "spend": 7.41,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 151,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.24,
+        "ctr": 3.97
+       },
+       {
+        "keyword": "no spill straw cups for toddlers",
+        "spend": 5.68,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 85,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.42,
+        "ctr": 4.71
+       },
+       {
+        "keyword": "leak proof sippy cups toddlers",
+        "spend": 5.73,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 144,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.15,
+        "ctr": 3.47
+       },
+       {
+        "keyword": "insulated sippy cup",
+        "spend": 6.35,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 17,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.27,
+        "ctr": 29.41
+       },
+       {
+        "keyword": "hegen straw cup",
+        "spend": 6.31,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 603,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.9,
+        "ctr": 1.16
+       },
+       {
+        "keyword": "free flow straw cup toddler",
+        "spend": 5.1,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 55,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.28,
+        "ctr": 7.27
+       },
+       {
+        "keyword": "first years straw cup",
+        "spend": 5.8,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 56,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.97,
+        "ctr": 10.71
+       },
+       {
+        "keyword": "first sippy cups for babies 6 months",
+        "spend": 11.31,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 1289,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.26,
+        "ctr": 0.7
+       },
+       {
+        "keyword": "first cups for babies 6 months",
+        "spend": 5.87,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 32,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.98,
+        "ctr": 18.75
+       },
+       {
+        "keyword": "dr isla sippy cup",
+        "spend": 7.39,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 774,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.82,
+        "ctr": 1.16
+       },
+       {
+        "keyword": "dr browns weighted straw cup",
+        "spend": 5.29,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 129,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.76,
+        "ctr": 5.43
+       },
+       {
+        "keyword": "dr browns straw cup",
+        "spend": 8.92,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 831,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.81,
+        "ctr": 1.32
+       },
+       {
+        "keyword": "cup for toddlers 1-3",
+        "spend": 12.35,
+        "sales": 0.0,
+        "clicks": 12,
+        "impressions": 239,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.03,
+        "ctr": 5.02
+       },
+       {
+        "keyword": "bottles for babies from 12 to 24 months",
+        "spend": 15.95,
+        "sales": 0.0,
+        "clicks": 23,
+        "impressions": 276,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.69,
+        "ctr": 8.33
+       },
+       {
+        "keyword": "baby water bottle with straw",
+        "spend": 5.69,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 86,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.14,
+        "ctr": 5.81
+       },
+       {
+        "keyword": "baby straw cup with handles",
+        "spend": 8.08,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 1065,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.35,
+        "ctr": 0.56
+       },
+       {
+        "keyword": "baby straw cup leak proof",
+        "spend": 11.08,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 123,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.39,
+        "ctr": 6.5
+       },
+       {
+        "keyword": "baby cups with straw spill proof",
+        "spend": 6.22,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 12,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.56,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "b0db7spp2p",
+        "spend": 6.05,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 271,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.67,
+        "ctr": 3.32
+       },
+       {
+        "keyword": "12 month old straw cup",
+        "spend": 6.18,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 60,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.24,
+        "ctr": 8.33
+       },
+       {
+        "keyword": "1 year old transition cup for milk",
+        "spend": 5.06,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 19,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.27,
+        "ctr": 21.05
+       },
+       {
+        "keyword": "sippy cups for babies",
+        "spend": 5.73,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 71,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.95,
+        "ctr": 8.45
+       },
+       {
+        "keyword": "sippy cup no spill",
+        "spend": 5.54,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 43,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.11,
+        "ctr": 11.63
+       },
+       {
+        "keyword": "owala baby",
+        "spend": 6.37,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 21,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.27,
+        "ctr": 23.81
+       },
+       {
+        "keyword": "mombella straw cup",
+        "spend": 9.46,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 320,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.05,
+        "ctr": 2.81
+       },
+       {
+        "keyword": "milk cups for toddlers 1-3",
+        "spend": 9.1,
+        "sales": 0.0,
+        "clicks": 10,
+        "impressions": 134,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.91,
+        "ctr": 7.46
+       },
+       {
+        "keyword": "grosmimi insulated straw cup",
+        "spend": 8.81,
+        "sales": 0.0,
+        "clicks": 10,
+        "impressions": 51,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.88,
+        "ctr": 19.61
+       },
+       {
+        "keyword": "glass sippy cups for toddlers 1-3",
+        "spend": 8.31,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 83,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.92,
+        "ctr": 10.84
        },
        {
         "keyword": "baby cups 12-18 months",
@@ -8054,92 +8318,81 @@ const FIN_DATA = {
         "ctr": 10.0
        },
        {
-        "keyword": "baby bottles",
-        "spend": 27.82,
+        "keyword": "b0fjskzv2d",
+        "spend": 7.82,
         "sales": 0.0,
-        "clicks": 36,
-        "impressions": 1327,
+        "clicks": 10,
+        "impressions": 155,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.77,
-        "ctr": 2.71
-       },
-       {
-        "keyword": "b0clhgd922",
-        "spend": 12.5,
-        "sales": 0.0,
-        "clicks": 12,
-        "impressions": 328,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.04,
-        "ctr": 3.66
+        "cpc": 0.78,
+        "ctr": 6.45
        },
        {
         "keyword": "b09zzt1g69",
-        "spend": 8.25,
+        "spend": 6.6,
         "sales": 0.0,
-        "clicks": 9,
-        "impressions": 280,
+        "clicks": 7,
+        "impressions": 245,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.92,
-        "ctr": 3.21
+        "cpc": 0.94,
+        "ctr": 2.86
        },
        {
         "keyword": "weighted straw cup baby",
-        "spend": 6.53,
+        "spend": 7.46,
         "sales": 0.0,
-        "clicks": 8,
-        "impressions": 141,
+        "clicks": 9,
+        "impressions": 176,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.82,
-        "ctr": 5.67
+        "cpc": 0.83,
+        "ctr": 5.11
        },
        {
         "keyword": "transition bottles for 1 year old for milk",
-        "spend": 6.27,
+        "spend": 5.1,
         "sales": 0.0,
-        "clicks": 7,
-        "impressions": 71,
+        "clicks": 6,
+        "impressions": 66,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.9,
-        "ctr": 9.86
-       },
-       {
-        "keyword": "training cups for kids",
-        "spend": 6.36,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 77,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.91,
+        "cpc": 0.85,
         "ctr": 9.09
        },
        {
-        "keyword": "tommee tippee straw cup",
-        "spend": 16.26,
+        "keyword": "training cups for kids",
+        "spend": 7.38,
         "sales": 0.0,
-        "clicks": 18,
-        "impressions": 3837,
+        "clicks": 8,
+        "impressions": 95,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.9,
-        "ctr": 0.47
+        "cpc": 0.92,
+        "ctr": 8.42
+       },
+       {
+        "keyword": "tommee tippee straw cup",
+        "spend": 17.66,
+        "sales": 0.0,
+        "clicks": 20,
+        "impressions": 4527,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.88,
+        "ctr": 0.44
        },
        {
         "keyword": "toddler water cup",
-        "spend": 6.27,
+        "spend": 7.13,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 130,
+        "clicks": 7,
+        "impressions": 170,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.04,
-        "ctr": 4.62
+        "cpc": 1.02,
+        "ctr": 4.12
        },
        {
         "keyword": "toddler cups straw",
@@ -8153,81 +8406,48 @@ const FIN_DATA = {
         "ctr": 1.26
        },
        {
-        "keyword": "stainless steel straw cup toddler",
-        "spend": 23.76,
+        "keyword": "straw cup for 2 year old",
+        "spend": 6.06,
         "sales": 0.0,
-        "clicks": 32,
-        "impressions": 1408,
+        "clicks": 6,
+        "impressions": 55,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.74,
-        "ctr": 2.27
+        "cpc": 1.01,
+        "ctr": 10.91
        },
        {
         "keyword": "spill proof toddler cup",
-        "spend": 8.51,
+        "spend": 6.24,
         "sales": 0.0,
-        "clicks": 8,
-        "impressions": 158,
+        "clicks": 7,
+        "impressions": 175,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 5.06
-       },
-       {
-        "keyword": "spill proof sippy cups for toddlers",
-        "spend": 15.91,
-        "sales": 0.0,
-        "clicks": 13,
-        "impressions": 249,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.22,
-        "ctr": 5.22
-       },
-       {
-        "keyword": "sippy cups for 1 year old",
-        "spend": 6.58,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 115,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.82,
-        "ctr": 6.96
+        "cpc": 0.89,
+        "ctr": 4.0
        },
        {
         "keyword": "sippy cup for baby",
-        "spend": 6.66,
+        "spend": 8.2,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 146,
+        "clicks": 7,
+        "impressions": 194,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.11,
-        "ctr": 4.11
+        "cpc": 1.17,
+        "ctr": 3.61
        },
        {
-        "keyword": "perfect angle straw cup",
-        "spend": 7.05,
+        "keyword": "milk bottle for toddlers 3-5",
+        "spend": 9.7,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 239,
+        "clicks": 10,
+        "impressions": 76,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.18,
-        "ctr": 2.51
-       },
-       {
-        "keyword": "nuk",
-        "spend": 6.69,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 470,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.61,
-        "ctr": 2.34
+        "cpc": 0.97,
+        "ctr": 13.16
        },
        {
         "keyword": "leak proof straw cups for toddlers with handle",
@@ -8252,6 +8472,17 @@ const FIN_DATA = {
         "ctr": 13.41
        },
        {
+        "keyword": "glass sippy cups for toddlers",
+        "spend": 5.35,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 23,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.34,
+        "ctr": 17.39
+       },
+       {
         "keyword": "bottle with straw for toddler",
         "spend": 6.39,
         "sales": 0.0,
@@ -8263,28 +8494,6 @@ const FIN_DATA = {
         "ctr": 25.0
        },
        {
-        "keyword": "bottle transition sippy cup for milk",
-        "spend": 14.76,
-        "sales": 0.0,
-        "clicks": 15,
-        "impressions": 244,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.98,
-        "ctr": 6.15
-       },
-       {
-        "keyword": "baby water straw cup",
-        "spend": 8.71,
-        "sales": 0.0,
-        "clicks": 10,
-        "impressions": 331,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.87,
-        "ctr": 3.02
-       },
-       {
         "keyword": "baby straw cups",
         "spend": 14.25,
         "sales": 0.0,
@@ -8294,28 +8503,6 @@ const FIN_DATA = {
         "roas": 0.0,
         "cpc": 1.43,
         "ctr": 0.26
-       },
-       {
-        "keyword": "baby straw bottle",
-        "spend": 5.53,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 133,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.11,
-        "ctr": 3.76
-       },
-       {
-        "keyword": "baby sippy cups",
-        "spend": 7.39,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 164,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 4.27
        },
        {
         "keyword": "baby owala",
@@ -8341,212 +8528,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "b0cngxx8kz",
-        "spend": 6.78,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 201,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.97,
-        "ctr": 3.48
-       },
-       {
-        "keyword": "b0c7699wjt",
-        "spend": 6.6,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 259,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.1,
-        "ctr": 2.32
-       },
-       {
-        "keyword": "b0c23nd5gz",
-        "spend": 7.54,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 101,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 6.93
-       },
-       {
-        "keyword": "6 month straw cups for baby",
-        "spend": 11.3,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 1262,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.61,
-        "ctr": 0.55
-       },
-       {
-        "keyword": "toddler sippy cups with straw",
-        "spend": 6.68,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 26,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.34,
-        "ctr": 19.23
-       },
-       {
-        "keyword": "toddler bottles",
-        "spend": 6.96,
+        "spend": 7.88,
         "sales": 0.0,
         "clicks": 8,
-        "impressions": 96,
+        "impressions": 216,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.87,
-        "ctr": 8.33
-       },
-       {
-        "keyword": "straw sippy cups",
-        "spend": 5.8,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 83,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.97,
-        "ctr": 7.23
-       },
-       {
-        "keyword": "straw milk bottle",
-        "spend": 5.44,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 16,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.09,
-        "ctr": 31.25
-       },
-       {
-        "keyword": "straw bottle baby",
-        "spend": 8.13,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 101,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.16,
-        "ctr": 6.93
-       },
-       {
-        "keyword": "sippy cups for toddlers 1-3 spill proof",
-        "spend": 7.94,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 171,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.88,
-        "ctr": 5.26
-       },
-       {
-        "keyword": "sippy cups 3 year old",
-        "spend": 5.08,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 239,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.85,
-        "ctr": 2.51
-       },
-       {
-        "keyword": "pura kiki sippy cup",
-        "spend": 6.63,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 80,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.33,
-        "ctr": 6.25
-       },
-       {
-        "keyword": "owala kids",
-        "spend": 6.35,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 175,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.91,
-        "ctr": 4.0
-       },
-       {
-        "keyword": "no leak straw cups for toddlers 1-3",
-        "spend": 5.68,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 40,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.42,
-        "ctr": 10.0
-       },
-       {
-        "keyword": "korean sippy cup",
-        "spend": 5.09,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 25,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.02,
-        "ctr": 20.0
-       },
-       {
-        "keyword": "infant water bottle",
-        "spend": 6.52,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 58,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.93,
-        "ctr": 12.07
-       },
-       {
-        "keyword": "straw milk cup for toddlers 1-3",
-        "spend": 6.34,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 48,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 12.5
-       },
-       {
-        "keyword": "valve free straw cup toddler",
-        "spend": 7.72,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 199,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.1,
-        "ctr": 3.52
-       },
-       {
-        "keyword": "toddler owala",
-        "spend": 7.58,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 172,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 4.07
+        "cpc": 0.99,
+        "ctr": 3.7
        }
       ]
      },
@@ -8619,15 +8608,15 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
-        "keyword": "炒米糖",
-        "spend": 0.79,
+        "keyword": "mini rice cakes",
+        "spend": 0.61,
         "sales": 24.6,
         "clicks": 1,
-        "impressions": 1,
+        "impressions": 15,
         "purchases": 1,
-        "roas": 31.14,
-        "cpc": 0.79,
-        "ctr": 100.0
+        "roas": 40.33,
+        "cpc": 0.61,
+        "ctr": 6.67
        },
        {
         "keyword": "white salted mini rice cakes",
@@ -8652,6 +8641,17 @@ const FIN_DATA = {
         "ctr": 4.76
        },
        {
+        "keyword": "炒米糖",
+        "spend": 0.79,
+        "sales": 24.6,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 31.14,
+        "cpc": 0.79,
+        "ctr": 100.0
+       },
+       {
         "keyword": "rice puffs snack",
         "spend": 0.86,
         "sales": 24.6,
@@ -8661,17 +8661,6 @@ const FIN_DATA = {
         "roas": 28.6,
         "cpc": 0.86,
         "ctr": 25.0
-       },
-       {
-        "keyword": "b087nch79p",
-        "spend": 0.99,
-        "sales": 24.6,
-        "clicks": 1,
-        "impressions": 10,
-        "purchases": 1,
-        "roas": 24.85,
-        "cpc": 0.99,
-        "ctr": 10.0
        },
        {
         "keyword": "korean baby snack",
@@ -8729,17 +8718,6 @@ const FIN_DATA = {
         "ctr": 8.33
        },
        {
-        "keyword": "white rice cakes made with white rice",
-        "spend": 1.07,
-        "sales": 24.6,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 1,
-        "roas": 22.99,
-        "cpc": 1.07,
-        "ctr": 50.0
-       },
-       {
         "keyword": "rice cake toddler korea",
         "spend": 1.07,
         "sales": 24.6,
@@ -8751,15 +8729,37 @@ const FIN_DATA = {
         "ctr": 50.0
        },
        {
+        "keyword": "davus crispy sushi rice patties",
+        "spend": 1.07,
+        "sales": 24.6,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 22.99,
+        "cpc": 1.07,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "white rice cakes made with white rice",
+        "spend": 1.07,
+        "sales": 24.6,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 22.99,
+        "cpc": 1.07,
+        "ctr": 50.0
+       },
+       {
         "keyword": "떡뻥",
-        "spend": 6.92,
-        "sales": 147.6,
-        "clicks": 10,
-        "impressions": 34,
-        "purchases": 6,
-        "roas": 21.33,
-        "cpc": 0.69,
-        "ctr": 29.41
+        "spend": 6.47,
+        "sales": 123.0,
+        "clicks": 9,
+        "impressions": 33,
+        "purchases": 5,
+        "roas": 19.01,
+        "cpc": 0.72,
+        "ctr": 27.27
        },
        {
         "keyword": "b01fgdlvjy",
@@ -8773,26 +8773,15 @@ const FIN_DATA = {
         "ctr": 11.11
        },
        {
-        "keyword": "mini rice cakes",
-        "spend": 1.32,
+        "keyword": "nori punch",
+        "spend": 1.86,
         "sales": 24.6,
         "clicks": 2,
-        "impressions": 28,
+        "impressions": 2,
         "purchases": 1,
-        "roas": 18.64,
-        "cpc": 0.66,
-        "ctr": 7.14
-       },
-       {
-        "keyword": "b0fj8bfh7y",
-        "spend": 1.63,
-        "sales": 24.6,
-        "clicks": 2,
-        "impressions": 7,
-        "purchases": 1,
-        "roas": 15.09,
-        "cpc": 0.81,
-        "ctr": 28.57
+        "roas": 13.23,
+        "cpc": 0.93,
+        "ctr": 100.0
        },
        {
         "keyword": "b0bmjcwyb6",
@@ -8817,6 +8806,17 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
+        "keyword": "baby snack",
+        "spend": 2.17,
+        "sales": 24.6,
+        "clicks": 2,
+        "impressions": 94,
+        "purchases": 1,
+        "roas": 11.34,
+        "cpc": 1.08,
+        "ctr": 2.13
+       },
+       {
         "keyword": "rice balls",
         "spend": 2.38,
         "sales": 24.6,
@@ -8826,28 +8826,6 @@ const FIN_DATA = {
         "roas": 10.34,
         "cpc": 0.79,
         "ctr": 6.0
-       },
-       {
-        "keyword": "rice snacks",
-        "spend": 4.88,
-        "sales": 49.2,
-        "clicks": 6,
-        "impressions": 127,
-        "purchases": 2,
-        "roas": 10.08,
-        "cpc": 0.81,
-        "ctr": 4.72
-       },
-       {
-        "keyword": "pop rice snack",
-        "spend": 5.06,
-        "sales": 49.2,
-        "clicks": 6,
-        "impressions": 42,
-        "purchases": 2,
-        "roas": 9.72,
-        "cpc": 0.84,
-        "ctr": 14.29
        },
        {
         "keyword": "b08tqn3h7t",
@@ -8883,15 +8861,15 @@ const FIN_DATA = {
         "ctr": 16.67
        },
        {
-        "keyword": "baby snack",
-        "spend": 3.18,
+        "keyword": "pop rice snack",
+        "spend": 3.41,
         "sales": 24.6,
-        "clicks": 3,
-        "impressions": 110,
+        "clicks": 4,
+        "impressions": 35,
         "purchases": 1,
-        "roas": 7.74,
-        "cpc": 1.06,
-        "ctr": 2.73
+        "roas": 7.21,
+        "cpc": 0.85,
+        "ctr": 11.43
        },
        {
         "keyword": "rice snack",
@@ -8906,58 +8884,410 @@ const FIN_DATA = {
        },
        {
         "keyword": "crackers",
-        "spend": 4.67,
+        "spend": 5.55,
         "sales": 24.6,
-        "clicks": 5,
-        "impressions": 249,
+        "clicks": 6,
+        "impressions": 270,
         "purchases": 1,
-        "roas": 5.27,
-        "cpc": 0.93,
-        "ctr": 2.01
-       },
-       {
-        "keyword": "white rice cakes",
-        "spend": 7.06,
-        "sales": 24.6,
-        "clicks": 7,
-        "impressions": 51,
-        "purchases": 1,
-        "roas": 3.48,
-        "cpc": 1.01,
-        "ctr": 13.73
+        "roas": 4.43,
+        "cpc": 0.92,
+        "ctr": 2.22
        },
        {
         "keyword": "low calorie snacks",
-        "spend": 9.0,
+        "spend": 9.84,
         "sales": 24.6,
-        "clicks": 11,
-        "impressions": 168,
+        "clicks": 12,
+        "impressions": 185,
         "purchases": 1,
-        "roas": 2.73,
+        "roas": 2.5,
         "cpc": 0.82,
-        "ctr": 6.55
+        "ctr": 6.49
        },
        {
         "keyword": "puffed rice",
-        "spend": 15.47,
+        "spend": 15.52,
         "sales": 24.6,
         "clicks": 14,
-        "impressions": 1846,
+        "impressions": 1680,
         "purchases": 1,
         "roas": 1.59,
-        "cpc": 1.1,
-        "ctr": 0.76
+        "cpc": 1.11,
+        "ctr": 0.83
        },
        {
         "keyword": "rice crackers",
-        "spend": 48.3,
+        "spend": 46.85,
         "sales": 49.2,
-        "clicks": 44,
-        "impressions": 9868,
+        "clicks": 42,
+        "impressions": 9351,
         "purchases": 2,
-        "roas": 1.02,
-        "cpc": 1.1,
+        "roas": 1.05,
+        "cpc": 1.12,
         "ctr": 0.45
+       },
+       {
+        "keyword": "쌀과자",
+        "spend": 1.07,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 10,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.07,
+        "ctr": 10.0
+       },
+       {
+        "keyword": "unsalted rice cakes",
+        "spend": 1.0,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 5,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.0,
+        "ctr": 20.0
+       },
+       {
+        "keyword": "tobiko arare rice balls",
+        "spend": 0.99,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.99,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "thin rice cakes",
+        "spend": 4.4,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 403,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.88,
+        "ctr": 1.24
+       },
+       {
+        "keyword": "sweet korean rice cakes",
+        "spend": 1.07,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.07,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "rice stick korea",
+        "spend": 1.14,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 6,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.57,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "rice roll. bites",
+        "spend": 0.95,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.95,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "plain white rice cakes",
+        "spend": 1.14,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.14,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "mochi rice nuggets",
+        "spend": 2.11,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 17,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.05,
+        "ctr": 11.76
+       },
+       {
+        "keyword": "misugaru powder",
+        "spend": 0.88,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.88,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "mango sticky rice",
+        "spend": 3.35,
+        "sales": 0.0,
+        "clicks": 3,
+        "impressions": 36,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 8.33
+       },
+       {
+        "keyword": "korean snacks box",
+        "spend": 0.61,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.61,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "korean healthy snack",
+        "spend": 1.14,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.14,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "japanese rice crackers",
+        "spend": 9.51,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 1199,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.86,
+        "ctr": 0.92
+       },
+       {
+        "keyword": "crunchy rollers white rice",
+        "spend": 0.79,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 7,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.79,
+        "ctr": 14.29
+       },
+       {
+        "keyword": "bibigo sticky rice",
+        "spend": 1.14,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.14,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b0h8bmkztp",
+        "spend": 4.47,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 36,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 11.11
+       },
+       {
+        "keyword": "b0h1dqgtz5",
+        "spend": 2.24,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 9,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 22.22
+       },
+       {
+        "keyword": "b0gp5lzq5w",
+        "spend": 0.57,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.57,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b0g4t2fkqg",
+        "spend": 2.24,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 35,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 5.71
+       },
+       {
+        "keyword": "b0g4hx766b",
+        "spend": 1.12,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b0dw7tfqns",
+        "spend": 1.12,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "b09s23jpj1",
+        "spend": 0.86,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 12,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.86,
+        "ctr": 8.33
+       },
+       {
+        "keyword": "b007yurqvu",
+        "spend": 1.12,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "rice wafers",
+        "spend": 0.7,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.7,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "rice cracker snack",
+        "spend": 1.2,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.2,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "rice cakes",
+        "spend": 3.04,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 87,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.76,
+        "ctr": 4.6
+       },
+       {
+        "keyword": "puffed rice chips",
+        "spend": 1.02,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.02,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "little bellies snacks",
+        "spend": 1.15,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.15,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "korean rice puff",
+        "spend": 2.4,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 20,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.2,
+        "ctr": 10.0
+       },
+       {
+        "keyword": "baby cereal",
+        "spend": 1.85,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 14,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.92,
+        "ctr": 14.29
+       },
+       {
+        "keyword": "b0cw3lcbzl",
+        "spend": 0.96,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 185,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.96,
+        "ctr": 0.54
+       },
+       {
+        "keyword": "b004t343io",
+        "spend": 2.15,
+        "sales": 0.0,
+        "clicks": 3,
+        "impressions": 103,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.72,
+        "ctr": 2.91
        },
        {
         "keyword": "rice popcorn seeds",
@@ -9269,14 +9599,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "b0bycsqs4l",
-        "spend": 3.21,
+        "spend": 3.12,
         "sales": 0.0,
         "clicks": 4,
-        "impressions": 280,
+        "impressions": 291,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.8,
-        "ctr": 1.43
+        "cpc": 0.78,
+        "ctr": 1.37
        },
        {
         "keyword": "b08vb6ssrm",
@@ -9310,350 +9640,20 @@ const FIN_DATA = {
         "roas": 0.0,
         "cpc": 1.12,
         "ctr": 100.0
-       },
-       {
-        "keyword": "b00822yy14",
-        "spend": 1.12,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b000wd5n8y",
-        "spend": 1.07,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 20,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.53,
-        "ctr": 10.0
-       },
-       {
-        "keyword": "rice puff",
-        "spend": 1.02,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 7,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.02,
-        "ctr": 14.29
-       },
-       {
-        "keyword": "rice pops",
-        "spend": 2.28,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 10,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.14,
-        "ctr": 20.0
-       },
-       {
-        "keyword": "rice crisps",
-        "spend": 13.12,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 751,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.19,
-        "ctr": 1.46
-       },
-       {
-        "keyword": "rice cracker snacks",
-        "spend": 4.8,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 120,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.2,
-        "ctr": 3.33
-       },
-       {
-        "keyword": "rice cakes",
-        "spend": 3.04,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 87,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.76,
-        "ctr": 4.6
-       },
-       {
-        "keyword": "milk skin crackers",
-        "spend": 3.92,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 12,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.78,
-        "ctr": 41.67
-       },
-       {
-        "keyword": "korean snack",
-        "spend": 0.59,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 3,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.59,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "korean rice crackers snack",
-        "spend": 4.8,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 202,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.2,
-        "ctr": 1.98
-       },
-       {
-        "keyword": "korean milk classic rice snack",
-        "spend": 1.2,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 7,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.2,
-        "ctr": 14.29
-       },
-       {
-        "keyword": "egg white chips",
-        "spend": 0.7,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.7,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "black sesame and soysauce rice crackers",
-        "spend": 0.59,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.59,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0dfw5sslc",
-        "spend": 0.24,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.24,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b09z2fkpst",
-        "spend": 0.66,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.66,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "b004t343io",
-        "spend": 2.15,
-        "sales": 0.0,
-        "clicks": 3,
-        "impressions": 103,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.72,
-        "ctr": 2.91
-       },
-       {
-        "keyword": "零食",
-        "spend": 0.79,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "viral food",
-        "spend": 0.79,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "rice pudding",
-        "spend": 1.68,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 29,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.84,
-        "ctr": 6.9
-       },
-       {
-        "keyword": "rice crispy",
-        "spend": 1.72,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 59,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.86,
-        "ctr": 3.39
-       },
-       {
-        "keyword": "rice cakes organic",
-        "spend": 3.58,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 27,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.9,
-        "ctr": 14.81
-       },
-       {
-        "keyword": "popped white rice",
-        "spend": 0.79,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "pani puri",
-        "spend": 1.07,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 127,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.07,
-        "ctr": 0.79
-       },
-       {
-        "keyword": "healthy snack",
-        "spend": 0.74,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 3,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.74,
-        "ctr": 33.33
-       },
-       {
-        "keyword": "finger food",
-        "spend": 0.79,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.79,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0g3mwgpnk",
-        "spend": 2.24,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 49,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 4.08
-       },
-       {
-        "keyword": "b0dflwkfz7",
-        "spend": 3.64,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 50,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.91,
-        "ctr": 8.0
-       },
-       {
-        "keyword": "b0bzhvzswq",
-        "spend": 2.8,
-        "sales": 0.0,
-        "clicks": 3,
-        "impressions": 86,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.93,
-        "ctr": 3.49
-       },
-       {
-        "keyword": "b089dt47y5",
-        "spend": 1.62,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 4,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.81,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "b07nm7tny6",
-        "spend": 1.12,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b06xrs28kq",
-        "spend": 1.62,
-        "sales": 0.0,
-        "clicks": 2,
-        "impressions": 11,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.81,
-        "ctr": 18.18
        }
       ],
       "worst": [
+       {
+        "keyword": "japanese rice crackers",
+        "spend": 9.51,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 1199,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.86,
+        "ctr": 0.92
+       },
        {
         "keyword": "korean rice crackers",
         "spend": 5.73,
@@ -9667,47 +9667,25 @@ const FIN_DATA = {
        },
        {
         "keyword": "rice crisps",
-        "spend": 13.12,
+        "spend": 10.72,
         "sales": 0.0,
-        "clicks": 11,
-        "impressions": 751,
+        "clicks": 9,
+        "impressions": 639,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 1.19,
-        "ctr": 1.46
-       },
-       {
-        "keyword": "milk classic rice snack",
-        "spend": 5.17,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 374,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 1.34
+        "ctr": 1.41
        },
        {
         "keyword": "baby snacks",
-        "spend": 12.77,
+        "spend": 12.82,
         "sales": 0.0,
         "clicks": 12,
-        "impressions": 608,
+        "impressions": 594,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 1.97
-       },
-       {
-        "keyword": "japanese rice crackers",
-        "spend": 9.51,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 1399,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.86,
-        "ctr": 0.79
+        "cpc": 1.07,
+        "ctr": 2.02
        },
        {
         "keyword": "b0ck77sqjw",
@@ -9721,99 +9699,99 @@ const FIN_DATA = {
         "ctr": 8.7
        },
        {
-        "keyword": "b0dwwywhpb",
-        "spend": 5.04,
+        "keyword": "white rice cakes",
+        "spend": 6.8,
         "sales": 0.0,
-        "clicks": 4,
-        "impressions": 57,
+        "clicks": 7,
+        "impressions": 79,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.26,
-        "ctr": 7.02
+        "cpc": 0.97,
+        "ctr": 8.86
+       },
+       {
+        "keyword": "b0dwwywhpb",
+        "spend": 5.01,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 99,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.25,
+        "ctr": 4.04
        },
        {
         "keyword": "korean rice snacks",
-        "spend": 5.28,
+        "spend": 5.5,
         "sales": 0.0,
         "clicks": 5,
-        "impressions": 94,
+        "impressions": 114,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 5.32
+        "cpc": 1.1,
+        "ctr": 4.39
        },
        {
         "keyword": "rice crackers",
-        "spend": 48.3,
+        "spend": 46.85,
         "sales": 49.2,
-        "clicks": 44,
-        "impressions": 9868,
+        "clicks": 42,
+        "impressions": 9351,
         "purchases": 2,
-        "roas": 1.02,
-        "cpc": 1.1,
+        "roas": 1.05,
+        "cpc": 1.12,
         "ctr": 0.45
        },
        {
         "keyword": "puffed rice",
-        "spend": 15.47,
+        "spend": 15.52,
         "sales": 24.6,
         "clicks": 14,
-        "impressions": 1846,
+        "impressions": 1680,
         "purchases": 1,
         "roas": 1.59,
-        "cpc": 1.1,
-        "ctr": 0.76
+        "cpc": 1.11,
+        "ctr": 0.83
        },
        {
         "keyword": "low calorie snacks",
-        "spend": 9.0,
+        "spend": 9.84,
         "sales": 24.6,
-        "clicks": 11,
-        "impressions": 168,
+        "clicks": 12,
+        "impressions": 185,
         "purchases": 1,
-        "roas": 2.73,
+        "roas": 2.5,
         "cpc": 0.82,
-        "ctr": 6.55
+        "ctr": 6.49
        },
        {
-        "keyword": "white rice cakes",
-        "spend": 7.06,
+        "keyword": "crackers",
+        "spend": 5.55,
         "sales": 24.6,
-        "clicks": 7,
-        "impressions": 51,
-        "purchases": 1,
-        "roas": 3.48,
-        "cpc": 1.01,
-        "ctr": 13.73
-       },
-       {
-        "keyword": "pop rice snack",
-        "spend": 5.06,
-        "sales": 49.2,
         "clicks": 6,
-        "impressions": 42,
-        "purchases": 2,
-        "roas": 9.72,
-        "cpc": 0.84,
-        "ctr": 14.29
+        "impressions": 270,
+        "purchases": 1,
+        "roas": 4.43,
+        "cpc": 0.92,
+        "ctr": 2.22
        },
        {
         "keyword": "떡뻥",
-        "spend": 6.92,
-        "sales": 147.6,
-        "clicks": 10,
-        "impressions": 34,
-        "purchases": 6,
-        "roas": 21.33,
-        "cpc": 0.69,
-        "ctr": 29.41
+        "spend": 6.47,
+        "sales": 123.0,
+        "clicks": 9,
+        "impressions": 33,
+        "purchases": 5,
+        "roas": 19.01,
+        "cpc": 0.72,
+        "ctr": 27.27
        }
       ]
      }
     },
     "actual": {
-     "from": "2026-10-31",
-     "to": "2026-11-13",
+     "from": "2026-11-01",
+     "to": "2026-11-14",
      "days": 12
     }
    },
@@ -10318,17 +10296,6 @@ const FIN_DATA = {
         "ctr": 14.29
        },
        {
-        "keyword": "grosmimi ppsu straw cup - 6oz 6 months+ skyblue 6oz",
-        "spend": 0.45,
-        "sales": 45.6,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 2,
-        "roas": 101.33,
-        "cpc": 0.45,
-        "ctr": 50.0
-       },
-       {
         "keyword": "grossini cups",
         "spend": 0.45,
         "sales": 45.6,
@@ -10338,6 +10305,17 @@ const FIN_DATA = {
         "roas": 101.33,
         "cpc": 0.45,
         "ctr": 25.0
+       },
+       {
+        "keyword": "grosmimi ppsu straw cup - 6oz 6 months+ skyblue 6oz",
+        "spend": 0.45,
+        "sales": 45.6,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 2,
+        "roas": 101.33,
+        "cpc": 0.45,
+        "ctr": 50.0
        },
        {
         "keyword": "straw conversion for philips avent",
@@ -10494,6 +10472,17 @@ const FIN_DATA = {
         "ctr": 33.33
        },
        {
+        "keyword": "grosmimi for toddler",
+        "spend": 0.33,
+        "sales": 28.7,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 86.97,
+        "cpc": 0.33,
+        "ctr": 50.0
+       },
+       {
         "keyword": "grosmimi straw cup 10 months",
         "spend": 0.45,
         "sales": 38.9,
@@ -10514,6 +10503,17 @@ const FIN_DATA = {
         "roas": 86.0,
         "cpc": 0.6,
         "ctr": 100.0
+       },
+       {
+        "keyword": "cups for toddlers 1-3 with handles",
+        "spend": 0.55,
+        "sales": 46.8,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 1,
+        "roas": 85.09,
+        "cpc": 0.55,
+        "ctr": 33.33
        },
        {
         "keyword": "infant bottle water with filter",
@@ -10538,15 +10538,15 @@ const FIN_DATA = {
         "ctr": 4.76
        },
        {
-        "keyword": "cups for toddlers 1-3 with handles",
+        "keyword": "brumate tumbler kids",
         "spend": 0.55,
         "sales": 46.8,
         "clicks": 1,
-        "impressions": 3,
+        "impressions": 5,
         "purchases": 1,
         "roas": 85.09,
         "cpc": 0.55,
-        "ctr": 33.33
+        "ctr": 20.0
        },
        {
         "keyword": "double walled stainless sippy cup toddler",
@@ -10569,17 +10569,6 @@ const FIN_DATA = {
         "roas": 85.09,
         "cpc": 0.55,
         "ctr": 100.0
-       },
-       {
-        "keyword": "brumate tumbler kids",
-        "spend": 0.55,
-        "sales": 46.8,
-        "clicks": 1,
-        "impressions": 5,
-        "purchases": 1,
-        "roas": 85.09,
-        "cpc": 0.55,
-        "ctr": 20.0
        },
        {
         "keyword": "grosmimi insulated 316 stainless steel spill proof straw cup",
@@ -10835,17 +10824,6 @@ const FIN_DATA = {
         "ctr": 33.33
        },
        {
-        "keyword": "toddler stainless steel bottle",
-        "spend": 1.1,
-        "sales": 77.8,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 1,
-        "roas": 70.73,
-        "cpc": 1.1,
-        "ctr": 50.0
-       },
-       {
         "keyword": "baby toy martini glass",
         "spend": 0.55,
         "sales": 38.9,
@@ -10855,6 +10833,17 @@ const FIN_DATA = {
         "roas": 70.73,
         "cpc": 0.55,
         "ctr": 100.0
+       },
+       {
+        "keyword": "toddler stainless steel bottle",
+        "spend": 1.1,
+        "sales": 77.8,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 70.73,
+        "cpc": 1.1,
+        "ctr": 50.0
        },
        {
         "keyword": "baby water bottle grosmimi",
@@ -10910,30 +10899,745 @@ const FIN_DATA = {
         "roas": 68.85,
         "cpc": 0.52,
         "ctr": 28.57
-       },
-       {
-        "keyword": "toddler sippy cups munchkin",
-        "spend": 0.68,
-        "sales": 46.8,
-        "clicks": 1,
-        "impressions": 7,
-        "purchases": 1,
-        "roas": 68.82,
-        "cpc": 0.68,
-        "ctr": 14.29
        }
       ],
       "worst": [
        {
-        "keyword": "zak toddler cup with straw",
-        "spend": 20.69,
+        "keyword": "zippy cups for 2 year old",
+        "spend": 5.19,
         "sales": 0.0,
-        "clicks": 32,
-        "impressions": 883,
+        "clicks": 6,
+        "impressions": 41,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.65,
-        "ctr": 3.62
+        "cpc": 0.87,
+        "ctr": 14.63
+       },
+       {
+        "keyword": "zak toddler cup with straw",
+        "spend": 23.29,
+        "sales": 0.0,
+        "clicks": 35,
+        "impressions": 1821,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.67,
+        "ctr": 1.92
+       },
+       {
+        "keyword": "transition cups for baby from bottle",
+        "spend": 8.9,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 79,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.99,
+        "ctr": 11.39
+       },
+       {
+        "keyword": "toddler sippy cups leak proof",
+        "spend": 6.0,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 119,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.0,
+        "ctr": 5.04
+       },
+       {
+        "keyword": "toddler bottles",
+        "spend": 10.13,
+        "sales": 0.0,
+        "clicks": 12,
+        "impressions": 111,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 10.81
+       },
+       {
+        "keyword": "thyseed baby bottle",
+        "spend": 5.12,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 686,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.47,
+        "ctr": 1.6
+       },
+       {
+        "keyword": "straw cups with handles for toddlers",
+        "spend": 5.06,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 40,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.27,
+        "ctr": 10.0
+       },
+       {
+        "keyword": "straw cup for milk 1+ year old",
+        "spend": 16.14,
+        "sales": 0.0,
+        "clicks": 13,
+        "impressions": 146,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.24,
+        "ctr": 8.9
+       },
+       {
+        "keyword": "straw cup for formula",
+        "spend": 7.39,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 44,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.23,
+        "ctr": 13.64
+       },
+       {
+        "keyword": "straw bottle toddler",
+        "spend": 8.9,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 44,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.78,
+        "ctr": 11.36
+       },
+       {
+        "keyword": "straw bottle baby",
+        "spend": 27.55,
+        "sales": 0.0,
+        "clicks": 22,
+        "impressions": 337,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.25,
+        "ctr": 6.53
+       },
+       {
+        "keyword": "straw baby cup",
+        "spend": 13.31,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 217,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.21,
+        "ctr": 5.07
+       },
+       {
+        "keyword": "stainless steel weighted straw cup",
+        "spend": 12.77,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 45,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.16,
+        "ctr": 24.44
+       },
+       {
+        "keyword": "stainless steel toddler water bottle",
+        "spend": 8.04,
+        "sales": 0.0,
+        "clicks": 14,
+        "impressions": 54,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.57,
+        "ctr": 25.93
+       },
+       {
+        "keyword": "stainless steel toddler cups",
+        "spend": 23.34,
+        "sales": 0.0,
+        "clicks": 22,
+        "impressions": 299,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.06,
+        "ctr": 7.36
+       },
+       {
+        "keyword": "stainless steel straw cup with handles",
+        "spend": 5.95,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 25,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.19,
+        "ctr": 20.0
+       },
+       {
+        "keyword": "stainless steel sippy cups for toddlers",
+        "spend": 17.73,
+        "sales": 0.0,
+        "clicks": 14,
+        "impressions": 241,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.27,
+        "ctr": 5.81
+       },
+       {
+        "keyword": "stainless steel baby water bottle",
+        "spend": 7.06,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 31,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.41,
+        "ctr": 16.13
+       },
+       {
+        "keyword": "squeeze and sip straw cup",
+        "spend": 16.77,
+        "sales": 0.0,
+        "clicks": 18,
+        "impressions": 404,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.93,
+        "ctr": 4.46
+       },
+       {
+        "keyword": "snack cups for toddlers spill proof",
+        "spend": 5.97,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 85,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.66,
+        "ctr": 10.59
+       },
+       {
+        "keyword": "sippy cups for 6 month old",
+        "spend": 28.49,
+        "sales": 0.0,
+        "clicks": 40,
+        "impressions": 528,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.71,
+        "ctr": 7.58
+       },
+       {
+        "keyword": "sippy cups 3 year old",
+        "spend": 10.7,
+        "sales": 0.0,
+        "clicks": 14,
+        "impressions": 424,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.76,
+        "ctr": 3.3
+       },
+       {
+        "keyword": "sippy cup milk",
+        "spend": 5.78,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 22,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.96,
+        "ctr": 27.27
+       },
+       {
+        "keyword": "pigeon water bottle",
+        "spend": 9.5,
+        "sales": 0.0,
+        "clicks": 29,
+        "impressions": 135,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.33,
+        "ctr": 21.48
+       },
+       {
+        "keyword": "pachas para niños de 2 años",
+        "spend": 6.5,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 40,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.59,
+        "ctr": 27.5
+       },
+       {
+        "keyword": "nuk sippy cup 12 months and up",
+        "spend": 7.62,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 148,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.69,
+        "ctr": 7.43
+       },
+       {
+        "keyword": "nuk learner cup",
+        "spend": 5.8,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 143,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.83,
+        "ctr": 4.9
+       },
+       {
+        "keyword": "nuk",
+        "spend": 17.63,
+        "sales": 0.0,
+        "clicks": 29,
+        "impressions": 1594,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.61,
+        "ctr": 1.82
+       },
+       {
+        "keyword": "no spill toddler cup",
+        "spend": 11.79,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 90,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.07,
+        "ctr": 12.22
+       },
+       {
+        "keyword": "no plastic sippy cup",
+        "spend": 7.53,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 13,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.26,
+        "ctr": 46.15
+       },
+       {
+        "keyword": "moyuum straw cup",
+        "spend": 74.12,
+        "sales": 0.0,
+        "clicks": 159,
+        "impressions": 284,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.47,
+        "ctr": 55.99
+       },
+       {
+        "keyword": "milk straw bottle for toddlers 1-3 years",
+        "spend": 8.07,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 25,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.61,
+        "ctr": 20.0
+       },
+       {
+        "keyword": "milk cups for toddlers 1-3",
+        "spend": 21.88,
+        "sales": 0.0,
+        "clicks": 21,
+        "impressions": 376,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.04,
+        "ctr": 5.59
+       },
+       {
+        "keyword": "milk bottle toddler",
+        "spend": 8.6,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 54,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.78,
+        "ctr": 20.37
+       },
+       {
+        "keyword": "mam sippy cup",
+        "spend": 9.1,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 165,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.01,
+        "ctr": 5.45
+       },
+       {
+        "keyword": "learner straw cup",
+        "spend": 6.62,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 84,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.32,
+        "ctr": 5.95
+       },
+       {
+        "keyword": "learner sippy cup",
+        "spend": 7.82,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 87,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.98,
+        "ctr": 9.2
+       },
+       {
+        "keyword": "leak proof straw cup for babies",
+        "spend": 7.07,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 86,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.77,
+        "ctr": 4.65
+       },
+       {
+        "keyword": "kid cups with lids and straws",
+        "spend": 7.26,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 2637,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.91,
+        "ctr": 0.3
+       },
+       {
+        "keyword": "hegen straw cup",
+        "spend": 53.85,
+        "sales": 0.0,
+        "clicks": 86,
+        "impressions": 1550,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.63,
+        "ctr": 5.55
+       },
+       {
+        "keyword": "hegen baby bottle",
+        "spend": 38.1,
+        "sales": 0.0,
+        "clicks": 87,
+        "impressions": 220,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.44,
+        "ctr": 39.55
+       },
+       {
+        "keyword": "glass toddler cup with straw",
+        "spend": 8.36,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 226,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.19,
+        "ctr": 3.1
+       },
+       {
+        "keyword": "glass sippy cups for toddlers 1-3",
+        "spend": 13.84,
+        "sales": 0.0,
+        "clicks": 15,
+        "impressions": 145,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.92,
+        "ctr": 10.34
+       },
+       {
+        "keyword": "evenflo straw cup conversion",
+        "spend": 9.53,
+        "sales": 0.0,
+        "clicks": 10,
+        "impressions": 182,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.95,
+        "ctr": 5.49
+       },
+       {
+        "keyword": "dr isla sippy cup",
+        "spend": 19.46,
+        "sales": 0.0,
+        "clicks": 23,
+        "impressions": 1386,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.85,
+        "ctr": 1.66
+       },
+       {
+        "keyword": "dr brown straw cup",
+        "spend": 10.9,
+        "sales": 0.0,
+        "clicks": 15,
+        "impressions": 558,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.73,
+        "ctr": 2.69
+       },
+       {
+        "keyword": "cups for 2 year-old kids",
+        "spend": 10.58,
+        "sales": 0.0,
+        "clicks": 13,
+        "impressions": 133,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.81,
+        "ctr": 9.77
+       },
+       {
+        "keyword": "bottles for babies from 12 to 24 months",
+        "spend": 40.87,
+        "sales": 0.0,
+        "clicks": 61,
+        "impressions": 766,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.67,
+        "ctr": 7.96
+       },
+       {
+        "keyword": "bottle transition sippy cup for milk",
+        "spend": 31.03,
+        "sales": 0.0,
+        "clicks": 31,
+        "impressions": 517,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.0,
+        "ctr": 6.0
+       },
+       {
+        "keyword": "bottle transition cup",
+        "spend": 9.84,
+        "sales": 0.0,
+        "clicks": 12,
+        "impressions": 88,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.82,
+        "ctr": 13.64
+       },
+       {
+        "keyword": "best transition sippy cups for milk",
+        "spend": 6.74,
+        "sales": 0.0,
+        "clicks": 8,
+        "impressions": 44,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 18.18
+       },
+       {
+        "keyword": "best straw sippy cup for milk",
+        "spend": 12.23,
+        "sales": 0.0,
+        "clicks": 9,
+        "impressions": 115,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.36,
+        "ctr": 7.83
+       },
+       {
+        "keyword": "baby tumbler",
+        "spend": 9.58,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 46,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.37,
+        "ctr": 15.22
+       },
+       {
+        "keyword": "baby straw cup no valve",
+        "spend": 27.25,
+        "sales": 0.0,
+        "clicks": 21,
+        "impressions": 1947,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.3,
+        "ctr": 1.08
+       },
+       {
+        "keyword": "baby straw bottle",
+        "spend": 14.79,
+        "sales": 0.0,
+        "clicks": 12,
+        "impressions": 240,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.23,
+        "ctr": 5.0
+       },
+       {
+        "keyword": "baby milk straw cup",
+        "spend": 6.8,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 52,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.36,
+        "ctr": 9.62
+       },
+       {
+        "keyword": "baby girl straw cup",
+        "spend": 7.34,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 60,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.22,
+        "ctr": 10.0
+       },
+       {
+        "keyword": "baby cups 12-18 months",
+        "spend": 12.43,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 111,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.13,
+        "ctr": 9.91
+       },
+       {
+        "keyword": "b0df2rpyk2",
+        "spend": 14.32,
+        "sales": 0.0,
+        "clicks": 17,
+        "impressions": 172,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 9.88
+       },
+       {
+        "keyword": "b0cryzp3z2",
+        "spend": 5.18,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 76,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.86,
+        "ctr": 7.89
+       },
+       {
+        "keyword": "b0c23nd5gz",
+        "spend": 13.04,
+        "sales": 0.0,
+        "clicks": 13,
+        "impressions": 256,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.0,
+        "ctr": 5.08
+       },
+       {
+        "keyword": "b09zzzb4fy",
+        "spend": 12.73,
+        "sales": 0.0,
+        "clicks": 13,
+        "impressions": 197,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.98,
+        "ctr": 6.6
+       },
+       {
+        "keyword": "b07kjzxkn9",
+        "spend": 15.53,
+        "sales": 0.0,
+        "clicks": 17,
+        "impressions": 165,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.91,
+        "ctr": 10.3
+       },
+       {
+        "keyword": "b07kjyqwhq",
+        "spend": 24.35,
+        "sales": 0.0,
+        "clicks": 30,
+        "impressions": 1795,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.81,
+        "ctr": 1.67
+       },
+       {
+        "keyword": "anti spill straw cup for baby",
+        "spend": 5.9,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 33,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.48,
+        "ctr": 12.12
+       },
+       {
+        "keyword": "8oz straw cup",
+        "spend": 5.89,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 35,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.18,
+        "ctr": 14.29
+       },
+       {
+        "keyword": "1 year old straw cup spill proof",
+        "spend": 5.84,
+        "sales": 0.0,
+        "clicks": 4,
+        "impressions": 21,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.46,
+        "ctr": 19.05
        },
        {
         "keyword": "weighted straw sippy cups for babies",
@@ -10959,14 +11663,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "training cups for kids",
-        "spend": 11.14,
+        "spend": 12.16,
         "sales": 0.0,
-        "clicks": 13,
-        "impressions": 138,
+        "clicks": 14,
+        "impressions": 156,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.86,
-        "ctr": 9.42
+        "cpc": 0.87,
+        "ctr": 8.97
        },
        {
         "keyword": "training cups 6-12 months",
@@ -11002,70 +11706,26 @@ const FIN_DATA = {
         "ctr": 12.5
        },
        {
-        "keyword": "straw cup for milk 1+ year old",
-        "spend": 16.14,
+        "keyword": "toddler milk bottle straw",
+        "spend": 8.01,
         "sales": 0.0,
-        "clicks": 13,
-        "impressions": 146,
+        "clicks": 8,
+        "impressions": 16,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.24,
-        "ctr": 8.9
-       },
-       {
-        "keyword": "straw cup for formula",
-        "spend": 7.39,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 44,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.23,
-        "ctr": 13.64
-       },
-       {
-        "keyword": "straw bottle baby",
-        "spend": 25.15,
-        "sales": 0.0,
-        "clicks": 20,
-        "impressions": 311,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.26,
-        "ctr": 6.43
-       },
-       {
-        "keyword": "straw baby cup",
-        "spend": 13.31,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 217,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.21,
-        "ctr": 5.07
+        "cpc": 1.0,
+        "ctr": 50.0
        },
        {
         "keyword": "stainless steel sippy cup 6 month old",
-        "spend": 73.46,
+        "spend": 74.3,
         "sales": 0.0,
-        "clicks": 75,
-        "impressions": 76,
+        "clicks": 76,
+        "impressions": 77,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 0.98,
-        "ctr": 98.68
-       },
-       {
-        "keyword": "sippy cups 3 year old",
-        "spend": 10.19,
-        "sales": 0.0,
-        "clicks": 13,
-        "impressions": 421,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.78,
-        "ctr": 3.09
+        "ctr": 98.7
        },
        {
         "keyword": "sippy cup with handles",
@@ -11112,17 +11772,6 @@ const FIN_DATA = {
         "ctr": 3.94
        },
        {
-        "keyword": "pigeon water bottle",
-        "spend": 9.5,
-        "sales": 0.0,
-        "clicks": 29,
-        "impressions": 135,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.33,
-        "ctr": 21.48
-       },
-       {
         "keyword": "one year old sippy cup for milk",
         "spend": 5.28,
         "sales": 0.0,
@@ -11134,26 +11783,15 @@ const FIN_DATA = {
         "ctr": 20.0
        },
        {
-        "keyword": "nuk sippy cup 12 months and up",
-        "spend": 7.62,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 148,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.69,
-        "ctr": 7.43
-       },
-       {
         "keyword": "nuk cups",
-        "spend": 5.81,
+        "spend": 6.84,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 102,
+        "clicks": 7,
+        "impressions": 116,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.97,
-        "ctr": 5.88
+        "cpc": 0.98,
+        "ctr": 6.03
        },
        {
         "keyword": "nuk bottles",
@@ -11179,14 +11817,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "non toxic sippy cup",
-        "spend": 14.43,
+        "spend": 14.98,
         "sales": 0.0,
-        "clicks": 14,
-        "impressions": 141,
+        "clicks": 15,
+        "impressions": 144,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 9.93
+        "cpc": 1.0,
+        "ctr": 10.42
        },
        {
         "keyword": "no spill sippy cups for toddlers 1-3",
@@ -11198,50 +11836,6 @@ const FIN_DATA = {
         "roas": 0.0,
         "cpc": 1.1,
         "ctr": 5.88
-       },
-       {
-        "keyword": "moyuum straw cup",
-        "spend": 74.12,
-        "sales": 0.0,
-        "clicks": 159,
-        "impressions": 284,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.47,
-        "ctr": 55.99
-       },
-       {
-        "keyword": "milk bottle toddler",
-        "spend": 8.6,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 54,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.78,
-        "ctr": 20.37
-       },
-       {
-        "keyword": "hegen straw cup",
-        "spend": 53.85,
-        "sales": 0.0,
-        "clicks": 86,
-        "impressions": 1550,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.63,
-        "ctr": 5.55
-       },
-       {
-        "keyword": "hegen baby bottle",
-        "spend": 38.1,
-        "sales": 0.0,
-        "clicks": 87,
-        "impressions": 220,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.44,
-        "ctr": 39.55
        },
        {
         "keyword": "grosmimi stage 1 straw",
@@ -11264,17 +11858,6 @@ const FIN_DATA = {
         "roas": 0.0,
         "cpc": 0.8,
         "ctr": 5.92
-       },
-       {
-        "keyword": "dr isla sippy cup",
-        "spend": 19.46,
-        "sales": 0.0,
-        "clicks": 23,
-        "impressions": 1386,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.85,
-        "ctr": 1.66
        },
        {
         "keyword": "dr brown straw bottle",
@@ -11300,47 +11883,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "cup for baby",
-        "spend": 15.56,
+        "spend": 16.59,
         "sales": 0.0,
-        "clicks": 18,
-        "impressions": 111,
+        "clicks": 19,
+        "impressions": 116,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.86,
-        "ctr": 16.22
-       },
-       {
-        "keyword": "bottles for babies from 12 to 24 months",
-        "spend": 39.65,
-        "sales": 0.0,
-        "clicks": 59,
-        "impressions": 747,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.67,
-        "ctr": 7.9
-       },
-       {
-        "keyword": "bottle transition cup",
-        "spend": 9.84,
-        "sales": 0.0,
-        "clicks": 12,
-        "impressions": 88,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.82,
-        "ctr": 13.64
-       },
-       {
-        "keyword": "best transition sippy cups for milk",
-        "spend": 6.74,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 44,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.84,
-        "ctr": 18.18
+        "cpc": 0.87,
+        "ctr": 16.38
        },
        {
         "keyword": "best toddler cup for bedtime milk",
@@ -11355,14 +11905,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "best sippy cups for 1+ year old",
-        "spend": 9.21,
+        "spend": 10.31,
         "sales": 0.0,
-        "clicks": 8,
-        "impressions": 36,
+        "clicks": 9,
+        "impressions": 37,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 1.15,
-        "ctr": 22.22
+        "ctr": 24.32
        },
        {
         "keyword": "bear sippy cup with straw",
@@ -11388,36 +11938,36 @@ const FIN_DATA = {
        },
        {
         "keyword": "baby straw cup for milk",
-        "spend": 11.83,
+        "spend": 16.44,
         "sales": 0.0,
-        "clicks": 10,
-        "impressions": 129,
+        "clicks": 14,
+        "impressions": 151,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.18,
-        "ctr": 7.75
+        "cpc": 1.17,
+        "ctr": 9.27
        },
        {
         "keyword": "baby bottles",
-        "spend": 53.46,
+        "spend": 60.12,
         "sales": 0.0,
-        "clicks": 70,
-        "impressions": 2237,
+        "clicks": 78,
+        "impressions": 2495,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.76,
+        "cpc": 0.77,
         "ctr": 3.13
        },
        {
         "keyword": "b0cngxx8kz",
-        "spend": 11.18,
+        "spend": 12.28,
         "sales": 0.0,
-        "clicks": 11,
-        "impressions": 286,
+        "clicks": 12,
+        "impressions": 301,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 1.02,
-        "ctr": 3.85
+        "ctr": 3.99
        },
        {
         "keyword": "b0c5jv8fmr",
@@ -11431,37 +11981,15 @@ const FIN_DATA = {
         "ctr": 13.24
        },
        {
-        "keyword": "b07kjyqwhq",
-        "spend": 24.35,
-        "sales": 0.0,
-        "clicks": 30,
-        "impressions": 1795,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.81,
-        "ctr": 1.67
-       },
-       {
-        "keyword": "transition cups for baby from bottle",
-        "spend": 8.9,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 79,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.99,
-        "ctr": 11.39
-       },
-       {
         "keyword": "toddler water bottle leak proof",
-        "spend": 6.26,
+        "spend": 7.01,
         "sales": 0.0,
-        "clicks": 9,
-        "impressions": 150,
+        "clicks": 10,
+        "impressions": 157,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 0.7,
-        "ctr": 6.0
+        "ctr": 6.37
        },
        {
         "keyword": "toddler cups spill proof 2-3 year old",
@@ -11473,556 +12001,6 @@ const FIN_DATA = {
         "roas": 0.0,
         "cpc": 0.98,
         "ctr": 4.58
-       },
-       {
-        "keyword": "straw sippy cups for toddlers",
-        "spend": 18.08,
-        "sales": 0.0,
-        "clicks": 13,
-        "impressions": 852,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.39,
-        "ctr": 1.53
-       },
-       {
-        "keyword": "stainless steel toddler cups",
-        "spend": 23.34,
-        "sales": 0.0,
-        "clicks": 22,
-        "impressions": 299,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.06,
-        "ctr": 7.36
-       },
-       {
-        "keyword": "stainless steel baby water bottle",
-        "spend": 7.06,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 31,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.41,
-        "ctr": 16.13
-       },
-       {
-        "keyword": "stainless steel baby sippy cup",
-        "spend": 9.52,
-        "sales": 0.0,
-        "clicks": 10,
-        "impressions": 106,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.95,
-        "ctr": 9.43
-       },
-       {
-        "keyword": "stainless steel baby cup",
-        "spend": 37.85,
-        "sales": 0.0,
-        "clicks": 26,
-        "impressions": 982,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.46,
-        "ctr": 2.65
-       },
-       {
-        "keyword": "squeeze and sip straw cup",
-        "spend": 15.77,
-        "sales": 0.0,
-        "clicks": 17,
-        "impressions": 376,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.93,
-        "ctr": 4.52
-       },
-       {
-        "keyword": "soft spout sippy cup",
-        "spend": 9.13,
-        "sales": 0.0,
-        "clicks": 12,
-        "impressions": 157,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.76,
-        "ctr": 7.64
-       },
-       {
-        "keyword": "nuk sippy",
-        "spend": 5.3,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 24,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.76,
-        "ctr": 29.17
-       },
-       {
-        "keyword": "nuk",
-        "spend": 15.68,
-        "sales": 0.0,
-        "clicks": 26,
-        "impressions": 1471,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.6,
-        "ctr": 1.77
-       },
-       {
-        "keyword": "leak proof toddler cups",
-        "spend": 7.17,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 38,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.9,
-        "ctr": 21.05
-       },
-       {
-        "keyword": "first sippy cup",
-        "spend": 6.11,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 56,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.87,
-        "ctr": 12.5
-       },
-       {
-        "keyword": "cups for 2 year old girls",
-        "spend": 6.89,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 48,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.86,
-        "ctr": 16.67
-       },
-       {
-        "keyword": "baby tumbler",
-        "spend": 9.58,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 46,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.37,
-        "ctr": 15.22
-       },
-       {
-        "keyword": "baby stainless steel cup",
-        "spend": 8.27,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 32,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 25.0
-       },
-       {
-        "keyword": "baby girl sippy cup",
-        "spend": 5.73,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 68,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.82,
-        "ctr": 10.29
-       },
-       {
-        "keyword": "baby cups 12-18 months",
-        "spend": 12.43,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 111,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.13,
-        "ctr": 9.91
-       },
-       {
-        "keyword": "b09zzzb4fy",
-        "spend": 11.63,
-        "sales": 0.0,
-        "clicks": 12,
-        "impressions": 185,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.97,
-        "ctr": 6.49
-       },
-       {
-        "keyword": "b07kjzxkn9",
-        "spend": 15.53,
-        "sales": 0.0,
-        "clicks": 17,
-        "impressions": 165,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.91,
-        "ctr": 10.3
-       },
-       {
-        "keyword": "1 year old cup",
-        "spend": 21.14,
-        "sales": 0.0,
-        "clicks": 19,
-        "impressions": 253,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.11,
-        "ctr": 7.51
-       },
-       {
-        "keyword": "water cup baby",
-        "spend": 7.9,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 76,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.32,
-        "ctr": 7.89
-       },
-       {
-        "keyword": "water bottle for 1 year old",
-        "spend": 10.15,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 35,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.92,
-        "ctr": 31.43
-       },
-       {
-        "keyword": "toddler stainless steel water bottle",
-        "spend": 14.42,
-        "sales": 0.0,
-        "clicks": 16,
-        "impressions": 204,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.9,
-        "ctr": 7.84
-       },
-       {
-        "keyword": "toddler sippy cups 1+ year old",
-        "spend": 7.6,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 52,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.84,
-        "ctr": 17.31
-       },
-       {
-        "keyword": "the first years straw cup",
-        "spend": 8.34,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 154,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.19,
-        "ctr": 4.55
-       },
-       {
-        "keyword": "straw sippy cups",
-        "spend": 8.88,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 118,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.99,
-        "ctr": 7.63
-       },
-       {
-        "keyword": "stainless steel leak proof straw cup",
-        "spend": 5.88,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 13,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.98,
-        "ctr": 46.15
-       },
-       {
-        "keyword": "spill proof cups toddler",
-        "spend": 6.08,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 23,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.22,
-        "ctr": 21.74
-       },
-       {
-        "keyword": "snack cups for toddlers spill proof",
-        "spend": 5.97,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 85,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.66,
-        "ctr": 10.59
-       },
-       {
-        "keyword": "pura kiki stainless steel sippy cup",
-        "spend": 14.26,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 190,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.3,
-        "ctr": 5.79
-       },
-       {
-        "keyword": "ppsu sippy cup",
-        "spend": 22.49,
-        "sales": 0.0,
-        "clicks": 26,
-        "impressions": 444,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.87,
-        "ctr": 5.86
-       },
-       {
-        "keyword": "pigeon sippy cup",
-        "spend": 11.92,
-        "sales": 0.0,
-        "clicks": 13,
-        "impressions": 293,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.92,
-        "ctr": 4.44
-       },
-       {
-        "keyword": "oxo tot cup",
-        "spend": 21.42,
-        "sales": 0.0,
-        "clicks": 45,
-        "impressions": 293,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.48,
-        "ctr": 15.36
-       },
-       {
-        "keyword": "mushie straw cup",
-        "spend": 5.72,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 82,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.14,
-        "ctr": 6.1
-       },
-       {
-        "keyword": "learner sippy cup",
-        "spend": 7.82,
-        "sales": 0.0,
-        "clicks": 8,
-        "impressions": 87,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.98,
-        "ctr": 9.2
-       },
-       {
-        "keyword": "large sippy cup",
-        "spend": 14.55,
-        "sales": 0.0,
-        "clicks": 38,
-        "impressions": 270,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.38,
-        "ctr": 14.07
-       },
-       {
-        "keyword": "glass toddler cup with straw",
-        "spend": 8.36,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 226,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.19,
-        "ctr": 3.1
-       },
-       {
-        "keyword": "glass sippy cup",
-        "spend": 25.58,
-        "sales": 0.0,
-        "clicks": 35,
-        "impressions": 813,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.73,
-        "ctr": 4.31
-       },
-       {
-        "keyword": "first years straw cup",
-        "spend": 17.59,
-        "sales": 0.0,
-        "clicks": 17,
-        "impressions": 645,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 2.64
-       },
-       {
-        "keyword": "first sippy cups for babies 6 months",
-        "spend": 16.35,
-        "sales": 0.0,
-        "clicks": 15,
-        "impressions": 1762,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.09,
-        "ctr": 0.85
-       },
-       {
-        "keyword": "first cups for babies 6 months",
-        "spend": 10.1,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 43,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 20.93
-       },
-       {
-        "keyword": "evorie straw cup",
-        "spend": 11.08,
-        "sales": 0.0,
-        "clicks": 13,
-        "impressions": 1338,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.85,
-        "ctr": 0.97
-       },
-       {
-        "keyword": "bottle to straw cup transition for milk",
-        "spend": 5.26,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 43,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.05,
-        "ctr": 11.63
-       },
-       {
-        "keyword": "best straw sippy cup for milk",
-        "spend": 12.23,
-        "sales": 0.0,
-        "clicks": 9,
-        "impressions": 115,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.36,
-        "ctr": 7.83
-       },
-       {
-        "keyword": "best cup to transition from bottle",
-        "spend": 6.52,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 36,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.93,
-        "ctr": 19.44
-       },
-       {
-        "keyword": "baby waterbottle",
-        "spend": 5.45,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 16,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.09,
-        "ctr": 31.25
-       },
-       {
-        "keyword": "baby straw cup stage 2",
-        "spend": 6.8,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 108,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.13,
-        "ctr": 5.56
-       },
-       {
-        "keyword": "baby straw cup no valve",
-        "spend": 27.25,
-        "sales": 0.0,
-        "clicks": 21,
-        "impressions": 1947,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.3,
-        "ctr": 1.08
-       },
-       {
-        "keyword": "baby milk bottle",
-        "spend": 5.89,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 65,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.84,
-        "ctr": 10.77
-       },
-       {
-        "keyword": "6 month old cup",
-        "spend": 5.22,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 12,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.04,
-        "ctr": 41.67
-       },
-       {
-        "keyword": "360 cups for toddlers",
-        "spend": 6.01,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 193,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.2,
-        "ctr": 2.59
        }
       ]
      },
@@ -12183,7 +12161,7 @@ const FIN_DATA = {
         "ctr": 10.0
        },
        {
-        "keyword": "plain cream of rice",
+        "keyword": "thin rice crackers",
         "spend": 0.79,
         "sales": 24.6,
         "clicks": 1,
@@ -12194,18 +12172,7 @@ const FIN_DATA = {
         "ctr": 25.0
        },
        {
-        "keyword": "炒米糖",
-        "spend": 0.79,
-        "sales": 24.6,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 1,
-        "roas": 31.14,
-        "cpc": 0.79,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "thin rice crackers",
+        "keyword": "plain cream of rice",
         "spend": 0.79,
         "sales": 24.6,
         "clicks": 1,
@@ -12236,6 +12203,17 @@ const FIN_DATA = {
         "roas": 31.14,
         "cpc": 0.79,
         "ctr": 4.76
+       },
+       {
+        "keyword": "炒米糖",
+        "spend": 0.79,
+        "sales": 24.6,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 31.14,
+        "cpc": 0.79,
+        "ctr": 100.0
        },
        {
         "keyword": "baby korean snacks",
@@ -12348,6 +12326,17 @@ const FIN_DATA = {
         "ctr": 100.0
        },
        {
+        "keyword": "rice flour crisps",
+        "spend": 1.07,
+        "sales": 24.6,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 22.99,
+        "cpc": 1.07,
+        "ctr": 100.0
+       },
+       {
         "keyword": "rice cakes for babies",
         "spend": 1.07,
         "sales": 24.6,
@@ -12370,17 +12359,6 @@ const FIN_DATA = {
         "ctr": 8.33
        },
        {
-        "keyword": "rice flour crisps",
-        "spend": 1.07,
-        "sales": 24.6,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 1,
-        "roas": 22.99,
-        "cpc": 1.07,
-        "ctr": 100.0
-       },
-       {
         "keyword": "rice cake toddler korea",
         "spend": 1.07,
         "sales": 24.6,
@@ -12390,6 +12368,17 @@ const FIN_DATA = {
         "roas": 22.99,
         "cpc": 1.07,
         "ctr": 50.0
+       },
+       {
+        "keyword": "davus crispy sushi rice patties",
+        "spend": 1.07,
+        "sales": 24.6,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 1,
+        "roas": 22.99,
+        "cpc": 1.07,
+        "ctr": 100.0
        },
        {
         "keyword": "pop rice snack baby",
@@ -12522,6 +12511,17 @@ const FIN_DATA = {
         "roas": 14.76,
         "cpc": 1.0,
         "ctr": 16.67
+       },
+       {
+        "keyword": "nori punch",
+        "spend": 1.86,
+        "sales": 24.6,
+        "clicks": 2,
+        "impressions": 2,
+        "purchases": 1,
+        "roas": 13.23,
+        "cpc": 0.93,
+        "ctr": 100.0
        },
        {
         "keyword": "b0gtzhdnkd",
@@ -12722,17 +12722,6 @@ const FIN_DATA = {
         "ctr": 2.33
        },
        {
-        "keyword": "organic rice cakes",
-        "spend": 8.43,
-        "sales": 49.2,
-        "clicks": 10,
-        "impressions": 139,
-        "purchases": 2,
-        "roas": 5.84,
-        "cpc": 0.84,
-        "ctr": 7.19
-       },
-       {
         "keyword": "rice puff",
         "spend": 4.34,
         "sales": 24.6,
@@ -12777,6 +12766,17 @@ const FIN_DATA = {
         "ctr": 4.07
        },
        {
+        "keyword": "organic rice cakes",
+        "spend": 9.22,
+        "sales": 49.2,
+        "clicks": 11,
+        "impressions": 152,
+        "purchases": 2,
+        "roas": 5.34,
+        "cpc": 0.84,
+        "ctr": 7.24
+       },
+       {
         "keyword": "baby snack",
         "spend": 5.2,
         "sales": 24.6,
@@ -12789,14 +12789,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "white rice cakes",
-        "spend": 23.03,
+        "spend": 23.91,
         "sales": 98.4,
-        "clicks": 25,
-        "impressions": 516,
+        "clicks": 26,
+        "impressions": 545,
         "purchases": 4,
-        "roas": 4.27,
+        "roas": 4.12,
         "cpc": 0.92,
-        "ctr": 4.84
+        "ctr": 4.77
        },
        {
         "keyword": "rice wafers",
@@ -12822,36 +12822,36 @@ const FIN_DATA = {
        },
        {
         "keyword": "baby snacks",
-        "spend": 20.32,
+        "spend": 21.47,
         "sales": 49.2,
-        "clicks": 19,
-        "impressions": 1063,
+        "clicks": 20,
+        "impressions": 1164,
         "purchases": 2,
-        "roas": 2.42,
+        "roas": 2.29,
         "cpc": 1.07,
-        "ctr": 1.79
-       },
-       {
-        "keyword": "crackers",
-        "spend": 10.46,
-        "sales": 24.6,
-        "clicks": 11,
-        "impressions": 455,
-        "purchases": 1,
-        "roas": 2.35,
-        "cpc": 0.95,
-        "ctr": 2.42
+        "ctr": 1.72
        },
        {
         "keyword": "low calorie snacks",
-        "spend": 33.01,
+        "spend": 33.85,
         "sales": 73.8,
-        "clicks": 41,
-        "impressions": 571,
+        "clicks": 42,
+        "impressions": 588,
         "purchases": 3,
-        "roas": 2.24,
+        "roas": 2.18,
         "cpc": 0.81,
-        "ctr": 7.18
+        "ctr": 7.14
+       },
+       {
+        "keyword": "crackers",
+        "spend": 11.34,
+        "sales": 24.6,
+        "clicks": 12,
+        "impressions": 476,
+        "purchases": 1,
+        "roas": 2.17,
+        "cpc": 0.95,
+        "ctr": 2.52
        },
        {
         "keyword": "puffed rice snacks",
@@ -12866,47 +12866,58 @@ const FIN_DATA = {
        },
        {
         "keyword": "japanese rice crackers",
-        "spend": 13.91,
+        "spend": 14.79,
         "sales": 24.6,
-        "clicks": 16,
-        "impressions": 1984,
+        "clicks": 17,
+        "impressions": 2125,
         "purchases": 1,
-        "roas": 1.77,
+        "roas": 1.66,
         "cpc": 0.87,
-        "ctr": 0.81
+        "ctr": 0.8
        },
        {
         "keyword": "rice cracker",
-        "spend": 15.02,
+        "spend": 16.05,
         "sales": 24.6,
-        "clicks": 14,
-        "impressions": 775,
+        "clicks": 15,
+        "impressions": 838,
         "purchases": 1,
-        "roas": 1.64,
+        "roas": 1.53,
         "cpc": 1.07,
-        "ctr": 1.81
+        "ctr": 1.79
        },
        {
         "keyword": "puffed rice",
-        "spend": 35.06,
+        "spend": 36.26,
         "sales": 49.2,
-        "clicks": 33,
-        "impressions": 3773,
+        "clicks": 34,
+        "impressions": 3785,
         "purchases": 2,
-        "roas": 1.4,
-        "cpc": 1.06,
-        "ctr": 0.87
+        "roas": 1.36,
+        "cpc": 1.07,
+        "ctr": 0.9
        },
        {
         "keyword": "rice crackers",
-        "spend": 90.46,
+        "spend": 91.66,
         "sales": 98.4,
-        "clicks": 86,
-        "impressions": 16575,
+        "clicks": 87,
+        "impressions": 17074,
         "purchases": 4,
-        "roas": 1.09,
+        "roas": 1.07,
         "cpc": 1.05,
-        "ctr": 0.52
+        "ctr": 0.51
+       },
+       {
+        "keyword": "김치",
+        "spend": 0.53,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 5,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.53,
+        "ctr": 20.0
        },
        {
         "keyword": "rice paper chips",
@@ -12920,226 +12931,248 @@ const FIN_DATA = {
         "ctr": 50.0
        },
        {
-        "keyword": "puffed rice for snacking",
-        "spend": 0.62,
+        "keyword": "rice mochi",
+        "spend": 0.84,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 3,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.84,
+        "ctr": 33.33
+       },
+       {
+        "keyword": "rice dumplings",
+        "spend": 0.93,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.62,
+        "cpc": 0.93,
         "ctr": 100.0
        },
        {
-        "keyword": "big rice puff",
-        "spend": 0.85,
+        "keyword": "rice cracker korean",
+        "spend": 0.45,
         "sales": 0.0,
         "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.85,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0ctmcgx1y",
-        "spend": 4.07,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 9,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.02,
-        "ctr": 44.44
-       },
-       {
-        "keyword": "b09cvbd22x",
-        "spend": 1.04,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.04,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "seaweed crackers",
-        "spend": 3.56,
-        "sales": 0.0,
-        "clicks": 4,
-        "impressions": 28,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.89,
-        "ctr": 14.29
-       },
-       {
-        "keyword": "naeiae",
-        "spend": 1.35,
-        "sales": 0.0,
-        "clicks": 3,
         "impressions": 3,
         "purchases": 0,
         "roas": 0.0,
         "cpc": 0.45,
-        "ctr": 100.0
+        "ctr": 33.33
        },
        {
-        "keyword": "crunchy rice balls",
-        "spend": 1.15,
+        "keyword": "rice cakes organic",
+        "spend": 5.31,
         "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
+        "clicks": 6,
+        "impressions": 39,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.15,
-        "ctr": 100.0
+        "cpc": 0.89,
+        "ctr": 15.38
        },
        {
-        "keyword": "b0h8pc57p5",
-        "spend": 1.08,
+        "keyword": "rice cake snack cookies",
+        "spend": 0.84,
         "sales": 0.0,
         "clicks": 1,
-        "impressions": 1,
+        "impressions": 3,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 100.0
+        "cpc": 0.84,
+        "ctr": 33.33
        },
        {
-        "keyword": "b0h7s6p7hp",
-        "spend": 1.08,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "b0h74hkfnt",
-        "spend": 0.99,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.99,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0h2yk7ly5",
-        "spend": 1.08,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0h2tf7p2f",
-        "spend": 1.08,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0gy8hjfwv",
-        "spend": 1.08,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0gwns36p7",
-        "spend": 0.48,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 1,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.48,
-        "ctr": 100.0
-       },
-       {
-        "keyword": "b0gwkj2lbv",
-        "spend": 1.08,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "b0gsv2hs6s",
-        "spend": 2.16,
+        "keyword": "mini mochi rice nuggets",
+        "spend": 1.93,
         "sales": 0.0,
         "clicks": 2,
-        "impressions": 5,
+        "impressions": 9,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 40.0
+        "cpc": 0.96,
+        "ctr": 22.22
        },
        {
-        "keyword": "b0gfgq5ltb",
-        "spend": 1.08,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 2,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 50.0
-       },
-       {
-        "keyword": "b0g4zg4pj8",
-        "spend": 1.08,
-        "sales": 0.0,
-        "clicks": 1,
-        "impressions": 0,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 0
-       },
-       {
-        "keyword": "b0g43t43lm",
-        "spend": 1.08,
+        "keyword": "korean tradition rice biscuit",
+        "spend": 1.02,
         "sales": 0.0,
         "clicks": 1,
         "impressions": 1,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.08,
+        "cpc": 1.02,
         "ctr": 100.0
+       },
+       {
+        "keyword": "korean scorched rice",
+        "spend": 1.14,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.14,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "korean milk classic rice snack",
+        "spend": 3.15,
+        "sales": 0.0,
+        "clicks": 3,
+        "impressions": 19,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.05,
+        "ctr": 15.79
+       },
+       {
+        "keyword": "korean baby rice cracker",
+        "spend": 0.89,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.89,
+        "ctr": 50.0
+       },
+       {
+        "keyword": "healthy chips",
+        "spend": 1.64,
+        "sales": 0.0,
+        "clicks": 2,
+        "impressions": 2,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.82,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "crispy pocket nurungi",
+        "spend": 0.61,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.61,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b0gxtf4m3r",
+        "spend": 0.42,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.42,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b0gx7qz7bs",
+        "spend": 0.29,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.29,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b0g3mzx6dx",
+        "spend": 1.12,
+        "sales": 0.0,
+        "clicks": 1,
+        "impressions": 1,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.12,
+        "ctr": 100.0
+       },
+       {
+        "keyword": "b093184j23",
+        "spend": 1.56,
+        "sales": 0.0,
+        "clicks": 3,
+        "impressions": 36,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.52,
+        "ctr": 8.33
        }
       ],
       "worst": [
        {
-        "keyword": "b0fk9w1rbz",
-        "spend": 13.68,
+        "keyword": "rice cakes organic",
+        "spend": 5.31,
         "sales": 0.0,
-        "clicks": 15,
-        "impressions": 562,
+        "clicks": 6,
+        "impressions": 39,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.91,
-        "ctr": 2.67
+        "cpc": 0.89,
+        "ctr": 15.38
+       },
+       {
+        "keyword": "rice crisps",
+        "spend": 21.33,
+        "sales": 0.0,
+        "clicks": 18,
+        "impressions": 1424,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.18,
+        "ctr": 1.26
+       },
+       {
+        "keyword": "korean rice",
+        "spend": 7.24,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 451,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.03,
+        "ctr": 1.55
+       },
+       {
+        "keyword": "b0ff69q7dg",
+        "spend": 5.04,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 74,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.01,
+        "ctr": 6.76
+       },
+       {
+        "keyword": "b0dwsdjjn1",
+        "spend": 6.47,
+        "sales": 0.0,
+        "clicks": 7,
+        "impressions": 141,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.92,
+        "ctr": 4.96
+       },
+       {
+        "keyword": "b0fk9w1rbz",
+        "spend": 14.76,
+        "sales": 0.0,
+        "clicks": 16,
+        "impressions": 656,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.92,
+        "ctr": 2.44
        },
        {
         "keyword": "rice cake snacks",
@@ -13171,19 +13204,8 @@ const FIN_DATA = {
         "impressions": 143,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.81,
+        "cpc": 0.8,
         "ctr": 5.59
-       },
-       {
-        "keyword": "b0dwsdjjn1",
-        "spend": 5.39,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 103,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.9,
-        "ctr": 5.83
        },
        {
         "keyword": "milk skin crackers",
@@ -13195,6 +13217,17 @@ const FIN_DATA = {
         "roas": 0.0,
         "cpc": 0.73,
         "ctr": 46.67
+       },
+       {
+        "keyword": "bottle feeding pillow",
+        "spend": 5.63,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 32,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.94,
+        "ctr": 18.75
        },
        {
         "keyword": "rice popcorn",
@@ -13209,14 +13242,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "rice cakes korean",
-        "spend": 5.38,
+        "spend": 6.45,
         "sales": 0.0,
-        "clicks": 5,
-        "impressions": 29,
+        "clicks": 6,
+        "impressions": 34,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.08,
-        "ctr": 17.24
+        "cpc": 1.07,
+        "ctr": 17.65
        },
        {
         "keyword": "crispy rice",
@@ -13231,14 +13264,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "b0bzhvzswq",
-        "spend": 9.26,
+        "spend": 10.38,
         "sales": 0.0,
-        "clicks": 9,
-        "impressions": 154,
+        "clicks": 10,
+        "impressions": 203,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 5.84
+        "cpc": 1.04,
+        "ctr": 4.93
        },
        {
         "keyword": "japanese snacks",
@@ -13274,17 +13307,6 @@ const FIN_DATA = {
         "ctr": 1.57
        },
        {
-        "keyword": "korean rice",
-        "spend": 7.24,
-        "sales": 0.0,
-        "clicks": 7,
-        "impressions": 451,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.03,
-        "ctr": 1.55
-       },
-       {
         "keyword": "rice chips",
         "spend": 8.78,
         "sales": 0.0,
@@ -13297,36 +13319,36 @@ const FIN_DATA = {
        },
        {
         "keyword": "b0dflwkfz7",
-        "spend": 5.66,
+        "spend": 6.78,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 73,
+        "clicks": 7,
+        "impressions": 98,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.94,
-        "ctr": 8.22
+        "cpc": 0.97,
+        "ctr": 7.14
        },
        {
         "keyword": "b0bycsqs4l",
-        "spend": 6.8,
+        "spend": 7.21,
         "sales": 0.0,
-        "clicks": 9,
-        "impressions": 411,
+        "clicks": 10,
+        "impressions": 439,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.76,
-        "ctr": 2.19
+        "cpc": 0.72,
+        "ctr": 2.28
        },
        {
         "keyword": "b0dwwywhpb",
-        "spend": 7.83,
+        "spend": 8.88,
         "sales": 0.0,
-        "clicks": 7,
-        "impressions": 80,
+        "clicks": 8,
+        "impressions": 130,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 1.12,
-        "ctr": 8.75
+        "cpc": 1.11,
+        "ctr": 6.15
        },
        {
         "keyword": "b0cqmc78hb",
@@ -13340,28 +13362,6 @@ const FIN_DATA = {
         "ctr": 3.85
        },
        {
-        "keyword": "thin rice cakes",
-        "spend": 9.67,
-        "sales": 0.0,
-        "clicks": 11,
-        "impressions": 988,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.88,
-        "ctr": 1.11
-       },
-       {
-        "keyword": "rice crisps",
-        "spend": 21.33,
-        "sales": 0.0,
-        "clicks": 18,
-        "impressions": 1424,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.18,
-        "ctr": 1.26
-       },
-       {
         "keyword": "mango sticky rice",
         "spend": 5.63,
         "sales": 0.0,
@@ -13371,6 +13371,28 @@ const FIN_DATA = {
         "roas": 0.0,
         "cpc": 1.13,
         "ctr": 9.43
+       },
+       {
+        "keyword": "korean rice crackers snack",
+        "spend": 5.87,
+        "sales": 0.0,
+        "clicks": 5,
+        "impressions": 224,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 1.17,
+        "ctr": 2.23
+       },
+       {
+        "keyword": "thin rice cakes",
+        "spend": 9.67,
+        "sales": 0.0,
+        "clicks": 11,
+        "impressions": 988,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.88,
+        "ctr": 1.11
        },
        {
         "keyword": "b0h8bmkztp",
@@ -13395,26 +13417,15 @@ const FIN_DATA = {
         "ctr": 16.67
        },
        {
-        "keyword": "b0ff69q7dg",
-        "spend": 5.04,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 74,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.01,
-        "ctr": 6.76
-       },
-       {
         "keyword": "korean rice snacks",
-        "spend": 5.73,
+        "spend": 6.93,
         "sales": 0.0,
-        "clicks": 6,
-        "impressions": 96,
+        "clicks": 7,
+        "impressions": 125,
         "purchases": 0,
         "roas": 0.0,
-        "cpc": 0.96,
-        "ctr": 6.25
+        "cpc": 0.99,
+        "ctr": 5.6
        },
        {
         "keyword": "b0ck77sqjw",
@@ -13428,6 +13439,17 @@ const FIN_DATA = {
         "ctr": 10.96
        },
        {
+        "keyword": "popped rice",
+        "spend": 5.66,
+        "sales": 0.0,
+        "clicks": 6,
+        "impressions": 43,
+        "purchases": 0,
+        "roas": 0.0,
+        "cpc": 0.94,
+        "ctr": 13.95
+       },
+       {
         "keyword": "milk classic rice snack",
         "spend": 8.29,
         "sales": 0.0,
@@ -13439,70 +13461,48 @@ const FIN_DATA = {
         "ctr": 1.31
        },
        {
-        "keyword": "rice cakes organic",
-        "spend": 5.31,
-        "sales": 0.0,
-        "clicks": 6,
-        "impressions": 39,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 0.89,
-        "ctr": 15.38
-       },
-       {
-        "keyword": "korean rice crackers snack",
-        "spend": 5.87,
-        "sales": 0.0,
-        "clicks": 5,
-        "impressions": 224,
-        "purchases": 0,
-        "roas": 0.0,
-        "cpc": 1.17,
-        "ctr": 2.23
-       },
-       {
         "keyword": "rice crackers",
-        "spend": 90.46,
+        "spend": 91.66,
         "sales": 98.4,
-        "clicks": 86,
-        "impressions": 16575,
+        "clicks": 87,
+        "impressions": 17074,
         "purchases": 4,
-        "roas": 1.09,
+        "roas": 1.07,
         "cpc": 1.05,
-        "ctr": 0.52
+        "ctr": 0.51
        },
        {
         "keyword": "puffed rice",
-        "spend": 35.06,
+        "spend": 36.26,
         "sales": 49.2,
-        "clicks": 33,
-        "impressions": 3773,
+        "clicks": 34,
+        "impressions": 3785,
         "purchases": 2,
-        "roas": 1.4,
-        "cpc": 1.06,
-        "ctr": 0.87
+        "roas": 1.36,
+        "cpc": 1.07,
+        "ctr": 0.9
        },
        {
         "keyword": "rice cracker",
-        "spend": 15.02,
+        "spend": 16.05,
         "sales": 24.6,
-        "clicks": 14,
-        "impressions": 775,
+        "clicks": 15,
+        "impressions": 838,
         "purchases": 1,
-        "roas": 1.64,
+        "roas": 1.53,
         "cpc": 1.07,
-        "ctr": 1.81
+        "ctr": 1.79
        },
        {
         "keyword": "japanese rice crackers",
-        "spend": 13.91,
+        "spend": 14.79,
         "sales": 24.6,
-        "clicks": 16,
-        "impressions": 1984,
+        "clicks": 17,
+        "impressions": 2125,
         "purchases": 1,
-        "roas": 1.77,
+        "roas": 1.66,
         "cpc": 0.87,
-        "ctr": 0.81
+        "ctr": 0.8
        },
        {
         "keyword": "puffed rice snacks",
@@ -13516,37 +13516,37 @@ const FIN_DATA = {
         "ctr": 6.21
        },
        {
-        "keyword": "low calorie snacks",
-        "spend": 33.01,
-        "sales": 73.8,
-        "clicks": 41,
-        "impressions": 571,
-        "purchases": 3,
-        "roas": 2.24,
-        "cpc": 0.81,
-        "ctr": 7.18
+        "keyword": "crackers",
+        "spend": 11.34,
+        "sales": 24.6,
+        "clicks": 12,
+        "impressions": 476,
+        "purchases": 1,
+        "roas": 2.17,
+        "cpc": 0.95,
+        "ctr": 2.52
        },
        {
-        "keyword": "crackers",
-        "spend": 10.46,
-        "sales": 24.6,
-        "clicks": 11,
-        "impressions": 455,
-        "purchases": 1,
-        "roas": 2.35,
-        "cpc": 0.95,
-        "ctr": 2.42
+        "keyword": "low calorie snacks",
+        "spend": 33.85,
+        "sales": 73.8,
+        "clicks": 42,
+        "impressions": 588,
+        "purchases": 3,
+        "roas": 2.18,
+        "cpc": 0.81,
+        "ctr": 7.14
        },
        {
         "keyword": "baby snacks",
-        "spend": 20.32,
+        "spend": 21.47,
         "sales": 49.2,
-        "clicks": 19,
-        "impressions": 1063,
+        "clicks": 20,
+        "impressions": 1164,
         "purchases": 2,
-        "roas": 2.42,
+        "roas": 2.29,
         "cpc": 1.07,
-        "ctr": 1.79
+        "ctr": 1.72
        },
        {
         "keyword": "rice puffs",
@@ -13572,14 +13572,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "white rice cakes",
-        "spend": 23.03,
+        "spend": 23.91,
         "sales": 98.4,
-        "clicks": 25,
-        "impressions": 516,
+        "clicks": 26,
+        "impressions": 545,
         "purchases": 4,
-        "roas": 4.27,
+        "roas": 4.12,
         "cpc": 0.92,
-        "ctr": 4.84
+        "ctr": 4.77
        },
        {
         "keyword": "baby snack",
@@ -13594,14 +13594,14 @@ const FIN_DATA = {
        },
        {
         "keyword": "organic rice cakes",
-        "spend": 8.43,
+        "spend": 9.22,
         "sales": 49.2,
-        "clicks": 10,
-        "impressions": 139,
+        "clicks": 11,
+        "impressions": 152,
         "purchases": 2,
-        "roas": 5.84,
+        "roas": 5.34,
         "cpc": 0.84,
-        "ctr": 7.19
+        "ctr": 7.24
        },
        {
         "keyword": "korean rice crackers",
@@ -13685,8 +13685,8 @@ const FIN_DATA = {
     },
     "actual": {
      "from": "2026-10-16",
-     "to": "2026-11-13",
-     "days": 27
+     "to": "2026-11-14",
+     "days": 28
     }
    }
   },
@@ -13694,14 +13694,14 @@ const FIN_DATA = {
    "Grosmimi",
    "Naeiae"
   ],
-  "date_range": "2026-10-16 to 2026-11-13"
+  "date_range": "2026-10-16 to 2026-11-14"
  },
  "gsc_queries": [
   {
    "query": "onzenna",
-   "impressions": 1501,
-   "clicks": 132,
-   "ctr": 8.79,
+   "impressions": 1584,
+   "clicks": 134,
+   "ctr": 8.46,
    "position": 2.8
   },
   {
@@ -13713,73 +13713,80 @@ const FIN_DATA = {
   },
   {
    "query": "hawaiian boy names",
-   "impressions": 2142,
+   "impressions": 2182,
    "clicks": 38,
-   "ctr": 1.77,
-   "position": 7.4
-  },
-  {
-   "query": "hawaiian girl names",
-   "impressions": 2813,
-   "clicks": 36,
-   "ctr": 1.28,
-   "position": 8.3
-  },
-  {
-   "query": "grosmimi",
-   "impressions": 2074,
-   "clicks": 27,
-   "ctr": 1.3,
-   "position": 5.1
-  },
-  {
-   "query": "hawaiian names",
-   "impressions": 1874,
-   "clicks": 24,
-   "ctr": 1.28,
+   "ctr": 1.74,
    "position": 7.5
   },
   {
+   "query": "hawaiian girl names",
+   "impressions": 2887,
+   "clicks": 38,
+   "ctr": 1.32,
+   "position": 8.3
+  },
+  {
+   "query": "hawaiian names",
+   "impressions": 1976,
+   "clicks": 30,
+   "ctr": 1.52,
+   "position": 7.5
+  },
+  {
+   "query": "grosmimi",
+   "impressions": 2094,
+   "clicks": 25,
+   "ctr": 1.19,
+   "position": 5.1
+  },
+  {
    "query": "grosmimi straw cup",
-   "impressions": 3162,
-   "clicks": 22,
-   "ctr": 0.7,
-   "position": 5.2
+   "impressions": 3190,
+   "clicks": 20,
+   "ctr": 0.63,
+   "position": 5.3
+  },
+  {
+   "query": "french names",
+   "impressions": 9925,
+   "clicks": 20,
+   "ctr": 0.2,
+   "position": 8.8
   },
   {
    "query": "korean baby products",
    "impressions": 251,
    "clicks": 18,
    "ctr": 7.17,
-   "position": 4.4
-  },
-  {
-   "query": "french names",
-   "impressions": 9537,
-   "clicks": 18,
-   "ctr": 0.19,
-   "position": 8.8
+   "position": 4.5
   },
   {
    "query": "toddler won't drink",
-   "impressions": 40,
+   "impressions": 38,
    "clicks": 16,
-   "ctr": 40.0,
+   "ctr": 42.11,
    "position": 18.6
   },
   {
    "query": "why is my toddler suddenly refusing milk",
-   "impressions": 265,
+   "impressions": 259,
    "clicks": 14,
-   "ctr": 5.28,
-   "position": 3.6
+   "ctr": 5.41,
+   "position": 3.3
   },
   {
    "query": "toddler stopped drinking milk",
-   "impressions": 144,
+   "impressions": 150,
    "clicks": 14,
-   "ctr": 9.72,
-   "position": 8.5
+   "ctr": 9.33,
+   "position": 8.7
+  },
+  {
+   "query": "arabic names",
+   "impressions": 1070,
+   "clicks": 14,
+   "ctr": 1.31,
+   "position": 8.3
   },
   {
    "query": "ozenna",
@@ -13789,105 +13796,168 @@ const FIN_DATA = {
    "position": 1.9
   },
   {
-   "query": "arabic names",
-   "impressions": 946,
-   "clicks": 14,
-   "ctr": 1.48,
-   "position": 8.4
-  },
-  {
-   "query": "zezebaebae",
-   "impressions": 54,
-   "clicks": 12,
-   "ctr": 22.22,
-   "position": 1.4
-  },
-  {
    "query": "toddler wont drink milk",
    "impressions": 132,
    "clicks": 12,
    "ctr": 9.09,
-   "position": 10.8
-  },
-  {
-   "query": "pacifier shapes",
-   "impressions": 637,
-   "clicks": 12,
-   "ctr": 1.88,
-   "position": 3.4
+   "position": 10.2
   },
   {
    "query": "cha&mom",
-   "impressions": 106,
+   "impressions": 104,
    "clicks": 12,
-   "ctr": 11.32,
-   "position": 3.7
+   "ctr": 11.54,
+   "position": 3.9
   },
   {
-   "query": "toddler won't drink milk",
-   "impressions": 194,
-   "clicks": 10,
-   "ctr": 5.15,
-   "position": 10.6
+   "query": "pacifier shapes",
+   "impressions": 636,
+   "clicks": 12,
+   "ctr": 1.89,
+   "position": 3.3
+  },
+  {
+   "query": "zezebaebae",
+   "impressions": 51,
+   "clicks": 12,
+   "ctr": 23.53,
+   "position": 1.3
   },
   {
    "query": "toddler refusing milk",
-   "impressions": 134,
+   "impressions": 132,
    "clicks": 10,
-   "ctr": 7.46,
-   "position": 7.4
+   "ctr": 7.58,
+   "position": 7.2
+  },
+  {
+   "query": "can switching from breastmilk to formula cause gas",
+   "impressions": 54,
+   "clicks": 10,
+   "ctr": 18.52,
+   "position": 14.1
   }
  ],
  "keyword_rankings": {
   "7d": [
    {
     "query": "onzenna",
-    "clicks": 16,
-    "impressions": 409,
-    "avg_position": 3.3,
-    "ctr": 3.91,
+    "clicks": 18,
+    "impressions": 452,
+    "avg_position": 3.1,
+    "ctr": 3.98,
     "weekly_positions": [
-     3.3
+     3.1
     ]
    },
    {
     "query": "hawaiian names",
-    "clicks": 10,
-    "impressions": 764,
-    "avg_position": 7.8,
-    "ctr": 1.31,
+    "clicks": 14,
+    "impressions": 824,
+    "avg_position": 8.0,
+    "ctr": 1.7,
     "weekly_positions": [
-     7.8
+     8.0
     ]
    },
    {
     "query": "hawaiian girl names",
     "clicks": 10,
-    "impressions": 452,
+    "impressions": 558,
     "avg_position": 8.6,
-    "ctr": 2.21,
+    "ctr": 1.79,
     "weekly_positions": [
      8.6
     ]
    },
    {
     "query": "hawaiian boy names",
-    "clicks": 8,
-    "impressions": 380,
-    "avg_position": 7.7,
-    "ctr": 2.11,
+    "clicks": 6,
+    "impressions": 420,
+    "avg_position": 7.8,
+    "ctr": 1.43,
     "weekly_positions": [
-     7.7
+     7.8
     ]
    },
    {
     "query": "cradle cap ears",
     "clicks": 6,
     "impressions": 50,
-    "avg_position": 4.2,
+    "avg_position": 4.6,
     "ctr": 12.0,
     "weekly_positions": [
-     4.3
+     4.6
+    ]
+   },
+   {
+    "query": "french names",
+    "clicks": 6,
+    "impressions": 2782,
+    "avg_position": 9.0,
+    "ctr": 0.22,
+    "weekly_positions": [
+     9.0
+    ]
+   },
+   {
+    "query": "why is my toddler suddenly refusing milk",
+    "clicks": 4,
+    "impressions": 36,
+    "avg_position": 1.3,
+    "ctr": 11.11,
+    "weekly_positions": [
+     1.3
+    ]
+   },
+   {
+    "query": "grosmimi straw cup",
+    "clicks": 4,
+    "impressions": 796,
+    "avg_position": 5.6,
+    "ctr": 0.5,
+    "weekly_positions": [
+     5.6
+    ]
+   },
+   {
+    "query": "cha&mom",
+    "clicks": 4,
+    "impressions": 32,
+    "avg_position": 3.2,
+    "ctr": 12.5,
+    "weekly_positions": [
+     3.2
+    ]
+   },
+   {
+    "query": "commemoi",
+    "clicks": 4,
+    "impressions": 8,
+    "avg_position": 2.8,
+    "ctr": 50.0,
+    "weekly_positions": [
+     2.8
+    ]
+   },
+   {
+    "query": "best korean baby products",
+    "clicks": 4,
+    "impressions": 10,
+    "avg_position": 2.0,
+    "ctr": 40.0,
+    "weekly_positions": [
+     2.0
+    ]
+   },
+   {
+    "query": "alpremio feeding seat",
+    "clicks": 4,
+    "impressions": 40,
+    "avg_position": 3.2,
+    "ctr": 10.0,
+    "weekly_positions": [
+     3.2
     ]
    },
    {
@@ -13911,16 +13981,6 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "why is my toddler suddenly refusing milk",
-    "clicks": 4,
-    "impressions": 50,
-    "avg_position": 1.3,
-    "ctr": 8.0,
-    "weekly_positions": [
-     1.3
-    ]
-   },
-   {
     "query": "ozenna",
     "clicks": 4,
     "impressions": 14,
@@ -13928,46 +13988,6 @@ const FIN_DATA = {
     "ctr": 28.57,
     "weekly_positions": [
      1.7
-    ]
-   },
-   {
-    "query": "grosmimi straw cup",
-    "clicks": 4,
-    "impressions": 854,
-    "avg_position": 5.1,
-    "ctr": 0.47,
-    "weekly_positions": [
-     5.1
-    ]
-   },
-   {
-    "query": "grosmimi",
-    "clicks": 4,
-    "impressions": 486,
-    "avg_position": 5.5,
-    "ctr": 0.82,
-    "weekly_positions": [
-     5.5
-    ]
-   },
-   {
-    "query": "french names",
-    "clicks": 4,
-    "impressions": 3026,
-    "avg_position": 9.0,
-    "ctr": 0.13,
-    "weekly_positions": [
-     9.0
-    ]
-   },
-   {
-    "query": "cha&mom",
-    "clicks": 4,
-    "impressions": 32,
-    "avg_position": 2.6,
-    "ctr": 12.5,
-    "weekly_positions": [
-     2.6
     ]
    },
    {
@@ -13981,129 +14001,109 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "2 syllable baby names",
-    "clicks": 4,
-    "impressions": 6,
-    "avg_position": 9.0,
-    "ctr": 66.67,
+    "query": "type of pacifier",
+    "clicks": 2,
+    "impressions": 10,
+    "avg_position": 3.8,
+    "ctr": 20.0,
     "weekly_positions": [
-     9.0
+     3.8
     ]
    },
    {
-    "query": "rarest names",
+    "query": "hawaiian men names",
     "clicks": 2,
-    "impressions": 12,
+    "impressions": 6,
+    "avg_position": 6.3,
+    "ctr": 33.33,
+    "weekly_positions": [
+     6.3
+    ]
+   },
+   {
+    "query": "21",
+    "clicks": 2,
+    "impressions": 6,
+    "avg_position": 3.2,
+    "ctr": 33.33,
+    "weekly_positions": [
+     3.2
+    ]
+   },
+   {
+    "query": "why my 8 month baby is not eating food",
+    "clicks": 2,
+    "impressions": 18,
+    "avg_position": 6.3,
+    "ctr": 11.11,
+    "weekly_positions": [
+     6.3
+    ]
+   },
+   {
+    "query": "strong hawaiian boy names",
+    "clicks": 2,
+    "impressions": 10,
     "avg_position": 8.2,
-    "ctr": 16.67,
+    "ctr": 20.0,
     "weekly_positions": [
      8.2
     ]
    },
    {
-    "query": "onzenna discount code",
+    "query": "old fashioned names coming back",
+    "clicks": 2,
+    "impressions": 14,
+    "avg_position": 2.8,
+    "ctr": 14.29,
+    "weekly_positions": [
+     2.8
+    ]
+   },
+   {
+    "query": "korean names for girls",
     "clicks": 2,
     "impressions": 12,
-    "avg_position": 1.8,
+    "avg_position": 6.5,
     "ctr": 16.67,
     "weekly_positions": [
-     1.8
+     6.5
     ]
    },
    {
-    "query": "korean baby products",
+    "query": "pop rice snack",
     "clicks": 2,
-    "impressions": 42,
-    "avg_position": 4.3,
-    "ctr": 4.76,
+    "impressions": 33,
+    "avg_position": 4.9,
+    "ctr": 6.06,
     "weekly_positions": [
-     4.3
+     4.9
     ]
    },
    {
-    "query": "korean baby bottle",
+    "query": "pacifier shape",
     "clicks": 2,
-    "impressions": 10,
-    "avg_position": 6.0,
-    "ctr": 20.0,
+    "impressions": 7,
+    "avg_position": 3.8,
+    "ctr": 28.57,
     "weekly_positions": [
-     6.0
-    ]
-   },
-   {
-    "query": "hawaiian male names",
-    "clicks": 2,
-    "impressions": 26,
-    "avg_position": 5.0,
-    "ctr": 7.69,
-    "weekly_positions": [
-     5.0
-    ]
-   },
-   {
-    "query": "cradle cap in ear canal",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 1.3,
-    "ctr": 33.33,
-    "weekly_positions": [
-     1.3
-    ]
-   },
-   {
-    "query": "cha & mom",
-    "clicks": 2,
-    "impressions": 6,
-    "avg_position": 1.7,
-    "ctr": 33.33,
-    "weekly_positions": [
-     1.7
-    ]
-   },
-   {
-    "query": "best korean baby products",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 1.8,
-    "ctr": 25.0,
-    "weekly_positions": [
-     1.8
-    ]
-   },
-   {
-    "query": "8 month old still not eating much solids",
-    "clicks": 2,
-    "impressions": 8,
-    "avg_position": 6.2,
-    "ctr": 25.0,
-    "weekly_positions": [
-     6.2
-    ]
-   },
-   {
-    "query": "traditional hawaiian names",
-    "clicks": 2,
-    "impressions": 32,
-    "avg_position": 6.0,
-    "ctr": 6.25,
-    "weekly_positions": [
-     6.0
+     3.8
     ]
    }
   ],
   "30d": [
    {
     "query": "onzenna",
-    "clicks": 132,
-    "impressions": 1501,
+    "clicks": 134,
+    "impressions": 1584,
     "avg_position": 2.8,
-    "ctr": 8.79,
+    "ctr": 8.46,
     "weekly_positions": [
-     2.1,
+     2.2,
      2.5,
-     2.9,
+     3.1,
      3.4,
-     3.3
+     2.4
     ]
    },
    {
@@ -14114,150 +14114,164 @@ const FIN_DATA = {
     "ctr": 3.4,
     "weekly_positions": [
      5.7,
-     3.8,
-     6.8,
-     5.5,
-     3.9
+     3.9,
+     6.9,
+     4.7,
+     5.8
     ]
    },
    {
     "query": "hawaiian boy names",
     "clicks": 38,
-    "impressions": 2142,
-    "avg_position": 7.4,
-    "ctr": 1.77,
+    "impressions": 2182,
+    "avg_position": 7.5,
+    "ctr": 1.74,
     "weekly_positions": [
-     6.8,
-     7.8,
+     7.2,
      7.6,
-     7.0,
+     7.6,
+     7.3,
      8.9
     ]
    },
    {
     "query": "hawaiian girl names",
-    "clicks": 36,
-    "impressions": 2813,
+    "clicks": 38,
+    "impressions": 2887,
     "avg_position": 8.3,
-    "ctr": 1.28,
+    "ctr": 1.32,
     "weekly_positions": [
-     7.8,
-     7.9,
-     8.8,
-     8.6,
-     8.7
-    ]
-   },
-   {
-    "query": "grosmimi",
-    "clicks": 27,
-    "impressions": 2074,
-    "avg_position": 5.1,
-    "ctr": 1.3,
-    "weekly_positions": [
-     4.8,
-     5.2,
-     4.8,
-     5.3,
-     5.4
+     7.7,
+     8.0,
+     8.9,
+     8.4,
+     9.1
     ]
    },
    {
     "query": "hawaiian names",
-    "clicks": 24,
-    "impressions": 1874,
+    "clicks": 30,
+    "impressions": 1976,
     "avg_position": 7.5,
-    "ctr": 1.28,
+    "ctr": 1.52,
     "weekly_positions": [
-     7.9,
      8.1,
-     6.2,
-     7.9,
-     7.1
+     7.4,
+     6.5,
+     8.1,
+     7.5
+    ]
+   },
+   {
+    "query": "grosmimi",
+    "clicks": 25,
+    "impressions": 2094,
+    "avg_position": 5.1,
+    "ctr": 1.19,
+    "weekly_positions": [
+     5.0,
+     5.1,
+     4.9,
+     5.4,
+     5.6
     ]
    },
    {
     "query": "grosmimi straw cup",
-    "clicks": 22,
-    "impressions": 3162,
-    "avg_position": 5.2,
-    "ctr": 0.7,
+    "clicks": 20,
+    "impressions": 3190,
+    "avg_position": 5.3,
+    "ctr": 0.63,
     "weekly_positions": [
+     5.3,
      5.0,
-     5.1,
+     5.3,
      5.2,
-     5.4,
-     5.0
+     6.7
+    ]
+   },
+   {
+    "query": "french names",
+    "clicks": 20,
+    "impressions": 9925,
+    "avg_position": 8.8,
+    "ctr": 0.2,
+    "weekly_positions": [
+     9.3,
+     8.5,
+     8.6,
+     8.9,
+     9.2
     ]
    },
    {
     "query": "korean baby products",
     "clicks": 18,
     "impressions": 251,
-    "avg_position": 4.4,
+    "avg_position": 4.5,
     "ctr": 7.17,
     "weekly_positions": [
-     3.5,
-     4.4,
-     5.6,
-     4.5,
-     3.5
-    ]
-   },
-   {
-    "query": "french names",
-    "clicks": 18,
-    "impressions": 9537,
-    "avg_position": 8.8,
-    "ctr": 0.19,
-    "weekly_positions": [
-     9.4,
-     8.5,
-     8.6,
-     8.9,
-     9.1
+     3.7,
+     4.6,
+     5.4,
+     3.9,
+     6.3
     ]
    },
    {
     "query": "toddler won't drink",
     "clicks": 16,
-    "impressions": 40,
+    "impressions": 38,
     "avg_position": 18.6,
-    "ctr": 40.0,
+    "ctr": 42.11,
     "weekly_positions": [
-     21.6,
+     21.5,
      16.0,
      15.8,
-     14.0,
-     22.5
+     17.0,
+     22.0
     ]
    },
    {
     "query": "why is my toddler suddenly refusing milk",
     "clicks": 14,
-    "impressions": 265,
-    "avg_position": 3.6,
-    "ctr": 5.28,
+    "impressions": 259,
+    "avg_position": 3.3,
+    "ctr": 5.41,
     "weekly_positions": [
-     8.0,
-     3.0,
-     2.6,
-     1.6,
+     6.9,
+     3.6,
+     1.9,
+     1.4,
      1.2
     ]
    },
    {
     "query": "toddler stopped drinking milk",
     "clicks": 14,
-    "impressions": 144,
-    "avg_position": 8.5,
-    "ctr": 9.72,
+    "impressions": 150,
+    "avg_position": 8.7,
+    "ctr": 9.33,
     "weekly_positions": [
-     11.3,
+     11.9,
+     8.2,
+     6.5,
      8.0,
-     6.4,
-     7.7,
-     9.0
+     7.9
+    ]
+   },
+   {
+    "query": "arabic names",
+    "clicks": 14,
+    "impressions": 1070,
+    "avg_position": 8.3,
+    "ctr": 1.31,
+    "weekly_positions": [
+     7.6,
+     7.1,
+     9.0,
+     9.6,
+     7.8
     ]
    },
    {
@@ -14268,34 +14282,62 @@ const FIN_DATA = {
     "ctr": 20.0,
     "weekly_positions": [
      1.4,
-     1.7,
-     1.0,
-     3.2,
-     1.9
+     1.5,
+     2.8,
+     1.4,
+     2.7
     ]
    },
    {
-    "query": "arabic names",
-    "clicks": 14,
-    "impressions": 946,
-    "avg_position": 8.4,
-    "ctr": 1.48,
+    "query": "toddler wont drink milk",
+    "clicks": 12,
+    "impressions": 132,
+    "avg_position": 10.2,
+    "ctr": 9.09,
     "weekly_positions": [
+     17.1,
      8.1,
-     7.0,
-     9.4,
-     8.9,
-     9.0
+     8.1,
+     8.0,
+     7.0
+    ]
+   },
+   {
+    "query": "cha&mom",
+    "clicks": 12,
+    "impressions": 104,
+    "avg_position": 3.9,
+    "ctr": 11.54,
+    "weekly_positions": [
+     5.3,
+     4.3,
+     3.1,
+     2.8,
+     4.2
+    ]
+   },
+   {
+    "query": "pacifier shapes",
+    "clicks": 12,
+    "impressions": 636,
+    "avg_position": 3.3,
+    "ctr": 1.89,
+    "weekly_positions": [
+     3.0,
+     2.3,
+     3.9,
+     4.2,
+     2.7
     ]
    },
    {
     "query": "zezebaebae",
     "clicks": 12,
-    "impressions": 54,
-    "avg_position": 1.4,
-    "ctr": 22.22,
+    "impressions": 51,
+    "avg_position": 1.3,
+    "ctr": 23.53,
     "weekly_positions": [
-     1.5,
+     1.3,
      1.6,
      1.0,
      1.0,
@@ -14303,87 +14345,59 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "toddler wont drink milk",
-    "clicks": 12,
+    "query": "toddler refusing milk",
+    "clicks": 10,
     "impressions": 132,
-    "avg_position": 10.8,
-    "ctr": 9.09,
+    "avg_position": 7.2,
+    "ctr": 7.58,
     "weekly_positions": [
-     18.8,
-     8.3,
-     8.3,
-     8.0,
-     8.4
+     10.4,
+     6.4,
+     6.4,
+     4.7,
+     6.5
     ]
    },
    {
-    "query": "pacifier shapes",
-    "clicks": 12,
-    "impressions": 637,
-    "avg_position": 3.4,
-    "ctr": 1.88,
+    "query": "can switching from breastmilk to formula cause gas",
+    "clicks": 10,
+    "impressions": 54,
+    "avg_position": 14.1,
+    "ctr": 18.52,
     "weekly_positions": [
-     3.5,
-     2.2,
-     3.7,
-     4.0,
-     3.7
-    ]
-   },
-   {
-    "query": "cha&mom",
-    "clicks": 12,
-    "impressions": 106,
-    "avg_position": 3.7,
-    "ctr": 11.32,
-    "weekly_positions": [
-     5.3,
-     3.7,
-     2.5,
-     3.0,
-     3.7
+     16.2,
+     7.3,
+     14.6,
+     16.2,
+     15.0
     ]
    },
    {
     "query": "toddler won't drink milk",
     "clicks": 10,
-    "impressions": 194,
-    "avg_position": 10.6,
-    "ctr": 5.15,
+    "impressions": 192,
+    "avg_position": 10.0,
+    "ctr": 5.21,
     "weekly_positions": [
-     15.0,
-     9.8,
-     9.5,
-     8.5,
-     7.7
-    ]
-   },
-   {
-    "query": "toddler refusing milk",
-    "clicks": 10,
-    "impressions": 134,
-    "avg_position": 7.4,
-    "ctr": 7.46,
-    "weekly_positions": [
-     11.6,
-     5.9,
-     5.8,
-     6.1,
-     5.0
+     13.0,
+     10.0,
+     9.0,
+     8.2,
+     8.3
     ]
    },
    {
     "query": "alpremio",
     "clicks": 10,
-    "impressions": 268,
+    "impressions": 266,
     "avg_position": 2.8,
-    "ctr": 3.73,
+    "ctr": 3.76,
     "weekly_positions": [
-     2.5,
-     3.1,
+     2.6,
      2.9,
-     2.3,
-     4.0
+     3.0,
+     2.8,
+     2.5
     ]
    },
    {
@@ -14401,29 +14415,15 @@ const FIN_DATA = {
     ]
    },
    {
-    "query": "can switching from breastmilk to formula cause gas",
-    "clicks": 10,
-    "impressions": 54,
-    "avg_position": 14.4,
-    "ctr": 18.52,
-    "weekly_positions": [
-     17.0,
-     7.3,
-     14.0,
-     15.4,
-     20.0
-    ]
-   },
-   {
     "query": "thirty five weeks pregnant symptoms",
     "clicks": 10,
-    "impressions": 48,
+    "impressions": 42,
     "avg_position": 16.4,
-    "ctr": 20.83,
+    "ctr": 23.81,
     "weekly_positions": [
-     18.5,
-     15.3,
-     13.9,
+     18.9,
+     15.2,
+     13.6,
      15.0,
      null
     ]
@@ -14431,171 +14431,171 @@ const FIN_DATA = {
    {
     "query": "hawaiian baby names",
     "clicks": 9,
-    "impressions": 525,
-    "avg_position": 6.7,
-    "ctr": 1.71,
+    "impressions": 529,
+    "avg_position": 6.8,
+    "ctr": 1.7,
     "weekly_positions": [
-     7.1,
-     7.5,
-     6.1,
-     6.1,
-     6.6
+     7.6,
+     7.2,
+     6.0,
+     6.3,
+     7.1
     ]
    }
   ],
   "90d": [
    {
     "query": "onzenna",
-    "clicks": 404,
-    "impressions": 2946,
+    "clicks": 402,
+    "impressions": 3016,
     "avg_position": 2.3,
-    "ctr": 13.71,
+    "ctr": 13.33,
     "weekly_positions": [
-     2.4,
-     2.4,
+     2.5,
+     2.2,
      2.2,
      1.7,
-     2.1,
-     2.3,
-     1.8,
+     2.2,
+     2.2,
+     1.7,
      1.9,
-     2.0,
-     2.3,
-     2.8,
-     3.5,
-     3.3
+     2.1,
+     2.5,
+     2.9,
+     3.4,
+     2.9
     ]
    },
    {
     "query": "hawaiian girl names",
-    "clicks": 102,
-    "impressions": 7331,
-    "avg_position": 6.5,
-    "ctr": 1.39,
+    "clicks": 98,
+    "impressions": 7183,
+    "avg_position": 6.6,
+    "ctr": 1.36,
     "weekly_positions": [
-     4.2,
-     3.9,
-     5.3,
-     5.8,
+     3.8,
      4.6,
-     9.9,
+     5.5,
+     5.8,
      3.6,
-     8.3,
-     7.7,
-     8.0,
-     8.4,
-     8.7,
-     8.9
+     8.6,
+     4.2,
+     8.1,
+     7.8,
+     7.9,
+     8.8,
+     8.6,
+     8.7
     ]
    },
    {
     "query": "rare names",
-    "clicks": 80,
-    "impressions": 11413,
+    "clicks": 78,
+    "impressions": 11125,
     "avg_position": 4.5,
     "ctr": 0.7,
     "weekly_positions": [
      3.8,
-     2.7,
-     2.8,
+     2.6,
      2.9,
-     2.0,
-     3.8,
-     4.9,
+     2.6,
+     2.2,
+     4.3,
+     4.5,
      4.2,
-     5.1,
-     7.3,
-     8.6,
-     4.8,
-     6.6
+     5.4,
+     7.7,
+     8.2,
+     4.7,
+     7.1
     ]
    },
    {
     "query": "grosmimi",
     "clicks": 74,
-    "impressions": 6585,
+    "impressions": 6555,
     "avg_position": 5.2,
-    "ctr": 1.12,
+    "ctr": 1.13,
     "weekly_positions": [
-     5.1,
-     4.7,
+     5.0,
+     4.8,
+     4.4,
+     5.7,
      4.5,
      5.4,
-     4.7,
-     5.3,
-     6.0,
-     6.0,
-     4.9,
+     6.3,
+     5.8,
+     4.8,
      5.2,
-     4.9,
-     5.1,
-     5.8
+     4.8,
+     5.3,
+     5.5
     ]
    },
    {
     "query": "grosmimi straw cup",
     "clicks": 72,
-    "impressions": 9936,
+    "impressions": 9826,
     "avg_position": 4.9,
-    "ctr": 0.72,
+    "ctr": 0.73,
     "weekly_positions": [
-     4.6,
+     4.5,
      5.0,
+     3.9,
+     4.5,
      4.0,
-     4.0,
-     4.7,
-     3.8,
-     6.1,
-     5.5,
-     5.2,
-     5.2,
+     4.2,
+     6.5,
+     5.6,
+     5.0,
      5.1,
+     5.2,
      5.4,
-     5.1
+     6.1
     ]
    },
    {
     "query": "hawaiian names",
     "clicks": 68,
     "impressions": 5622,
-    "avg_position": 5.9,
+    "avg_position": 6.0,
     "ctr": 1.21,
     "weekly_positions": [
-     5.2,
-     2.6,
+     5.0,
+     2.5,
+     3.8,
+     3.5,
      3.3,
-     3.9,
-     3.1,
-     7.0,
-     7.1,
-     7.8,
+     8.3,
+     6.3,
+     8.1,
      7.9,
-     8.5,
-     6.5,
-     7.2,
-     7.7
+     8.1,
+     6.2,
+     7.9,
+     7.4
     ]
    },
    {
     "query": "korean baby products",
     "clicks": 58,
-    "impressions": 533,
-    "avg_position": 3.8,
-    "ctr": 10.88,
+    "impressions": 529,
+    "avg_position": 3.9,
+    "ctr": 10.96,
     "weekly_positions": [
-     3.7,
-     3.8,
+     3.6,
+     3.9,
+     2.3,
      2.4,
-     2.7,
-     3.5,
-     4.0,
+     3.4,
+     4.3,
      3.1,
-     3.7,
-     3.2,
-     4.8,
-     5.4,
+     3.5,
+     3.5,
+     4.4,
+     5.6,
      4.5,
-     3.5
+     4.2
     ]
    },
    {
@@ -14613,77 +14613,55 @@ const FIN_DATA = {
      null,
      null,
      null,
+     5.7,
+     3.8,
+     6.8,
      5.5,
-     4.4,
-     6.0,
-     5.8,
      3.9
     ]
    },
    {
     "query": "nature names",
     "clicks": 48,
-    "impressions": 7043,
+    "impressions": 6815,
     "avg_position": 7.2,
-    "ctr": 0.68,
+    "ctr": 0.7,
     "weekly_positions": [
-     6.8,
-     5.6,
-     5.2,
-     5.0,
-     6.6,
-     6.9,
-     6.9,
-     7.5,
-     7.1,
-     9.3,
-     7.1,
-     9.6,
-     11.5
-    ]
-   },
-   {
-    "query": "spanish names",
-    "clicks": 46,
-    "impressions": 9830,
-    "avg_position": 11.0,
-    "ctr": 0.47,
-    "weekly_positions": [
+     6.4,
+     5.7,
+     5.3,
+     5.3,
+     6.5,
      6.7,
-     8.2,
-     7.8,
-     7.3,
-     8.7,
-     13.5,
-     12.9,
-     15.4,
-     12.2,
-     12.8,
-     13.8,
-     13.1,
-     11.7
+     7.2,
+     7.0,
+     7.7,
+     9.2,
+     6.7,
+     10.9,
+     9.5
     ]
    },
    {
     "query": "hawaiian boy names",
     "clicks": 46,
-    "impressions": 3422,
+    "impressions": 3488,
     "avg_position": 7.7,
-    "ctr": 1.34,
+    "ctr": 1.32,
     "weekly_positions": [
-     10.3,
-     9.3,
-     4.8,
-     5.7,
-     8.8,
+     10.4,
+     8.9,
+     4.5,
+     6.6,
+     8.5,
      8.0,
-     10.0,
-     6.8,
-     6.9,
-     7.5,
-     7.8,
+     9.1,
      7.1,
-     8.1
+     6.8,
+     7.8,
+     7.6,
+     7.0,
+     8.9
     ]
    },
    {
@@ -14694,83 +14672,105 @@ const FIN_DATA = {
     "ctr": 29.14,
     "weekly_positions": [
      1.0,
+     2.7,
+     4.2,
+     3.6,
+     1.1,
+     2.3,
      2.0,
-     4.0,
-     3.9,
-     1.0,
-     2.4,
-     1.8,
+     1.3,
      1.4,
-     1.4,
-     1.5,
+     1.7,
      1.0,
      3.2,
-     1.6
+     1.9
+    ]
+   },
+   {
+    "query": "spanish names",
+    "clicks": 42,
+    "impressions": 9330,
+    "avg_position": 11.0,
+    "ctr": 0.45,
+    "weekly_positions": [
+     6.8,
+     8.4,
+     7.7,
+     7.3,
+     9.1,
+     14.1,
+     13.2,
+     14.4,
+     12.1,
+     13.5,
+     14.2,
+     12.9,
+     9.0
     ]
    },
    {
     "query": "rare baby names",
     "clicks": 42,
-    "impressions": 1673,
-    "avg_position": 7.2,
-    "ctr": 2.51,
+    "impressions": 1642,
+    "avg_position": 7.3,
+    "ctr": 2.56,
     "weekly_positions": [
-     4.4,
      4.2,
-     3.8,
-     3.4,
-     6.9,
+     4.3,
+     3.9,
+     3.5,
+     7.8,
+     7.3,
+     7.7,
      7.0,
-     8.7,
-     7.0,
-     8.0,
-     9.7,
-     14.0,
-     10.3,
-     8.3
+     8.9,
+     9.3,
+     12.8,
+     11.7,
+     6.3
     ]
    },
    {
     "query": "unique baby girl names 2026",
-    "clicks": 40,
-    "impressions": 1240,
+    "clicks": 38,
+    "impressions": 1232,
     "avg_position": 5.7,
-    "ctr": 3.23,
+    "ctr": 3.08,
     "weekly_positions": [
-     7.5,
-     5.8,
+     7.4,
+     5.4,
+     4.2,
+     1.7,
      4.4,
-     1.8,
-     3.8,
-     4.9,
-     3.2,
-     5.9,
+     4.2,
+     3.4,
+     6.2,
      7.2,
-     5.6,
-     12.0,
+     6.3,
+     12.8,
      12.2,
-     null
+     10.5
     ]
    },
    {
     "query": "arabic names",
     "clicks": 34,
-    "impressions": 2282,
+    "impressions": 2420,
     "avg_position": 6.1,
-    "ctr": 1.49,
+    "ctr": 1.4,
     "weekly_positions": [
-     4.7,
-     5.7,
-     3.7,
-     2.8,
-     2.1,
-     2.1,
-     6.3,
-     6.1,
-     8.0,
+     4.8,
+     5.5,
+     3.4,
+     2.6,
+     3.2,
+     2.6,
+     6.9,
+     6.0,
+     8.1,
      7.0,
-     9.3,
-     9.1,
+     9.4,
+     8.9,
      8.5
     ]
    },
@@ -14781,19 +14781,63 @@ const FIN_DATA = {
     "avg_position": 3.2,
     "ctr": 4.1,
     "weekly_positions": [
-     3.4,
-     4.7,
-     2.8,
-     3.2,
-     2.5,
-     3.4,
-     3.3,
-     3.6,
-     2.7,
-     2.8,
+     3.7,
+     4.4,
      3.0,
+     2.9,
+     3.2,
+     2.8,
+     3.7,
+     3.4,
      2.5,
-     3.7
+     3.1,
+     2.9,
+     2.3,
+     3.3
+    ]
+   },
+   {
+    "query": "french names",
+    "clicks": 32,
+    "impressions": 11861,
+    "avg_position": 8.3,
+    "ctr": 0.27,
+    "weekly_positions": [
+     null,
+     null,
+     3.0,
+     2.0,
+     3.0,
+     8.1,
+     8.2,
+     8.2,
+     9.4,
+     8.5,
+     8.6,
+     8.9,
+     9.1
+    ]
+   },
+   {
+    "query": "hawaiian baby names",
+    "clicks": 31,
+    "impressions": 1321,
+    "avg_position": 6.3,
+    "ctr": 2.35,
+    "weekly_positions": [
+     5.7,
+     4.1,
+     5.1,
+     5.0,
+     7.7,
+     7.5,
+     6.3,
+     7.2,
+     7.1,
+     7.5,
+     6.1,
+     6.1,
+     6.8
     ]
    },
    {
@@ -14803,104 +14847,38 @@ const FIN_DATA = {
     "avg_position": 1.4,
     "ctr": 15.58,
     "weekly_positions": [
-     1.2,
+     1.3,
      1.6,
      1.5,
      1.6,
      1.4,
      1.3,
-     1.4,
      1.3,
-     1.6,
+     1.3,
      1.5,
+     1.6,
      1.0,
      1.0,
      1.0
     ]
    },
    {
-    "query": "hawaiian baby names",
-    "clicks": 31,
-    "impressions": 1323,
-    "avg_position": 6.3,
-    "ctr": 2.34,
-    "weekly_positions": [
-     5.4,
-     4.5,
-     4.5,
-     5.1,
-     7.6,
-     7.2,
-     6.7,
-     7.0,
-     7.2,
-     7.5,
-     6.1,
-     6.2,
-     6.6
-    ]
-   },
-   {
-    "query": "french names",
-    "clicks": 30,
-    "impressions": 11451,
-    "avg_position": 8.2,
-    "ctr": 0.26,
-    "weekly_positions": [
-     null,
-     null,
-     3.0,
-     2.0,
-     null,
-     6.8,
-     8.1,
-     8.1,
-     9.5,
-     8.6,
-     8.5,
-     8.7,
-     9.1
-    ]
-   },
-   {
-    "query": "boys names 2026",
-    "clicks": 30,
-    "impressions": 536,
-    "avg_position": 11.0,
-    "ctr": 5.6,
-    "weekly_positions": [
-     6.3,
-     14.7,
-     9.7,
-     6.1,
-     5.7,
-     9.3,
-     3.0,
-     19.2,
-     18.5,
-     15.1,
-     17.7,
-     19.2,
-     13.2
-    ]
-   },
-   {
     "query": "unique baby girl names 2026 with meaning",
     "clicks": 30,
-    "impressions": 688,
+    "impressions": 680,
     "avg_position": 6.5,
-    "ctr": 4.36,
+    "ctr": 4.41,
     "weekly_positions": [
-     6.5,
-     7.2,
-     4.8,
-     3.3,
+     6.7,
+     7.1,
+     4.4,
+     3.2,
      1.1,
      10.7,
-     3.5,
+     3.1,
      4.1,
-     8.0,
-     11.0,
+     9.0,
+     11.7,
      12.5,
      23.0,
      null
@@ -14909,82 +14887,82 @@ const FIN_DATA = {
    {
     "query": "hawaiian names for girls",
     "clicks": 28,
-    "impressions": 2844,
-    "avg_position": 6.2,
-    "ctr": 0.98,
+    "impressions": 2832,
+    "avg_position": 6.3,
+    "ctr": 0.99,
     "weekly_positions": [
-     4.5,
-     4.6,
-     5.1,
-     6.5,
-     5.3,
+     4.3,
+     4.7,
+     5.7,
+     6.8,
+     3.5,
      8.5,
      4.9,
-     5.5,
-     6.8,
-     6.8,
-     8.6,
-     7.5,
-     7.7
-    ]
-   },
-   {
-    "query": "episiotomy healing stages",
-    "clicks": 26,
-    "impressions": 2096,
-    "avg_position": 6.6,
-    "ctr": 1.24,
-    "weekly_positions": [
-     8.1,
-     7.6,
-     7.5,
-     6.4,
-     6.2,
-     6.3,
-     7.1,
-     6.1,
-     5.8,
-     5.7,
-     5.5,
-     6.5,
-     6.5
+     5.2,
+     6.9,
+     6.7,
+     8.8,
+     7.2,
+     8.3
     ]
    },
    {
     "query": "celtic baby names",
     "clicks": 26,
-    "impressions": 819,
+    "impressions": 827,
     "avg_position": 7.2,
-    "ctr": 3.17,
+    "ctr": 3.14,
     "weekly_positions": [
-     8.0,
-     7.9,
-     9.5,
-     4.2,
-     4.2,
-     6.6,
-     7.1,
-     7.6,
+     8.2,
+     8.1,
+     8.9,
+     4.0,
+     4.8,
      6.5,
+     6.9,
+     7.0,
+     7.5,
      7.1,
-     8.3,
-     9.5,
-     7.8
+     8.1,
+     9.9,
+     6.0
+    ]
+   },
+   {
+    "query": "boys names 2026",
+    "clicks": 26,
+    "impressions": 496,
+    "avg_position": 11.1,
+    "ctr": 5.24,
+    "weekly_positions": [
+     9.0,
+     13.6,
+     8.0,
+     5.2,
+     6.1,
+     9.0,
+     8.2,
+     16.9,
+     18.5,
+     15.9,
+     17.0,
+     19.2,
+     13.5
     ]
    },
    {
     "query": "onzenna cup",
     "clicks": 26,
-    "impressions": 137,
+    "impressions": 135,
     "avg_position": 1.0,
-    "ctr": 18.98,
+    "ctr": 19.26,
     "weekly_positions": [
      1.0,
      1.0,
      1.0,
      1.0,
      1.0,
-     null,
+     1.0,
      1.0,
      1.0,
      1.0,
@@ -14993,33 +14971,55 @@ const FIN_DATA = {
      1.0,
      1.0
     ]
+   },
+   {
+    "query": "episiotomy healing stages",
+    "clicks": 24,
+    "impressions": 2090,
+    "avg_position": 6.5,
+    "ctr": 1.15,
+    "weekly_positions": [
+     7.8,
+     7.7,
+     7.5,
+     6.1,
+     6.3,
+     6.2,
+     7.1,
+     6.1,
+     5.8,
+     5.5,
+     5.9,
+     6.3,
+     6.5
+    ]
    }
   ]
  },
  "kw_positions_summary": [
   {
    "query": "onzenna",
-   "pos_7d": 3.3,
-   "clicks_7d": 16,
-   "impressions_7d": 409,
+   "pos_7d": 3.1,
+   "clicks_7d": 18,
+   "impressions_7d": 452,
    "pos_30d": 2.8,
-   "clicks_30d": 132,
-   "impressions_30d": 1501,
+   "clicks_30d": 134,
+   "impressions_30d": 1584,
    "pos_90d": 2.3,
-   "clicks_90d": 404,
-   "impressions_90d": 2946
+   "clicks_90d": 402,
+   "impressions_90d": 3016
   },
   {
    "query": "hawaiian girl names",
    "pos_7d": 8.6,
    "clicks_7d": 10,
-   "impressions_7d": 452,
+   "impressions_7d": 558,
    "pos_30d": 8.3,
-   "clicks_30d": 36,
-   "impressions_30d": 2813,
-   "pos_90d": 6.5,
-   "clicks_90d": 102,
-   "impressions_90d": 7331
+   "clicks_30d": 38,
+   "impressions_30d": 2887,
+   "pos_90d": 6.6,
+   "clicks_90d": 98,
+   "impressions_90d": 7183
   },
   {
    "query": "rare names",
@@ -15030,56 +15030,56 @@ const FIN_DATA = {
    "clicks_30d": 0,
    "impressions_30d": 0,
    "pos_90d": 4.5,
-   "clicks_90d": 80,
-   "impressions_90d": 11413
+   "clicks_90d": 78,
+   "impressions_90d": 11125
   },
   {
    "query": "grosmimi",
-   "pos_7d": 5.5,
-   "clicks_7d": 4,
-   "impressions_7d": 486,
+   "pos_7d": null,
+   "clicks_7d": 0,
+   "impressions_7d": 0,
    "pos_30d": 5.1,
-   "clicks_30d": 27,
-   "impressions_30d": 2074,
+   "clicks_30d": 25,
+   "impressions_30d": 2094,
    "pos_90d": 5.2,
    "clicks_90d": 74,
-   "impressions_90d": 6585
+   "impressions_90d": 6555
   },
   {
    "query": "grosmimi straw cup",
-   "pos_7d": 5.1,
+   "pos_7d": 5.6,
    "clicks_7d": 4,
-   "impressions_7d": 854,
-   "pos_30d": 5.2,
-   "clicks_30d": 22,
-   "impressions_30d": 3162,
+   "impressions_7d": 796,
+   "pos_30d": 5.3,
+   "clicks_30d": 20,
+   "impressions_30d": 3190,
    "pos_90d": 4.9,
    "clicks_90d": 72,
-   "impressions_90d": 9936
+   "impressions_90d": 9826
   },
   {
    "query": "hawaiian names",
-   "pos_7d": 7.8,
-   "clicks_7d": 10,
-   "impressions_7d": 764,
+   "pos_7d": 8.0,
+   "clicks_7d": 14,
+   "impressions_7d": 824,
    "pos_30d": 7.5,
-   "clicks_30d": 24,
-   "impressions_30d": 1874,
-   "pos_90d": 5.9,
+   "clicks_30d": 30,
+   "impressions_30d": 1976,
+   "pos_90d": 6.0,
    "clicks_90d": 68,
    "impressions_90d": 5622
   },
   {
    "query": "korean baby products",
-   "pos_7d": 4.3,
-   "clicks_7d": 2,
-   "impressions_7d": 42,
-   "pos_30d": 4.4,
+   "pos_7d": null,
+   "clicks_7d": 0,
+   "impressions_7d": 0,
+   "pos_30d": 4.5,
    "clicks_30d": 18,
    "impressions_30d": 251,
-   "pos_90d": 3.8,
+   "pos_90d": 3.9,
    "clicks_90d": 58,
-   "impressions_90d": 533
+   "impressions_90d": 529
   },
   {
    "query": "name skyrocketing guy",
@@ -15103,31 +15103,19 @@ const FIN_DATA = {
    "impressions_30d": 0,
    "pos_90d": 7.2,
    "clicks_90d": 48,
-   "impressions_90d": 7043
+   "impressions_90d": 6815
   },
   {
    "query": "hawaiian boy names",
-   "pos_7d": 7.7,
-   "clicks_7d": 8,
-   "impressions_7d": 380,
-   "pos_30d": 7.4,
+   "pos_7d": 7.8,
+   "clicks_7d": 6,
+   "impressions_7d": 420,
+   "pos_30d": 7.5,
    "clicks_30d": 38,
-   "impressions_30d": 2142,
+   "impressions_30d": 2182,
    "pos_90d": 7.7,
    "clicks_90d": 46,
-   "impressions_90d": 3422
-  },
-  {
-   "query": "spanish names",
-   "pos_7d": null,
-   "clicks_7d": 0,
-   "impressions_7d": 0,
-   "pos_30d": null,
-   "clicks_30d": 0,
-   "impressions_30d": 0,
-   "pos_90d": 11.0,
-   "clicks_90d": 46,
-   "impressions_90d": 9830
+   "impressions_90d": 3488
   },
   {
    "query": "ozenna",
@@ -15149,9 +15137,21 @@ const FIN_DATA = {
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
-   "pos_90d": 7.2,
+   "pos_90d": 7.3,
    "clicks_90d": 42,
-   "impressions_90d": 1673
+   "impressions_90d": 1642
+  },
+  {
+   "query": "spanish names",
+   "pos_7d": null,
+   "clicks_7d": 0,
+   "impressions_7d": 0,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": 11.0,
+   "clicks_90d": 42,
+   "impressions_90d": 9330
   },
   {
    "query": "unique baby girl names 2026",
@@ -15162,20 +15162,20 @@ const FIN_DATA = {
    "clicks_30d": 0,
    "impressions_30d": 0,
    "pos_90d": 5.7,
-   "clicks_90d": 40,
-   "impressions_90d": 1240
+   "clicks_90d": 38,
+   "impressions_90d": 1232
   },
   {
    "query": "arabic names",
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 8.4,
+   "pos_30d": 8.3,
    "clicks_30d": 14,
-   "impressions_30d": 946,
+   "impressions_30d": 1070,
    "pos_90d": 6.1,
    "clicks_90d": 34,
-   "impressions_90d": 2282
+   "impressions_90d": 2420
   },
   {
    "query": "alpremio",
@@ -15184,58 +15184,46 @@ const FIN_DATA = {
    "impressions_7d": 0,
    "pos_30d": 2.8,
    "clicks_30d": 10,
-   "impressions_30d": 268,
+   "impressions_30d": 266,
    "pos_90d": 3.2,
    "clicks_90d": 32,
    "impressions_90d": 780
+  },
+  {
+   "query": "french names",
+   "pos_7d": 9.0,
+   "clicks_7d": 6,
+   "impressions_7d": 2782,
+   "pos_30d": 8.8,
+   "clicks_30d": 20,
+   "impressions_30d": 9925,
+   "pos_90d": 8.3,
+   "clicks_90d": 32,
+   "impressions_90d": 11861
   },
   {
    "query": "hawaiian baby names",
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 6.7,
+   "pos_30d": 6.8,
    "clicks_30d": 9,
-   "impressions_30d": 525,
+   "impressions_30d": 529,
    "pos_90d": 6.3,
    "clicks_90d": 31,
-   "impressions_90d": 1323
+   "impressions_90d": 1321
   },
   {
    "query": "zezebaebae",
    "pos_7d": 1.0,
    "clicks_7d": 4,
    "impressions_7d": 8,
-   "pos_30d": 1.4,
+   "pos_30d": 1.3,
    "clicks_30d": 12,
-   "impressions_30d": 54,
+   "impressions_30d": 51,
    "pos_90d": 1.4,
    "clicks_90d": 31,
    "impressions_90d": 199
-  },
-  {
-   "query": "boys names 2026",
-   "pos_7d": null,
-   "clicks_7d": 0,
-   "impressions_7d": 0,
-   "pos_30d": null,
-   "clicks_30d": 0,
-   "impressions_30d": 0,
-   "pos_90d": 11.0,
-   "clicks_90d": 30,
-   "impressions_90d": 536
-  },
-  {
-   "query": "french names",
-   "pos_7d": 9.0,
-   "clicks_7d": 4,
-   "impressions_7d": 3026,
-   "pos_30d": 8.8,
-   "clicks_30d": 18,
-   "impressions_30d": 9537,
-   "pos_90d": 8.2,
-   "clicks_90d": 30,
-   "impressions_90d": 11451
   },
   {
    "query": "unique baby girl names 2026 with meaning",
@@ -15247,7 +15235,7 @@ const FIN_DATA = {
    "impressions_30d": 0,
    "pos_90d": 6.5,
    "clicks_90d": 30,
-   "impressions_90d": 688
+   "impressions_90d": 680
   },
   {
    "query": "hawaiian names for girls",
@@ -15257,9 +15245,21 @@ const FIN_DATA = {
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
-   "pos_90d": 6.2,
+   "pos_90d": 6.3,
    "clicks_90d": 28,
-   "impressions_90d": 2844
+   "impressions_90d": 2832
+  },
+  {
+   "query": "boys names 2026",
+   "pos_7d": null,
+   "clicks_7d": 0,
+   "impressions_7d": 0,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": 11.1,
+   "clicks_90d": 26,
+   "impressions_90d": 496
   },
   {
    "query": "celtic baby names",
@@ -15271,19 +15271,7 @@ const FIN_DATA = {
    "impressions_30d": 0,
    "pos_90d": 7.2,
    "clicks_90d": 26,
-   "impressions_90d": 819
-  },
-  {
-   "query": "episiotomy healing stages",
-   "pos_7d": null,
-   "clicks_7d": 0,
-   "impressions_7d": 0,
-   "pos_30d": null,
-   "clicks_30d": 0,
-   "impressions_30d": 0,
-   "pos_90d": 6.6,
-   "clicks_90d": 26,
-   "impressions_90d": 2096
+   "impressions_90d": 827
   },
   {
    "query": "onzenna cup",
@@ -15295,12 +15283,24 @@ const FIN_DATA = {
    "impressions_30d": 45,
    "pos_90d": 1.0,
    "clicks_90d": 26,
-   "impressions_90d": 137
+   "impressions_90d": 135
   },
   {
-   "query": "2 syllable baby names",
-   "pos_7d": 9.0,
-   "clicks_7d": 4,
+   "query": "episiotomy healing stages",
+   "pos_7d": null,
+   "clicks_7d": 0,
+   "impressions_7d": 0,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": 6.5,
+   "clicks_90d": 24,
+   "impressions_90d": 2090
+  },
+  {
+   "query": "21",
+   "pos_7d": 3.2,
+   "clicks_7d": 2,
    "impressions_7d": 6,
    "pos_30d": null,
    "clicks_30d": 0,
@@ -15310,10 +15310,10 @@ const FIN_DATA = {
    "impressions_90d": 0
   },
   {
-   "query": "8 month old still not eating much solids",
-   "pos_7d": 6.2,
-   "clicks_7d": 2,
-   "impressions_7d": 8,
+   "query": "alpremio feeding seat",
+   "pos_7d": 3.2,
+   "clicks_7d": 4,
+   "impressions_7d": 40,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -15323,9 +15323,9 @@ const FIN_DATA = {
   },
   {
    "query": "best korean baby products",
-   "pos_7d": 1.8,
-   "clicks_7d": 2,
-   "impressions_7d": 8,
+   "pos_7d": 2.0,
+   "clicks_7d": 4,
+   "impressions_7d": 10,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -15338,7 +15338,7 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 14.4,
+   "pos_30d": 14.1,
    "clicks_30d": 10,
    "impressions_30d": 54,
    "pos_90d": null,
@@ -15346,10 +15346,22 @@ const FIN_DATA = {
    "impressions_90d": 0
   },
   {
-   "query": "cha & mom",
-   "pos_7d": 1.7,
-   "clicks_7d": 2,
-   "impressions_7d": 6,
+   "query": "cha&mom",
+   "pos_7d": 3.2,
+   "clicks_7d": 4,
+   "impressions_7d": 32,
+   "pos_30d": 3.9,
+   "clicks_30d": 12,
+   "impressions_30d": 104,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
+   "query": "commemoi",
+   "pos_7d": 2.8,
+   "clicks_7d": 4,
+   "impressions_7d": 8,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -15358,20 +15370,8 @@ const FIN_DATA = {
    "impressions_90d": 0
   },
   {
-   "query": "cha&mom",
-   "pos_7d": 2.6,
-   "clicks_7d": 4,
-   "impressions_7d": 32,
-   "pos_30d": 3.7,
-   "clicks_30d": 12,
-   "impressions_30d": 106,
-   "pos_90d": null,
-   "clicks_90d": 0,
-   "impressions_90d": 0
-  },
-  {
    "query": "cradle cap ears",
-   "pos_7d": 4.2,
+   "pos_7d": 4.6,
    "clicks_7d": 6,
    "impressions_7d": 50,
    "pos_30d": null,
@@ -15382,34 +15382,10 @@ const FIN_DATA = {
    "impressions_90d": 0
   },
   {
-   "query": "cradle cap in ear canal",
-   "pos_7d": 1.3,
+   "query": "hawaiian men names",
+   "pos_7d": 6.3,
    "clicks_7d": 2,
    "impressions_7d": 6,
-   "pos_30d": null,
-   "clicks_30d": 0,
-   "impressions_30d": 0,
-   "pos_90d": null,
-   "clicks_90d": 0,
-   "impressions_90d": 0
-  },
-  {
-   "query": "hawaiian male names",
-   "pos_7d": 5.0,
-   "clicks_7d": 2,
-   "impressions_7d": 26,
-   "pos_30d": null,
-   "clicks_30d": 0,
-   "impressions_30d": 0,
-   "pos_90d": null,
-   "clicks_90d": 0,
-   "impressions_90d": 0
-  },
-  {
-   "query": "korean baby bottle",
-   "pos_7d": 6.0,
-   "clicks_7d": 2,
-   "impressions_7d": 10,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -15430,10 +15406,34 @@ const FIN_DATA = {
    "impressions_90d": 0
   },
   {
-   "query": "onzenna discount code",
-   "pos_7d": 1.8,
+   "query": "korean names for girls",
+   "pos_7d": 6.5,
    "clicks_7d": 2,
    "impressions_7d": 12,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
+   "query": "old fashioned names coming back",
+   "pos_7d": 2.8,
+   "clicks_7d": 2,
+   "impressions_7d": 14,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
+   "query": "pacifier shape",
+   "pos_7d": 3.8,
+   "clicks_7d": 2,
+   "impressions_7d": 7,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -15446,18 +15446,30 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 3.4,
+   "pos_30d": 3.3,
    "clicks_30d": 12,
-   "impressions_30d": 637,
+   "impressions_30d": 636,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
   },
   {
-   "query": "rarest names",
+   "query": "pop rice snack",
+   "pos_7d": 4.9,
+   "clicks_7d": 2,
+   "impressions_7d": 33,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
+   "query": "strong hawaiian boy names",
    "pos_7d": 8.2,
    "clicks_7d": 2,
-   "impressions_7d": 12,
+   "impressions_7d": 10,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -15472,7 +15484,7 @@ const FIN_DATA = {
    "impressions_7d": 0,
    "pos_30d": 16.4,
    "clicks_30d": 10,
-   "impressions_30d": 48,
+   "impressions_30d": 42,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -15482,9 +15494,9 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 7.4,
+   "pos_30d": 7.2,
    "clicks_30d": 10,
-   "impressions_30d": 134,
+   "impressions_30d": 132,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -15494,9 +15506,9 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 8.5,
+   "pos_30d": 8.7,
    "clicks_30d": 14,
-   "impressions_30d": 144,
+   "impressions_30d": 150,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -15508,7 +15520,7 @@ const FIN_DATA = {
    "impressions_7d": 0,
    "pos_30d": 18.6,
    "clicks_30d": 16,
-   "impressions_30d": 40,
+   "impressions_30d": 38,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -15518,9 +15530,9 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 10.6,
+   "pos_30d": 10.0,
    "clicks_30d": 10,
-   "impressions_30d": 194,
+   "impressions_30d": 192,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -15530,7 +15542,7 @@ const FIN_DATA = {
    "pos_7d": null,
    "clicks_7d": 0,
    "impressions_7d": 0,
-   "pos_30d": 10.8,
+   "pos_30d": 10.2,
    "clicks_30d": 12,
    "impressions_30d": 132,
    "pos_90d": null,
@@ -15538,10 +15550,10 @@ const FIN_DATA = {
    "impressions_90d": 0
   },
   {
-   "query": "traditional hawaiian names",
-   "pos_7d": 6.0,
+   "query": "type of pacifier",
+   "pos_7d": 3.8,
    "clicks_7d": 2,
-   "impressions_7d": 32,
+   "impressions_7d": 10,
    "pos_30d": null,
    "clicks_30d": 0,
    "impressions_30d": 0,
@@ -15553,10 +15565,22 @@ const FIN_DATA = {
    "query": "why is my toddler suddenly refusing milk",
    "pos_7d": 1.3,
    "clicks_7d": 4,
-   "impressions_7d": 50,
-   "pos_30d": 3.6,
+   "impressions_7d": 36,
+   "pos_30d": 3.3,
    "clicks_30d": 14,
-   "impressions_30d": 265,
+   "impressions_30d": 259,
+   "pos_90d": null,
+   "clicks_90d": 0,
+   "impressions_90d": 0
+  },
+  {
+   "query": "why my 8 month baby is not eating food",
+   "pos_7d": 6.3,
+   "clicks_7d": 2,
+   "impressions_7d": 18,
+   "pos_30d": null,
+   "clicks_30d": 0,
+   "impressions_30d": 0,
    "pos_90d": null,
    "clicks_90d": 0,
    "impressions_90d": 0
@@ -16280,96 +16304,102 @@ const FIN_DATA = {
  "traffic_sources": [
   {
    "source": "direct / none",
-   "sessions": 66239,
+   "sessions": 66546,
    "users": 0,
    "revenue": 0.0,
-   "conversions": 519,
+   "conversions": 516,
    "conv_rate": 0.78
   }
  ],
  "channel_traffic": {
   "1d": {
    "onzenna": {
-    "total_sessions": 803,
-    "total_purchases": 10,
-    "total_ad_spend": 194,
+    "total_sessions": 975,
+    "total_purchases": 5,
+    "total_ad_spend": 116,
     "sources": [
      {
       "source": "Direct",
-      "sessions": 399,
-      "purchases": 0,
-      "pct": 49.7
+      "sessions": 491,
+      "purchases": 2,
+      "pct": 50.4
      },
      {
       "source": "Organic Social (IG/TikTok/etc)",
-      "sessions": 113,
-      "purchases": 1,
-      "pct": 14.1
+      "sessions": 126,
+      "purchases": 0,
+      "pct": 12.9
      },
      {
       "source": "Organic Search (SEO)",
-      "sessions": 94,
-      "purchases": 2,
-      "pct": 11.7
-     },
-     {
-      "source": "Google Ads (Paid Search)",
-      "sessions": 56,
-      "purchases": 1,
-      "pct": 7.0
+      "sessions": 115,
+      "purchases": 0,
+      "pct": 11.8
      },
      {
       "source": "Meta + Google (Cross-network)",
-      "sessions": 42,
-      "purchases": 3,
-      "pct": 5.2
+      "sessions": 55,
+      "purchases": 1,
+      "pct": 5.6
      },
      {
-      "source": "Meta Ads (Paid Social)",
-      "sessions": 35,
+      "source": "Google Ads (Paid Search)",
+      "sessions": 54,
       "purchases": 1,
-      "pct": 4.4
+      "pct": 5.5
      },
      {
       "source": "Unassigned",
-      "sessions": 31,
-      "purchases": 2,
-      "pct": 3.9
+      "sessions": 53,
+      "purchases": 1,
+      "pct": 5.4
+     },
+     {
+      "source": "Meta Ads (Paid Social)",
+      "sessions": 44,
+      "purchases": 0,
+      "pct": 4.5
      },
      {
       "source": "Referral",
-      "sessions": 15,
+      "sessions": 22,
       "purchases": 0,
-      "pct": 1.9
+      "pct": 2.3
      },
      {
       "source": "Paid Shopping",
-      "sessions": 12,
+      "sessions": 8,
       "purchases": 0,
-      "pct": 1.5
-     },
-     {
-      "source": "Organic Shopping",
-      "sessions": 4,
-      "purchases": 0,
-      "pct": 0.5
+      "pct": 0.8
      },
      {
       "source": "Email (Klaviyo)",
-      "sessions": 2,
+      "sessions": 3,
       "purchases": 0,
-      "pct": 0.2
+      "pct": 0.3
+     },
+     {
+      "source": "AI Assistant",
+      "sessions": 3,
+      "purchases": 0,
+      "pct": 0.3
+     },
+     {
+      "source": "Organic Shopping",
+      "sessions": 1,
+      "purchases": 0,
+      "pct": 0.1
      }
     ],
     "ad_detail": [
      {
       "source": "Meta CVR",
-      "clicks": 91,
-      "spend": 194,
-      "sales": 329,
-      "purchases": 5,
-      "cpc": 2.14,
-      "roas": 1.7,
+      "clicks": 73,
+      "spend": 116,
+      "sales": 0,
+      "purchases": 0,
+      "cpc": 1.59,
+      "roas": 0.0,
       "pct": 100.0
      },
      {
@@ -16385,21 +16415,21 @@ const FIN_DATA = {
     ]
    },
    "amazon": {
-    "total_clicks": 2999,
+    "total_clicks": 3121,
     "total_sessions": 0,
     "total_pageviews": 0,
-    "total_spend": 20399,
-    "total_sales": 14116,
-    "total_purchases": 307,
+    "total_spend": 22142,
+    "total_sales": 19595,
+    "total_purchases": 309,
     "sources": [
      {
       "source": "Amazon Ads (Sponsored)",
-      "clicks": 2999,
-      "spend": 20399,
-      "sales": 14116,
-      "purchases": 307,
-      "cpc": 6.8,
-      "roas": 0.7,
+      "clicks": 3121,
+      "spend": 22142,
+      "sales": 19595,
+      "purchases": 309,
+      "cpc": 7.09,
+      "roas": 0.9,
       "pct": 100.0
      },
      {
@@ -16434,71 +16464,71 @@ const FIN_DATA = {
     }
    },
    "meta_detail": {
-    "cvr_clicks": 91,
+    "cvr_clicks": 73,
     "traffic_clicks": 0,
-    "total": 91
+    "total": 73
    },
    "google_clicks": 0
   },
   "7d": {
    "onzenna": {
-    "total_sessions": 27451,
-    "total_purchases": 122,
-    "total_ad_spend": 1725,
+    "total_sessions": 25111,
+    "total_purchases": 127,
+    "total_ad_spend": 1658,
     "sources": [
      {
       "source": "Direct",
-      "sessions": 22818,
-      "purchases": 16,
-      "pct": 83.1
+      "sessions": 20387,
+      "purchases": 14,
+      "pct": 81.2
      },
      {
       "source": "Organic Social (IG/TikTok/etc)",
-      "sessions": 1666,
+      "sessions": 1638,
       "purchases": 2,
-      "pct": 6.1
+      "pct": 6.5
      },
      {
       "source": "Organic Search (SEO)",
-      "sessions": 856,
-      "purchases": 3,
-      "pct": 3.1
+      "sessions": 901,
+      "purchases": 5,
+      "pct": 3.6
      },
      {
       "source": "Google Ads (Paid Search)",
-      "sessions": 530,
-      "purchases": 25,
-      "pct": 1.9
+      "sessions": 542,
+      "purchases": 26,
+      "pct": 2.2
      },
      {
       "source": "Meta + Google (Cross-network)",
-      "sessions": 460,
-      "purchases": 15,
-      "pct": 1.7
+      "sessions": 472,
+      "purchases": 16,
+      "pct": 1.9
      },
      {
       "source": "Meta Ads (Paid Social)",
-      "sessions": 372,
-      "purchases": 6,
-      "pct": 1.4
+      "sessions": 386,
+      "purchases": 8,
+      "pct": 1.5
      },
      {
       "source": "Unassigned",
-      "sessions": 325,
-      "purchases": 42,
-      "pct": 1.2
+      "sessions": 365,
+      "purchases": 43,
+      "pct": 1.5
      },
      {
       "source": "Paid Shopping",
-      "sessions": 205,
+      "sessions": 186,
       "purchases": 8,
       "pct": 0.7
      },
      {
       "source": "Referral",
-      "sessions": 143,
+      "sessions": 156,
       "purchases": 3,
-      "pct": 0.5
+      "pct": 0.6
      },
      {
       "source": "AI Assistant",
@@ -16508,7 +16538,7 @@ const FIN_DATA = {
      },
      {
       "source": "Email (Klaviyo)",
-      "sessions": 27,
+      "sessions": 30,
       "purchases": 2,
       "pct": 0.1
      },
@@ -16517,22 +16547,16 @@ const FIN_DATA = {
       "sessions": 12,
       "purchases": 0,
       "pct": 0.0
-     },
-     {
-      "source": "Paid Other",
-      "sessions": 1,
-      "purchases": 0,
-      "pct": 0.0
      }
     ],
     "ad_detail": [
      {
       "source": "Meta CVR",
-      "clicks": 769,
-      "spend": 1725,
-      "sales": 2518,
-      "purchases": 37,
-      "cpc": 2.24,
+      "clicks": 755,
+      "spend": 1658,
+      "sales": 2525,
+      "purchases": 36,
+      "cpc": 2.2,
       "roas": 1.5,
       "pct": 100.0
      },
@@ -16549,21 +16573,21 @@ const FIN_DATA = {
     ]
    },
    "amazon": {
-    "total_clicks": 20049,
+    "total_clicks": 19997,
     "total_sessions": 0,
     "total_pageviews": 0,
-    "total_spend": 120994,
-    "total_sales": 89950,
-    "total_purchases": 2059,
+    "total_spend": 117784,
+    "total_sales": 90219,
+    "total_purchases": 2017,
     "sources": [
      {
       "source": "Amazon Ads (Sponsored)",
-      "clicks": 20049,
-      "spend": 120994,
-      "sales": 89950,
-      "purchases": 2059,
-      "cpc": 6.03,
-      "roas": 0.7,
+      "clicks": 19997,
+      "spend": 117784,
+      "sales": 90219,
+      "purchases": 2017,
+      "cpc": 5.89,
+      "roas": 0.8,
       "pct": 100.0
      },
      {
@@ -16598,93 +16622,93 @@ const FIN_DATA = {
     }
    },
    "meta_detail": {
-    "cvr_clicks": 769,
+    "cvr_clicks": 755,
     "traffic_clicks": 0,
-    "total": 769
+    "total": 755
    },
    "google_clicks": 0
   },
   "30d": {
    "onzenna": {
-    "total_sessions": 66239,
-    "total_purchases": 519,
-    "total_ad_spend": 16650,
+    "total_sessions": 66546,
+    "total_purchases": 516,
+    "total_ad_spend": 15780,
     "sources": [
      {
       "source": "Direct",
-      "sessions": 39152,
-      "purchases": 93,
-      "pct": 59.1
+      "sessions": 39583,
+      "purchases": 95,
+      "pct": 59.5
      },
      {
       "source": "Organic Social (IG/TikTok/etc)",
-      "sessions": 8131,
+      "sessions": 8070,
       "purchases": 12,
-      "pct": 12.3
+      "pct": 12.1
      },
      {
       "source": "Unassigned",
-      "sessions": 5035,
-      "purchases": 111,
+      "sessions": 5042,
+      "purchases": 113,
       "pct": 7.6
      },
      {
       "source": "Organic Search (SEO)",
-      "sessions": 4312,
-      "purchases": 29,
-      "pct": 6.5
+      "sessions": 4369,
+      "purchases": 31,
+      "pct": 6.6
      },
      {
       "source": "Paid Shopping",
-      "sessions": 2885,
+      "sessions": 2897,
       "purchases": 59,
       "pct": 4.4
      },
      {
       "source": "Google Ads (Paid Search)",
-      "sessions": 2015,
-      "purchases": 88,
+      "sessions": 2013,
+      "purchases": 87,
       "pct": 3.0
      },
      {
       "source": "Meta + Google (Cross-network)",
-      "sessions": 1807,
-      "purchases": 53,
+      "sessions": 1809,
+      "purchases": 52,
       "pct": 2.7
      },
      {
       "source": "Meta Ads (Paid Social)",
-      "sessions": 1770,
-      "purchases": 28,
+      "sessions": 1767,
+      "purchases": 30,
       "pct": 2.7
      },
      {
       "source": "Referral",
-      "sessions": 672,
-      "purchases": 25,
+      "sessions": 679,
+      "purchases": 22,
       "pct": 1.0
      },
      {
-      "source": "Organic Shopping",
-      "sessions": 209,
-      "purchases": 9,
-      "pct": 0.3
-     },
-     {
       "source": "AI Assistant",
-      "sessions": 129,
+      "sessions": 131,
       "purchases": 1,
       "pct": 0.2
      },
      {
       "source": "Email (Klaviyo)",
-      "sessions": 103,
+      "sessions": 107,
       "purchases": 11,
       "pct": 0.2
      },
      {
+      "source": "Organic Shopping",
+      "sessions": 61,
+      "purchases": 3,
+      "pct": 0.1
+     },
+     {
       "source": "Paid Other",
-      "sessions": 18,
+      "sessions": 17,
       "purchases": 0,
       "pct": 0.0
      },
@@ -16698,53 +16722,53 @@ const FIN_DATA = {
     "ad_detail": [
      {
       "source": "Meta CVR",
-      "clicks": 6224,
-      "spend": 15516,
-      "sales": 12480,
-      "purchases": 192,
-      "cpc": 2.49,
+      "clicks": 6015,
+      "spend": 14830,
+      "sales": 12235,
+      "purchases": 187,
+      "cpc": 2.47,
       "roas": 0.8,
-      "pct": 90.6
+      "pct": 91.9
      },
      {
       "source": "Google Ads",
-      "clicks": 646,
-      "spend": 1134,
-      "sales": 1694,
-      "purchases": 29,
-      "cpc": 1.76,
-      "roas": 1.5,
-      "pct": 9.4
+      "clicks": 532,
+      "spend": 950,
+      "sales": 1236,
+      "purchases": 22,
+      "cpc": 1.79,
+      "roas": 1.3,
+      "pct": 8.1
      }
     ]
    },
    "amazon": {
-    "total_clicks": 89707,
+    "total_clicks": 91754,
     "total_sessions": 0,
     "total_pageviews": 0,
-    "total_spend": 575159,
-    "total_sales": 322870,
-    "total_purchases": 6133,
+    "total_spend": 568632,
+    "total_sales": 339192,
+    "total_purchases": 6441,
     "sources": [
      {
       "source": "Amazon Ads (Sponsored)",
-      "clicks": 70881,
-      "spend": 572453,
-      "sales": 322870,
-      "purchases": 6133,
-      "cpc": 8.08,
+      "clicks": 73837,
+      "spend": 566068,
+      "sales": 339192,
+      "purchases": 6441,
+      "cpc": 7.67,
       "roas": 0.6,
-      "pct": 79.0
+      "pct": 80.5
      },
      {
       "source": "Meta Traffic (AMZ landing)",
-      "clicks": 18826,
-      "spend": 2706,
+      "clicks": 17917,
+      "spend": 2564,
       "sales": 0,
       "purchases": 0,
       "cpc": 0.14,
       "roas": 0.0,
-      "pct": 21.0
+      "pct": 19.5
      },
      {
       "source": "Amazon Internal (Organic)",
@@ -16768,11 +16792,11 @@ const FIN_DATA = {
     }
    },
    "meta_detail": {
-    "cvr_clicks": 6224,
-    "traffic_clicks": 18826,
-    "total": 25050
+    "cvr_clicks": 6015,
+    "traffic_clicks": 17917,
+    "total": 23932
    },
-   "google_clicks": 646
+   "google_clicks": 532
   }
  },
  "ad_creative_breakdown": [
@@ -16780,15 +16804,19 @@ const FIN_DATA = {
    "campaign": "Rakuten_WL_Stainless_Proven_2026",
    "campaign_id": "120238769892050223",
    "brand": "Grosmimi JP",
-   "total_spend": 34881727,
+   "total_spend": 35001343,
    "types": [
     {
      "type": "Whitelabel",
-     "spend": 31816654,
-     "clicks": 547914,
-     "cpc": 58.07,
+     "spend": 31936270,
+     "clicks": 550847,
+     "cpc": 57.98,
      "purchases": 0,
      "ads": [
+      {
+       "id": "120251758538630223",
+       "name": "Y26M11D11_Grosmimi_RKT_WL-G_OTO62_B0G6CCJ24K_CT-80946"
+      },
       {
        "id": "120251700365650223",
        "name": "Y26M11D07_Grosmimi_RKT_WL-P_KANON__IKUJI_B0G6CCJ24K_CT-80574"
@@ -16804,10 +16832,6 @@ const FIN_DATA = {
       {
        "id": "120251526056420223",
        "name": "Y26M10D22_Grosmimi_RKT_WL-P_ISSA_TO_CHAN_B0G6CCJ24K_CT-76207"
-      },
-      {
-       "id": "120251458361400223",
-       "name": "Y26M10D21_Grosmimi_RKT_WL-G_UNIMUNI_DIARY_B0G6CCJ24K_CT-76108"
       }
      ]
     },
@@ -16846,13 +16870,13 @@ const FIN_DATA = {
    "campaign": "Rakuten_WL_PPSU&Stainless_Testing_2026",
    "campaign_id": "120248267687980223",
    "brand": "Grosmimi JP",
-   "total_spend": 9723190,
+   "total_spend": 9741413,
    "types": [
     {
      "type": "Whitelabel",
-     "spend": 9723190,
-     "clicks": 129414,
-     "cpc": 75.13,
+     "spend": 9741413,
+     "clicks": 129670,
+     "cpc": 75.12,
      "purchases": 0,
      "ads": [
       {
@@ -16883,15 +16907,19 @@ const FIN_DATA = {
    "campaign": "Rakuten_WL_PPSU_Proven_2026",
    "campaign_id": "120248266438160223",
    "brand": "Grosmimi JP",
-   "total_spend": 5897107,
+   "total_spend": 5931668,
    "types": [
     {
      "type": "Whitelabel",
-     "spend": 5897107,
-     "clicks": 163904,
-     "cpc": 35.98,
+     "spend": 5931668,
+     "clicks": 164982,
+     "cpc": 35.95,
      "purchases": 0,
      "ads": [
+      {
+       "id": "120251758540400223",
+       "name": "Y26M11D11_Grosmimi_RKT_WL-G_BABY_GAKUBIYORI__2026_B08TZY1TFY_CT-80808"
+      },
       {
        "id": "120251745106980223",
        "name": "Y26M10D07_Grosmimi_RKT_WL-P_MIKU730MOM_B0DJNXD66N_CT-72772"
@@ -16907,10 +16935,6 @@ const FIN_DATA = {
       {
        "id": "120251090127870223",
        "name": "Y26M09D15_Grosmimi_RKT_WL-G_NICOGAKU_LOG_B08TZY1TFY_CT-DdGe7y-S49I"
-      },
-      {
-       "id": "120251090127130223",
-       "name": "Y26M09D21_Grosmimi_RKT_WL-G_CHIM_BABYGRAM_B0B9GLVWYN_CT-71715"
       }
      ]
     }
@@ -16920,13 +16944,13 @@ const FIN_DATA = {
    "campaign": "Rakuten_IH_PPSU&Stainless_Testing_2026",
    "campaign_id": "120250841109750223",
    "brand": "Grosmimi JP",
-   "total_spend": 5259030,
+   "total_spend": 5318222,
    "types": [
     {
      "type": "Other",
-     "spend": 5259030,
-     "clicks": 41882,
-     "cpc": 125.57,
+     "spend": 5318222,
+     "clicks": 42314,
+     "cpc": 125.68,
      "purchases": 0,
      "ads": [
       {
@@ -17302,12 +17326,12 @@ const FIN_DATA = {
    "campaign": "HSTest | Phase1_WLTest | Shopify | ALL_BRANDS",
    "campaign_id": "120251164618740508",
    "brand": "UNMAPPED",
-   "total_spend": 41297,
+   "total_spend": 41331,
    "types": [
     {
      "type": "Whitelabel",
-     "spend": 41297,
-     "clicks": 17742,
+     "spend": 41331,
+     "clicks": 17752,
      "cpc": 2.33,
      "purchases": 655,
      "ads": [
@@ -17419,14 +17443,14 @@ const FIN_DATA = {
    "campaign": "Shopify | CVR | Grosmimi | ASC Campaign (Legacy)",
    "campaign_id": "120224832628890508",
    "brand": "Grosmimi",
-   "total_spend": 23122,
+   "total_spend": 23180,
    "types": [
     {
      "type": "Other",
-     "spend": 23122,
-     "clicks": 29642,
+     "spend": 23180,
+     "clicks": 29666,
      "cpc": 0.78,
-     "purchases": 1100,
+     "purchases": 1102,
      "ads": [
       {
        "id": "120224832628900508",
@@ -17671,14 +17695,14 @@ const FIN_DATA = {
    "campaign": "Shopify | CVR | Grosmimi | WL | Laurence (Legacy)",
    "campaign_id": "120227412781090508",
    "brand": "Grosmimi",
-   "total_spend": 15189,
+   "total_spend": 15153,
    "types": [
     {
      "type": "Other",
-     "spend": 11726,
-     "clicks": 19458,
+     "spend": 11691,
+     "clicks": 19361,
      "cpc": 0.6,
-     "purchases": 424,
+     "purchases": 422,
      "ads": [
       {
        "id": "120241593715390508",
@@ -17783,15 +17807,15 @@ const FIN_DATA = {
    "Aug 26",
    "Sep 26",
    "Oct 26",
-   "Nov 26\n(thru 11/13)"
+   "Nov 26\n(thru 11/14)"
   ],
   "fy2025_idx": 5,
   "partial_month": {
    "month": "2026-11",
-   "days_elapsed": 13,
+   "days_elapsed": 14,
    "days_in_month": 30,
    "is_partial": true,
-   "multiplier": 2.3077
+   "multiplier": 2.1429
   },
   "brand_sales": {
    "Grosmimi": {
@@ -17812,7 +17836,7 @@ const FIN_DATA = {
      882162,
      755560,
      844552,
-     320266
+     339085
     ],
     "color": "#8b5cf6"
    },
@@ -17834,7 +17858,7 @@ const FIN_DATA = {
      33688,
      23967,
      25234,
-     10128
+     10853
     ],
     "color": "#eab308"
    },
@@ -17856,7 +17880,7 @@ const FIN_DATA = {
      3927,
      7261,
      6630,
-     3717
+     3939
     ],
     "color": "#0ea5e9"
    },
@@ -17878,7 +17902,7 @@ const FIN_DATA = {
      4528,
      3252,
      3275,
-     1819
+     1858
     ],
     "color": "#f97316"
    },
@@ -17900,7 +17924,7 @@ const FIN_DATA = {
      146342,
      26001,
      7880,
-     2535
+     2961
     ],
     "color": "#94a3b8"
    }
@@ -17922,7 +17946,7 @@ const FIN_DATA = {
    1216989,
    842043,
    895452,
-   341001
+   361657
   ],
   "cogs": [
    0,
@@ -17978,7 +18002,7 @@ const FIN_DATA = {
    1216989,
    842043,
    895452,
-   341001
+   361657
   ],
   "shipping_cost": [
    192389,
@@ -17997,7 +18021,7 @@ const FIN_DATA = {
    304247,
    210511,
    223863,
-   85250
+   90414
   ],
   "platform_fees": [
    625237,
@@ -18016,7 +18040,7 @@ const FIN_DATA = {
    1105149,
    703112,
    795200,
-   303367
+   322204
   ],
   "platform_fees_detail": {
    "amz_ref_fee": [
@@ -18036,7 +18060,7 @@ const FIN_DATA = {
     1105149,
     703112,
     795200,
-    303367
+    322204
    ],
    "fba_fulfillment": [
     0,
@@ -18099,7 +18123,7 @@ const FIN_DATA = {
     30018,
     23877,
     17743,
-    7947
+    8206
    ],
    "b2b": [
     0,
@@ -18138,7 +18162,7 @@ const FIN_DATA = {
    -192406,
    -71580,
    -123611,
-   -47616
+   -50961
   ],
   "ad_spend": {
    "onzenna": [
@@ -18158,7 +18182,7 @@ const FIN_DATA = {
     51570,
     24850,
     27837,
-    4243
+    4368
    ],
    "amazon": [
     0,
@@ -18177,7 +18201,7 @@ const FIN_DATA = {
     266110,
     601962,
     634301,
-    218664
+    232257
    ],
    "total": [
     24911,
@@ -18196,7 +18220,7 @@ const FIN_DATA = {
     317680,
     626812,
     662138,
-    222908
+    236624
    ]
   },
   "ad_spend_detail": {
@@ -18295,7 +18319,7 @@ const FIN_DATA = {
     66128,
     38468,
     26635,
-    5139
+    5255
    ],
    "amazon": [
     0,
@@ -18314,7 +18338,7 @@ const FIN_DATA = {
     354467,
     376669,
     368645,
-    155180
+    169140
    ],
    "total": [
     99352,
@@ -18333,7 +18357,7 @@ const FIN_DATA = {
     420595,
     415138,
     395280,
-    160319
+    174394
    ]
   },
   "organic": {
@@ -18392,7 +18416,7 @@ const FIN_DATA = {
     796394,
     426905,
     500172,
-    180682
+    187263
    ]
   },
   "discounts": [
@@ -18412,7 +18436,7 @@ const FIN_DATA = {
    4559,
    11523,
    11008,
-   3400
+   3534
   ],
   "discounts_detail": {
    "shopify_disc": [
@@ -18432,7 +18456,7 @@ const FIN_DATA = {
     4559,
     11523,
     11008,
-    3400
+    3534
    ]
   },
   "influencer_spend": [
@@ -18511,7 +18535,7 @@ const FIN_DATA = {
    595062,
    4720,
    9451,
-   32843
+   34619
   ],
   "cm_final": [
    552254,
@@ -18530,7 +18554,7 @@ const FIN_DATA = {
    595062,
    4720,
    9451,
-   32843
+   34619
   ],
   "channel_pnl": {
    "Amazon MP": {
@@ -18550,7 +18574,7 @@ const FIN_DATA = {
      1105149,
      703112,
      795200,
-     303367
+     322204
     ],
     "cogs": [
      0,
@@ -18623,7 +18647,7 @@ const FIN_DATA = {
      271943,
      606532,
      640080,
-     218850
+     232443
     ],
     "gross_margin": [
      625237,
@@ -18641,7 +18665,7 @@ const FIN_DATA = {
      1105149,
      703112,
      795200,
-     303367
+     322204
     ],
     "contribution_margin": [
      622964,
@@ -18659,7 +18683,7 @@ const FIN_DATA = {
      833206,
      96580,
      155120,
-     84517
+     89761
     ],
     "color": "#f59e0b"
    },
@@ -18753,7 +18777,7 @@ const FIN_DATA = {
      45737,
      20280,
      22058,
-     4057
+     4181
     ],
     "gross_margin": [
      617,
@@ -18789,7 +18813,7 @@ const FIN_DATA = {
      -44246,
      -20131,
      -21457,
-     -4057
+     -4181
     ],
     "color": "#6366f1"
    },
@@ -18810,7 +18834,7 @@ const FIN_DATA = {
      30018,
      23877,
      17743,
-     7947
+     8206
     ],
     "cogs": [
      2550,
@@ -18828,7 +18852,7 @@ const FIN_DATA = {
      7150,
      5570,
      4290,
-     1970
+     2060
     ],
     "selling_fees": [
      1410,
@@ -18846,7 +18870,7 @@ const FIN_DATA = {
      4503,
      3582,
      2661,
-     1192
+     1231
     ],
     "fulfillment": [
      null,
@@ -18901,7 +18925,7 @@ const FIN_DATA = {
      18365,
      14725,
      10792,
-     4785
+     4915
     ],
     "contribution_margin": [
      5439,
@@ -18919,7 +18943,7 @@ const FIN_DATA = {
      18365,
      14725,
      10792,
-     4785
+     4915
     ],
     "color": "#ef4444"
    }
@@ -18961,7 +18985,7 @@ const FIN_DATA = {
     16181,
     8375,
     3207,
-    185
+    190
    ],
    "clicks": [
     493,
@@ -19148,7 +19172,7 @@ const FIN_DATA = {
   },
   "summary_7d": {
    "sends": 0,
-   "opens": 109,
+   "opens": 100,
    "clicks": 2,
    "conversions": 0,
    "revenue": 0.0,
@@ -19161,11 +19185,11 @@ const FIN_DATA = {
   },
   "summary_30d": {
    "sends": 2414,
-   "opens": 2371,
+   "opens": 2361,
    "clicks": 43,
    "conversions": 0,
    "revenue": 0.0,
-   "open_rate": 98.2,
+   "open_rate": 97.8,
    "click_rate": 1.78,
    "cvr": 0.0,
    "rev_per_send": 0.0,
@@ -19180,7 +19204,7 @@ const FIN_DATA = {
     "click_rate": 0,
     "cvr": 0,
     "revenue": 0.0,
-    "date": "2026-11-13"
+    "date": "2026-11-14"
    },
    {
     "name": "Oct 24 Member Reminder - seven days left to redeem converted Points (260930) - REGULAR ROUTE",
@@ -19189,7 +19213,7 @@ const FIN_DATA = {
     "click_rate": 0,
     "cvr": 0,
     "revenue": 0.0,
-    "date": "2026-11-13"
+    "date": "2026-11-14"
    }
   ],
   "top_campaigns_30d": [
@@ -19200,7 +19224,7 @@ const FIN_DATA = {
     "click_rate": 0,
     "cvr": 0,
     "revenue": 0.0,
-    "date": "2026-11-13"
+    "date": "2026-11-14"
    },
    {
     "name": "Oct 24 Member Reminder - seven days left to redeem converted Points (260930) - REGULAR ROUTE",
@@ -19209,7 +19233,7 @@ const FIN_DATA = {
     "click_rate": 0.91,
     "cvr": 0.0,
     "revenue": 0.0,
-    "date": "2026-11-13"
+    "date": "2026-11-14"
    },
    {
     "name": "Oct 1 Member Reminder - one month left to redeem converted Points (260930) - REGULAR ROUTE - FRESH 261002",
@@ -19330,7 +19354,7 @@ const FIN_DATA = {
      87062.99,
      69105.17,
      78034.52,
-     39357.26
+     45425.2
     ],
     "sales": [
      5636.0,
@@ -19344,7 +19368,7 @@ const FIN_DATA = {
      33080.0,
      20726.0,
      25636.0,
-     10909.0
+     16545.0
     ],
     "impressions": [
      246776,
@@ -19358,7 +19382,7 @@ const FIN_DATA = {
      270027,
      206154,
      166408,
-     110268
+     127500
     ],
     "clicks": [
      427,
@@ -19372,14 +19396,14 @@ const FIN_DATA = {
      526,
      370,
      405,
-     206
+     240
     ],
-    "total_spend": 830288.8,
-    "total_sales": 208108.0,
-    "total_clicks": 4454,
-    "total_impressions": 2624062,
-    "roas": 0.25,
-    "cpc": 186.41,
+    "total_spend": 836356.74,
+    "total_sales": 213744.0,
+    "total_clicks": 4488,
+    "total_impressions": 2641294,
+    "roas": 0.26,
+    "cpc": 186.35,
     "ctr": 0.17,
     "is_traffic": false
    },
@@ -19401,7 +19425,7 @@ const FIN_DATA = {
      35443.39,
      34780.74,
      35066.12,
-     25162.92
+     30096.14
     ],
     "sales": [
      0.0,
@@ -19429,7 +19453,7 @@ const FIN_DATA = {
      88618,
      93984,
      72517,
-     59096
+     76230
     ],
     "clicks": [
      77,
@@ -19443,14 +19467,14 @@ const FIN_DATA = {
      206,
      178,
      163,
-     111
+     138
     ],
-    "total_spend": 389830.57,
+    "total_spend": 394763.79,
     "total_sales": 77709.0,
-    "total_clicks": 2017,
-    "total_impressions": 1085137,
+    "total_clicks": 2044,
+    "total_impressions": 1102271,
     "roas": 0.2,
-    "cpc": 193.27,
+    "cpc": 193.13,
     "ctr": 0.19,
     "is_traffic": false
    },
@@ -19543,7 +19567,7 @@ const FIN_DATA = {
      6535.94,
      3773.24,
      5074.0,
-     3980.16
+     4615.64
     ],
     "sales": [
      13363.14,
@@ -19557,7 +19581,7 @@ const FIN_DATA = {
      12496.3,
      7247.9,
      10989.3,
-     9877.4
+     11608.6
     ],
     "impressions": [
      1347248,
@@ -19571,7 +19595,7 @@ const FIN_DATA = {
      941799,
      597497,
      811659,
-     939395
+     1114692
     ],
     "clicks": [
      7590,
@@ -19585,12 +19609,12 @@ const FIN_DATA = {
      6531,
      3372,
      4256,
-     3689
+     4322
     ],
-    "total_spend": 72014.4,
-    "total_sales": 154084.33,
-    "total_clicks": 66208,
-    "total_impressions": 13289046,
+    "total_spend": 72649.88,
+    "total_sales": 155815.53,
+    "total_clicks": 66841,
+    "total_impressions": 13464343,
     "roas": 2.14,
     "cpc": 1.09,
     "ctr": 0.5,
@@ -19685,7 +19709,7 @@ const FIN_DATA = {
      2876.92,
      1587.88,
      1784.48,
-     4000.27
+     4801.59
     ],
     "sales": [
      10604.23,
@@ -19699,7 +19723,7 @@ const FIN_DATA = {
      7306.1,
      5409.1,
      5604.1,
-     11367.4
+     13782.3
     ],
     "impressions": [
      463925,
@@ -19713,7 +19737,7 @@ const FIN_DATA = {
      523683,
      360054,
      492941,
-     1058238
+     1270278
     ],
     "clicks": [
      3194,
@@ -19727,15 +19751,15 @@ const FIN_DATA = {
      4896,
      2477,
      2737,
-     5064
+     6003
     ],
-    "total_spend": 29485.21,
-    "total_sales": 139054.47,
-    "total_clicks": 47297,
-    "total_impressions": 7774428,
-    "roas": 4.72,
-    "cpc": 0.62,
-    "ctr": 0.61,
+    "total_spend": 30286.53,
+    "total_sales": 141469.37,
+    "total_clicks": 48236,
+    "total_impressions": 7986468,
+    "roas": 4.67,
+    "cpc": 0.63,
+    "ctr": 0.6,
     "is_traffic": false
    },
    {
@@ -19827,7 +19851,7 @@ const FIN_DATA = {
      4437.02,
      2722.19,
      1664.41,
-     550.72
+     584.87
     ],
     "sales": [
      3888.62,
@@ -19855,7 +19879,7 @@ const FIN_DATA = {
      64740,
      40966,
      24610,
-     7034
+     7666
     ],
     "clicks": [
      1025,
@@ -19869,12 +19893,12 @@ const FIN_DATA = {
      1378,
      810,
      413,
-     124
+     134
     ],
-    "total_spend": 21923.89,
+    "total_spend": 21958.04,
     "total_sales": 20343.33,
-    "total_clicks": 7417,
-    "total_impressions": 375392,
+    "total_clicks": 7427,
+    "total_impressions": 376024,
     "roas": 0.93,
     "cpc": 2.96,
     "ctr": 1.98,
@@ -19898,7 +19922,7 @@ const FIN_DATA = {
      768.94,
      553.13,
      670.85,
-     165.57
+     179.57
     ],
     "sales": [
      2212.46,
@@ -19912,7 +19936,7 @@ const FIN_DATA = {
      1330.0,
      1277.9,
      1451.7,
-     441.5
+     510.9
     ],
     "impressions": [
      255253,
@@ -19926,7 +19950,7 @@ const FIN_DATA = {
      189821,
      117767,
      169535,
-     65539
+     71354
     ],
     "clicks": [
      971,
@@ -19940,13 +19964,13 @@ const FIN_DATA = {
      859,
      631,
      758,
-     183
+     200
     ],
-    "total_spend": 10878.06,
-    "total_sales": 24941.24,
-    "total_clicks": 12039,
-    "total_impressions": 2835603,
-    "roas": 2.29,
+    "total_spend": 10892.06,
+    "total_sales": 25010.64,
+    "total_clicks": 12056,
+    "total_impressions": 2841418,
+    "roas": 2.3,
     "cpc": 0.9,
     "ctr": 0.42,
     "is_traffic": false
@@ -20045,7 +20069,7 @@ const FIN_DATA = {
      576.53,
      443.54,
      540.78,
-     1375.04
+     1667.07
     ],
     "sales": [
      3256.09,
@@ -20059,7 +20083,7 @@ const FIN_DATA = {
      3621.3,
      1498.4,
      3723.8,
-     8074.8
+     9196.4
     ],
     "impressions": [
      115040,
@@ -20073,7 +20097,7 @@ const FIN_DATA = {
      135068,
      91600,
      129460,
-     236300
+     287608
     ],
     "clicks": [
      731,
@@ -20087,13 +20111,13 @@ const FIN_DATA = {
      971,
      662,
      829,
-     1828
+     2200
     ],
-    "total_spend": 8821.62,
-    "total_sales": 64322.62,
-    "total_clicks": 14479,
-    "total_impressions": 1993582,
-    "roas": 7.29,
+    "total_spend": 9113.65,
+    "total_sales": 65444.22,
+    "total_clicks": 14851,
+    "total_impressions": 2044890,
+    "roas": 7.18,
     "cpc": 0.61,
     "ctr": 0.73,
     "is_traffic": false
@@ -20116,7 +20140,7 @@ const FIN_DATA = {
      612.8,
      552.12,
      605.24,
-     731.66
+     885.16
     ],
     "sales": [
      3458.79,
@@ -20130,7 +20154,7 @@ const FIN_DATA = {
      2125.4,
      2034.5,
      1679.1,
-     2640.1
+     3006.3
     ],
     "impressions": [
      54071,
@@ -20144,7 +20168,7 @@ const FIN_DATA = {
      35069,
      31664,
      36930,
-     58423
+     73109
     ],
     "clicks": [
      709,
@@ -20158,15 +20182,15 @@ const FIN_DATA = {
      707,
      632,
      691,
-     806
+     971
     ],
-    "total_spend": 8277.41,
-    "total_sales": 40996.69,
-    "total_clicks": 10610,
-    "total_impressions": 505389,
-    "roas": 4.95,
+    "total_spend": 8430.91,
+    "total_sales": 41362.89,
+    "total_clicks": 10775,
+    "total_impressions": 520075,
+    "roas": 4.91,
     "cpc": 0.78,
-    "ctr": 2.1,
+    "ctr": 2.07,
     "is_traffic": false
    },
    {
@@ -20187,7 +20211,7 @@ const FIN_DATA = {
      775.46,
      764.34,
      771.97,
-     552.05
+     642.04
     ],
     "sales": [
      2207.57,
@@ -20201,7 +20225,7 @@ const FIN_DATA = {
      1535.47,
      1602.18,
      1493.05,
-     1578.13
+     1693.96
     ],
     "impressions": [
      28154,
@@ -20215,7 +20239,7 @@ const FIN_DATA = {
      30218,
      31881,
      31133,
-     17466
+     20318
     ],
     "clicks": [
      548,
@@ -20229,15 +20253,86 @@ const FIN_DATA = {
      623,
      621,
      626,
-     388
+     460
     ],
-    "total_spend": 7958.28,
-    "total_sales": 24016.75,
-    "total_clicks": 6262,
-    "total_impressions": 303178,
-    "roas": 3.02,
+    "total_spend": 8048.27,
+    "total_sales": 24132.58,
+    "total_clicks": 6334,
+    "total_impressions": 306030,
+    "roas": 3.0,
     "cpc": 1.27,
     "ctr": 2.07,
+    "is_traffic": false
+   },
+   {
+    "id": "226898183931835",
+    "campaign_id": "226898183931835",
+    "name": "SS_SP_T1_Proven",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     900.69,
+     718.42,
+     889.26,
+     459.44,
+     694.36,
+     934.62,
+     1267.08,
+     356.19,
+     177.94,
+     123.45,
+     231.81,
+     618.8
+    ],
+    "sales": [
+     4860.5,
+     2816.89,
+     3893.38,
+     1785.0,
+     3123.38,
+     3542.2,
+     7197.26,
+     1631.7,
+     818.0,
+     752.4,
+     975.2,
+     3622.7
+    ],
+    "impressions": [
+     95320,
+     73145,
+     102618,
+     77660,
+     123101,
+     182148,
+     242419,
+     91181,
+     47199,
+     37977,
+     36146,
+     123677
+    ],
+    "clicks": [
+     913,
+     663,
+     1319,
+     703,
+     977,
+     1323,
+     1758,
+     481,
+     255,
+     176,
+     401,
+     705
+    ],
+    "total_spend": 7372.06,
+    "total_sales": 35018.61,
+    "total_clicks": 9674,
+    "total_impressions": 1232591,
+    "roas": 4.75,
+    "cpc": 0.76,
+    "ctr": 0.78,
     "is_traffic": false
    },
    {
@@ -20309,77 +20404,6 @@ const FIN_DATA = {
     "roas": 1.12,
     "cpc": 2.05,
     "ctr": 2.21,
-    "is_traffic": false
-   },
-   {
-    "id": "226898183931835",
-    "campaign_id": "226898183931835",
-    "name": "SS_SP_T1_Proven",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     900.69,
-     718.42,
-     889.26,
-     459.44,
-     694.36,
-     934.62,
-     1267.08,
-     356.19,
-     177.94,
-     123.45,
-     231.81,
-     478.75
-    ],
-    "sales": [
-     4860.5,
-     2816.89,
-     3893.38,
-     1785.0,
-     3123.38,
-     3542.2,
-     7197.26,
-     1631.7,
-     818.0,
-     752.4,
-     975.2,
-     2978.6
-    ],
-    "impressions": [
-     95320,
-     73145,
-     102618,
-     77660,
-     123101,
-     182148,
-     242419,
-     91181,
-     47199,
-     37977,
-     36146,
-     94584
-    ],
-    "clicks": [
-     913,
-     663,
-     1319,
-     703,
-     977,
-     1323,
-     1758,
-     481,
-     255,
-     176,
-     401,
-     560
-    ],
-    "total_spend": 7232.01,
-    "total_sales": 34374.51,
-    "total_clicks": 9529,
-    "total_impressions": 1203498,
-    "roas": 4.75,
-    "cpc": 0.76,
-    "ctr": 0.79,
     "is_traffic": false
    },
    {
@@ -20471,7 +20495,7 @@ const FIN_DATA = {
      349.37,
      284.11,
      282.4,
-     350.17
+     418.38
     ],
     "sales": [
      463.1,
@@ -20485,7 +20509,7 @@ const FIN_DATA = {
      982.0,
      709.2,
      852.9,
-     1168.9
+     1451.2
     ],
     "impressions": [
      18808,
@@ -20499,7 +20523,7 @@ const FIN_DATA = {
      31418,
      23791,
      23624,
-     28416
+     33235
     ],
     "clicks": [
      168,
@@ -20513,13 +20537,13 @@ const FIN_DATA = {
      260,
      193,
      230,
-     269
+     319
     ],
-    "total_spend": 4090.42,
-    "total_sales": 11131.4,
-    "total_clicks": 3477,
-    "total_impressions": 306645,
-    "roas": 2.72,
+    "total_spend": 4158.63,
+    "total_sales": 11413.7,
+    "total_clicks": 3527,
+    "total_impressions": 311464,
+    "roas": 2.74,
     "cpc": 1.18,
     "ctr": 1.13,
     "is_traffic": false
@@ -20613,7 +20637,7 @@ const FIN_DATA = {
      149.21,
      278.13,
      210.16,
-     266.37
+     340.59
     ],
     "sales": [
      565.8,
@@ -20627,7 +20651,7 @@ const FIN_DATA = {
      246.0,
      317.34,
      147.6,
-     172.2
+     221.4
     ],
     "impressions": [
      99493,
@@ -20641,7 +20665,7 @@ const FIN_DATA = {
      30649,
      61886,
      45282,
-     70931
+     94670
     ],
     "clicks": [
      373,
@@ -20655,14 +20679,14 @@ const FIN_DATA = {
      176,
      311,
      236,
-     298
+     379
     ],
-    "total_spend": 3548.39,
-    "total_sales": 4031.94,
-    "total_clicks": 3714,
-    "total_impressions": 786850,
-    "roas": 1.14,
-    "cpc": 0.96,
+    "total_spend": 3622.61,
+    "total_sales": 4081.14,
+    "total_clicks": 3795,
+    "total_impressions": 810589,
+    "roas": 1.13,
+    "cpc": 0.95,
     "ctr": 0.47,
     "is_traffic": false
    },
@@ -20826,7 +20850,7 @@ const FIN_DATA = {
      180.06,
      127.43,
      177.66,
-     219.53
+     272.25
     ],
     "sales": [
      5025.96,
@@ -20840,7 +20864,7 @@ const FIN_DATA = {
      1877.7,
      1673.1,
      2976.6,
-     2887.9
+     3384.9
     ],
     "impressions": [
      62969,
@@ -20854,7 +20878,7 @@ const FIN_DATA = {
      28275,
      32494,
      35096,
-     37711
+     45714
     ],
     "clicks": [
      584,
@@ -20868,13 +20892,13 @@ const FIN_DATA = {
      292,
      226,
      322,
-     361
+     428
     ],
-    "total_spend": 2963.01,
-    "total_sales": 41868.78,
-    "total_clicks": 5063,
-    "total_impressions": 476605,
-    "roas": 14.13,
+    "total_spend": 3015.73,
+    "total_sales": 42365.78,
+    "total_clicks": 5130,
+    "total_impressions": 484608,
+    "roas": 14.05,
     "cpc": 0.59,
     "ctr": 1.06,
     "is_traffic": false
@@ -20897,7 +20921,7 @@ const FIN_DATA = {
      250.11,
      336.22,
      298.69,
-     191.9
+     207.56
     ],
     "sales": [
      422.38,
@@ -20911,7 +20935,7 @@ const FIN_DATA = {
      1165.5,
      1372.3,
      1293.4,
-     537.6
+     566.3
     ],
     "impressions": [
      15775,
@@ -20925,7 +20949,7 @@ const FIN_DATA = {
      71282,
      326724,
      393410,
-     377213
+     434261
     ],
     "clicks": [
      88,
@@ -20939,13 +20963,13 @@ const FIN_DATA = {
      216,
      356,
      353,
-     246
+     269
     ],
-    "total_spend": 2401.57,
-    "total_sales": 10428.65,
-    "total_clicks": 2216,
-    "total_impressions": 1355414,
-    "roas": 4.34,
+    "total_spend": 2417.23,
+    "total_sales": 10457.35,
+    "total_clicks": 2239,
+    "total_impressions": 1412462,
+    "roas": 4.33,
     "cpc": 1.08,
     "ctr": 0.16,
     "is_traffic": false
@@ -20968,7 +20992,7 @@ const FIN_DATA = {
      65.19,
      43.38,
      45.67,
-     79.56
+     100.06
     ],
     "sales": [
      984.3,
@@ -20982,7 +21006,7 @@ const FIN_DATA = {
      324.7,
      46.8,
      143.1,
-     241.9
+     304.2
     ],
     "impressions": [
      32254,
@@ -20996,7 +21020,7 @@ const FIN_DATA = {
      4521,
      2700,
      7187,
-     9607
+     11576
     ],
     "clicks": [
      193,
@@ -21010,15 +21034,86 @@ const FIN_DATA = {
      85,
      57,
      59,
-     91
+     109
     ],
-    "total_spend": 2345.47,
-    "total_sales": 4539.06,
-    "total_clicks": 2694,
-    "total_impressions": 185909,
+    "total_spend": 2365.97,
+    "total_sales": 4601.36,
+    "total_clicks": 2712,
+    "total_impressions": 187878,
     "roas": 1.94,
     "cpc": 0.87,
-    "ctr": 1.45,
+    "ctr": 1.44,
+    "is_traffic": false
+   },
+   {
+    "id": "353731957105709",
+    "campaign_id": "353731957105709",
+    "name": "SP_Fliptop_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     394.37,
+     254.84,
+     500.45,
+     137.48,
+     140.0,
+     145.2,
+     169.68,
+     97.73,
+     171.63,
+     91.58,
+     97.16,
+     153.09
+    ],
+    "sales": [
+     595.99,
+     811.6,
+     966.38,
+     365.5,
+     482.4,
+     487.2,
+     674.06,
+     322.1,
+     384.0,
+     86.1,
+     166.4,
+     200.9
+    ],
+    "impressions": [
+     118333,
+     61931,
+     99321,
+     33510,
+     38909,
+     51913,
+     62289,
+     31462,
+     34623,
+     25738,
+     37262,
+     62851
+    ],
+    "clicks": [
+     697,
+     445,
+     883,
+     304,
+     366,
+     381,
+     449,
+     258,
+     494,
+     247,
+     261,
+     418
+    ],
+    "total_spend": 2353.21,
+    "total_sales": 5542.63,
+    "total_clicks": 5203,
+    "total_impressions": 658142,
+    "roas": 2.36,
+    "cpc": 0.45,
+    "ctr": 0.79,
     "is_traffic": false
    },
    {
@@ -21093,77 +21188,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "353731957105709",
-    "campaign_id": "353731957105709",
-    "name": "SP_Fliptop_auto",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     394.37,
-     254.84,
-     500.45,
-     137.48,
-     140.0,
-     145.2,
-     169.68,
-     97.73,
-     171.63,
-     91.58,
-     97.16,
-     135.26
-    ],
-    "sales": [
-     595.99,
-     811.6,
-     966.38,
-     365.5,
-     482.4,
-     487.2,
-     674.06,
-     322.1,
-     384.0,
-     86.1,
-     166.4,
-     172.2
-    ],
-    "impressions": [
-     118333,
-     61931,
-     99321,
-     33510,
-     38909,
-     51913,
-     62289,
-     31462,
-     34623,
-     25738,
-     37262,
-     52895
-    ],
-    "clicks": [
-     697,
-     445,
-     883,
-     304,
-     366,
-     381,
-     449,
-     258,
-     494,
-     247,
-     261,
-     372
-    ],
-    "total_spend": 2335.38,
-    "total_sales": 5513.93,
-    "total_clicks": 5157,
-    "total_impressions": 648186,
-    "roas": 2.36,
-    "cpc": 0.45,
-    "ctr": 0.8,
-    "is_traffic": false
-   },
-   {
     "id": "237356100240978",
     "campaign_id": "237356100240978",
     "name": "SBV_Grosmimi_GMBrief1_2026-07-03",
@@ -21181,7 +21205,7 @@ const FIN_DATA = {
      159.57,
      200.34,
      131.25,
-     68.6
+     76.6
     ],
     "sales": [
      394.5,
@@ -21209,7 +21233,7 @@ const FIN_DATA = {
      4034,
      4621,
      3185,
-     2335
+     2770
     ],
     "clicks": [
      132,
@@ -21223,14 +21247,14 @@ const FIN_DATA = {
      114,
      144,
      101,
-     76
+     85
     ],
-    "total_spend": 2287.0,
+    "total_spend": 2295.0,
     "total_sales": 3983.55,
-    "total_clicks": 1616,
-    "total_impressions": 57897,
+    "total_clicks": 1625,
+    "total_impressions": 58332,
     "roas": 1.74,
-    "cpc": 1.42,
+    "cpc": 1.41,
     "ctr": 2.79,
     "is_traffic": false
    },
@@ -21252,7 +21276,7 @@ const FIN_DATA = {
      120.09,
      150.73,
      151.88,
-     147.7
+     177.81
     ],
     "sales": [
      246.2,
@@ -21266,7 +21290,7 @@ const FIN_DATA = {
      339.5,
      848.0,
      797.49,
-     601.2
+     865.8
     ],
     "impressions": [
      3079,
@@ -21280,7 +21304,7 @@ const FIN_DATA = {
      28567,
      34526,
      34262,
-     42975
+     45553
     ],
     "clicks": [
      25,
@@ -21294,13 +21318,13 @@ const FIN_DATA = {
      124,
      130,
      136,
-     146
+     189
     ],
-    "total_spend": 1675.47,
-    "total_sales": 8493.86,
-    "total_clicks": 1755,
-    "total_impressions": 505432,
-    "roas": 5.07,
+    "total_spend": 1705.58,
+    "total_sales": 8758.46,
+    "total_clicks": 1798,
+    "total_impressions": 508010,
+    "roas": 5.14,
     "cpc": 0.95,
     "ctr": 0.35,
     "is_traffic": false
@@ -21323,7 +21347,7 @@ const FIN_DATA = {
      31.65,
      21.27,
      11.69,
-     18.34
+     21.43
     ],
     "sales": [
      645.6,
@@ -21351,7 +21375,7 @@ const FIN_DATA = {
      3270,
      1828,
      2157,
-     3527
+     4271
     ],
     "clicks": [
      374,
@@ -21365,86 +21389,15 @@ const FIN_DATA = {
      35,
      21,
      12,
-     30
+     33
     ],
-    "total_spend": 1670.49,
+    "total_spend": 1673.58,
     "total_sales": 4413.13,
-    "total_clicks": 2080,
-    "total_impressions": 148337,
+    "total_clicks": 2083,
+    "total_impressions": 149081,
     "roas": 2.64,
     "cpc": 0.8,
     "ctr": 1.4,
-    "is_traffic": false
-   },
-   {
-    "id": "495635583330161",
-    "campaign_id": "495635583330161",
-    "name": "SP_stage1_10_defensive",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     281.46,
-     181.2,
-     218.19,
-     133.9,
-     220.39,
-     161.18,
-     289.33,
-     37.07,
-     21.96,
-     7.64,
-     18.55,
-     45.23
-    ],
-    "sales": [
-     3853.58,
-     2484.86,
-     4123.9,
-     2062.59,
-     3835.19,
-     2610.37,
-     3553.56,
-     645.0,
-     267.2,
-     0.0,
-     407.3,
-     753.0
-    ],
-    "impressions": [
-     13390,
-     8403,
-     11460,
-     8314,
-     10613,
-     8610,
-     15022,
-     3214,
-     1737,
-     887,
-     1657,
-     3657
-    ],
-    "clicks": [
-     664,
-     418,
-     526,
-     327,
-     519,
-     387,
-     575,
-     86,
-     54,
-     24,
-     46,
-     102
-    ],
-    "total_spend": 1616.1,
-    "total_sales": 24596.55,
-    "total_clicks": 3728,
-    "total_impressions": 86964,
-    "roas": 15.22,
-    "cpc": 0.43,
-    "ctr": 4.29,
     "is_traffic": false
    },
    {
@@ -21465,7 +21418,7 @@ const FIN_DATA = {
      118.1,
      150.44,
      141.76,
-     149.37
+     179.24
     ],
     "sales": [
      0,
@@ -21479,7 +21432,7 @@ const FIN_DATA = {
      332.0,
      285.0,
      608.3,
-     231.3
+     358.7
     ],
     "impressions": [
      0,
@@ -21493,7 +21446,7 @@ const FIN_DATA = {
      3771,
      5039,
      6567,
-     6027
+     7477
     ],
     "clicks": [
      0,
@@ -21507,15 +21460,86 @@ const FIN_DATA = {
      93,
      122,
      132,
-     165
+     200
     ],
-    "total_spend": 1599.75,
-    "total_sales": 2959.52,
-    "total_clicks": 1264,
-    "total_impressions": 57311,
-    "roas": 1.85,
-    "cpc": 1.27,
+    "total_spend": 1629.62,
+    "total_sales": 3086.92,
+    "total_clicks": 1299,
+    "total_impressions": 58761,
+    "roas": 1.89,
+    "cpc": 1.25,
     "ctr": 2.21,
+    "is_traffic": false
+   },
+   {
+    "id": "495635583330161",
+    "campaign_id": "495635583330161",
+    "name": "SP_stage1_10_defensive",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     281.46,
+     181.2,
+     218.19,
+     133.9,
+     220.39,
+     161.18,
+     289.33,
+     37.07,
+     21.96,
+     7.64,
+     18.55,
+     58.45
+    ],
+    "sales": [
+     3853.58,
+     2484.86,
+     4123.9,
+     2062.59,
+     3835.19,
+     2610.37,
+     3553.56,
+     645.0,
+     267.2,
+     0.0,
+     407.3,
+     847.9
+    ],
+    "impressions": [
+     13390,
+     8403,
+     11460,
+     8314,
+     10613,
+     8610,
+     15022,
+     3214,
+     1737,
+     887,
+     1657,
+     4450
+    ],
+    "clicks": [
+     664,
+     418,
+     526,
+     327,
+     519,
+     387,
+     575,
+     86,
+     54,
+     24,
+     46,
+     126
+    ],
+    "total_spend": 1629.32,
+    "total_sales": 24691.45,
+    "total_clicks": 3752,
+    "total_impressions": 87757,
+    "roas": 15.15,
+    "cpc": 0.43,
+    "ctr": 4.28,
     "is_traffic": false
    },
    {
@@ -21590,6 +21614,77 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "231178373083287",
+    "campaign_id": "231178373083287",
+    "name": "SP_ppsu_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     121.28,
+     85.14,
+     170.43,
+     115.89,
+     138.18,
+     149.93,
+     297.42,
+     77.82,
+     69.26,
+     39.2,
+     61.42,
+     167.06
+    ],
+    "sales": [
+     998.49,
+     608.6,
+     1147.29,
+     757.1,
+     832.98,
+     968.59,
+     2254.62,
+     408.8,
+     374.4,
+     384.7,
+     249.0,
+     1218.7
+    ],
+    "impressions": [
+     43157,
+     34525,
+     57263,
+     45595,
+     60642,
+     68779,
+     86409,
+     35146,
+     31271,
+     25813,
+     39244,
+     58019
+    ],
+    "clicks": [
+     279,
+     194,
+     375,
+     255,
+     323,
+     339,
+     667,
+     168,
+     156,
+     87,
+     139,
+     407
+    ],
+    "total_spend": 1493.03,
+    "total_sales": 10203.27,
+    "total_clicks": 3389,
+    "total_impressions": 585863,
+    "roas": 6.83,
+    "cpc": 0.44,
+    "ctr": 0.58,
+    "is_traffic": false
+   },
+   {
     "id": "265081955150257",
     "campaign_id": "265081955150257",
     "name": "SBV_Grosmimi_SippyCupSearch2_2026-07-03",
@@ -21635,7 +21730,7 @@ const FIN_DATA = {
      730,
      1009,
      593,
-     69
+     74
     ],
     "clicks": [
      158,
@@ -21654,7 +21749,7 @@ const FIN_DATA = {
     "total_spend": 1483.62,
     "total_sales": 2542.31,
     "total_clicks": 1128,
-    "total_impressions": 74897,
+    "total_impressions": 74902,
     "roas": 1.71,
     "cpc": 1.32,
     "ctr": 1.51,
@@ -21732,77 +21827,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "231178373083287",
-    "campaign_id": "231178373083287",
-    "name": "SP_ppsu_auto",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     121.28,
-     85.14,
-     170.43,
-     115.89,
-     138.18,
-     149.93,
-     297.42,
-     77.82,
-     69.26,
-     39.2,
-     61.42,
-     152.43
-    ],
-    "sales": [
-     998.49,
-     608.6,
-     1147.29,
-     757.1,
-     832.98,
-     968.59,
-     2254.62,
-     408.8,
-     374.4,
-     384.7,
-     249.0,
-     1080.9
-    ],
-    "impressions": [
-     43157,
-     34525,
-     57263,
-     45595,
-     60642,
-     68779,
-     86409,
-     35146,
-     31271,
-     25813,
-     39244,
-     44877
-    ],
-    "clicks": [
-     279,
-     194,
-     375,
-     255,
-     323,
-     339,
-     667,
-     168,
-     156,
-     87,
-     139,
-     373
-    ],
-    "total_spend": 1478.4,
-    "total_sales": 10065.47,
-    "total_clicks": 3355,
-    "total_impressions": 572721,
-    "roas": 6.81,
-    "cpc": 0.44,
-    "ctr": 0.59,
-    "is_traffic": false
-   },
-   {
     "id": "400445967965503",
     "campaign_id": "400445967965503",
     "name": "SP_stage1_6_defensive",
@@ -21820,7 +21844,7 @@ const FIN_DATA = {
      21.71,
      13.95,
      20.12,
-     78.16
+     103.15
     ],
     "sales": [
      2480.9,
@@ -21834,7 +21858,7 @@ const FIN_DATA = {
      276.6,
      162.6,
      282.7,
-     568.1
+     705.9
     ],
     "impressions": [
      8650,
@@ -21848,7 +21872,7 @@ const FIN_DATA = {
      1429,
      814,
      1521,
-     3799
+     4624
     ],
     "clicks": [
      376,
@@ -21862,15 +21886,15 @@ const FIN_DATA = {
      55,
      36,
      51,
-     221
+     279
     ],
-    "total_spend": 1403.67,
-    "total_sales": 18240.33,
-    "total_clicks": 3283,
-    "total_impressions": 70990,
-    "roas": 12.99,
+    "total_spend": 1428.66,
+    "total_sales": 18378.13,
+    "total_clicks": 3341,
+    "total_impressions": 71815,
+    "roas": 12.86,
     "cpc": 0.43,
-    "ctr": 4.62,
+    "ctr": 4.65,
     "is_traffic": false
    },
    {
@@ -21891,7 +21915,7 @@ const FIN_DATA = {
      120.59,
      147.01,
      66.83,
-     5.81
+     6.42
     ],
     "sales": [
      0,
@@ -21919,7 +21943,7 @@ const FIN_DATA = {
      5497,
      7917,
      4961,
-     636
+     777
     ],
     "clicks": [
      0,
@@ -21933,12 +21957,12 @@ const FIN_DATA = {
      94,
      117,
      54,
-     7
+     8
     ],
-    "total_spend": 1373.99,
+    "total_spend": 1374.6,
     "total_sales": 2560.61,
-    "total_clicks": 1056,
-    "total_impressions": 68440,
+    "total_clicks": 1057,
+    "total_impressions": 68581,
     "roas": 1.86,
     "cpc": 1.3,
     "ctr": 1.54,
@@ -22033,7 +22057,7 @@ const FIN_DATA = {
      224.95,
      507.13,
      252.01,
-     200.65
+     211.01
     ],
     "sales": [
      0,
@@ -22061,7 +22085,7 @@ const FIN_DATA = {
      52907,
      76376,
      29708,
-     34097
+     34757
     ],
     "clicks": [
      0,
@@ -22075,15 +22099,15 @@ const FIN_DATA = {
      188,
      394,
      203,
-     179
+     194
     ],
-    "total_spend": 1273.31,
+    "total_spend": 1283.67,
     "total_sales": 3511.68,
-    "total_clicks": 1067,
-    "total_impressions": 247883,
-    "roas": 2.76,
+    "total_clicks": 1082,
+    "total_impressions": 248543,
+    "roas": 2.74,
     "cpc": 1.19,
-    "ctr": 0.43,
+    "ctr": 0.44,
     "is_traffic": false
    },
    {
@@ -22246,7 +22270,7 @@ const FIN_DATA = {
      566.99,
      83.48,
      8.67,
-     20.97
+     25.14
     ],
     "sales": [
      0,
@@ -22260,7 +22284,7 @@ const FIN_DATA = {
      336.0,
      0.0,
      0.0,
-     64.2
+     90.1
     ],
     "impressions": [
      0,
@@ -22274,7 +22298,7 @@ const FIN_DATA = {
      12556,
      3585,
      2722,
-     3056
+     3566
     ],
     "clicks": [
      0,
@@ -22288,13 +22312,13 @@ const FIN_DATA = {
      1109,
      143,
      22,
-     37
+     49
     ],
-    "total_spend": 1097.82,
-    "total_sales": 1560.1,
-    "total_clicks": 2457,
-    "total_impressions": 149156,
-    "roas": 1.42,
+    "total_spend": 1101.99,
+    "total_sales": 1586.0,
+    "total_clicks": 2469,
+    "total_impressions": 149666,
+    "roas": 1.44,
     "cpc": 0.45,
     "ctr": 1.65,
     "is_traffic": false
@@ -22317,7 +22341,7 @@ const FIN_DATA = {
      4.29,
      217.42,
      150.64,
-     110.62
+     121.33
     ],
     "sales": [
      75.7,
@@ -22331,7 +22355,7 @@ const FIN_DATA = {
      97.1,
      509.5,
      520.6,
-     214.9
+     237.7
     ],
     "impressions": [
      14447,
@@ -22345,7 +22369,7 @@ const FIN_DATA = {
      1417,
      218844,
      122416,
-     68009
+     69535
     ],
     "clicks": [
      11,
@@ -22359,14 +22383,14 @@ const FIN_DATA = {
      10,
      214,
      132,
-     92
+     116
     ],
-    "total_spend": 1079.97,
-    "total_sales": 4324.51,
-    "total_clicks": 1020,
-    "total_impressions": 598064,
-    "roas": 4.0,
-    "cpc": 1.06,
+    "total_spend": 1090.68,
+    "total_sales": 4347.31,
+    "total_clicks": 1044,
+    "total_impressions": 599590,
+    "roas": 3.99,
+    "cpc": 1.04,
     "ctr": 0.17,
     "is_traffic": false
    },
@@ -22388,7 +22412,7 @@ const FIN_DATA = {
      55.0,
      87.12,
      52.95,
-     67.18
+     71.71
     ],
     "sales": [
      85.7,
@@ -22402,7 +22426,7 @@ const FIN_DATA = {
      57.4,
      38.9,
      0.0,
-     38.9
+     85.7
     ],
     "impressions": [
      22367,
@@ -22416,7 +22440,7 @@ const FIN_DATA = {
      1996,
      1281,
      2761,
-     3309
+     3796
     ],
     "clicks": [
      93,
@@ -22430,15 +22454,15 @@ const FIN_DATA = {
      98,
      200,
      127,
-     164
+     168
     ],
-    "total_spend": 1076.95,
-    "total_sales": 947.16,
-    "total_clicks": 2574,
-    "total_impressions": 62751,
-    "roas": 0.88,
+    "total_spend": 1081.48,
+    "total_sales": 993.96,
+    "total_clicks": 2578,
+    "total_impressions": 63238,
+    "roas": 0.92,
     "cpc": 0.42,
-    "ctr": 4.1,
+    "ctr": 4.08,
     "is_traffic": false
    },
    {
@@ -22530,7 +22554,7 @@ const FIN_DATA = {
      65.93,
      40.28,
      40.89,
-     73.55
+     81.21
     ],
     "sales": [
      797.99,
@@ -22544,7 +22568,7 @@ const FIN_DATA = {
      466.3,
      295.9,
      568.3,
-     749.6
+     778.3
     ],
     "impressions": [
      5389,
@@ -22558,7 +22582,7 @@ const FIN_DATA = {
      2988,
      2676,
      3120,
-     5467
+     6864
     ],
     "clicks": [
      206,
@@ -22572,15 +22596,15 @@ const FIN_DATA = {
      144,
      90,
      98,
-     142
+     155
     ],
-    "total_spend": 1032.73,
-    "total_sales": 12273.9,
-    "total_clicks": 2077,
-    "total_impressions": 61009,
-    "roas": 11.88,
+    "total_spend": 1040.39,
+    "total_sales": 12302.6,
+    "total_clicks": 2090,
+    "total_impressions": 62406,
+    "roas": 11.82,
     "cpc": 0.5,
-    "ctr": 3.4,
+    "ctr": 3.35,
     "is_traffic": false
    },
    {
@@ -22652,6 +22676,77 @@ const FIN_DATA = {
     "roas": 0.87,
     "cpc": 1.33,
     "ctr": 1.39,
+    "is_traffic": false
+   },
+   {
+    "id": "163651293531353",
+    "campaign_id": "163651293531353",
+    "name": "SP_AL_Auto",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     0,
+     0,
+     7.22,
+     30.49,
+     42.39,
+     38.32,
+     12.49,
+     43.46,
+     248.31,
+     175.45,
+     0,
+     216.88
+    ],
+    "sales": [
+     0,
+     0,
+     54.9,
+     54.9,
+     219.6,
+     0.0,
+     0.0,
+     109.8,
+     0.0,
+     0.0,
+     0,
+     219.6
+    ],
+    "impressions": [
+     0,
+     0,
+     909,
+     3409,
+     4352,
+     4038,
+     1233,
+     4981,
+     18767,
+     11881,
+     0,
+     26001
+    ],
+    "clicks": [
+     0,
+     0,
+     13,
+     54,
+     62,
+     43,
+     20,
+     82,
+     246,
+     176,
+     0,
+     251
+    ],
+    "total_spend": 815.01,
+    "total_sales": 658.8,
+    "total_clicks": 947,
+    "total_impressions": 75571,
+    "roas": 0.81,
+    "cpc": 0.86,
+    "ctr": 1.25,
     "is_traffic": false
    },
    {
@@ -22794,77 +22889,6 @@ const FIN_DATA = {
     "roas": 1.44,
     "cpc": 1.32,
     "ctr": 0.56,
-    "is_traffic": false
-   },
-   {
-    "id": "163651293531353",
-    "campaign_id": "163651293531353",
-    "name": "SP_AL_Auto",
-    "platform": "Amazon Ads",
-    "brand": "Naeiae",
-    "spend": [
-     0,
-     0,
-     7.22,
-     30.49,
-     42.39,
-     38.32,
-     12.49,
-     43.46,
-     248.31,
-     175.45,
-     0,
-     153.32
-    ],
-    "sales": [
-     0,
-     0,
-     54.9,
-     54.9,
-     219.6,
-     0.0,
-     0.0,
-     109.8,
-     0.0,
-     0.0,
-     0,
-     219.6
-    ],
-    "impressions": [
-     0,
-     0,
-     909,
-     3409,
-     4352,
-     4038,
-     1233,
-     4981,
-     18767,
-     11881,
-     0,
-     16515
-    ],
-    "clicks": [
-     0,
-     0,
-     13,
-     54,
-     62,
-     43,
-     20,
-     82,
-     246,
-     176,
-     0,
-     169
-    ],
-    "total_spend": 751.45,
-    "total_sales": 658.8,
-    "total_clicks": 865,
-    "total_impressions": 66085,
-    "roas": 0.88,
-    "cpc": 0.87,
-    "ctr": 1.31,
     "is_traffic": false
    },
    {
@@ -23098,7 +23122,7 @@ const FIN_DATA = {
      56.16,
      55.59,
      54.38,
-     82.24
+     90.41
     ],
     "sales": [
      0,
@@ -23126,7 +23150,7 @@ const FIN_DATA = {
      9662,
      11505,
      10394,
-     16254
+     19293
     ],
     "clicks": [
      0,
@@ -23140,13 +23164,13 @@ const FIN_DATA = {
      51,
      51,
      50,
-     73
+     80
     ],
-    "total_spend": 660.17,
+    "total_spend": 668.34,
     "total_sales": 885.6,
-    "total_clicks": 606,
-    "total_impressions": 143151,
-    "roas": 1.34,
+    "total_clicks": 613,
+    "total_impressions": 146190,
+    "roas": 1.33,
     "cpc": 1.09,
     "ctr": 0.42,
     "is_traffic": false
@@ -23311,7 +23335,7 @@ const FIN_DATA = {
      19.95,
      17.71,
      18.48,
-     37.97
+     44.15
     ],
     "sales": [
      0,
@@ -23339,7 +23363,7 @@ const FIN_DATA = {
      7735,
      8755,
      8580,
-     15760
+     19015
     ],
     "clicks": [
      0,
@@ -23353,13 +23377,13 @@ const FIN_DATA = {
      28,
      25,
      24,
-     51
+     59
     ],
-    "total_spend": 538.87,
+    "total_spend": 545.05,
     "total_sales": 516.6,
-    "total_clicks": 613,
-    "total_impressions": 176124,
-    "roas": 0.96,
+    "total_clicks": 621,
+    "total_impressions": 179379,
+    "roas": 0.95,
     "cpc": 0.88,
     "ctr": 0.35,
     "is_traffic": false
@@ -23382,7 +23406,7 @@ const FIN_DATA = {
      38.79,
      35.39,
      23.66,
-     43.34
+     47.34
     ],
     "sales": [
      98.4,
@@ -23410,7 +23434,7 @@ const FIN_DATA = {
      5746,
      6233,
      3615,
-     6741
+     8031
     ],
     "clicks": [
      23,
@@ -23424,13 +23448,13 @@ const FIN_DATA = {
      43,
      36,
      24,
-     44
+     48
     ],
-    "total_spend": 505.89,
+    "total_spend": 509.89,
     "total_sales": 787.2,
-    "total_clicks": 453,
-    "total_impressions": 81005,
-    "roas": 1.56,
+    "total_clicks": 457,
+    "total_impressions": 82295,
+    "roas": 1.54,
     "cpc": 1.12,
     "ctr": 0.56,
     "is_traffic": false
@@ -23623,7 +23647,7 @@ const FIN_DATA = {
      388,
      1122,
      876,
-     99
+     142
     ],
     "clicks": [
      73,
@@ -23642,7 +23666,7 @@ const FIN_DATA = {
     "total_spend": 464.89,
     "total_sales": 945.86,
     "total_clicks": 348,
-    "total_impressions": 48202,
+    "total_impressions": 48245,
     "roas": 2.03,
     "cpc": 1.34,
     "ctr": 0.72,
@@ -23666,7 +23690,7 @@ const FIN_DATA = {
      26.4,
      12.47,
      18.45,
-     51.85
+     63.31
     ],
     "sales": [
      0,
@@ -23680,7 +23704,7 @@ const FIN_DATA = {
      25.9,
      0.0,
      54.5,
-     0.0
+     57.4
     ],
     "impressions": [
      0,
@@ -23694,7 +23718,7 @@ const FIN_DATA = {
      8244,
      3813,
      6767,
-     26601
+     33972
     ],
     "clicks": [
      0,
@@ -23708,15 +23732,86 @@ const FIN_DATA = {
      64,
      22,
      33,
-     70
+     88
     ],
-    "total_spend": 344.59,
-    "total_sales": 723.04,
-    "total_clicks": 551,
-    "total_impressions": 162855,
-    "roas": 2.1,
+    "total_spend": 356.05,
+    "total_sales": 780.44,
+    "total_clicks": 569,
+    "total_impressions": 170226,
+    "roas": 2.19,
     "cpc": 0.63,
-    "ctr": 0.34,
+    "ctr": 0.33,
+    "is_traffic": false
+   },
+   {
+    "id": "135017536045857",
+    "campaign_id": "135017536045857",
+    "name": "SS_SP_H1_SS_Explicit",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     22.32,
+     21.1,
+     20.09,
+     19.0,
+     22.88,
+     61.28,
+     43.99,
+     31.21,
+     11.7,
+     19.04,
+     26.94,
+     34.39
+    ],
+    "sales": [
+     85.7,
+     46.8,
+     132.5,
+     0.0,
+     46.8,
+     149.5,
+     232.64,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     93.6
+    ],
+    "impressions": [
+     2064,
+     1325,
+     1586,
+     834,
+     1233,
+     2501,
+     2739,
+     1339,
+     788,
+     925,
+     895,
+     1960
+    ],
+    "clicks": [
+     39,
+     31,
+     23,
+     20,
+     28,
+     61,
+     42,
+     28,
+     9,
+     17,
+     51,
+     31
+    ],
+    "total_spend": 333.94,
+    "total_sales": 787.54,
+    "total_clicks": 380,
+    "total_impressions": 18189,
+    "roas": 2.36,
+    "cpc": 0.88,
+    "ctr": 2.09,
     "is_traffic": false
    },
    {
@@ -23791,77 +23886,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "135017536045857",
-    "campaign_id": "135017536045857",
-    "name": "SS_SP_H1_SS_Explicit",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     22.32,
-     21.1,
-     20.09,
-     19.0,
-     22.88,
-     61.28,
-     43.99,
-     31.21,
-     11.7,
-     19.04,
-     26.94,
-     28.2
-    ],
-    "sales": [
-     85.7,
-     46.8,
-     132.5,
-     0.0,
-     46.8,
-     149.5,
-     232.64,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     93.6
-    ],
-    "impressions": [
-     2064,
-     1325,
-     1586,
-     834,
-     1233,
-     2501,
-     2739,
-     1339,
-     788,
-     925,
-     895,
-     1630
-    ],
-    "clicks": [
-     39,
-     31,
-     23,
-     20,
-     28,
-     61,
-     42,
-     28,
-     9,
-     17,
-     51,
-     26
-    ],
-    "total_spend": 327.75,
-    "total_sales": 787.54,
-    "total_clicks": 375,
-    "total_impressions": 17859,
-    "roas": 2.4,
-    "cpc": 0.87,
-    "ctr": 2.1,
-    "is_traffic": false
-   },
-   {
     "id": "213588649867527",
     "campaign_id": "213588649867527",
     "name": "SP_Naeiae_PT_Expansion_2026-06-22",
@@ -23879,7 +23903,7 @@ const FIN_DATA = {
      23.54,
      19.49,
      13.91,
-     30.41
+     34.1
     ],
     "sales": [
      49.2,
@@ -23907,7 +23931,7 @@ const FIN_DATA = {
      1335,
      2045,
      1506,
-     2723
+     3238
     ],
     "clicks": [
      23,
@@ -23921,15 +23945,86 @@ const FIN_DATA = {
      29,
      24,
      15,
-     33
+     37
     ],
-    "total_spend": 321.15,
+    "total_spend": 324.84,
     "total_sales": 1402.2,
-    "total_clicks": 352,
-    "total_impressions": 33673,
-    "roas": 4.37,
+    "total_clicks": 356,
+    "total_impressions": 34188,
+    "roas": 4.32,
     "cpc": 0.91,
-    "ctr": 1.05,
+    "ctr": 1.04,
+    "is_traffic": false
+   },
+   {
+    "id": "334627488021466",
+    "campaign_id": "334627488021466",
+    "name": "SD_AudienceTargeting",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     28.02,
+     3.54,
+     23.41,
+     24.15,
+     21.55,
+     29.37,
+     35.23,
+     25.37,
+     24.6,
+     43.63,
+     23.63,
+     27.34
+    ],
+    "sales": [
+     0.0,
+     74.7,
+     0.0,
+     70.5,
+     0.0,
+     28.7,
+     49.8,
+     76.4,
+     72.6,
+     0.0,
+     22.8,
+     0.0
+    ],
+    "impressions": [
+     9584,
+     2180,
+     8333,
+     7368,
+     7617,
+     10552,
+     8759,
+     7517,
+     7109,
+     8484,
+     3997,
+     6100
+    ],
+    "clicks": [
+     35,
+     12,
+     42,
+     29,
+     34,
+     51,
+     45,
+     45,
+     46,
+     48,
+     40,
+     43
+    ],
+    "total_spend": 309.84,
+    "total_sales": 395.5,
+    "total_clicks": 470,
+    "total_impressions": 87600,
+    "roas": 1.28,
+    "cpc": 0.66,
+    "ctr": 0.54,
     "is_traffic": false
    },
    {
@@ -24001,77 +24096,6 @@ const FIN_DATA = {
     "roas": 0.64,
     "cpc": 1.42,
     "ctr": 0.84,
-    "is_traffic": false
-   },
-   {
-    "id": "334627488021466",
-    "campaign_id": "334627488021466",
-    "name": "SD_AudienceTargeting",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     28.02,
-     3.54,
-     23.41,
-     24.15,
-     21.55,
-     29.37,
-     35.23,
-     25.37,
-     24.6,
-     43.63,
-     23.63,
-     20.76
-    ],
-    "sales": [
-     0.0,
-     74.7,
-     0.0,
-     70.5,
-     0.0,
-     28.7,
-     49.8,
-     76.4,
-     72.6,
-     0.0,
-     22.8,
-     0.0
-    ],
-    "impressions": [
-     9584,
-     2180,
-     8333,
-     7368,
-     7617,
-     10552,
-     8759,
-     7517,
-     7109,
-     8484,
-     3997,
-     4954
-    ],
-    "clicks": [
-     35,
-     12,
-     42,
-     29,
-     34,
-     51,
-     45,
-     45,
-     46,
-     48,
-     40,
-     33
-    ],
-    "total_spend": 303.26,
-    "total_sales": 395.5,
-    "total_clicks": 460,
-    "total_impressions": 86454,
-    "roas": 1.3,
-    "cpc": 0.66,
-    "ctr": 0.53,
     "is_traffic": false
    },
    {
@@ -24447,7 +24471,7 @@ const FIN_DATA = {
      92.89,
      118.03,
      0.0,
-     3.39
+     4.78
     ],
     "sales": [
      0,
@@ -24475,7 +24499,7 @@ const FIN_DATA = {
      9979,
      13091,
      0,
-     824
+     991
     ],
     "clicks": [
      0,
@@ -24489,86 +24513,15 @@ const FIN_DATA = {
      47,
      51,
      0,
-     6
+     9
     ],
-    "total_spend": 214.31,
+    "total_spend": 215.7,
     "total_sales": 329.4,
-    "total_clicks": 104,
-    "total_impressions": 23894,
-    "roas": 1.54,
-    "cpc": 2.06,
+    "total_clicks": 107,
+    "total_impressions": 24061,
+    "roas": 1.53,
+    "cpc": 2.02,
     "ctr": 0.44,
-    "is_traffic": false
-   },
-   {
-    "id": "273299993642302",
-    "campaign_id": "273299993642302",
-    "name": "PPSU_SP_Generic",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     0,
-     20.49,
-     22.6,
-     28.1,
-     14.38,
-     19.18,
-     47.4,
-     12.58,
-     11.09,
-     9.72,
-     9.24,
-     11.06
-    ],
-    "sales": [
-     0,
-     92.1,
-     24.9,
-     38.3,
-     102.3,
-     133.8,
-     283.96,
-     0.0,
-     80.5,
-     0.0,
-     0.0,
-     51.8
-    ],
-    "impressions": [
-     0,
-     1600,
-     4931,
-     4349,
-     2248,
-     1719,
-     3152,
-     1552,
-     1126,
-     1732,
-     1030,
-     1793
-    ],
-    "clicks": [
-     0,
-     23,
-     35,
-     37,
-     30,
-     56,
-     136,
-     16,
-     20,
-     13,
-     19,
-     22
-    ],
-    "total_spend": 205.84,
-    "total_sales": 807.66,
-    "total_clicks": 407,
-    "total_impressions": 25232,
-    "roas": 3.92,
-    "cpc": 0.51,
-    "ctr": 1.61,
     "is_traffic": false
    },
    {
@@ -24589,7 +24542,7 @@ const FIN_DATA = {
      81.55,
      121.84,
      0,
-     0.75
+     6.93
     ],
     "sales": [
      0,
@@ -24603,7 +24556,7 @@ const FIN_DATA = {
      213.18,
      219.6,
      0,
-     0.0
+     54.9
     ],
     "impressions": [
      0,
@@ -24617,7 +24570,7 @@ const FIN_DATA = {
      7681,
      5976,
      0,
-     604
+     1139
     ],
     "clicks": [
      0,
@@ -24631,15 +24584,86 @@ const FIN_DATA = {
      40,
      62,
      0,
-     2
+     10
     ],
-    "total_spend": 204.14,
-    "total_sales": 432.78,
-    "total_clicks": 104,
-    "total_impressions": 14261,
-    "roas": 2.12,
-    "cpc": 1.96,
-    "ctr": 0.73,
+    "total_spend": 210.32,
+    "total_sales": 487.68,
+    "total_clicks": 112,
+    "total_impressions": 14796,
+    "roas": 2.32,
+    "cpc": 1.88,
+    "ctr": 0.76,
+    "is_traffic": false
+   },
+   {
+    "id": "273299993642302",
+    "campaign_id": "273299993642302",
+    "name": "PPSU_SP_Generic",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     20.49,
+     22.6,
+     28.1,
+     14.38,
+     19.18,
+     47.4,
+     12.58,
+     11.09,
+     9.72,
+     9.24,
+     15.23
+    ],
+    "sales": [
+     0,
+     92.1,
+     24.9,
+     38.3,
+     102.3,
+     133.8,
+     283.96,
+     0.0,
+     80.5,
+     0.0,
+     0.0,
+     80.5
+    ],
+    "impressions": [
+     0,
+     1600,
+     4931,
+     4349,
+     2248,
+     1719,
+     3152,
+     1552,
+     1126,
+     1732,
+     1030,
+     2075
+    ],
+    "clicks": [
+     0,
+     23,
+     35,
+     37,
+     30,
+     56,
+     136,
+     16,
+     20,
+     13,
+     19,
+     28
+    ],
+    "total_spend": 210.01,
+    "total_sales": 836.36,
+    "total_clicks": 413,
+    "total_impressions": 25514,
+    "roas": 3.98,
+    "cpc": 0.51,
+    "ctr": 1.62,
     "is_traffic": false
    },
    {
@@ -24731,7 +24755,7 @@ const FIN_DATA = {
      13.5,
      1.97,
      17.98,
-     22.16
+     30.74
     ],
     "sales": [
      0.0,
@@ -24759,7 +24783,7 @@ const FIN_DATA = {
      4606,
      548,
      5008,
-     6504
+     8278
     ],
     "clicks": [
      3,
@@ -24773,14 +24797,14 @@ const FIN_DATA = {
      4,
      8,
      20,
-     19
+     23
     ],
-    "total_spend": 187.95,
+    "total_spend": 196.53,
     "total_sales": 22.99,
-    "total_clicks": 159,
-    "total_impressions": 54580,
+    "total_clicks": 163,
+    "total_impressions": 56354,
     "roas": 0.12,
-    "cpc": 1.18,
+    "cpc": 1.21,
     "ctr": 0.29,
     "is_traffic": false
    },
@@ -24873,7 +24897,7 @@ const FIN_DATA = {
      2.87,
      2.78,
      2.44,
-     0.82
+     1.75
     ],
     "sales": [
      96.6,
@@ -24901,7 +24925,7 @@ const FIN_DATA = {
      149,
      408,
      475,
-     115
+     208
     ],
     "clicks": [
      46,
@@ -24915,15 +24939,15 @@ const FIN_DATA = {
      2,
      2,
      2,
-     1
+     2
     ],
-    "total_spend": 174.52,
+    "total_spend": 175.45,
     "total_sales": 275.54,
-    "total_clicks": 103,
-    "total_impressions": 20414,
-    "roas": 1.58,
+    "total_clicks": 104,
+    "total_impressions": 20507,
+    "roas": 1.57,
     "cpc": 1.69,
-    "ctr": 0.5,
+    "ctr": 0.51,
     "is_traffic": false
    },
    {
@@ -24944,7 +24968,7 @@ const FIN_DATA = {
      48.1,
      75.76,
      29.62,
-     8.64
+     11.34
     ],
     "sales": [
      0,
@@ -24972,7 +24996,7 @@ const FIN_DATA = {
      2576,
      3620,
      2351,
-     613
+     672
     ],
     "clicks": [
      0,
@@ -24986,15 +25010,15 @@ const FIN_DATA = {
      36,
      59,
      21,
-     9
+     12
     ],
-    "total_spend": 162.12,
+    "total_spend": 164.82,
     "total_sales": 450.4,
-    "total_clicks": 125,
-    "total_impressions": 9160,
-    "roas": 2.78,
-    "cpc": 1.3,
-    "ctr": 1.36,
+    "total_clicks": 128,
+    "total_impressions": 9219,
+    "roas": 2.73,
+    "cpc": 1.29,
+    "ctr": 1.39,
     "is_traffic": false
    },
    {
@@ -25299,7 +25323,7 @@ const FIN_DATA = {
      6.65,
      11.22,
      31.44,
-     19.56
+     20.59
     ],
     "sales": [
      0,
@@ -25327,7 +25351,7 @@ const FIN_DATA = {
      917,
      1547,
      3333,
-     1934
+     2151
     ],
     "clicks": [
      0,
@@ -25341,15 +25365,15 @@ const FIN_DATA = {
      12,
      16,
      39,
-     30
+     32
     ],
-    "total_spend": 78.27,
+    "total_spend": 79.3,
     "total_sales": 457.7,
-    "total_clicks": 109,
-    "total_impressions": 9188,
-    "roas": 5.85,
-    "cpc": 0.72,
-    "ctr": 1.19,
+    "total_clicks": 111,
+    "total_impressions": 9405,
+    "roas": 5.77,
+    "cpc": 0.71,
+    "ctr": 1.18,
     "is_traffic": false
    },
    {
@@ -25921,77 +25945,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "67304323730994",
-    "campaign_id": "67304323730994",
-    "name": "SP_all_auto",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     3.15,
-     1.97,
-     2.32,
-     1.6,
-     2.25,
-     2.81,
-     2.98,
-     1.95,
-     2.14,
-     1.44,
-     1.4,
-     2.63
-    ],
-    "sales": [
-     133.5,
-     146.47,
-     119.58,
-     38.49,
-     92.48,
-     84.47,
-     62.0,
-     100.9,
-     77.5,
-     31.0,
-     41.3,
-     46.5
-    ],
-    "impressions": [
-     5596,
-     3538,
-     4738,
-     3385,
-     4071,
-     4274,
-     5442,
-     2235,
-     2942,
-     2051,
-     3692,
-     3451
-    ],
-    "clicks": [
-     27,
-     18,
-     23,
-     17,
-     21,
-     24,
-     30,
-     17,
-     20,
-     15,
-     16,
-     25
-    ],
-    "total_spend": 26.64,
-    "total_sales": 974.19,
-    "total_clicks": 253,
-    "total_impressions": 45415,
-    "roas": 36.57,
-    "cpc": 0.11,
-    "ctr": 0.56,
-    "is_traffic": false
-   },
-   {
     "id": "39861843337939",
     "campaign_id": "39861843337939",
     "name": "SP_Naeiae_TierA_Winners_2026-05-19",
@@ -26009,7 +25962,7 @@ const FIN_DATA = {
      0.94,
      1.3,
      3.3,
-     0.94
+     2.24
     ],
     "sales": [
      0,
@@ -26037,7 +25990,7 @@ const FIN_DATA = {
      269,
      868,
      778,
-     355
+     433
     ],
     "clicks": [
      0,
@@ -26051,15 +26004,86 @@ const FIN_DATA = {
      1,
      1,
      3,
-     1
+     2
     ],
-    "total_spend": 25.94,
+    "total_spend": 27.24,
     "total_sales": 49.2,
-    "total_clicks": 24,
-    "total_impressions": 5781,
-    "roas": 1.9,
-    "cpc": 1.08,
-    "ctr": 0.42,
+    "total_clicks": 25,
+    "total_impressions": 5859,
+    "roas": 1.81,
+    "cpc": 1.09,
+    "ctr": 0.43,
+    "is_traffic": false
+   },
+   {
+    "id": "67304323730994",
+    "campaign_id": "67304323730994",
+    "name": "SP_all_auto",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     3.15,
+     1.97,
+     2.32,
+     1.6,
+     2.25,
+     2.81,
+     2.98,
+     1.95,
+     2.14,
+     1.44,
+     1.4,
+     3.17
+    ],
+    "sales": [
+     133.5,
+     146.47,
+     119.58,
+     38.49,
+     92.48,
+     84.47,
+     62.0,
+     100.9,
+     77.5,
+     31.0,
+     41.3,
+     46.5
+    ],
+    "impressions": [
+     5596,
+     3538,
+     4738,
+     3385,
+     4071,
+     4274,
+     5442,
+     2235,
+     2942,
+     2051,
+     3692,
+     4104
+    ],
+    "clicks": [
+     27,
+     18,
+     23,
+     17,
+     21,
+     24,
+     30,
+     17,
+     20,
+     15,
+     16,
+     30
+    ],
+    "total_spend": 27.18,
+    "total_sales": 974.19,
+    "total_clicks": 258,
+    "total_impressions": 46068,
+    "roas": 35.84,
+    "cpc": 0.11,
+    "ctr": 0.56,
     "is_traffic": false
    },
    {
@@ -26179,7 +26203,7 @@ const FIN_DATA = {
      984,
      918,
      379,
-     753
+     893
     ],
     "clicks": [
      0,
@@ -26198,10 +26222,10 @@ const FIN_DATA = {
     "total_spend": 25.41,
     "total_sales": 139.1,
     "total_clicks": 25,
-    "total_impressions": 6636,
+    "total_impressions": 6776,
     "roas": 5.47,
     "cpc": 1.02,
-    "ctr": 0.38,
+    "ctr": 0.37,
     "is_traffic": false
    },
    {
@@ -26364,7 +26388,7 @@ const FIN_DATA = {
      18.51,
      0.0,
      0.0,
-     0.46
+     0.68
     ],
     "sales": [
      0,
@@ -26392,7 +26416,7 @@ const FIN_DATA = {
      995,
      216,
      133,
-     235
+     245
     ],
     "clicks": [
      0,
@@ -26406,15 +26430,15 @@ const FIN_DATA = {
      9,
      0,
      0,
-     1
+     2
     ],
-    "total_spend": 18.97,
+    "total_spend": 19.19,
     "total_sales": 0.0,
-    "total_clicks": 10,
-    "total_impressions": 1757,
+    "total_clicks": 11,
+    "total_impressions": 1767,
     "roas": 0.0,
-    "cpc": 1.9,
-    "ctr": 0.57,
+    "cpc": 1.74,
+    "ctr": 0.62,
     "is_traffic": false
    },
    {
@@ -26486,6 +26510,77 @@ const FIN_DATA = {
     "roas": 1.43,
     "cpc": 1.45,
     "ctr": 0.62,
+    "is_traffic": false
+   },
+   {
+    "id": "183361092460116",
+    "campaign_id": "183361092460116",
+    "name": "SP_AL_Manual_2026-11-06",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     15.75
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2282
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     19
+    ],
+    "total_spend": 15.75,
+    "total_sales": 0.0,
+    "total_clicks": 19,
+    "total_impressions": 2282,
+    "roas": 0.0,
+    "cpc": 0.83,
+    "ctr": 0.83,
     "is_traffic": false
    },
    {
@@ -26631,52 +26726,52 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "183361092460116",
-    "campaign_id": "183361092460116",
-    "name": "SP_AL_Manual_2026-11-06",
+    "id": "279433915130435",
+    "campaign_id": "279433915130435",
+    "name": "Naeiae Rice Pop - SB - Manual",
     "platform": "Amazon Ads",
     "brand": "Naeiae",
     "spend": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     11.69
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     7.39
     ],
     "sales": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
      0.0
     ],
     "impressions": [
+     1,
+     5,
+     11,
+     4,
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1212
+     4,
+     3,
+     2,
+     8,
+     5,
+     162,
+     1891
     ],
     "clicks": [
      0,
@@ -26690,15 +26785,15 @@ const FIN_DATA = {
      0,
      0,
      0,
-     15
+     9
     ],
-    "total_spend": 11.69,
+    "total_spend": 7.39,
     "total_sales": 0.0,
-    "total_clicks": 15,
-    "total_impressions": 1212,
+    "total_clicks": 9,
+    "total_impressions": 2096,
     "roas": 0.0,
-    "cpc": 0.78,
-    "ctr": 1.24,
+    "cpc": 0.82,
+    "ctr": 0.43,
     "is_traffic": false
    },
    {
@@ -26770,77 +26865,6 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 1.69,
     "ctr": 0.31,
-    "is_traffic": false
-   },
-   {
-    "id": "279433915130435",
-    "campaign_id": "279433915130435",
-    "name": "Naeiae Rice Pop - SB - Manual",
-    "platform": "Amazon Ads",
-    "brand": "Naeiae",
-    "spend": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     6.73
-    ],
-    "sales": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     1,
-     5,
-     11,
-     4,
-     0,
-     4,
-     3,
-     2,
-     8,
-     5,
-     162,
-     1606
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     8
-    ],
-    "total_spend": 6.73,
-    "total_sales": 0.0,
-    "total_clicks": 8,
-    "total_impressions": 1811,
-    "roas": 0.0,
-    "cpc": 0.84,
-    "ctr": 0.44,
     "is_traffic": false
    },
    {
@@ -27128,6 +27152,77 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "206936520753788",
+    "campaign_id": "206936520753788",
+    "name": "SBV_GR_WL_@chatter.with.sam_KW_2026-11-13",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1.58
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     186
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2
+    ],
+    "total_spend": 1.58,
+    "total_sales": 0.0,
+    "total_clicks": 2,
+    "total_impressions": 186,
+    "roas": 0.0,
+    "cpc": 0.79,
+    "ctr": 1.08,
+    "is_traffic": false
+   },
+   {
     "id": "226401417227796",
     "campaign_id": "226401417227796",
     "name": "SBV_CHA_StickyTest_2026-08-05",
@@ -27196,6 +27291,77 @@ const FIN_DATA = {
     "roas": 0.0,
     "cpc": 1.04,
     "ctr": 0.08,
+    "is_traffic": false
+   },
+   {
+    "id": "143778161002396",
+    "campaign_id": "143778161002396",
+    "name": "SBV_GR_WL_@maylog_6to9_PT_2026-11-12",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.56
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "total_spend": 0.56,
+    "total_sales": 0.0,
+    "total_clicks": 1,
+    "total_impressions": 4,
+    "roas": 0.0,
+    "cpc": 0.56,
+    "ctr": 25.0,
     "is_traffic": false
    },
    {
@@ -27289,7 +27455,7 @@ const FIN_DATA = {
      2.14,
      1.44,
      1.4,
-     2.63
+     3.17
     ],
     "sales": [
      133.5,
@@ -27317,7 +27483,7 @@ const FIN_DATA = {
      2942,
      2051,
      3692,
-     3451
+     4104
     ],
     "clicks": [
      27,
@@ -27331,13 +27497,13 @@ const FIN_DATA = {
      20,
      15,
      16,
-     25
+     30
     ],
-    "total_spend": 26.64,
+    "total_spend": 27.18,
     "total_sales": 974.19,
-    "total_clicks": 253,
-    "total_impressions": 45415,
-    "roas": 36.57,
+    "total_clicks": 258,
+    "total_impressions": 46068,
+    "roas": 35.84,
     "cpc": 0.11,
     "ctr": 0.56,
     "is_traffic": false
@@ -27360,7 +27526,7 @@ const FIN_DATA = {
      21.96,
      7.64,
      18.55,
-     45.23
+     58.45
     ],
     "sales": [
      3853.58,
@@ -27374,7 +27540,7 @@ const FIN_DATA = {
      267.2,
      0.0,
      407.3,
-     753.0
+     847.9
     ],
     "impressions": [
      13390,
@@ -27388,7 +27554,7 @@ const FIN_DATA = {
      1737,
      887,
      1657,
-     3657
+     4450
     ],
     "clicks": [
      664,
@@ -27402,15 +27568,15 @@ const FIN_DATA = {
      54,
      24,
      46,
-     102
+     126
     ],
-    "total_spend": 1616.1,
-    "total_sales": 24596.55,
-    "total_clicks": 3728,
-    "total_impressions": 86964,
-    "roas": 15.22,
+    "total_spend": 1629.32,
+    "total_sales": 24691.45,
+    "total_clicks": 3752,
+    "total_impressions": 87757,
+    "roas": 15.15,
     "cpc": 0.43,
-    "ctr": 4.29,
+    "ctr": 4.28,
     "is_traffic": false
    },
    {
@@ -27431,7 +27597,7 @@ const FIN_DATA = {
      180.06,
      127.43,
      177.66,
-     219.53
+     272.25
     ],
     "sales": [
      5025.96,
@@ -27445,7 +27611,7 @@ const FIN_DATA = {
      1877.7,
      1673.1,
      2976.6,
-     2887.9
+     3384.9
     ],
     "impressions": [
      62969,
@@ -27459,7 +27625,7 @@ const FIN_DATA = {
      28275,
      32494,
      35096,
-     37711
+     45714
     ],
     "clicks": [
      584,
@@ -27473,13 +27639,13 @@ const FIN_DATA = {
      292,
      226,
      322,
-     361
+     428
     ],
-    "total_spend": 2963.01,
-    "total_sales": 41868.78,
-    "total_clicks": 5063,
-    "total_impressions": 476605,
-    "roas": 14.13,
+    "total_spend": 3015.73,
+    "total_sales": 42365.78,
+    "total_clicks": 5130,
+    "total_impressions": 484608,
+    "roas": 14.05,
     "cpc": 0.59,
     "ctr": 1.06,
     "is_traffic": false
@@ -27502,7 +27668,7 @@ const FIN_DATA = {
      21.71,
      13.95,
      20.12,
-     78.16
+     103.15
     ],
     "sales": [
      2480.9,
@@ -27516,7 +27682,7 @@ const FIN_DATA = {
      276.6,
      162.6,
      282.7,
-     568.1
+     705.9
     ],
     "impressions": [
      8650,
@@ -27530,7 +27696,7 @@ const FIN_DATA = {
      1429,
      814,
      1521,
-     3799
+     4624
     ],
     "clicks": [
      376,
@@ -27544,15 +27710,15 @@ const FIN_DATA = {
      55,
      36,
      51,
-     221
+     279
     ],
-    "total_spend": 1403.67,
-    "total_sales": 18240.33,
-    "total_clicks": 3283,
-    "total_impressions": 70990,
-    "roas": 12.99,
+    "total_spend": 1428.66,
+    "total_sales": 18378.13,
+    "total_clicks": 3341,
+    "total_impressions": 71815,
+    "roas": 12.86,
     "cpc": 0.43,
-    "ctr": 4.62,
+    "ctr": 4.65,
     "is_traffic": false
    },
    {
@@ -27573,7 +27739,7 @@ const FIN_DATA = {
      65.93,
      40.28,
      40.89,
-     73.55
+     81.21
     ],
     "sales": [
      797.99,
@@ -27587,7 +27753,7 @@ const FIN_DATA = {
      466.3,
      295.9,
      568.3,
-     749.6
+     778.3
     ],
     "impressions": [
      5389,
@@ -27601,7 +27767,7 @@ const FIN_DATA = {
      2988,
      2676,
      3120,
-     5467
+     6864
     ],
     "clicks": [
      206,
@@ -27615,15 +27781,15 @@ const FIN_DATA = {
      144,
      90,
      98,
-     142
+     155
     ],
-    "total_spend": 1032.73,
-    "total_sales": 12273.9,
-    "total_clicks": 2077,
-    "total_impressions": 61009,
-    "roas": 11.88,
+    "total_spend": 1040.39,
+    "total_sales": 12302.6,
+    "total_clicks": 2090,
+    "total_impressions": 62406,
+    "roas": 11.82,
     "cpc": 0.5,
-    "ctr": 3.4,
+    "ctr": 3.35,
     "is_traffic": false
    },
    {
@@ -27644,7 +27810,7 @@ const FIN_DATA = {
      576.53,
      443.54,
      540.78,
-     1375.04
+     1667.07
     ],
     "sales": [
      3256.09,
@@ -27658,7 +27824,7 @@ const FIN_DATA = {
      3621.3,
      1498.4,
      3723.8,
-     8074.8
+     9196.4
     ],
     "impressions": [
      115040,
@@ -27672,7 +27838,7 @@ const FIN_DATA = {
      135068,
      91600,
      129460,
-     236300
+     287608
     ],
     "clicks": [
      731,
@@ -27686,13 +27852,13 @@ const FIN_DATA = {
      971,
      662,
      829,
-     1828
+     2200
     ],
-    "total_spend": 8821.62,
-    "total_sales": 64322.62,
-    "total_clicks": 14479,
-    "total_impressions": 1993582,
-    "roas": 7.29,
+    "total_spend": 9113.65,
+    "total_sales": 65444.22,
+    "total_clicks": 14851,
+    "total_impressions": 2044890,
+    "roas": 7.18,
     "cpc": 0.61,
     "ctr": 0.73,
     "is_traffic": false
@@ -27715,7 +27881,7 @@ const FIN_DATA = {
      69.26,
      39.2,
      61.42,
-     152.43
+     167.06
     ],
     "sales": [
      998.49,
@@ -27729,7 +27895,7 @@ const FIN_DATA = {
      374.4,
      384.7,
      249.0,
-     1080.9
+     1218.7
     ],
     "impressions": [
      43157,
@@ -27743,7 +27909,7 @@ const FIN_DATA = {
      31271,
      25813,
      39244,
-     44877
+     58019
     ],
     "clicks": [
      279,
@@ -27757,15 +27923,15 @@ const FIN_DATA = {
      156,
      87,
      139,
-     373
+     407
     ],
-    "total_spend": 1478.4,
-    "total_sales": 10065.47,
-    "total_clicks": 3355,
-    "total_impressions": 572721,
-    "roas": 6.81,
+    "total_spend": 1493.03,
+    "total_sales": 10203.27,
+    "total_clicks": 3389,
+    "total_impressions": 585863,
+    "roas": 6.83,
     "cpc": 0.44,
-    "ctr": 0.59,
+    "ctr": 0.58,
     "is_traffic": false
    },
    {
@@ -27786,7 +27952,7 @@ const FIN_DATA = {
      6.65,
      11.22,
      31.44,
-     19.56
+     20.59
     ],
     "sales": [
      0,
@@ -27814,7 +27980,7 @@ const FIN_DATA = {
      917,
      1547,
      3333,
-     1934
+     2151
     ],
     "clicks": [
      0,
@@ -27828,15 +27994,15 @@ const FIN_DATA = {
      12,
      16,
      39,
-     30
+     32
     ],
-    "total_spend": 78.27,
+    "total_spend": 79.3,
     "total_sales": 457.7,
-    "total_clicks": 109,
-    "total_impressions": 9188,
-    "roas": 5.85,
-    "cpc": 0.72,
-    "ctr": 1.19,
+    "total_clicks": 111,
+    "total_impressions": 9405,
+    "roas": 5.77,
+    "cpc": 0.71,
+    "ctr": 1.18,
     "is_traffic": false
    }
   ],
@@ -28285,7 +28451,7 @@ const FIN_DATA = {
      13.5,
      1.97,
      17.98,
-     22.16
+     30.74
     ],
     "sales": [
      0.0,
@@ -28313,7 +28479,7 @@ const FIN_DATA = {
      4606,
      548,
      5008,
-     6504
+     8278
     ],
     "clicks": [
      3,
@@ -28327,14 +28493,14 @@ const FIN_DATA = {
      4,
      8,
      20,
-     19
+     23
     ],
-    "total_spend": 187.95,
+    "total_spend": 196.53,
     "total_sales": 22.99,
-    "total_clicks": 159,
-    "total_impressions": 54580,
+    "total_clicks": 163,
+    "total_impressions": 56354,
     "roas": 0.12,
-    "cpc": 1.18,
+    "cpc": 1.21,
     "ctr": 0.29,
     "is_traffic": false
    },
@@ -28584,7 +28750,7 @@ const FIN_DATA = {
      116922.41,
      273109.25,
      342345.29,
-     127236.78
+     133304.72
     ],
     "sales": [
      0,
@@ -28597,7 +28763,7 @@ const FIN_DATA = {
      22544.0,
      80341.0,
      85586.0,
-     36545.0
+     42181.0
     ],
     "impressions": [
      0,
@@ -28610,7 +28776,7 @@ const FIN_DATA = {
      363604,
      965616,
      1069888,
-     306103
+     323335
     ],
     "clicks": [
      0,
@@ -28623,14 +28789,14 @@ const FIN_DATA = {
      666,
      1437,
      1868,
-     666
+     700
     ],
-    "total_spend": 859613.73,
-    "total_sales": 225016.0,
-    "total_clicks": 4637,
-    "total_impressions": 2705211,
-    "roas": 0.26,
-    "cpc": 185.38,
+    "total_spend": 865681.67,
+    "total_sales": 230652.0,
+    "total_clicks": 4671,
+    "total_impressions": 2722443,
+    "roas": 0.27,
+    "cpc": 185.33,
     "ctr": 0.17,
     "is_traffic": false
    },
@@ -28651,7 +28817,7 @@ const FIN_DATA = {
      37697.66,
      26278.37,
      28765.41,
-     9056.97
+     9692.45
     ],
     "sales": [
      114631.85,
@@ -28664,7 +28830,7 @@ const FIN_DATA = {
      67262.03,
      57407.37,
      62447.12,
-     20866.7
+     22597.9
     ],
     "impressions": [
      9020797,
@@ -28677,7 +28843,7 @@ const FIN_DATA = {
      8003195,
      5324313,
      4864315,
-     1751800
+     1927097
     ],
     "clicks": [
      36575,
@@ -28690,12 +28856,12 @@ const FIN_DATA = {
      30612,
      24160,
      26504,
-     7947
+     8580
     ],
-    "total_spend": 446354.03,
-    "total_sales": 946819.08,
-    "total_clicks": 332694,
-    "total_impressions": 88691224,
+    "total_spend": 446989.51,
+    "total_sales": 948550.28,
+    "total_clicks": 333327,
+    "total_impressions": 88866521,
     "roas": 2.12,
     "cpc": 1.34,
     "ctr": 0.38,
@@ -28718,7 +28884,7 @@ const FIN_DATA = {
      19081.64,
      150181.96,
      155323.68,
-     65243.29
+     70176.51
     ],
     "sales": [
      0,
@@ -28744,7 +28910,7 @@ const FIN_DATA = {
      67592,
      466479,
      411432,
-     139634
+     156768
     ],
     "clicks": [
      0,
@@ -28757,14 +28923,14 @@ const FIN_DATA = {
      100,
      797,
      823,
-     297
+     324
     ],
-    "total_spend": 389830.57,
+    "total_spend": 394763.79,
     "total_sales": 77709.0,
-    "total_clicks": 2017,
-    "total_impressions": 1085137,
+    "total_clicks": 2044,
+    "total_impressions": 1102271,
     "roas": 0.2,
-    "cpc": 193.27,
+    "cpc": 193.13,
     "ctr": 0.19,
     "is_traffic": false
    },
@@ -28785,7 +28951,7 @@ const FIN_DATA = {
      10920.88,
      9287.46,
      12519.25,
-     5784.75
+     6586.07
     ],
     "sales": [
      88209.24,
@@ -28798,7 +28964,7 @@ const FIN_DATA = {
      63990.71,
      56425.87,
      55052.87,
-     16971.5
+     19386.4
     ],
     "impressions": [
      3112877,
@@ -28811,7 +28977,7 @@ const FIN_DATA = {
      2995007,
      2616446,
      3142264,
-     1551236
+     1763276
     ],
     "clicks": [
      22723,
@@ -28824,13 +28990,13 @@ const FIN_DATA = {
      18048,
      16139,
      20157,
-     7801
+     8740
     ],
-    "total_spend": 140796.74,
-    "total_sales": 829583.5,
-    "total_clicks": 227645,
-    "total_impressions": 40325885,
-    "roas": 5.89,
+    "total_spend": 141598.06,
+    "total_sales": 831998.4,
+    "total_clicks": 228584,
+    "total_impressions": 40537925,
+    "roas": 5.88,
     "cpc": 0.62,
     "ctr": 0.56,
     "is_traffic": false
@@ -29326,7 +29492,7 @@ const FIN_DATA = {
      13781.85,
      4227.97,
      12662.62,
-     2583.03
+     2617.18
     ],
     "sales": [
      0,
@@ -29352,7 +29518,7 @@ const FIN_DATA = {
      591116,
      79283,
      199369,
-     37271
+     37903
     ],
     "clicks": [
      0,
@@ -29365,12 +29531,12 @@ const FIN_DATA = {
      7209,
      1624,
      4003,
-     652
+     662
     ],
-    "total_spend": 41297.1,
+    "total_spend": 41331.25,
     "total_sales": 40263.08,
-    "total_clicks": 17742,
-    "total_impressions": 1189437,
+    "total_clicks": 17752,
+    "total_impressions": 1190069,
     "roas": 0.97,
     "cpc": 2.33,
     "ctr": 1.49,
@@ -29393,7 +29559,7 @@ const FIN_DATA = {
      3028.55,
      1092.39,
      615.77,
-     232.42
+     250.25
     ],
     "sales": [
      9575.87,
@@ -29406,7 +29572,7 @@ const FIN_DATA = {
      9935.28,
      2813.38,
      1765.96,
-     338.6
+     367.3
     ],
     "impressions": [
      792936,
@@ -29419,7 +29585,7 @@ const FIN_DATA = {
      737397,
      254541,
      185046,
-     90189
+     100145
     ],
     "clicks": [
      6658,
@@ -29432,12 +29598,12 @@ const FIN_DATA = {
      5368,
      2157,
      1669,
-     633
+     679
     ],
-    "total_spend": 32552.59,
-    "total_sales": 84262.64,
-    "total_clicks": 57942,
-    "total_impressions": 9461087,
+    "total_spend": 32570.42,
+    "total_sales": 84291.34,
+    "total_clicks": 57988,
+    "total_impressions": 9471043,
     "roas": 2.59,
     "cpc": 0.56,
     "ctr": 0.61,
@@ -29594,7 +29760,7 @@ const FIN_DATA = {
      5684.86,
      4250.76,
      4870.22,
-     837.38
+     851.38
     ],
     "sales": [
      0,
@@ -29607,7 +29773,7 @@ const FIN_DATA = {
      12650.32,
      9628.59,
      11206.99,
-     1893.2
+     1962.6
     ],
     "impressions": [
      0,
@@ -29620,7 +29786,7 @@ const FIN_DATA = {
      1410303,
      1194673,
      1150207,
-     235182
+     240997
     ],
     "clicks": [
      0,
@@ -29633,12 +29799,12 @@ const FIN_DATA = {
      5897,
      4636,
      5489,
-     942
+     959
     ],
-    "total_spend": 29419.75,
-    "total_sales": 67414.23,
-    "total_clicks": 31156,
-    "total_impressions": 7905120,
+    "total_spend": 29433.75,
+    "total_sales": 67483.63,
+    "total_clicks": 31173,
+    "total_impressions": 7910935,
     "roas": 2.29,
     "cpc": 0.94,
     "ctr": 0.39,
@@ -29800,7 +29966,7 @@ const FIN_DATA = {
      2621.72,
      2601.85,
      3917.55,
-     1915.82
+     2207.85
     ],
     "sales": [
      17928.76,
@@ -29813,7 +29979,7 @@ const FIN_DATA = {
      19082.73,
      19427.0,
      29840.93,
-     11798.6
+     12920.2
     ],
     "impressions": [
      704873,
@@ -29826,7 +29992,7 @@ const FIN_DATA = {
      1001303,
      701429,
      811270,
-     365763
+     417071
     ],
     "clicks": [
      2956,
@@ -29839,13 +30005,13 @@ const FIN_DATA = {
      4426,
      4542,
      6546,
-     2657
+     3029
     ],
-    "total_spend": 24742.54,
-    "total_sales": 208269.31,
-    "total_clicks": 40849,
-    "total_impressions": 9757428,
-    "roas": 8.42,
+    "total_spend": 25034.57,
+    "total_sales": 209390.91,
+    "total_clicks": 41221,
+    "total_impressions": 9808736,
+    "roas": 8.36,
     "cpc": 0.61,
     "ctr": 0.42,
     "is_traffic": false
@@ -30119,6 +30285,73 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "120224832628890508",
+    "campaign_id": "120224832628890508",
+    "name": "Shopify | CVR | Grosmimi | ASC Campaign (Legacy)",
+    "platform": "Meta CVR",
+    "brand": "Grosmimi",
+    "spend": [
+     948.9,
+     1062.61,
+     1185.78,
+     1140.19,
+     1149.35,
+     1296.62,
+     1537.75,
+     2144.39,
+     2477.46,
+     3393.0,
+     1539.12
+    ],
+    "sales": [
+     3097.77,
+     9736.71,
+     2544.22,
+     2447.82,
+     3400.61,
+     3773.65,
+     6376.84,
+     9532.24,
+     9646.25,
+     8161.15,
+     3881.78
+    ],
+    "impressions": [
+     74253,
+     78507,
+     81722,
+     62366,
+     63931,
+     65261,
+     66091,
+     109627,
+     92091,
+     125304,
+     56630
+    ],
+    "clicks": [
+     1604,
+     1910,
+     2000,
+     1571,
+     1585,
+     1567,
+     1447,
+     2454,
+     1952,
+     2562,
+     1186
+    ],
+    "total_spend": 17875.17,
+    "total_sales": 62599.04,
+    "total_clicks": 19838,
+    "total_impressions": 875783,
+    "roas": 3.5,
+    "cpc": 0.9,
+    "ctr": 2.27,
+    "is_traffic": false
+   },
+   {
     "id": "120245304901720508",
     "campaign_id": "120245304901720508",
     "name": "Shopify | CVR | Grosmimi | TOF_US_StrawCup (ABO)",
@@ -30183,73 +30416,6 @@ const FIN_DATA = {
     "roas": 2.65,
     "cpc": 1.86,
     "ctr": 2.23,
-    "is_traffic": false
-   },
-   {
-    "id": "120224832628890508",
-    "campaign_id": "120224832628890508",
-    "name": "Shopify | CVR | Grosmimi | ASC Campaign (Legacy)",
-    "platform": "Meta CVR",
-    "brand": "Grosmimi",
-    "spend": [
-     948.9,
-     1062.61,
-     1185.78,
-     1140.19,
-     1149.35,
-     1296.62,
-     1537.75,
-     2144.39,
-     2477.46,
-     3393.0,
-     1449.13
-    ],
-    "sales": [
-     3097.77,
-     9736.71,
-     2544.22,
-     2447.82,
-     3400.61,
-     3773.65,
-     6376.84,
-     9532.24,
-     9646.25,
-     8161.15,
-     3765.95
-    ],
-    "impressions": [
-     74253,
-     78507,
-     81722,
-     62366,
-     63931,
-     65261,
-     66091,
-     109627,
-     92091,
-     125304,
-     53778
-    ],
-    "clicks": [
-     1604,
-     1910,
-     2000,
-     1571,
-     1585,
-     1567,
-     1447,
-     2454,
-     1952,
-     2562,
-     1114
-    ],
-    "total_spend": 17785.18,
-    "total_sales": 62483.21,
-    "total_clicks": 19766,
-    "total_impressions": 872931,
-    "roas": 3.51,
-    "cpc": 0.9,
-    "ctr": 2.26,
     "is_traffic": false
    },
    {
@@ -30537,7 +30703,7 @@ const FIN_DATA = {
      1923.88,
      1197.14,
      1061.42,
-     397.19
+     449.91
     ],
     "sales": [
      41295.7,
@@ -30550,7 +30716,7 @@ const FIN_DATA = {
      28913.96,
      17128.26,
      13850.06,
-     5864.5
+     6361.5
     ],
     "impressions": [
      166093,
@@ -30563,7 +30729,7 @@ const FIN_DATA = {
      427056,
      167778,
      172994,
-     72808
+     80811
     ],
     "clicks": [
      3486,
@@ -30576,13 +30742,13 @@ const FIN_DATA = {
      3678,
      2043,
      1752,
-     683
+     750
     ],
-    "total_spend": 13019.5,
-    "total_sales": 274382.23,
-    "total_clicks": 28486,
-    "total_impressions": 2632209,
-    "roas": 21.07,
+    "total_spend": 13072.22,
+    "total_sales": 274879.23,
+    "total_clicks": 28553,
+    "total_impressions": 2640212,
+    "roas": 21.03,
     "cpc": 0.46,
     "ctr": 1.08,
     "is_traffic": false
@@ -30604,7 +30770,7 @@ const FIN_DATA = {
      456.36,
      666.82,
      1133.64,
-     490.59
+     506.25
     ],
     "sales": [
      0,
@@ -30617,7 +30783,7 @@ const FIN_DATA = {
      2570.87,
      3122.25,
      5053.02,
-     1831.0
+     1859.7
     ],
     "impressions": [
      0,
@@ -30630,7 +30796,7 @@ const FIN_DATA = {
      66926,
      105263,
      463498,
-     770843
+     827891
     ],
     "clicks": [
      0,
@@ -30643,15 +30809,15 @@ const FIN_DATA = {
      386,
      520,
      1009,
-     599
+     622
     ],
-    "total_spend": 11220.99,
-    "total_sales": 69014.25,
-    "total_clicks": 8658,
-    "total_impressions": 2178798,
-    "roas": 6.15,
-    "cpc": 1.3,
-    "ctr": 0.4,
+    "total_spend": 11236.65,
+    "total_sales": 69042.95,
+    "total_clicks": 8681,
+    "total_impressions": 2235846,
+    "roas": 6.14,
+    "cpc": 1.29,
+    "ctr": 0.39,
     "is_traffic": false
    },
    {
@@ -30671,7 +30837,7 @@ const FIN_DATA = {
      1543.73,
      845.16,
      425.7,
-     63.78
+     77.0
     ],
     "sales": [
      31055.2,
@@ -30684,7 +30850,7 @@ const FIN_DATA = {
      22919.15,
      14043.11,
      5539.56,
-     1160.3
+     1255.2
     ],
     "impressions": [
      61373,
@@ -30697,7 +30863,7 @@ const FIN_DATA = {
      71057,
      43004,
      25241,
-     5314
+     6107
     ],
     "clicks": [
      2995,
@@ -30710,13 +30876,13 @@ const FIN_DATA = {
      3541,
      2003,
      913,
-     148
+     172
     ],
-    "total_spend": 10833.29,
-    "total_sales": 210656.12,
-    "total_clicks": 24720,
-    "total_impressions": 516929,
-    "roas": 19.45,
+    "total_spend": 10846.51,
+    "total_sales": 210751.02,
+    "total_clicks": 24744,
+    "total_impressions": 517722,
+    "roas": 19.43,
     "cpc": 0.44,
     "ctr": 4.78,
     "is_traffic": false
@@ -30738,7 +30904,7 @@ const FIN_DATA = {
      1068.02,
      741.34,
      404.46,
-     98.28
+     123.27
     ],
     "sales": [
      22532.68,
@@ -30751,7 +30917,7 @@ const FIN_DATA = {
      15519.18,
      10357.51,
      4551.12,
-     850.8
+     988.6
     ],
     "impressions": [
      42726,
@@ -30764,7 +30930,7 @@ const FIN_DATA = {
      53686,
      35393,
      21624,
-     5320
+     6145
     ],
     "clicks": [
      2509,
@@ -30777,15 +30943,15 @@ const FIN_DATA = {
      2473,
      1753,
      882,
-     272
+     330
     ],
-    "total_spend": 10496.81,
-    "total_sales": 185638.29,
-    "total_clicks": 24257,
-    "total_impressions": 459143,
-    "roas": 17.69,
+    "total_spend": 10521.8,
+    "total_sales": 185776.09,
+    "total_clicks": 24315,
+    "total_impressions": 459968,
+    "roas": 17.66,
     "cpc": 0.43,
-    "ctr": 5.28,
+    "ctr": 5.29,
     "is_traffic": false
    },
    {
@@ -30939,7 +31105,7 @@ const FIN_DATA = {
      475.98,
      2870.29,
      3708.92,
-     1336.9
+     1490.4
     ],
     "sales": [
      0,
@@ -30952,7 +31118,7 @@ const FIN_DATA = {
      4726.78,
      15436.81,
      17742.99,
-     4319.2
+     4685.4
     ],
     "impressions": [
      0,
@@ -30965,7 +31131,7 @@ const FIN_DATA = {
      72548,
      181299,
      174499,
-     95396
+     110082
     ],
     "clicks": [
      0,
@@ -30978,15 +31144,82 @@ const FIN_DATA = {
      950,
      4016,
      4386,
-     1497
+     1662
     ],
-    "total_spend": 8392.09,
-    "total_sales": 42225.78,
-    "total_clicks": 10849,
-    "total_impressions": 523742,
-    "roas": 5.03,
-    "cpc": 0.77,
-    "ctr": 2.07,
+    "total_spend": 8545.59,
+    "total_sales": 42591.98,
+    "total_clicks": 11014,
+    "total_impressions": 538428,
+    "roas": 4.98,
+    "cpc": 0.78,
+    "ctr": 2.05,
+    "is_traffic": false
+   },
+   {
+    "id": "365330679770972",
+    "campaign_id": "365330679770972",
+    "name": "SP_Naeiae_Auto",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     1018.34,
+     1017.0,
+     1085.47,
+     524.16,
+     372.3,
+     240.47,
+     161.61,
+     774.7,
+     1110.15,
+     1466.58,
+     551.31
+    ],
+    "sales": [
+     3321.0,
+     3370.2,
+     3001.2,
+     1845.0,
+     1033.2,
+     639.6,
+     565.8,
+     1328.4,
+     1353.0,
+     1793.34,
+     369.0
+    ],
+    "impressions": [
+     234664,
+     274293,
+     321968,
+     130987,
+     99131,
+     73259,
+     35848,
+     159512,
+     236825,
+     334051,
+     140114
+    ],
+    "clicks": [
+     1367,
+     1314,
+     1354,
+     640,
+     457,
+     300,
+     208,
+     718,
+     1146,
+     1660,
+     616
+    ],
+    "total_spend": 8322.09,
+    "total_sales": 18619.74,
+    "total_clicks": 9780,
+    "total_impressions": 2040652,
+    "roas": 2.24,
+    "cpc": 0.85,
+    "ctr": 0.48,
     "is_traffic": false
    },
    {
@@ -31062,73 +31295,6 @@ const FIN_DATA = {
     "attr_roas_adj": 0
    },
    {
-    "id": "365330679770972",
-    "campaign_id": "365330679770972",
-    "name": "SP_Naeiae_Auto",
-    "platform": "Amazon Ads",
-    "brand": "Naeiae",
-    "spend": [
-     1018.34,
-     1017.0,
-     1085.47,
-     524.16,
-     372.3,
-     240.47,
-     161.61,
-     774.7,
-     1110.15,
-     1466.58,
-     477.09
-    ],
-    "sales": [
-     3321.0,
-     3370.2,
-     3001.2,
-     1845.0,
-     1033.2,
-     639.6,
-     565.8,
-     1328.4,
-     1353.0,
-     1793.34,
-     319.8
-    ],
-    "impressions": [
-     234664,
-     274293,
-     321968,
-     130987,
-     99131,
-     73259,
-     35848,
-     159512,
-     236825,
-     334051,
-     116375
-    ],
-    "clicks": [
-     1367,
-     1314,
-     1354,
-     640,
-     457,
-     300,
-     208,
-     718,
-     1146,
-     1660,
-     535
-    ],
-    "total_spend": 8247.87,
-    "total_sales": 18570.54,
-    "total_clicks": 9699,
-    "total_impressions": 2016913,
-    "roas": 2.25,
-    "cpc": 0.85,
-    "ctr": 0.48,
-    "is_traffic": false
-   },
-   {
     "id": "481285651003605",
     "campaign_id": "481285651003605",
     "name": "SP_Fliptop_defensive",
@@ -31145,7 +31311,7 @@ const FIN_DATA = {
      576.55,
      417.14,
      401.5,
-     114.44
+     122.1
     ],
     "sales": [
      26535.58,
@@ -31158,7 +31324,7 @@ const FIN_DATA = {
      5885.49,
      6069.75,
      4088.26,
-     1317.9
+     1346.6
     ],
     "impressions": [
      62659,
@@ -31171,7 +31337,7 @@ const FIN_DATA = {
      29928,
      22397,
      24633,
-     8587
+     9984
     ],
     "clicks": [
      3122,
@@ -31184,15 +31350,15 @@ const FIN_DATA = {
      1178,
      855,
      776,
-     240
+     253
     ],
-    "total_spend": 7984.67,
-    "total_sales": 121522.63,
-    "total_clicks": 15457,
-    "total_impressions": 340635,
-    "roas": 15.22,
+    "total_spend": 7992.33,
+    "total_sales": 121551.33,
+    "total_clicks": 15470,
+    "total_impressions": 342032,
+    "roas": 15.21,
     "cpc": 0.52,
-    "ctr": 4.54,
+    "ctr": 4.52,
     "is_traffic": false
    },
    {
@@ -31212,7 +31378,7 @@ const FIN_DATA = {
      1443.15,
      3146.9,
      2473.86,
-     710.56
+     850.61
     ],
     "sales": [
      0,
@@ -31225,7 +31391,7 @@ const FIN_DATA = {
      7768.8,
      12787.35,
      12772.86,
-     3953.8
+     4597.9
     ],
     "impressions": [
      0,
@@ -31238,7 +31404,7 @@ const FIN_DATA = {
      145766,
      450899,
      526543,
-     130736
+     159829
     ],
     "clicks": [
      0,
@@ -31251,15 +31417,15 @@ const FIN_DATA = {
      1496,
      4206,
      3449,
-     961
+     1106
     ],
-    "total_spend": 7774.47,
-    "total_sales": 37282.81,
-    "total_clicks": 10112,
-    "total_impressions": 1253944,
-    "roas": 4.8,
+    "total_spend": 7914.52,
+    "total_sales": 37926.91,
+    "total_clicks": 10257,
+    "total_impressions": 1283037,
+    "roas": 4.79,
     "cpc": 0.77,
-    "ctr": 0.81,
+    "ctr": 0.8,
     "is_traffic": false
    },
    {
@@ -31763,7 +31929,7 @@ const FIN_DATA = {
      685.6,
      570.25,
      572.24,
-     213.85
+     228.48
     ],
     "sales": [
      6766.17,
@@ -31776,7 +31942,7 @@ const FIN_DATA = {
      5248.96,
      3655.27,
      4081.81,
-     1329.9
+     1467.7
     ],
     "impressions": [
      612270,
@@ -31789,7 +31955,7 @@ const FIN_DATA = {
      219083,
      227487,
      217848,
-     84129
+     97271
     ],
     "clicks": [
      1515,
@@ -31802,12 +31968,12 @@ const FIN_DATA = {
      1535,
      1286,
      1276,
-     512
+     546
     ],
-    "total_spend": 6010.41,
-    "total_sales": 55411.74,
-    "total_clicks": 14556,
-    "total_impressions": 8028370,
+    "total_spend": 6025.04,
+    "total_sales": 55549.54,
+    "total_clicks": 14590,
+    "total_impressions": 8041512,
     "roas": 9.22,
     "cpc": 0.41,
     "ctr": 0.18,
@@ -31902,7 +32068,7 @@ const FIN_DATA = {
      323.25,
      1474.13,
      1780.69,
-     632.57
+     700.78
     ],
     "sales": [
      0,
@@ -31915,7 +32081,7 @@ const FIN_DATA = {
      939.1,
      3789.18,
      4857.32,
-     2021.8
+     2304.1
     ],
     "impressions": [
      0,
@@ -31928,7 +32094,7 @@ const FIN_DATA = {
      26925,
      101313,
      134412,
-     52112
+     56931
     ],
     "clicks": [
      0,
@@ -31941,13 +32107,13 @@ const FIN_DATA = {
      274,
      1508,
      1302,
-     499
+     549
     ],
-    "total_spend": 4210.64,
-    "total_sales": 11607.4,
-    "total_clicks": 3583,
-    "total_impressions": 314762,
-    "roas": 2.76,
+    "total_spend": 4278.85,
+    "total_sales": 11889.7,
+    "total_clicks": 3633,
+    "total_impressions": 319581,
+    "roas": 2.78,
     "cpc": 1.18,
     "ctr": 1.14,
     "is_traffic": false
@@ -32237,7 +32403,7 @@ const FIN_DATA = {
      898.22,
      924.41,
      962.03,
-     199.85
+     207.85
     ],
     "sales": [
      0,
@@ -32263,7 +32429,7 @@ const FIN_DATA = {
      25199,
      23211,
      23126,
-     5520
+     5955
     ],
     "clicks": [
      0,
@@ -32276,13 +32442,13 @@ const FIN_DATA = {
      631,
      627,
      680,
-     177
+     186
     ],
-    "total_spend": 3117.29,
+    "total_spend": 3125.29,
     "total_sales": 5821.75,
-    "total_clicks": 2194,
-    "total_impressions": 80573,
-    "roas": 1.87,
+    "total_clicks": 2203,
+    "total_impressions": 81008,
+    "roas": 1.86,
     "cpc": 1.42,
     "ctr": 2.72,
     "is_traffic": false
@@ -32572,7 +32738,7 @@ const FIN_DATA = {
      559.16,
      1219.62,
      654.85,
-     125.56
+     146.06
     ],
     "sales": [
      0,
@@ -32585,7 +32751,7 @@ const FIN_DATA = {
      1147.59,
      2000.0,
      1169.76,
-     385.0
+     447.3
     ],
     "impressions": [
      0,
@@ -32598,7 +32764,7 @@ const FIN_DATA = {
      49572,
      78593,
      58262,
-     16800
+     18769
     ],
     "clicks": [
      0,
@@ -32611,15 +32777,15 @@ const FIN_DATA = {
      257,
      1565,
      785,
-     151
+     169
     ],
-    "total_spend": 2559.19,
-    "total_sales": 4702.35,
-    "total_clicks": 2758,
-    "total_impressions": 203227,
-    "roas": 1.84,
+    "total_spend": 2579.69,
+    "total_sales": 4764.65,
+    "total_clicks": 2776,
+    "total_impressions": 205196,
+    "roas": 1.85,
     "cpc": 0.93,
-    "ctr": 1.36,
+    "ctr": 1.35,
     "is_traffic": false
    },
    {
@@ -32933,7 +33099,7 @@ const FIN_DATA = {
      39626,
      41659,
      20848,
-     663
+     668
     ],
     "clicks": [
      0,
@@ -32951,7 +33117,7 @@ const FIN_DATA = {
     "total_spend": 2198.1,
     "total_sales": 4083.71,
     "total_clicks": 1664,
-    "total_impressions": 107848,
+    "total_impressions": 107853,
     "roas": 1.86,
     "cpc": 1.32,
     "ctr": 1.54,
@@ -33175,7 +33341,7 @@ const FIN_DATA = {
      528.81,
      767.63,
      527.94,
-     30.03
+     33.12
     ],
     "sales": [
      0,
@@ -33201,7 +33367,7 @@ const FIN_DATA = {
      42946,
      61234,
      51827,
-     5687
+     6431
     ],
     "clicks": [
      0,
@@ -33214,12 +33380,12 @@ const FIN_DATA = {
      548,
      948,
      716,
-     42
+     45
     ],
-    "total_spend": 1854.41,
+    "total_spend": 1857.5,
     "total_sales": 5029.32,
-    "total_clicks": 2254,
-    "total_impressions": 161694,
+    "total_clicks": 2257,
+    "total_impressions": 162438,
     "roas": 2.71,
     "cpc": 0.82,
     "ctr": 1.39,
@@ -33242,7 +33408,7 @@ const FIN_DATA = {
      151.6,
      96.46,
      134.39,
-     44.39
+     50.97
     ],
     "sales": [
      0,
@@ -33268,7 +33434,7 @@ const FIN_DATA = {
      48216,
      30929,
      36990,
-     8951
+     10097
     ],
     "clicks": [
      0,
@@ -33281,15 +33447,82 @@ const FIN_DATA = {
      258,
      152,
      200,
-     73
+     83
     ],
-    "total_spend": 1799.4,
+    "total_spend": 1805.98,
     "total_sales": 2567.27,
-    "total_clicks": 2940,
-    "total_impressions": 570101,
-    "roas": 1.43,
+    "total_clicks": 2950,
+    "total_impressions": 571247,
+    "roas": 1.42,
     "cpc": 0.61,
     "ctr": 0.52,
+    "is_traffic": false
+   },
+   {
+    "id": "195982638056290",
+    "campaign_id": "195982638056290",
+    "name": "SB_Grosmimi_Collections_2026-08-27",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     21.08,
+     631.04,
+     723.77,
+     329.69
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     246.2,
+     2940.49,
+     3908.48,
+     1663.29
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     3090,
+     242560,
+     182545,
+     79815
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     25,
+     695,
+     753,
+     325
+    ],
+    "total_spend": 1705.58,
+    "total_sales": 8758.46,
+    "total_clicks": 1798,
+    "total_impressions": 508010,
+    "roas": 5.14,
+    "cpc": 0.95,
+    "ctr": 0.35,
     "is_traffic": false
    },
    {
@@ -33335,7 +33568,7 @@ const FIN_DATA = {
      46302,
      20908,
      19112,
-     975
+     1018
     ],
     "clicks": [
      0,
@@ -33353,77 +33586,10 @@ const FIN_DATA = {
     "total_spend": 1681.0,
     "total_sales": 5662.71,
     "total_clicks": 1307,
-    "total_impressions": 140573,
+    "total_impressions": 140616,
     "roas": 3.37,
     "cpc": 1.29,
     "ctr": 0.93,
-    "is_traffic": false
-   },
-   {
-    "id": "195982638056290",
-    "campaign_id": "195982638056290",
-    "name": "SB_Grosmimi_Collections_2026-08-27",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     21.08,
-     631.04,
-     723.77,
-     299.58
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     246.2,
-     2940.49,
-     3908.48,
-     1398.69
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     3090,
-     242560,
-     182545,
-     77237
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     25,
-     695,
-     753,
-     282
-    ],
-    "total_spend": 1675.47,
-    "total_sales": 8493.86,
-    "total_clicks": 1755,
-    "total_impressions": 505432,
-    "roas": 5.07,
-    "cpc": 0.95,
-    "ctr": 0.35,
     "is_traffic": false
    },
    {
@@ -33515,7 +33681,7 @@ const FIN_DATA = {
      0,
      571.17,
      737.45,
-     291.13
+     321.0
     ],
     "sales": [
      0,
@@ -33528,7 +33694,7 @@ const FIN_DATA = {
      0,
      867.8,
      1252.12,
-     839.6
+     967.0
     ],
     "impressions": [
      0,
@@ -33541,7 +33707,7 @@ const FIN_DATA = {
      0,
      18916,
      25794,
-     12601
+     14051
     ],
     "clicks": [
      0,
@@ -33554,14 +33720,14 @@ const FIN_DATA = {
      0,
      387,
      580,
-     297
+     332
     ],
-    "total_spend": 1599.75,
-    "total_sales": 2959.52,
-    "total_clicks": 1264,
-    "total_impressions": 57311,
-    "roas": 1.85,
-    "cpc": 1.27,
+    "total_spend": 1629.62,
+    "total_sales": 3086.92,
+    "total_clicks": 1299,
+    "total_impressions": 58761,
+    "roas": 1.89,
+    "cpc": 1.25,
     "ctr": 2.21,
     "is_traffic": false
    },
@@ -33721,7 +33887,7 @@ const FIN_DATA = {
      0,
      570.45,
      730.9,
-     72.64
+     73.25
     ],
     "sales": [
      0,
@@ -33747,7 +33913,7 @@ const FIN_DATA = {
      0,
      28086,
      34751,
-     5603
+     5744
     ],
     "clicks": [
      0,
@@ -33760,12 +33926,12 @@ const FIN_DATA = {
      0,
      419,
      576,
-     61
+     62
     ],
-    "total_spend": 1373.99,
+    "total_spend": 1374.6,
     "total_sales": 2560.61,
-    "total_clicks": 1056,
-    "total_impressions": 68440,
+    "total_clicks": 1057,
+    "total_impressions": 68581,
     "roas": 1.86,
     "cpc": 1.3,
     "ctr": 1.54,
@@ -33906,6 +34072,73 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "92854752669549",
+    "campaign_id": "92854752669549",
+    "name": "SB_Grosmimi_NewCollections_2026-10-06",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     820.65,
+     463.02
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1457.28,
+     2054.4
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     184072,
+     64471
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     685,
+     397
+    ],
+    "total_spend": 1283.67,
+    "total_sales": 3511.68,
+    "total_clicks": 1082,
+    "total_impressions": 248543,
+    "roas": 2.74,
+    "cpc": 1.19,
+    "ctr": 0.44,
+    "is_traffic": false
+   },
+   {
     "id": "254794026057509",
     "campaign_id": "254794026057509",
     "name": "SBV_Grosmimi_V6_Modular-Economic_KW_2026-06-18",
@@ -33970,73 +34203,6 @@ const FIN_DATA = {
     "roas": 1.22,
     "cpc": 1.51,
     "ctr": 0.79,
-    "is_traffic": false
-   },
-   {
-    "id": "92854752669549",
-    "campaign_id": "92854752669549",
-    "name": "SB_Grosmimi_NewCollections_2026-10-06",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     820.65,
-     452.66
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1457.28,
-     2054.4
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     184072,
-     63811
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     685,
-     382
-    ],
-    "total_spend": 1273.31,
-    "total_sales": 3511.68,
-    "total_clicks": 1067,
-    "total_impressions": 247883,
-    "roas": 2.76,
-    "cpc": 1.19,
-    "ctr": 0.43,
     "is_traffic": false
    },
    {
@@ -34257,7 +34423,7 @@ const FIN_DATA = {
      239.73,
      503.7,
      296.4,
-     122.43
+     126.96
     ],
     "sales": [
      0,
@@ -34270,7 +34436,7 @@ const FIN_DATA = {
      148.4,
      461.4,
      361.16,
-     38.9
+     85.7
     ],
     "impressions": [
      0,
@@ -34283,7 +34449,7 @@ const FIN_DATA = {
      32539,
      20911,
      13373,
-     6074
+     6561
     ],
     "clicks": [
      0,
@@ -34296,15 +34462,15 @@ const FIN_DATA = {
      127,
      1735,
      454,
-     292
+     296
     ],
-    "total_spend": 1162.26,
-    "total_sales": 1009.86,
-    "total_clicks": 2608,
-    "total_impressions": 72897,
-    "roas": 0.87,
+    "total_spend": 1166.79,
+    "total_sales": 1056.66,
+    "total_clicks": 2612,
+    "total_impressions": 73384,
+    "roas": 0.91,
     "cpc": 0.45,
-    "ctr": 3.58,
+    "ctr": 3.56,
     "is_traffic": false
    },
    {
@@ -34324,7 +34490,7 @@ const FIN_DATA = {
      0,
      97.76,
      970.07,
-     29.99
+     34.16
     ],
     "sales": [
      0,
@@ -34337,7 +34503,7 @@ const FIN_DATA = {
      0,
      128.8,
      1367.1,
-     64.2
+     90.1
     ],
     "impressions": [
      0,
@@ -34350,7 +34516,7 @@ const FIN_DATA = {
      0,
      60257,
      83119,
-     5780
+     6290
     ],
     "clicks": [
      0,
@@ -34363,13 +34529,13 @@ const FIN_DATA = {
      0,
      186,
      2211,
-     60
+     72
     ],
-    "total_spend": 1097.82,
-    "total_sales": 1560.1,
-    "total_clicks": 2457,
-    "total_impressions": 149156,
-    "roas": 1.42,
+    "total_spend": 1101.99,
+    "total_sales": 1586.0,
+    "total_clicks": 2469,
+    "total_impressions": 149666,
+    "roas": 1.44,
     "cpc": 0.45,
     "ctr": 1.65,
     "is_traffic": false
@@ -34391,7 +34557,7 @@ const FIN_DATA = {
      9.91,
      508.74,
      300.06,
-     261.26
+     271.97
     ],
     "sales": [
      0,
@@ -34404,7 +34570,7 @@ const FIN_DATA = {
      75.7,
      2090.49,
      1422.82,
-     735.5
+     758.3
     ],
     "impressions": [
      0,
@@ -34417,7 +34583,7 @@ const FIN_DATA = {
      14518,
      166754,
      226143,
-     190649
+     192175
     ],
     "clicks": [
      0,
@@ -34430,14 +34596,14 @@ const FIN_DATA = {
      11,
      458,
      327,
-     224
+     248
     ],
-    "total_spend": 1079.97,
-    "total_sales": 4324.51,
-    "total_clicks": 1020,
-    "total_impressions": 598064,
-    "roas": 4.0,
-    "cpc": 1.06,
+    "total_spend": 1090.68,
+    "total_sales": 4347.31,
+    "total_clicks": 1044,
+    "total_impressions": 599590,
+    "roas": 3.99,
+    "cpc": 1.04,
     "ctr": 0.17,
     "is_traffic": false
    },
@@ -34865,7 +35031,7 @@ const FIN_DATA = {
      61.64,
      187.89,
      214.15,
-     68.15
+     72.15
     ],
     "sales": [
      0,
@@ -34891,7 +35057,7 @@ const FIN_DATA = {
      16397,
      28588,
      29980,
-     10375
+     11665
     ],
     "clicks": [
      0,
@@ -34904,15 +35070,82 @@ const FIN_DATA = {
      43,
      137,
      223,
-     69
+     73
     ],
-    "total_spend": 812.48,
+    "total_spend": 816.48,
     "total_sales": 1180.8,
-    "total_clicks": 727,
-    "total_impressions": 143499,
+    "total_clicks": 731,
+    "total_impressions": 144789,
     "roas": 1.45,
     "cpc": 1.12,
-    "ctr": 0.51,
+    "ctr": 0.5,
+    "is_traffic": false
+   },
+   {
+    "id": "163651293531353",
+    "campaign_id": "163651293531353",
+    "name": "SP_AL_Auto",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     117.71,
+     480.42,
+     216.88
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     329.4,
+     109.8,
+     219.6
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     12469,
+     37080,
+     26022
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     171,
+     525,
+     251
+    ],
+    "total_spend": 815.01,
+    "total_sales": 658.8,
+    "total_clicks": 947,
+    "total_impressions": 75571,
+    "roas": 0.81,
+    "cpc": 0.86,
+    "ctr": 1.25,
     "is_traffic": false
    },
    {
@@ -35323,73 +35556,6 @@ const FIN_DATA = {
     "attr_roas_adj": 0
    },
    {
-    "id": "163651293531353",
-    "campaign_id": "163651293531353",
-    "name": "SP_AL_Auto",
-    "platform": "Amazon Ads",
-    "brand": "Naeiae",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     117.71,
-     480.42,
-     153.32
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     329.4,
-     109.8,
-     219.6
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     12469,
-     37080,
-     16536
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     171,
-     525,
-     169
-    ],
-    "total_spend": 751.45,
-    "total_sales": 658.8,
-    "total_clicks": 865,
-    "total_impressions": 66085,
-    "roas": 0.88,
-    "cpc": 0.87,
-    "ctr": 1.31,
-    "is_traffic": false
-   },
-   {
     "id": "93060761376593",
     "campaign_id": "93060761376593",
     "name": "Alpremio strap_sp_auto",
@@ -35473,7 +35639,7 @@ const FIN_DATA = {
      597.63,
      78.9,
      25.98,
-     3.26
+     4.19
     ],
     "sales": [
      0,
@@ -35499,7 +35665,7 @@ const FIN_DATA = {
      56196,
      8791,
      3646,
-     590
+     683
     ],
     "clicks": [
      0,
@@ -35512,12 +35678,12 @@ const FIN_DATA = {
      442,
      36,
      18,
-     3
+     4
     ],
-    "total_spend": 705.77,
+    "total_spend": 706.7,
     "total_sales": 1361.54,
-    "total_clicks": 499,
-    "total_impressions": 69223,
+    "total_clicks": 500,
+    "total_impressions": 69316,
     "roas": 1.93,
     "cpc": 1.41,
     "ctr": 0.72,
@@ -35607,7 +35773,7 @@ const FIN_DATA = {
      0,
      190.07,
      333.48,
-     136.62
+     144.79
     ],
     "sales": [
      0,
@@ -35633,7 +35799,7 @@ const FIN_DATA = {
      0,
      48204,
      68280,
-     26667
+     29706
     ],
     "clicks": [
      0,
@@ -35646,13 +35812,13 @@ const FIN_DATA = {
      0,
      174,
      309,
-     123
+     130
     ],
-    "total_spend": 660.17,
+    "total_spend": 668.34,
     "total_sales": 885.6,
-    "total_clicks": 606,
-    "total_impressions": 143151,
-    "roas": 1.34,
+    "total_clicks": 613,
+    "total_impressions": 146190,
+    "roas": 1.33,
     "cpc": 1.09,
     "ctr": 0.42,
     "is_traffic": false
@@ -35674,7 +35840,7 @@ const FIN_DATA = {
      57.26,
      84.27,
      57.71,
-     40.14
+     48.72
     ],
     "sales": [
      0,
@@ -35700,7 +35866,7 @@ const FIN_DATA = {
      14168,
      26677,
      14256,
-     11512
+     13286
     ],
     "clicks": [
      0,
@@ -35713,14 +35879,14 @@ const FIN_DATA = {
      49,
      71,
      46,
-     39
+     43
     ],
-    "total_spend": 646.67,
+    "total_spend": 655.25,
     "total_sales": 522.29,
-    "total_clicks": 468,
-    "total_impressions": 187950,
-    "roas": 0.81,
-    "cpc": 1.38,
+    "total_clicks": 472,
+    "total_impressions": 189724,
+    "roas": 0.8,
+    "cpc": 1.39,
     "ctr": 0.25,
     "is_traffic": false
    },
@@ -36143,7 +36309,7 @@ const FIN_DATA = {
      0,
      334.32,
      148.1,
-     56.45
+     62.63
     ],
     "sales": [
      0,
@@ -36169,7 +36335,7 @@ const FIN_DATA = {
      0,
      92693,
      59075,
-     24356
+     27611
     ],
     "clicks": [
      0,
@@ -36182,13 +36348,13 @@ const FIN_DATA = {
      0,
      335,
      203,
-     75
+     83
     ],
-    "total_spend": 538.87,
+    "total_spend": 545.05,
     "total_sales": 516.6,
-    "total_clicks": 613,
-    "total_impressions": 176124,
-    "roas": 0.96,
+    "total_clicks": 621,
+    "total_impressions": 179379,
+    "roas": 0.95,
     "cpc": 0.88,
     "ctr": 0.35,
     "is_traffic": false
@@ -36947,7 +37113,7 @@ const FIN_DATA = {
      73.34,
      137.87,
      114.79,
-     44.32
+     48.01
     ],
     "sales": [
      0,
@@ -36973,7 +37139,7 @@ const FIN_DATA = {
      27681,
      14607,
      9511,
-     4240
+     4755
     ],
     "clicks": [
      0,
@@ -36986,13 +37152,13 @@ const FIN_DATA = {
      89,
      144,
      135,
-     48
+     52
     ],
-    "total_spend": 399.47,
+    "total_spend": 403.16,
     "total_sales": 1648.2,
-    "total_clicks": 452,
-    "total_impressions": 61920,
-    "roas": 4.13,
+    "total_clicks": 456,
+    "total_impressions": 62435,
+    "roas": 4.09,
     "cpc": 0.88,
     "ctr": 0.73,
     "is_traffic": false
@@ -37271,6 +37437,73 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "242337780421738",
+    "campaign_id": "242337780421738",
+    "name": "SP_NUK_Conquest",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     182.39,
+     91.9,
+     81.76
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     499.5,
+     169.04,
+     111.9
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     80464,
+     49021,
+     40741
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     264,
+     184,
+     121
+    ],
+    "total_spend": 356.05,
+    "total_sales": 780.44,
+    "total_clicks": 569,
+    "total_impressions": 170226,
+    "roas": 2.19,
+    "cpc": 0.63,
+    "ctr": 0.33,
+    "is_traffic": false
+   },
+   {
     "id": "80157107626289",
     "campaign_id": "80157107626289",
     "name": "SBV_Grosmimi_ToddlersFaveCup_2026-08-05",
@@ -37338,73 +37571,6 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "242337780421738",
-    "campaign_id": "242337780421738",
-    "name": "SP_NUK_Conquest",
-    "platform": "Amazon Ads",
-    "brand": "Grosmimi",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     182.39,
-     91.9,
-     70.3
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     499.5,
-     169.04,
-     54.5
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     80464,
-     49021,
-     33370
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     264,
-     184,
-     103
-    ],
-    "total_spend": 344.59,
-    "total_sales": 723.04,
-    "total_clicks": 551,
-    "total_impressions": 162855,
-    "roas": 2.1,
-    "cpc": 0.63,
-    "ctr": 0.34,
-    "is_traffic": false
-   },
-   {
     "id": "135017536045857",
     "campaign_id": "135017536045857",
     "name": "SS_SP_H1_SS_Explicit",
@@ -37421,7 +37587,7 @@ const FIN_DATA = {
      32.17,
      109.66,
      140.63,
-     55.14
+     61.33
     ],
     "sales": [
      0,
@@ -37447,7 +37613,7 @@ const FIN_DATA = {
      2599,
      6161,
      7105,
-     2525
+     2855
     ],
     "clicks": [
      0,
@@ -37460,15 +37626,15 @@ const FIN_DATA = {
      54,
      130,
      129,
-     77
+     82
     ],
-    "total_spend": 337.6,
+    "total_spend": 343.79,
     "total_sales": 826.44,
-    "total_clicks": 390,
-    "total_impressions": 18390,
-    "roas": 2.45,
+    "total_clicks": 395,
+    "total_impressions": 18720,
+    "roas": 2.4,
     "cpc": 0.87,
-    "ctr": 2.12,
+    "ctr": 2.11,
     "is_traffic": false
    },
    {
@@ -38694,7 +38860,7 @@ const FIN_DATA = {
      0,
      0,
      210.92,
-     3.39
+     4.78
     ],
     "sales": [
      0,
@@ -38720,7 +38886,7 @@ const FIN_DATA = {
      0,
      0,
      23039,
-     855
+     1022
     ],
     "clicks": [
      0,
@@ -38733,14 +38899,14 @@ const FIN_DATA = {
      0,
      0,
      98,
-     6
+     9
     ],
-    "total_spend": 214.31,
+    "total_spend": 215.7,
     "total_sales": 329.4,
-    "total_clicks": 104,
-    "total_impressions": 23894,
-    "roas": 1.54,
-    "cpc": 2.06,
+    "total_clicks": 107,
+    "total_impressions": 24061,
+    "roas": 1.53,
+    "cpc": 2.02,
     "ctr": 0.44,
     "is_traffic": false
    },
@@ -38761,7 +38927,7 @@ const FIN_DATA = {
      16.8,
      9.1,
      10.36,
-     4.03
+     4.57
     ],
     "sales": [
      1386.58,
@@ -38787,7 +38953,7 @@ const FIN_DATA = {
      28377,
      17623,
      15050,
-     7143
+     7796
     ],
     "clicks": [
      266,
@@ -38800,15 +38966,82 @@ const FIN_DATA = {
      159,
      87,
      98,
-     41
+     46
     ],
-    "total_spend": 210.65,
+    "total_spend": 211.19,
     "total_sales": 8769.63,
-    "total_clicks": 1897,
-    "total_impressions": 272411,
-    "roas": 41.63,
+    "total_clicks": 1902,
+    "total_impressions": 273064,
+    "roas": 41.52,
     "cpc": 0.11,
     "ctr": 0.7,
+    "is_traffic": false
+   },
+   {
+    "id": "85561416836841",
+    "campaign_id": "85561416836841",
+    "name": "SBV_AL_Support Seat_2026-10-21",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     201.71,
+     8.61
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     432.78,
+     54.9
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     13646,
+     1150
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     101,
+     11
+    ],
+    "total_spend": 210.32,
+    "total_sales": 487.68,
+    "total_clicks": 112,
+    "total_impressions": 14796,
+    "roas": 2.32,
+    "cpc": 1.88,
+    "ctr": 0.76,
     "is_traffic": false
    },
    {
@@ -38895,7 +39128,7 @@ const FIN_DATA = {
      0,
      91.54,
      94.0,
-     20.3
+     24.47
     ],
     "sales": [
      0,
@@ -38908,7 +39141,7 @@ const FIN_DATA = {
      0,
      282.5,
      473.36,
-     51.8
+     80.5
     ],
     "impressions": [
      0,
@@ -38921,7 +39154,7 @@ const FIN_DATA = {
      0,
      13876,
      8524,
-     2832
+     3114
     ],
     "clicks": [
      0,
@@ -38934,82 +39167,15 @@ const FIN_DATA = {
      0,
      141,
      225,
-     41
+     47
     ],
-    "total_spend": 205.84,
-    "total_sales": 807.66,
-    "total_clicks": 407,
-    "total_impressions": 25232,
-    "roas": 3.92,
+    "total_spend": 210.01,
+    "total_sales": 836.36,
+    "total_clicks": 413,
+    "total_impressions": 25514,
+    "roas": 3.98,
     "cpc": 0.51,
-    "ctr": 1.61,
-    "is_traffic": false
-   },
-   {
-    "id": "85561416836841",
-    "campaign_id": "85561416836841",
-    "name": "SBV_AL_Support Seat_2026-10-21",
-    "platform": "Amazon Ads",
-    "brand": "Naeiae",
-    "spend": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     201.71,
-     2.43
-    ],
-    "sales": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     432.78,
-     0.0
-    ],
-    "impressions": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     13646,
-     615
-    ],
-    "clicks": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     101,
-     3
-    ],
-    "total_spend": 204.14,
-    "total_sales": 432.78,
-    "total_clicks": 104,
-    "total_impressions": 14261,
-    "roas": 2.12,
-    "cpc": 1.96,
-    "ctr": 0.73,
+    "ctr": 1.62,
     "is_traffic": false
    },
    {
@@ -39230,7 +39396,7 @@ const FIN_DATA = {
      0,
      0,
      122.49,
-     39.63
+     42.33
     ],
     "sales": [
      0,
@@ -39256,7 +39422,7 @@ const FIN_DATA = {
      0,
      0,
      6193,
-     2967
+     3026
     ],
     "clicks": [
      0,
@@ -39269,15 +39435,15 @@ const FIN_DATA = {
      0,
      0,
      94,
-     31
+     34
     ],
-    "total_spend": 162.12,
+    "total_spend": 164.82,
     "total_sales": 450.4,
-    "total_clicks": 125,
-    "total_impressions": 9160,
-    "roas": 2.78,
-    "cpc": 1.3,
-    "ctr": 1.36,
+    "total_clicks": 128,
+    "total_impressions": 9219,
+    "roas": 2.73,
+    "cpc": 1.29,
+    "ctr": 1.39,
     "is_traffic": false
    },
    {
@@ -40034,7 +40200,7 @@ const FIN_DATA = {
      0,
      0,
      27.27,
-     51.0
+     52.03
     ],
     "sales": [
      0,
@@ -40060,7 +40226,7 @@ const FIN_DATA = {
      0,
      0,
      3919,
-     5269
+     5486
     ],
     "clicks": [
      0,
@@ -40073,15 +40239,15 @@ const FIN_DATA = {
      0,
      0,
      40,
-     69
+     71
     ],
-    "total_spend": 78.27,
+    "total_spend": 79.3,
     "total_sales": 457.7,
-    "total_clicks": 109,
-    "total_impressions": 9188,
-    "roas": 5.85,
-    "cpc": 0.72,
-    "ctr": 1.19,
+    "total_clicks": 111,
+    "total_impressions": 9405,
+    "roas": 5.77,
+    "cpc": 0.71,
+    "ctr": 1.18,
     "is_traffic": false
    },
    {
@@ -40570,7 +40736,7 @@ const FIN_DATA = {
      0,
      12.56,
      9.14,
-     4.24
+     5.54
     ],
     "sales": [
      0,
@@ -40596,7 +40762,7 @@ const FIN_DATA = {
      0,
      1590,
      3058,
-     1133
+     1211
     ],
     "clicks": [
      0,
@@ -40609,14 +40775,14 @@ const FIN_DATA = {
      0,
      11,
      9,
-     4
+     5
     ],
-    "total_spend": 45.28,
+    "total_spend": 46.58,
     "total_sales": 73.8,
-    "total_clicks": 46,
-    "total_impressions": 13187,
-    "roas": 1.63,
-    "cpc": 0.98,
+    "total_clicks": 47,
+    "total_impressions": 13265,
+    "roas": 1.58,
+    "cpc": 0.99,
     "ctr": 0.35,
     "is_traffic": false
    },
@@ -40931,7 +41097,7 @@ const FIN_DATA = {
      0,
      0,
      5502,
-     1134
+     1274
     ],
     "clicks": [
      0,
@@ -40949,10 +41115,10 @@ const FIN_DATA = {
     "total_spend": 25.41,
     "total_sales": 139.1,
     "total_clicks": 25,
-    "total_impressions": 6636,
+    "total_impressions": 6776,
     "roas": 5.47,
     "cpc": 1.02,
-    "ctr": 0.38,
+    "ctr": 0.37,
     "is_traffic": false
    },
    {
@@ -40972,7 +41138,7 @@ const FIN_DATA = {
      0,
      0,
      18.51,
-     0.46
+     0.68
     ],
     "sales": [
      0,
@@ -40998,7 +41164,7 @@ const FIN_DATA = {
      0,
      0,
      1388,
-     369
+     379
     ],
     "clicks": [
      0,
@@ -41011,15 +41177,82 @@ const FIN_DATA = {
      0,
      0,
      9,
-     1
+     2
     ],
-    "total_spend": 18.97,
+    "total_spend": 19.19,
     "total_sales": 0.0,
-    "total_clicks": 10,
-    "total_impressions": 1757,
+    "total_clicks": 11,
+    "total_impressions": 1767,
     "roas": 0.0,
-    "cpc": 1.9,
-    "ctr": 0.57,
+    "cpc": 1.74,
+    "ctr": 0.62,
+    "is_traffic": false
+   },
+   {
+    "id": "183361092460116",
+    "campaign_id": "183361092460116",
+    "name": "SP_AL_Manual_2026-11-06",
+    "platform": "Amazon Ads",
+    "brand": "Naeiae",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     15.75
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2282
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     19
+    ],
+    "total_spend": 15.75,
+    "total_sales": 0.0,
+    "total_clicks": 19,
+    "total_impressions": 2282,
+    "roas": 0.0,
+    "cpc": 0.83,
+    "ctr": 0.83,
     "is_traffic": false
    },
    {
@@ -41157,53 +41390,54 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
-    "id": "183361092460116",
-    "campaign_id": "183361092460116",
-    "name": "SP_AL_Manual_2026-11-06",
+    "id": "279433915130435",
+    "campaign_id": "279433915130435",
+    "name": "Naeiae Rice Pop - SB - Manual",
     "platform": "Amazon Ads",
     "brand": "Naeiae",
     "spend": [
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     11.69
+     0.0,
+     1.15,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     7.39
     ],
     "sales": [
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
      0.0
     ],
     "impressions": [
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1212
+     105,
+     171,
+     35,
+     1,
+     2,
+     12,
+     3,
+     23,
+     19,
+     2053
     ],
     "clicks": [
      0,
      0,
+     1,
      0,
      0,
      0,
@@ -41211,16 +41445,15 @@ const FIN_DATA = {
      0,
      0,
      0,
-     0,
-     15
+     9
     ],
-    "total_spend": 11.69,
+    "total_spend": 8.54,
     "total_sales": 0.0,
-    "total_clicks": 15,
-    "total_impressions": 1212,
+    "total_clicks": 10,
+    "total_impressions": 2424,
     "roas": 0.0,
-    "cpc": 0.78,
-    "ctr": 1.24,
+    "cpc": 0.85,
+    "ctr": 0.41,
     "is_traffic": false
    },
    {
@@ -41288,73 +41521,6 @@ const FIN_DATA = {
     "roas": 3.69,
     "cpc": 1.61,
     "ctr": 0.14,
-    "is_traffic": false
-   },
-   {
-    "id": "279433915130435",
-    "campaign_id": "279433915130435",
-    "name": "Naeiae Rice Pop - SB - Manual",
-    "platform": "Amazon Ads",
-    "brand": "Naeiae",
-    "spend": [
-     0,
-     0.0,
-     1.15,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     6.73
-    ],
-    "sales": [
-     0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0
-    ],
-    "impressions": [
-     0,
-     105,
-     171,
-     35,
-     1,
-     2,
-     12,
-     3,
-     23,
-     19,
-     1768
-    ],
-    "clicks": [
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     8
-    ],
-    "total_spend": 7.88,
-    "total_sales": 0.0,
-    "total_clicks": 9,
-    "total_impressions": 2139,
-    "roas": 0.0,
-    "cpc": 0.88,
-    "ctr": 0.42,
     "is_traffic": false
    },
    {
@@ -41492,6 +41658,73 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "206936520753788",
+    "campaign_id": "206936520753788",
+    "name": "SBV_GR_WL_@chatter.with.sam_KW_2026-11-13",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1.58
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     186
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2
+    ],
+    "total_spend": 1.58,
+    "total_sales": 0.0,
+    "total_clicks": 2,
+    "total_impressions": 186,
+    "roas": 0.0,
+    "cpc": 0.79,
+    "ctr": 1.08,
+    "is_traffic": false
+   },
+   {
     "id": "TEST",
     "campaign_id": "TEST",
     "name": "TEST",
@@ -41559,6 +41792,73 @@ const FIN_DATA = {
     "is_traffic": false
    },
    {
+    "id": "143778161002396",
+    "campaign_id": "143778161002396",
+    "name": "SBV_GR_WL_@maylog_6to9_PT_2026-11-12",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.56
+    ],
+    "sales": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.0
+    ],
+    "impressions": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4
+    ],
+    "clicks": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "total_spend": 0.56,
+    "total_sales": 0.0,
+    "total_clicks": 1,
+    "total_impressions": 4,
+    "roas": 0.0,
+    "cpc": 0.56,
+    "ctr": 25.0,
+    "is_traffic": false
+   },
+   {
     "id": "37069239402207",
     "campaign_id": "37069239402207",
     "name": "SP_Naeiae_BroadAbsorption_Low_2026-06-17",
@@ -41601,7 +41901,7 @@ const FIN_DATA = {
      166,
      183,
      47,
-     11
+     12
     ],
     "clicks": [
      0,
@@ -41619,7 +41919,7 @@ const FIN_DATA = {
     "total_spend": 0.15,
     "total_sales": 0.0,
     "total_clicks": 1,
-    "total_impressions": 476,
+    "total_impressions": 477,
     "roas": 0.0,
     "cpc": 0.15,
     "ctr": 0.21,
@@ -41644,7 +41944,7 @@ const FIN_DATA = {
      16.8,
      9.1,
      10.36,
-     4.03
+     4.57
     ],
     "sales": [
      1386.58,
@@ -41670,7 +41970,7 @@ const FIN_DATA = {
      28377,
      17623,
      15050,
-     7143
+     7796
     ],
     "clicks": [
      266,
@@ -41683,13 +41983,13 @@ const FIN_DATA = {
      159,
      87,
      98,
-     41
+     46
     ],
-    "total_spend": 210.65,
+    "total_spend": 211.19,
     "total_sales": 8769.63,
-    "total_clicks": 1897,
-    "total_impressions": 272411,
-    "roas": 41.63,
+    "total_clicks": 1902,
+    "total_impressions": 273064,
+    "roas": 41.52,
     "cpc": 0.11,
     "ctr": 0.7,
     "is_traffic": false
@@ -41711,7 +42011,7 @@ const FIN_DATA = {
      1923.88,
      1197.14,
      1061.42,
-     397.19
+     449.91
     ],
     "sales": [
      41295.7,
@@ -41724,7 +42024,7 @@ const FIN_DATA = {
      28913.96,
      17128.26,
      13850.06,
-     5864.5
+     6361.5
     ],
     "impressions": [
      166093,
@@ -41737,7 +42037,7 @@ const FIN_DATA = {
      427056,
      167778,
      172994,
-     72808
+     80811
     ],
     "clicks": [
      3486,
@@ -41750,13 +42050,13 @@ const FIN_DATA = {
      3678,
      2043,
      1752,
-     683
+     750
     ],
-    "total_spend": 13019.5,
-    "total_sales": 274382.23,
-    "total_clicks": 28486,
-    "total_impressions": 2632209,
-    "roas": 21.07,
+    "total_spend": 13072.22,
+    "total_sales": 274879.23,
+    "total_clicks": 28553,
+    "total_impressions": 2640212,
+    "roas": 21.03,
     "cpc": 0.46,
     "ctr": 1.08,
     "is_traffic": false
@@ -41778,7 +42078,7 @@ const FIN_DATA = {
      1543.73,
      845.16,
      425.7,
-     63.78
+     77.0
     ],
     "sales": [
      31055.2,
@@ -41791,7 +42091,7 @@ const FIN_DATA = {
      22919.15,
      14043.11,
      5539.56,
-     1160.3
+     1255.2
     ],
     "impressions": [
      61373,
@@ -41804,7 +42104,7 @@ const FIN_DATA = {
      71057,
      43004,
      25241,
-     5314
+     6107
     ],
     "clicks": [
      2995,
@@ -41817,13 +42117,13 @@ const FIN_DATA = {
      3541,
      2003,
      913,
-     148
+     172
     ],
-    "total_spend": 10833.29,
-    "total_sales": 210656.12,
-    "total_clicks": 24720,
-    "total_impressions": 516929,
-    "roas": 19.45,
+    "total_spend": 10846.51,
+    "total_sales": 210751.02,
+    "total_clicks": 24744,
+    "total_impressions": 517722,
+    "roas": 19.43,
     "cpc": 0.44,
     "ctr": 4.78,
     "is_traffic": false
@@ -41845,7 +42145,7 @@ const FIN_DATA = {
      1068.02,
      741.34,
      404.46,
-     98.28
+     123.27
     ],
     "sales": [
      22532.68,
@@ -41858,7 +42158,7 @@ const FIN_DATA = {
      15519.18,
      10357.51,
      4551.12,
-     850.8
+     988.6
     ],
     "impressions": [
      42726,
@@ -41871,7 +42171,7 @@ const FIN_DATA = {
      53686,
      35393,
      21624,
-     5320
+     6145
     ],
     "clicks": [
      2509,
@@ -41884,15 +42184,15 @@ const FIN_DATA = {
      2473,
      1753,
      882,
-     272
+     330
     ],
-    "total_spend": 10496.81,
-    "total_sales": 185638.29,
-    "total_clicks": 24257,
-    "total_impressions": 459143,
-    "roas": 17.69,
+    "total_spend": 10521.8,
+    "total_sales": 185776.09,
+    "total_clicks": 24315,
+    "total_impressions": 459968,
+    "roas": 17.66,
     "cpc": 0.43,
-    "ctr": 5.28,
+    "ctr": 5.29,
     "is_traffic": false
    },
    {
@@ -41912,7 +42212,7 @@ const FIN_DATA = {
      576.55,
      417.14,
      401.5,
-     114.44
+     122.1
     ],
     "sales": [
      26535.58,
@@ -41925,7 +42225,7 @@ const FIN_DATA = {
      5885.49,
      6069.75,
      4088.26,
-     1317.9
+     1346.6
     ],
     "impressions": [
      62659,
@@ -41938,7 +42238,7 @@ const FIN_DATA = {
      29928,
      22397,
      24633,
-     8587
+     9984
     ],
     "clicks": [
      3122,
@@ -41951,15 +42251,15 @@ const FIN_DATA = {
      1178,
      855,
      776,
-     240
+     253
     ],
-    "total_spend": 7984.67,
-    "total_sales": 121522.63,
-    "total_clicks": 15457,
-    "total_impressions": 340635,
-    "roas": 15.22,
+    "total_spend": 7992.33,
+    "total_sales": 121551.33,
+    "total_clicks": 15470,
+    "total_impressions": 342032,
+    "roas": 15.21,
     "cpc": 0.52,
-    "ctr": 4.54,
+    "ctr": 4.52,
     "is_traffic": false
    },
    {
@@ -41979,7 +42279,7 @@ const FIN_DATA = {
      685.6,
      570.25,
      572.24,
-     213.85
+     228.48
     ],
     "sales": [
      6766.17,
@@ -41992,7 +42292,7 @@ const FIN_DATA = {
      5248.96,
      3655.27,
      4081.81,
-     1329.9
+     1467.7
     ],
     "impressions": [
      612270,
@@ -42005,7 +42305,7 @@ const FIN_DATA = {
      219083,
      227487,
      217848,
-     84129
+     97271
     ],
     "clicks": [
      1515,
@@ -42018,12 +42318,12 @@ const FIN_DATA = {
      1535,
      1286,
      1276,
-     512
+     546
     ],
-    "total_spend": 6010.41,
-    "total_sales": 55411.74,
-    "total_clicks": 14556,
-    "total_impressions": 8028370,
+    "total_spend": 6025.04,
+    "total_sales": 55549.54,
+    "total_clicks": 14590,
+    "total_impressions": 8041512,
     "roas": 9.22,
     "cpc": 0.41,
     "ctr": 0.18,
@@ -42113,7 +42413,7 @@ const FIN_DATA = {
      2621.72,
      2601.85,
      3917.55,
-     1915.82
+     2207.85
     ],
     "sales": [
      17928.76,
@@ -42126,7 +42426,7 @@ const FIN_DATA = {
      19082.73,
      19427.0,
      29840.93,
-     11798.6
+     12920.2
     ],
     "impressions": [
      704873,
@@ -42139,7 +42439,7 @@ const FIN_DATA = {
      1001303,
      701429,
      811270,
-     365763
+     417071
     ],
     "clicks": [
      2956,
@@ -42152,13 +42452,13 @@ const FIN_DATA = {
      4426,
      4542,
      6546,
-     2657
+     3029
     ],
-    "total_spend": 24742.54,
-    "total_sales": 208269.31,
-    "total_clicks": 40849,
-    "total_impressions": 9757428,
-    "roas": 8.42,
+    "total_spend": 25034.57,
+    "total_sales": 209390.91,
+    "total_clicks": 41221,
+    "total_impressions": 9808736,
+    "roas": 8.36,
     "cpc": 0.61,
     "ctr": 0.42,
     "is_traffic": false
@@ -43434,24 +43734,78 @@ const FIN_DATA = {
     "platform": "Amazon Ads",
     "brand": "Naeiae",
     "spend": [
-     11.69
+     15.75
     ],
     "sales": [
      0.0
     ],
     "impressions": [
-     1212
+     2282
     ],
     "clicks": [
-     15
+     19
     ],
-    "total_spend": 11.69,
+    "total_spend": 15.75,
     "total_sales": 0.0,
-    "total_clicks": 15,
-    "total_impressions": 1212,
+    "total_clicks": 19,
+    "total_impressions": 2282,
     "roas": 0.0,
-    "cpc": 0.78,
-    "ctr": 1.24,
+    "cpc": 0.83,
+    "ctr": 0.83,
+    "is_traffic": false
+   },
+   {
+    "id": "206936520753788",
+    "campaign_id": "206936520753788",
+    "name": "SBV_GR_WL_@chatter.with.sam_KW_2026-11-13",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     1.58
+    ],
+    "sales": [
+     0.0
+    ],
+    "impressions": [
+     186
+    ],
+    "clicks": [
+     2
+    ],
+    "total_spend": 1.58,
+    "total_sales": 0.0,
+    "total_clicks": 2,
+    "total_impressions": 186,
+    "roas": 0.0,
+    "cpc": 0.79,
+    "ctr": 1.08,
+    "is_traffic": false
+   },
+   {
+    "id": "143778161002396",
+    "campaign_id": "143778161002396",
+    "name": "SBV_GR_WL_@maylog_6to9_PT_2026-11-12",
+    "platform": "Amazon Ads",
+    "brand": "Grosmimi",
+    "spend": [
+     0.56
+    ],
+    "sales": [
+     0.0
+    ],
+    "impressions": [
+     4
+    ],
+    "clicks": [
+     1
+    ],
+    "total_spend": 0.56,
+    "total_sales": 0.0,
+    "total_clicks": 1,
+    "total_impressions": 4,
+    "roas": 0.0,
+    "cpc": 0.56,
+    "ctr": 25.0,
     "is_traffic": false
    }
   ],
@@ -43526,7 +43880,7 @@ const FIN_DATA = {
      84202.43,
      68366.25,
      76036.81,
-     25214.96
+     27632.53
     ],
     "sales": [
      376892.95,
@@ -43539,7 +43893,7 @@ const FIN_DATA = {
      296938.08,
      254999.55,
      258337.3,
-     83385.59
+     91604.79
     ],
     "impressions": [
      15047131,
@@ -43552,7 +43906,7 @@ const FIN_DATA = {
      16613121,
      12936056,
      13630820,
-     5888955
+     6496219
     ],
     "clicks": [
      85254,
@@ -43565,7 +43919,7 @@ const FIN_DATA = {
      91792,
      82455,
      89456,
-     28759
+     31566
     ],
     "color": "#8b5cf6"
    },
@@ -43581,7 +43935,7 @@ const FIN_DATA = {
      4906.33,
      2661.95,
      3345.05,
-     969.28
+     1142.91
     ],
     "sales": [
      5928.6,
@@ -43594,7 +43948,7 @@ const FIN_DATA = {
      7012.7,
      3384.9,
      4538.42,
-     1122.9
+     1227.0
     ],
     "impressions": [
      302995,
@@ -43607,7 +43961,7 @@ const FIN_DATA = {
      646185,
      483242,
      592127,
-     207141
+     250751
     ],
     "clicks": [
      2078,
@@ -43620,7 +43974,7 @@ const FIN_DATA = {
      4056,
      2449,
      3375,
-     1063
+     1267
     ],
     "color": "#eab308"
    },
@@ -43636,7 +43990,7 @@ const FIN_DATA = {
      176738.59,
      530933.73,
      554919.19,
-     192480.07
+     203481.23
     ],
     "sales": [
      0,
@@ -43649,7 +44003,7 @@ const FIN_DATA = {
      50344.0,
      118285.0,
      105769.0,
-     70672.0
+     76308.0
     ],
     "impressions": [
      0,
@@ -43662,7 +44016,7 @@ const FIN_DATA = {
      582887,
      1912983,
      1735522,
-     445737
+     480103
     ],
     "clicks": [
      0,
@@ -43675,7 +44029,7 @@ const FIN_DATA = {
      1332,
      3441,
      3267,
-     963
+     1024
     ],
     "color": "#94a3b8"
    }
@@ -43803,7 +44157,7 @@ const FIN_DATA = {
      14496.36,
      5636.65,
      4691.15,
-     1449.13
+     1539.12
     ],
     "sales": [
      33809.13,
@@ -43816,7 +44170,7 @@ const FIN_DATA = {
      29341.69,
      17273.48,
      9807.62,
-     3765.95
+     3881.78
     ],
     "impressions": [
      577976,
@@ -43829,7 +44183,7 @@ const FIN_DATA = {
      361093,
      160951,
      154034,
-     53778
+     56630
     ],
     "clicks": [
      17068,
@@ -43842,7 +44196,7 @@ const FIN_DATA = {
      8828,
      3825,
      3209,
-     1114
+     1186
     ],
     "color": "#8b5cf6"
    },
@@ -43913,7 +44267,7 @@ const FIN_DATA = {
      25515.71,
      9052.5,
      13713.76,
-     2608.16
+     2642.31
     ],
     "sales": [
      1762.41,
@@ -43939,7 +44293,7 @@ const FIN_DATA = {
      932558,
      187088,
      217515,
-     37650
+     38282
     ],
     "clicks": [
      1116,
@@ -43952,7 +44306,7 @@ const FIN_DATA = {
      22845,
      4434,
      4506,
-     663
+     673
     ],
     "color": "#94a3b8"
    }
@@ -44294,7 +44648,6 @@ const FIN_DATA = {
  },
  "brand_ad_daily": {
   "dates": [
-   "2025-07-07",
    "2025-07-08",
    "2025-07-09",
    "2025-07-10",
@@ -44788,11 +45141,11 @@ const FIN_DATA = {
    "2026-11-10",
    "2026-11-11",
    "2026-11-12",
-   "2026-11-13"
+   "2026-11-13",
+   "2026-11-14"
   ],
   "Grosmimi": {
    "amz_spend": [
-    0,
     0,
     0,
     0,
@@ -45286,10 +45639,10 @@ const FIN_DATA = {
     2679.81,
     2724.38,
     2835.33,
-    2361.04
+    2361.04,
+    2417.57
    ],
    "amz_clicks": [
-    0,
     0,
     0,
     0,
@@ -45783,10 +46136,10 @@ const FIN_DATA = {
     3187.0,
     3171.0,
     3307.0,
-    2745.0
+    2745.0,
+    2807.0
    ],
    "amz_sales": [
-    0,
     0,
     0,
     0,
@@ -46280,10 +46633,10 @@ const FIN_DATA = {
     8886.3,
     8973.8,
     9310.1,
-    8635.1
+    8635.1,
+    8219.2
    ],
    "mt_spend": [
-    0,
     0,
     0,
     0,
@@ -46777,10 +47130,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mt_clicks": [
-    0,
     0,
     0,
     0,
@@ -47274,10 +47627,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mt_sales": [
-    0,
     0,
     0,
     0,
@@ -47771,10 +48124,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_spend": [
-    187.16,
     169.61,
     181.77,
     165.21,
@@ -48268,10 +48621,10 @@ const FIN_DATA = {
     115.37,
     103.8,
     118.66,
-    98.11
+    103.58,
+    84.52
    ],
    "mc_clicks": [
-    249.0,
     208.0,
     224.0,
     191.0,
@@ -48765,10 +49118,10 @@ const FIN_DATA = {
     76.0,
     81.0,
     88.0,
-    72.0
+    79.0,
+    65.0
    ],
    "mc_sales": [
-    2902.38,
     529.08,
     306.73,
     318.45,
@@ -49262,10 +49615,10 @@ const FIN_DATA = {
     252.79,
     86.25,
     203.73,
-    328.66
+    444.49,
+    0.0
    ],
    "gads_spend": [
-    570.11,
     428.19,
     402.2,
     390.01,
@@ -49759,10 +50112,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "gads_clicks": [
-    349.0,
     339.0,
     288.0,
     307.0,
@@ -50256,10 +50609,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "gads_sales": [
-    1030.98,
     528.04,
     682.98,
     1211.81,
@@ -50753,12 +51106,12 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ]
   },
   "Naeiae": {
    "amz_spend": [
-    0,
     0,
     0,
     0,
@@ -51252,10 +51605,10 @@ const FIN_DATA = {
     99.13,
     132.11,
     160.75,
-    143.85
+    143.85,
+    173.63
    ],
    "amz_clicks": [
-    0,
     0,
     0,
     0,
@@ -51749,10 +52102,10 @@ const FIN_DATA = {
     109.0,
     147.0,
     174.0,
-    157.0
+    157.0,
+    204.0
    ],
    "amz_sales": [
-    0,
     0,
     0,
     0,
@@ -52246,10 +52599,10 @@ const FIN_DATA = {
     49.2,
     79.5,
     208.2,
-    208.2
+    208.2,
+    104.1
    ],
    "mt_spend": [
-    0,
     0,
     0,
     0,
@@ -52743,10 +53096,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mt_clicks": [
-    0,
     0,
     0,
     0,
@@ -53240,10 +53593,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_spend": [
-    0,
     0,
     0,
     0,
@@ -53737,10 +54090,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_clicks": [
-    0,
     0,
     0,
     0,
@@ -54234,10 +54587,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_sales": [
-    0,
     0,
     0,
     0,
@@ -54731,12 +55084,12 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ]
   },
   "CHA&MOM": {
    "amz_spend": [
-    0,
     0,
     0,
     0,
@@ -55230,10 +55583,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "amz_clicks": [
-    0,
     0,
     0,
     0,
@@ -55727,10 +56080,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "amz_sales": [
-    0,
     0,
     0,
     0,
@@ -56224,10 +56577,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mt_spend": [
-    0,
     0,
     0,
     0,
@@ -56721,10 +57074,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mt_clicks": [
-    0,
     0,
     0,
     0,
@@ -57218,10 +57571,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_spend": [
-    0,
     0,
     0.0,
     0.0,
@@ -57715,10 +58068,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_clicks": [
-    0,
     0,
     0.0,
     0.0,
@@ -58212,10 +58565,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_sales": [
-    0,
     0,
     169.05,
     0.0,
@@ -58709,6 +59062,7 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "gads_spend": [
@@ -58976,9 +59330,9 @@ const FIN_DATA = {
     0,
     0,
     0,
-    0,
     16.57,
     15.09,
+    0,
     0,
     0,
     0,
@@ -59473,9 +59827,9 @@ const FIN_DATA = {
     0,
     0,
     0,
-    0,
     17.0,
     14.0,
+    0,
     0,
     0,
     0,
@@ -59708,7 +60062,6 @@ const FIN_DATA = {
   },
   "Alpremio": {
    "mc_spend": [
-    0,
     0,
     0,
     0,
@@ -60202,10 +60555,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_clicks": [
-    0,
     0,
     0,
     0,
@@ -60699,10 +61052,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_sales": [
-    0,
     0,
     0,
     0,
@@ -61196,12 +61549,12 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ]
   },
   "Other": {
    "amz_spend": [
-    0,
     0,
     0,
     0,
@@ -61695,10 +62048,10 @@ const FIN_DATA = {
     12899.21,
     12862.32,
     14136.88,
-    9962.39
+    9962.39,
+    11001.16
    ],
    "amz_clicks": [
-    0,
     0,
     0,
     0,
@@ -62192,10 +62545,10 @@ const FIN_DATA = {
     60.0,
     65.0,
     70.0,
-    53.0
+    53.0,
+    61.0
    ],
    "amz_sales": [
-    0,
     0,
     0,
     0,
@@ -62689,10 +63042,10 @@ const FIN_DATA = {
     2900.0,
     10909.0,
     0.0,
-    5273.0
+    5273.0,
+    5636.0
    ],
    "mt_spend": [
-    72.2,
     80.92,
     63.42,
     63.48,
@@ -63186,10 +63539,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mt_clicks": [
-    932.0,
     1108.0,
     810.0,
     782.0,
@@ -63683,10 +64036,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mt_sales": [
-    0.0,
     0.0,
     0.0,
     0.0,
@@ -64180,10 +64533,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "mc_spend": [
-    0,
     0,
     0,
     0,
@@ -64677,10 +65030,10 @@ const FIN_DATA = {
     101.22,
     44.75,
     106.01,
-    96.38
+    98.78,
+    31.75
    ],
    "mc_clicks": [
-    0,
     0,
     0,
     0,
@@ -65174,10 +65527,10 @@ const FIN_DATA = {
     13.0,
     6.0,
     29.0,
-    19.0
+    21.0,
+    8.0
    ],
    "mc_sales": [
-    0,
     0,
     0,
     0,
@@ -65671,6 +66024,7 @@ const FIN_DATA = {
     23.49,
     83.73,
     0.0,
+    0.0,
     0.0
    ]
   }
@@ -65718,7 +66072,7 @@ const FIN_DATA = {
      15239,
      14447,
      14166,
-     9045
+     9940
     ],
     "color": "#8b5cf6"
    },
@@ -65769,7 +66123,7 @@ const FIN_DATA = {
      474,
      531,
      1196,
-     432
+     454
     ],
     "color": "#f97316"
    },
@@ -65786,7 +66140,7 @@ const FIN_DATA = {
      794,
      1834,
      615,
-     1616
+     2000
     ],
     "color": "#94a3b8"
    }
@@ -65822,7 +66176,7 @@ const FIN_DATA = {
      869,
      794,
      1549,
-     571
+     677
     ],
     "color": "#ec4899"
    },
@@ -65839,7 +66193,7 @@ const FIN_DATA = {
      4067,
      3161,
      4995,
-     2297
+     2556
     ],
     "color": "#ef4444"
    }
@@ -65858,7 +66212,7 @@ const FIN_DATA = {
      141448,
      115541,
      125221,
-     78573
+     92165
     ],
     "sales": [
      66452,
@@ -65872,7 +66226,7 @@ const FIN_DATA = {
      82032,
      55113,
      79284,
-     70623
+     84583
     ],
     "impressions": [
      3479260,
@@ -65886,7 +66240,7 @@ const FIN_DATA = {
      2806611,
      2641688,
      2898988,
-     3603452
+     4288692
     ],
     "clicks": [
      21570,
@@ -65900,7 +66254,7 @@ const FIN_DATA = {
      20200,
      13070,
      13901,
-     16796
+     19868
     ],
     "color": "#f59e0b"
    },
@@ -65917,7 +66271,7 @@ const FIN_DATA = {
      5356,
      3558,
      2446,
-     1103
+     1227
     ],
     "sales": [
      16592,
@@ -65931,7 +66285,7 @@ const FIN_DATA = {
      3650,
      2840,
      2342,
-     1864
+     1979
     ],
     "impressions": [
      222533,
@@ -65945,7 +66299,7 @@ const FIN_DATA = {
      97542,
      73978,
      55877,
-     24500
+     27984
     ],
     "clicks": [
      5312,
@@ -65959,7 +66313,7 @@ const FIN_DATA = {
      2068,
      1459,
      1044,
-     512
+     594
     ],
     "color": "#3b82f6"
    },
@@ -66096,7 +66450,7 @@ const FIN_DATA = {
      5745,
      3558,
      2446,
-     1103
+     1227
     ],
     "revenue": [
      326,
@@ -66128,7 +66482,7 @@ const FIN_DATA = {
      142478,
      116632,
      125221,
-     78573
+     92165
     ],
     "revenue": [
      0,
@@ -66162,7 +66516,7 @@ const FIN_DATA = {
      15239,
      14447,
      14166,
-     9045
+     9940
     ],
     "ad_spend": [
      22274,
@@ -66176,7 +66530,7 @@ const FIN_DATA = {
      17464,
      12631,
      12567,
-     13964
+     16472
     ],
     "ad_sales": [
      68124,
@@ -66190,7 +66544,7 @@ const FIN_DATA = {
      39669,
      29673,
      37824,
-     48633
+     56968
     ],
     "organic": [
      0,
@@ -66235,7 +66589,7 @@ const FIN_DATA = {
      786,
      879,
      325,
-     640
+     814
     ],
     "ad_sales": [
      1745,
@@ -66249,7 +66603,7 @@ const FIN_DATA = {
      1012,
      1076,
      455,
-     668
+     772
     ],
     "organic": [
      0,
@@ -66339,7 +66693,7 @@ const FIN_DATA = {
      474,
      531,
      1196,
-     432
+     454
     ],
     "ad_spend": [
      0,
@@ -66381,7 +66735,7 @@ const FIN_DATA = {
      474,
      531,
      1196,
-     432
+     454
     ],
     "color": "#f97316"
    },
@@ -66398,7 +66752,7 @@ const FIN_DATA = {
      794,
      1834,
      615,
-     1616
+     2000
     ],
     "ad_spend": [
      96520,
@@ -66412,7 +66766,7 @@ const FIN_DATA = {
      129972,
      106680,
      114774,
-     65071
+     76106
     ],
     "ad_sales": [
      14750,
@@ -66426,7 +66780,7 @@ const FIN_DATA = {
      45426,
      27237,
      43348,
-     23186
+     28822
     ],
     "organic": [
      0,
@@ -66458,7 +66812,7 @@ const FIN_DATA = {
     18680,
     18975,
     17839,
-    13298
+    14984
    ],
    "cogs": [
     0,
@@ -66486,7 +66840,7 @@ const FIN_DATA = {
     18680,
     18975,
     17839,
-    13298
+    14984
    ],
    "shipping_cost": [
     7126,
@@ -66500,7 +66854,7 @@ const FIN_DATA = {
     4670,
     4744,
     4460,
-    3325
+    3746
    ],
    "ad_spend": [
     120183,
@@ -66514,7 +66868,7 @@ const FIN_DATA = {
     148222,
     120191,
     127667,
-    79676
+    93392
    ],
    "discounts": [
     1622,
@@ -66528,7 +66882,7 @@ const FIN_DATA = {
     1476,
     3305,
     1522,
-    1672
+    1806
    ],
    "mkt_total": [
     121805,
@@ -66542,7 +66896,7 @@ const FIN_DATA = {
     149698,
     123496,
     129189,
-    81348
+    95198
    ],
    "contribution_margin": [
     -100428,
@@ -66556,7 +66910,7 @@ const FIN_DATA = {
     -135688,
     -109264,
     -115810,
-    -71374
+    -83960
    ]
   },
   "channel_pnl": {
@@ -66615,7 +66969,7 @@ const FIN_DATA = {
      5745,
      3558,
      2446,
-     1103
+     1227
     ],
     "gross_margin": [
      326,
@@ -66643,7 +66997,7 @@ const FIN_DATA = {
      -5745,
      -2958,
      -2446,
-     -1103
+     -1227
     ],
     "color": "#6366f1"
    },
@@ -66660,7 +67014,7 @@ const FIN_DATA = {
      4067,
      3161,
      4995,
-     2297
+     2556
     ],
     "cogs": [
      1800,
@@ -66674,7 +67028,7 @@ const FIN_DATA = {
      980,
      730,
      1230,
-     580
+     670
     ],
     "fees": [
      0,
@@ -66716,7 +67070,7 @@ const FIN_DATA = {
      3087,
      2431,
      3765,
-     1717
+     1886
     ],
     "contribution_margin": [
      5846,
@@ -66730,7 +67084,7 @@ const FIN_DATA = {
      3087,
      2431,
      3765,
-     1717
+     1886
     ],
     "color": "#ef4444"
    }
@@ -66750,7 +67104,7 @@ const FIN_DATA = {
       15158.69,
       10776.02,
       11794.62,
-      13412.22
+      15829.79
      ],
      "sales": [
       59071.0,
@@ -66764,7 +67118,7 @@ const FIN_DATA = {
       37576.7,
       28037.81,
       36330.49,
-      47055.1
+      55274.3
      ],
      "impressions": [
       2976273,
@@ -66778,7 +67132,7 @@ const FIN_DATA = {
       2332116,
       2215841,
       2588495,
-      3298813
+      3906077
      ],
      "clicks": [
       20077,
@@ -66792,7 +67146,7 @@ const FIN_DATA = {
       18730,
       11748,
       12978,
-      15774
+      18581
      ],
      "color": "#8b5cf6"
     },
@@ -66809,7 +67163,7 @@ const FIN_DATA = {
       786.01,
       879.3,
       325.49,
-      640.4
+      814.03
      ],
      "sales": [
       1744.8,
@@ -66823,7 +67177,7 @@ const FIN_DATA = {
       1011.78,
       1075.74,
       454.8,
-      668.1
+      772.2
      ],
      "impressions": [
       195654,
@@ -66837,7 +67191,7 @@ const FIN_DATA = {
       96116,
       125709,
       71568,
-      135275
+      178885
      ],
      "clicks": [
       989,
@@ -66851,7 +67205,7 @@ const FIN_DATA = {
       707,
       774,
       355,
-      705
+      909
      ],
      "color": "#eab308"
     },
@@ -66868,7 +67222,7 @@ const FIN_DATA = {
       125503.58,
       103885.91,
       113100.64,
-      64520.18
+      75521.34
      ],
      "sales": [
       5636.0,
@@ -66882,7 +67236,7 @@ const FIN_DATA = {
       43444.0,
       25999.0,
       42499.0,
-      22900.0
+      28536.0
      ],
      "impressions": [
       307333,
@@ -66896,7 +67250,7 @@ const FIN_DATA = {
       378379,
       300138,
       238925,
-      169364
+      203730
      ],
      "clicks": [
       504,
@@ -66910,7 +67264,7 @@ const FIN_DATA = {
       763,
       548,
       568,
-      317
+      378
      ],
      "color": "#94a3b8"
     }
@@ -66929,7 +67283,7 @@ const FIN_DATA = {
       887.24,
       764.34,
       771.97,
-      552.05
+      642.04
      ],
      "sales": [
       7478.71,
@@ -66943,7 +67297,7 @@ const FIN_DATA = {
       1667.69,
       1602.18,
       1493.05,
-      1578.13
+      1693.96
      ],
      "impressions": [
       80716,
@@ -66957,7 +67311,7 @@ const FIN_DATA = {
       32277,
       31881,
       31133,
-      17466
+      20318
      ],
      "clicks": [
       2172,
@@ -66971,7 +67325,7 @@ const FIN_DATA = {
       682,
       621,
       626,
-      388
+      460
      ],
      "color": "#8b5cf6"
     },
@@ -67047,7 +67401,7 @@ const FIN_DATA = {
       4468.32,
       2793.92,
       1673.79,
-      550.72
+      584.87
      ],
      "sales": [
       9113.74,
@@ -67075,7 +67429,7 @@ const FIN_DATA = {
       65265,
       42097,
       24744,
-      7034
+      7666
      ],
      "clicks": [
       3079,
@@ -67089,7 +67443,7 @@ const FIN_DATA = {
       1386,
       838,
       418,
-      124
+      134
      ],
      "color": "#94a3b8"
     }
@@ -67234,7 +67588,6 @@ const FIN_DATA = {
    "2026-W46"
   ],
   "daily_dates": [
-   "2026-08-17",
    "2026-08-18",
    "2026-08-19",
    "2026-08-20",
@@ -67323,17 +67676,18 @@ const FIN_DATA = {
    "2026-11-11",
    "2026-11-12",
    "2026-11-13",
-   "2026-11-14"
+   "2026-11-14",
+   "2026-11-15"
   ],
   "categories": [
    {
     "category": "PPSU Straw Cup",
     "brand": "Grosmimi",
     "asin_count": 43,
-    "sales_7d": 117853,
-    "units_7d": 4342,
-    "sales_30d": 480012,
-    "units_30d": 18051,
+    "sales_7d": 116747,
+    "units_7d": 4303,
+    "sales_30d": 480252,
+    "units_30d": 18062,
     "sales_weekly": [
      116138,
      117293,
@@ -67346,7 +67700,7 @@ const FIN_DATA = {
      110946,
      108692,
      124223,
-     83551
+     96858
     ],
     "units_weekly": [
      4137,
@@ -67360,10 +67714,9 @@ const FIN_DATA = {
      4189,
      4050,
      4640,
-     3127
+     3653
     ],
     "daily_sales": [
-     25006,
      17489,
      19896,
      17345,
@@ -67452,10 +67805,10 @@ const FIN_DATA = {
      14544,
      14854,
      14427,
-     4455
+     13031,
+     4731
     ],
     "daily_units": [
-     828,
      679,
      653,
      633,
@@ -67544,7 +67897,8 @@ const FIN_DATA = {
      558,
      565,
      539,
-     171
+     512,
+     185
     ],
     "top_keywords": [
      {
@@ -67564,12 +67918,12 @@ const FIN_DATA = {
       ],
       "click_share": 18.52,
       "conv_share": 25.0,
-      "ads_spend_30d": 28,
-      "ads_clicks_30d": 71,
+      "ads_spend_30d": 30,
+      "ads_clicks_30d": 73,
       "ads_sales_30d": 621,
       "ads_acos": 0.05,
-      "google_volume": 156,
-      "google_ads_impressions": 26,
+      "google_volume": 153,
+      "google_ads_impressions": 15,
       "google_ads_clicks": 0
      },
      {
@@ -67605,9 +67959,9 @@ const FIN_DATA = {
       ],
       "click_share": 18.06,
       "conv_share": 4.72,
-      "ads_spend_30d": 353,
-      "ads_clicks_30d": 649,
-      "ads_sales_30d": 5549,
+      "ads_spend_30d": 387,
+      "ads_clicks_30d": 694,
+      "ads_sales_30d": 5949,
       "ads_acos": 0.06,
       "google_volume": 27,
       "google_ads_impressions": 3,
@@ -67767,8 +68121,8 @@ const FIN_DATA = {
       ],
       "click_share": 13.79,
       "conv_share": 0.0,
-      "ads_spend_30d": 27,
-      "ads_clicks_30d": 54,
+      "ads_spend_30d": 28,
+      "ads_clicks_30d": 55,
       "ads_sales_30d": 394,
       "ads_acos": 0.07,
       "google_volume": 4,
@@ -67779,11 +68133,15 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
+      "asin": "B083986L91",
+      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
+     },
+     {
       "asin": "B0842D5Z17",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B08398HJRD",
+      "asin": "B0842DMZ3H",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
@@ -67791,11 +68149,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B0F9PZGGF2",
-      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
       "asin": "B0F9Q2F89Y",
+      "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
+     },
+     {
+      "asin": "B0F9PZGGF2",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -67805,6 +68167,10 @@ const FIN_DATA = {
      {
       "asin": "B0H2CFQFFN",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
+     },
+     {
+      "asin": "B083XT642K",
+      "name": "GROSMIMI PPSU Baby Straw Cup Stage 1, 6M+, Spill-Proof, 10oz (Beige) | Babies & "
      },
      {
       "asin": "B0C1N3VDL3",
@@ -67907,7 +68273,7 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Baby Straw Cup Stage 2, 12M+, Spill-Proof, 6oz (Sugar Bear) | Flip"
      },
      {
-      "asin": "B0F9PZD6QM",
+      "asin": "B0F9PVZMR1",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -67919,11 +68285,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PY2LBV",
+      "asin": "B0F9PZD6QM",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PVZMR1",
+      "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -67937,18 +68303,6 @@ const FIN_DATA = {
      {
       "asin": "B07YKJ18D5",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
-     },
-     {
-      "asin": "B0842DMZ3H",
-      "name": "Grosmimi PPSU Straw Cup, Sippy Cup 300ML with Handle for Baby and Toddlers from "
-     },
-     {
-      "asin": "B083986L91",
-      "name": "Grosmimi PPSU Straw Cup, Sippy Cup 300ML with Handle for Baby and Toddlers from "
-     },
-     {
-      "asin": "B083XT642K",
-      "name": "Grosmimi PPSU Straw Cup, Sippy Cup 300ML with Handle for Baby and Toddlers from "
      }
     ]
    },
@@ -67956,10 +68310,10 @@ const FIN_DATA = {
     "category": "Stainless Straw Cup",
     "brand": "Grosmimi",
     "asin_count": 14,
-    "sales_7d": 21119,
-    "units_7d": 475,
-    "sales_30d": 85801,
-    "units_30d": 1934,
+    "sales_7d": 20078,
+    "units_7d": 454,
+    "sales_30d": 84817,
+    "units_30d": 1912,
     "sales_weekly": [
      55121,
      32312,
@@ -67972,7 +68326,7 @@ const FIN_DATA = {
      19690,
      20186,
      20109,
-     15083
+     17092
     ],
     "units_weekly": [
      733,
@@ -67986,10 +68340,9 @@ const FIN_DATA = {
      442,
      458,
      453,
-     338
+     385
     ],
     "daily_sales": [
-     22470,
      10300,
      16267,
      11048,
@@ -68078,10 +68431,10 @@ const FIN_DATA = {
      3022,
      2807,
      2939,
-     819
+     2095,
+     732
     ],
     "daily_units": [
-     101,
      93,
      90,
      111,
@@ -68170,7 +68523,8 @@ const FIN_DATA = {
      67,
      64,
      66,
-     18
+     48,
+     17
     ],
     "top_keywords": [
      {
@@ -68188,8 +68542,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 5,
       "ads_sales_30d": 47,
       "ads_acos": 0.05,
-      "google_volume": 79,
-      "google_ads_impressions": 7,
+      "google_volume": 74,
+      "google_ads_impressions": 4,
       "google_ads_clicks": 0
      },
      {
@@ -68251,13 +68605,13 @@ const FIN_DATA = {
       ],
       "click_share": 21.88,
       "conv_share": 14.29,
-      "ads_spend_30d": 12,
-      "ads_clicks_30d": 27,
+      "ads_spend_30d": 13,
+      "ads_clicks_30d": 28,
       "ads_sales_30d": 156,
       "ads_acos": 0.08,
-      "google_volume": 589,
-      "google_ads_impressions": 107,
-      "google_ads_clicks": 14
+      "google_volume": 577,
+      "google_ads_impressions": 91,
+      "google_ads_clicks": 11
      },
      {
       "keyword": "stainless steel weighted straw cup",
@@ -68270,8 +68624,8 @@ const FIN_DATA = {
       ],
       "click_share": 20.0,
       "conv_share": 0.0,
-      "ads_spend_30d": 12,
-      "ads_clicks_30d": 10,
+      "ads_spend_30d": 13,
+      "ads_clicks_30d": 11,
       "ads_sales_30d": 0,
       "ads_acos": 0,
       "google_volume": 32,
@@ -68291,8 +68645,8 @@ const FIN_DATA = {
       ],
       "click_share": 19.05,
       "conv_share": 0.0,
-      "ads_spend_30d": 4,
-      "ads_clicks_30d": 3,
+      "ads_spend_30d": 5,
+      "ads_clicks_30d": 4,
       "ads_sales_30d": 0,
       "ads_acos": 0,
       "google_volume": 0,
@@ -68314,7 +68668,7 @@ const FIN_DATA = {
       "ads_clicks_30d": 1,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 72,
+      "google_volume": 70,
       "google_ads_impressions": 10,
       "google_ads_clicks": 2
      },
@@ -68329,10 +68683,10 @@ const FIN_DATA = {
       ],
       "click_share": 16.0,
       "conv_share": 0.0,
-      "ads_spend_30d": 13,
-      "ads_clicks_30d": 23,
+      "ads_spend_30d": 16,
+      "ads_clicks_30d": 26,
       "ads_sales_30d": 75,
-      "ads_acos": 0.17,
+      "ads_acos": 0.21,
       "google_volume": 0,
       "google_ads_impressions": 0,
       "google_ads_clicks": 0
@@ -68341,7 +68695,11 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H2CMFCSJ",
+      "asin": "B0H2CGC2FB",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0H2CS5DLJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -68349,11 +68707,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0H2CGC2FB",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0H2CS5DLJ",
+      "asin": "B0H2CMFCSJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -68402,10 +68756,10 @@ const FIN_DATA = {
     "category": "Stainless Tumbler",
     "brand": "Grosmimi",
     "asin_count": 5,
-    "sales_7d": 1494,
-    "units_7d": 30,
-    "sales_30d": 5329,
-    "units_30d": 107,
+    "sales_7d": 1394,
+    "units_7d": 28,
+    "sales_30d": 5129,
+    "units_30d": 103,
     "sales_weekly": [
      2241,
      1992,
@@ -68418,7 +68772,7 @@ const FIN_DATA = {
      1145,
      1096,
      1195,
-     1145
+     1195
     ],
     "units_weekly": [
      45,
@@ -68432,10 +68786,9 @@ const FIN_DATA = {
      23,
      22,
      24,
-     23
+     24
     ],
     "daily_sales": [
-     249,
      349,
      149,
      299,
@@ -68524,10 +68877,10 @@ const FIN_DATA = {
      299,
      398,
      100,
+     50,
      0
     ],
     "daily_units": [
-     5,
      7,
      3,
      6,
@@ -68616,6 +68969,7 @@ const FIN_DATA = {
      6,
      8,
      2,
+     1,
      0
     ],
     "top_keywords": [
@@ -68634,8 +68988,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 7,
       "ads_sales_30d": 87,
       "ads_acos": 0.04,
-      "google_volume": 32,
-      "google_ads_impressions": 6,
+      "google_volume": 30,
+      "google_ads_impressions": 4,
       "google_ads_clicks": 0
      },
      {
@@ -68655,12 +69009,12 @@ const FIN_DATA = {
       ],
       "click_share": 9.09,
       "conv_share": 0.0,
-      "ads_spend_30d": 53,
-      "ads_clicks_30d": 99,
-      "ads_sales_30d": 429,
-      "ads_acos": 0.12,
-      "google_volume": 78,
-      "google_ads_impressions": 12,
+      "ads_spend_30d": 59,
+      "ads_clicks_30d": 105,
+      "ads_sales_30d": 452,
+      "ads_acos": 0.13,
+      "google_volume": 79,
+      "google_ads_impressions": 9,
       "google_ads_clicks": 1
      },
      {
@@ -68674,23 +69028,23 @@ const FIN_DATA = {
       ],
       "click_share": 8.57,
       "conv_share": 0.0,
-      "ads_spend_30d": 55,
-      "ads_clicks_30d": 110,
-      "ads_sales_30d": 848,
-      "ads_acos": 0.06,
-      "google_volume": 826,
-      "google_ads_impressions": 116,
-      "google_ads_clicks": 12
+      "ads_spend_30d": 64,
+      "ads_clicks_30d": 123,
+      "ads_sales_30d": 965,
+      "ads_acos": 0.07,
+      "google_volume": 817,
+      "google_ads_impressions": 95,
+      "google_ads_clicks": 8
      }
     ],
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H32PSCF9",
+      "asin": "B0H32T8XBS",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0H32T8XBS",
+      "asin": "B0H32PSCF9",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -68711,10 +69065,10 @@ const FIN_DATA = {
     "category": "PPSU Tumbler",
     "brand": "Grosmimi",
     "asin_count": 5,
-    "sales_7d": 800,
-    "units_7d": 23,
-    "sales_30d": 3628,
-    "units_30d": 84,
+    "sales_7d": 766,
+    "units_7d": 22,
+    "sales_30d": 3454,
+    "units_30d": 79,
     "sales_weekly": [
      1148,
      1322,
@@ -68727,7 +69081,7 @@ const FIN_DATA = {
      1574,
      383,
      592,
-     626
+     696
     ],
     "units_weekly": [
      34,
@@ -68741,10 +69095,9 @@ const FIN_DATA = {
      25,
      11,
      17,
-     18
+     20
     ],
     "daily_sales": [
-     70,
      139,
      174,
      70,
@@ -68833,10 +69186,10 @@ const FIN_DATA = {
      70,
      104,
      35,
-     139
+     174,
+     35
     ],
     "daily_units": [
-     2,
      4,
      5,
      2,
@@ -68925,7 +69278,8 @@ const FIN_DATA = {
      2,
      3,
      1,
-     4
+     5,
+     1
     ],
     "top_keywords": [
      {
@@ -68945,8 +69299,8 @@ const FIN_DATA = {
       "ads_clicks_30d": 7,
       "ads_sales_30d": 87,
       "ads_acos": 0.04,
-      "google_volume": 32,
-      "google_ads_impressions": 6,
+      "google_volume": 30,
+      "google_ads_impressions": 4,
       "google_ads_clicks": 0
      }
     ],
@@ -68978,10 +69332,10 @@ const FIN_DATA = {
     "category": "PPSU Baby Bottle",
     "brand": "Grosmimi",
     "asin_count": 14,
-    "sales_7d": 410,
-    "units_7d": 28,
-    "sales_30d": 1665,
-    "units_30d": 104,
+    "sales_7d": 441,
+    "units_7d": 29,
+    "sales_30d": 1631,
+    "units_30d": 99,
     "sales_weekly": [
      382,
      333,
@@ -68994,7 +69348,7 @@ const FIN_DATA = {
      773,
      212,
      213,
-     337
+     377
     ],
     "units_weekly": [
      28,
@@ -69008,10 +69362,9 @@ const FIN_DATA = {
      44,
      12,
      15,
-     23
+     25
     ],
     "daily_sales": [
-     27,
      28,
      56,
      47,
@@ -69100,10 +69453,10 @@ const FIN_DATA = {
      9,
      39,
      55,
-     0
+     0,
+     39
     ],
     "daily_units": [
-     2,
      2,
      3,
      3,
@@ -69192,7 +69545,8 @@ const FIN_DATA = {
      2,
      2,
      5,
-     0
+     0,
+     2
     ],
     "top_keywords": [
      {
@@ -69281,10 +69635,10 @@ const FIN_DATA = {
     "category": "Rice Puff",
     "brand": "Naeiae",
     "asin_count": 2,
-    "sales_7d": 5198,
-    "units_7d": 212,
-    "sales_30d": 19655,
-    "units_30d": 802,
+    "sales_7d": 5028,
+    "units_7d": 205,
+    "sales_30d": 19705,
+    "units_30d": 804,
     "sales_weekly": [
      6150,
      4551,
@@ -69297,7 +69651,7 @@ const FIN_DATA = {
      4895,
      4396,
      4349,
-     3850
+     4440
     ],
     "units_weekly": [
      251,
@@ -69311,10 +69665,9 @@ const FIN_DATA = {
      200,
      179,
      178,
-     157
+     181
     ],
     "daily_sales": [
-     763,
      566,
      812,
      787,
@@ -69403,10 +69756,10 @@ const FIN_DATA = {
      613,
      905,
      394,
-     246
+     615,
+     221
     ],
     "daily_units": [
-     31,
      23,
      33,
      32,
@@ -69495,7 +69848,8 @@ const FIN_DATA = {
      25,
      37,
      16,
-     10
+     25,
+     9
     ],
     "top_keywords": [
      {
@@ -69559,10 +69913,10 @@ const FIN_DATA = {
       ],
       "click_share": 18.31,
       "conv_share": 22.22,
-      "ads_spend_30d": 23,
-      "ads_clicks_30d": 25,
+      "ads_spend_30d": 24,
+      "ads_clicks_30d": 26,
       "ads_sales_30d": 98,
-      "ads_acos": 0.23,
+      "ads_acos": 0.24,
       "google_volume": 0,
       "google_ads_impressions": 0,
       "google_ads_clicks": 0
@@ -69712,11 +70066,11 @@ const FIN_DATA = {
    {
     "category": "Moisturizer",
     "brand": "CHA&MOM",
-    "asin_count": 2,
-    "sales_7d": 945,
-    "units_7d": 33,
-    "sales_30d": 2351,
-    "units_30d": 82,
+    "asin_count": 1,
+    "sales_7d": 287,
+    "units_7d": 10,
+    "sales_30d": 1607,
+    "units_30d": 56,
     "sales_weekly": [
      430,
      373,
@@ -69727,9 +70081,9 @@ const FIN_DATA = {
      603,
      488,
      488,
-     488,
+     459,
      373,
-     830
+     230
     ],
     "units_weekly": [
      15,
@@ -69741,12 +70095,11 @@ const FIN_DATA = {
      21,
      17,
      17,
-     17,
+     16,
      13,
-     29
+     8
     ],
     "daily_sales": [
-     29,
      115,
      115,
      172,
@@ -69821,7 +70174,7 @@ const FIN_DATA = {
      57,
      0,
      86,
-     115,
+     86,
      86,
      86,
      57,
@@ -69830,15 +70183,15 @@ const FIN_DATA = {
      115,
      57,
      57,
+     0,
      29,
+     86,
      29,
-     286,
-     258,
-     200,
-     29
+     57,
+     29,
+     0
     ],
     "daily_units": [
-     1,
      4,
      4,
      6,
@@ -69913,7 +70266,7 @@ const FIN_DATA = {
      2,
      0,
      3,
-     4,
+     3,
      3,
      3,
      2,
@@ -69922,12 +70275,13 @@ const FIN_DATA = {
      4,
      2,
      2,
+     0,
      1,
+     3,
      1,
-     10,
-     9,
-     7,
-     1
+     2,
+     1,
+     0
     ],
     "top_keywords": [],
     "sfr_branded": [],
@@ -69935,10 +70289,6 @@ const FIN_DATA = {
      {
       "asin": "B0F1XGS9JF",
       "name": "CHA&MOM Korean Baby Skincare - Hypoallergenic, Plant Based, and Natural Phyto Se"
-     },
-     {
-      "asin": "B0H9YL4WQ7",
-      "name": "Pepeguma Korean Sweet Potato Sticks (5 Pouches) | 100% Korean Sweet Potato, Soft"
      }
     ]
    },
@@ -69946,10 +70296,10 @@ const FIN_DATA = {
     "category": "Body Wash",
     "brand": "CHA&MOM",
     "asin_count": 1,
-    "sales_7d": 106,
-    "units_7d": 5,
-    "sales_30d": 583,
-    "units_30d": 23,
+    "sales_7d": 159,
+    "units_7d": 7,
+    "sales_30d": 636,
+    "units_30d": 25,
     "sales_weekly": [
      132,
      212,
@@ -69962,7 +70312,7 @@ const FIN_DATA = {
      80,
      106,
      212,
-     80
+     159
     ],
     "units_weekly": [
      5,
@@ -69976,10 +70326,9 @@ const FIN_DATA = {
      3,
      4,
      8,
-     4
+     7
     ],
     "daily_sales": [
-     53,
      26,
      80,
      26,
@@ -70068,10 +70417,10 @@ const FIN_DATA = {
      53,
      0,
      0,
+     80,
      0
     ],
     "daily_units": [
-     2,
      1,
      3,
      1,
@@ -70160,6 +70509,7 @@ const FIN_DATA = {
      3,
      0,
      0,
+     3,
      0
     ],
     "top_keywords": [
@@ -70228,7 +70578,6 @@ const FIN_DATA = {
      3
     ],
     "daily_sales": [
-     30,
      0,
      59,
      30,
@@ -70317,10 +70666,10 @@ const FIN_DATA = {
      59,
      0,
      30,
+     0,
      0
     ],
     "daily_units": [
-     1,
      0,
      2,
      1,
@@ -70409,6 +70758,7 @@ const FIN_DATA = {
      2,
      0,
      1,
+     0,
      0
     ],
     "top_keywords": [],
@@ -70424,10 +70774,10 @@ const FIN_DATA = {
     "category": "Alpremio",
     "brand": "Alpremio",
     "asin_count": 1,
-    "sales_7d": 329,
-    "units_7d": 6,
-    "sales_30d": 2965,
-    "units_30d": 54,
+    "sales_7d": 549,
+    "units_7d": 10,
+    "sales_30d": 3020,
+    "units_30d": 55,
     "sales_weekly": [
      1372,
      1482,
@@ -70440,7 +70790,7 @@ const FIN_DATA = {
      1153,
      933,
      0,
-     329
+     549
     ],
     "units_weekly": [
      26,
@@ -70454,10 +70804,9 @@ const FIN_DATA = {
      21,
      17,
      0,
-     6
+     10
     ],
     "daily_sales": [
-     220,
      165,
      384,
      824,
@@ -70546,10 +70895,10 @@ const FIN_DATA = {
      0,
      220,
      110,
-     0
+     110,
+     110
     ],
     "daily_units": [
-     4,
      3,
      7,
      15,
@@ -70638,7 +70987,8 @@ const FIN_DATA = {
      0,
      4,
      2,
-     0
+     2,
+     2
     ],
     "top_keywords": [
      {
@@ -70681,7 +71031,7 @@ const FIN_DATA = {
       "ads_clicks_30d": 0,
       "ads_sales_30d": 0,
       "ads_acos": 0,
-      "google_volume": 88,
+      "google_volume": 90,
       "google_ads_impressions": 0,
       "google_ads_clicks": 0
      },
@@ -70737,7 +71087,6 @@ const FIN_DATA = {
   "content_lift": {
    "PPSU Straw Cup": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -70826,7 +71175,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -70921,7 +71271,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     25006,
      17489,
      19896,
      17345,
@@ -71010,10 +71359,10 @@ const FIN_DATA = {
      14544,
      14854,
      14427,
-     4455
+     13031,
+     4731
     ],
     "units": [
-     828,
      679,
      653,
      633,
@@ -71102,7 +71451,8 @@ const FIN_DATA = {
      558,
      565,
      539,
-     171
+     512,
+     185
     ],
     "gsc_daily": [
      0,
@@ -71164,7 +71514,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     100,
      254,
      148,
      278,
@@ -71194,6 +71543,7 @@ const FIN_DATA = {
      198,
      240,
      270,
+     216,
      0
     ],
     "sessions_daily": [
@@ -71383,7 +71733,6 @@ const FIN_DATA = {
    },
    "Stainless Straw Cup": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -71472,7 +71821,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -71567,7 +71917,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     22470,
      10300,
      16267,
      11048,
@@ -71656,10 +72005,10 @@ const FIN_DATA = {
      3022,
      2807,
      2939,
-     819
+     2095,
+     732
     ],
     "units": [
-     101,
      93,
      90,
      111,
@@ -71748,7 +72097,8 @@ const FIN_DATA = {
      67,
      64,
      66,
-     18
+     48,
+     17
     ],
     "gsc_daily": [
      0,
@@ -71810,7 +72160,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     100,
      254,
      148,
      278,
@@ -71840,6 +72189,7 @@ const FIN_DATA = {
      198,
      240,
      270,
+     216,
      0
     ],
     "sessions_daily": [
@@ -72029,7 +72379,6 @@ const FIN_DATA = {
    },
    "Stainless Tumbler": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -72118,7 +72467,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -72213,7 +72563,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     249,
      349,
      149,
      299,
@@ -72302,10 +72651,10 @@ const FIN_DATA = {
      299,
      398,
      100,
+     50,
      0
     ],
     "units": [
-     5,
      7,
      3,
      6,
@@ -72394,6 +72743,7 @@ const FIN_DATA = {
      6,
      8,
      2,
+     1,
      0
     ],
     "gsc_daily": [
@@ -72456,7 +72806,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     100,
      254,
      148,
      278,
@@ -72486,6 +72835,7 @@ const FIN_DATA = {
      198,
      240,
      270,
+     216,
      0
     ],
     "sessions_daily": [
@@ -72675,7 +73025,6 @@ const FIN_DATA = {
    },
    "PPSU Tumbler": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -72764,7 +73113,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -72859,7 +73209,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     70,
      139,
      174,
      70,
@@ -72948,10 +73297,10 @@ const FIN_DATA = {
      70,
      104,
      35,
-     139
+     174,
+     35
     ],
     "units": [
-     2,
      4,
      5,
      2,
@@ -73040,7 +73389,8 @@ const FIN_DATA = {
      2,
      3,
      1,
-     4
+     5,
+     1
     ],
     "gsc_daily": [
      0,
@@ -73102,7 +73452,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     100,
      254,
      148,
      278,
@@ -73132,6 +73481,7 @@ const FIN_DATA = {
      198,
      240,
      270,
+     216,
      0
     ],
     "sessions_daily": [
@@ -73321,7 +73671,6 @@ const FIN_DATA = {
    },
    "PPSU Baby Bottle": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -73410,7 +73759,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -73505,7 +73855,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     27,
      28,
      56,
      47,
@@ -73594,10 +73943,10 @@ const FIN_DATA = {
      9,
      39,
      55,
-     0
+     0,
+     39
     ],
     "units": [
-     2,
      2,
      3,
      3,
@@ -73686,7 +74035,8 @@ const FIN_DATA = {
      2,
      2,
      5,
-     0
+     0,
+     2
     ],
     "gsc_daily": [
      0,
@@ -73748,7 +74098,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     100,
      254,
      148,
      278,
@@ -73778,6 +74127,7 @@ const FIN_DATA = {
      198,
      240,
      270,
+     216,
      0
     ],
     "sessions_daily": [
@@ -73967,7 +74317,6 @@ const FIN_DATA = {
    },
    "Rice Puff": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -74056,7 +74405,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -74151,7 +74501,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     763,
      566,
      812,
      787,
@@ -74240,10 +74589,10 @@ const FIN_DATA = {
      613,
      905,
      394,
-     246
+     615,
+     221
     ],
     "units": [
-     31,
      23,
      33,
      32,
@@ -74332,7 +74681,8 @@ const FIN_DATA = {
      25,
      37,
      16,
-     10
+     25,
+     9
     ],
     "gsc_daily": [
      0,
@@ -74394,7 +74744,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     4,
      0,
      2,
      4,
@@ -74423,6 +74772,7 @@ const FIN_DATA = {
      12,
      8,
      4,
+     2,
      2,
      0
     ],
@@ -74613,7 +74963,6 @@ const FIN_DATA = {
    },
    "Moisturizer": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -74702,7 +75051,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -74797,7 +75147,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     29,
      115,
      115,
      172,
@@ -74872,7 +75221,7 @@ const FIN_DATA = {
      57,
      0,
      86,
-     115,
+     86,
      86,
      86,
      57,
@@ -74881,15 +75230,15 @@ const FIN_DATA = {
      115,
      57,
      57,
+     0,
      29,
+     86,
      29,
-     286,
-     258,
-     200,
-     29
+     57,
+     29,
+     0
     ],
     "units": [
-     1,
      4,
      4,
      6,
@@ -74964,7 +75313,7 @@ const FIN_DATA = {
      2,
      0,
      3,
-     4,
+     3,
      3,
      3,
      2,
@@ -74973,12 +75322,13 @@ const FIN_DATA = {
      4,
      2,
      2,
+     0,
      1,
+     3,
      1,
-     10,
-     9,
-     7,
-     1
+     2,
+     1,
+     0
     ],
     "gsc_daily": [
      0,
@@ -75040,7 +75390,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     8,
      18,
      16,
      10,
@@ -75070,6 +75419,7 @@ const FIN_DATA = {
      4,
      16,
      14,
+     2,
      0
     ],
     "sessions_daily": [
@@ -75259,7 +75609,6 @@ const FIN_DATA = {
    },
    "Body Wash": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -75348,7 +75697,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -75443,7 +75793,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     53,
      26,
      80,
      26,
@@ -75532,10 +75881,10 @@ const FIN_DATA = {
      53,
      0,
      0,
+     80,
      0
     ],
     "units": [
-     2,
      1,
      3,
      1,
@@ -75624,6 +75973,7 @@ const FIN_DATA = {
      3,
      0,
      0,
+     3,
      0
     ],
     "gsc_daily": [
@@ -75686,7 +76036,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     8,
      18,
      16,
      10,
@@ -75716,6 +76065,7 @@ const FIN_DATA = {
      4,
      16,
      14,
+     2,
      0
     ],
     "sessions_daily": [
@@ -75905,7 +76255,6 @@ const FIN_DATA = {
    },
    "Baby Cream": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -75994,7 +76343,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -76089,7 +76439,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     30,
      0,
      59,
      30,
@@ -76178,10 +76527,10 @@ const FIN_DATA = {
      59,
      0,
      30,
+     0,
      0
     ],
     "units": [
-     1,
      0,
      2,
      1,
@@ -76270,6 +76619,7 @@ const FIN_DATA = {
      2,
      0,
      1,
+     0,
      0
     ],
     "gsc_daily": [
@@ -76332,7 +76682,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     4,
      0,
      2,
      4,
@@ -76361,6 +76710,7 @@ const FIN_DATA = {
      12,
      8,
      4,
+     2,
      2,
      0
     ],
@@ -76551,7 +76901,6 @@ const FIN_DATA = {
    },
    "Alpremio": {
     "dates": [
-     "2026-08-17",
      "2026-08-18",
      "2026-08-19",
      "2026-08-20",
@@ -76640,7 +76989,8 @@ const FIN_DATA = {
      "2026-11-11",
      "2026-11-12",
      "2026-11-13",
-     "2026-11-14"
+     "2026-11-14",
+     "2026-11-15"
     ],
     "views": [
      0,
@@ -76735,7 +77085,6 @@ const FIN_DATA = {
      0
     ],
     "sales": [
-     220,
      165,
      384,
      824,
@@ -76824,10 +77173,10 @@ const FIN_DATA = {
      0,
      220,
      110,
-     0
+     110,
+     110
     ],
     "units": [
-     4,
      3,
      7,
      15,
@@ -76916,7 +77265,8 @@ const FIN_DATA = {
      0,
      4,
      2,
-     0
+     2,
+     2
     ],
     "gsc_daily": [
      0,
@@ -76978,7 +77328,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     4,
      0,
      2,
      4,
@@ -77007,6 +77356,7 @@ const FIN_DATA = {
      12,
      8,
      4,
+     2,
      2,
      0
     ],
@@ -77210,7 +77560,6 @@ const FIN_DATA = {
   },
   "spend_daily": {
    "dates": [
-    "2026-08-17",
     "2026-08-18",
     "2026-08-19",
     "2026-08-20",
@@ -77299,10 +77648,10 @@ const FIN_DATA = {
     "2026-11-11",
     "2026-11-12",
     "2026-11-13",
-    "2026-11-14"
+    "2026-11-14",
+    "2026-11-15"
    ],
    "amazon": [
-    8118,
     7056,
     8624,
     8558,
@@ -77391,10 +77740,10 @@ const FIN_DATA = {
     15719,
     17133,
     12467,
-    7932
+    13592,
+    8550
    ],
    "meta": [
-    303266,
     218735,
     239383,
     279933,
@@ -77482,11 +77831,11 @@ const FIN_DATA = {
     304650,
     294496,
     305110,
-    253170,
-    116688
+    253178,
+    233013,
+    115383
    ],
    "google": [
-    168,
     140,
     101,
     100,
@@ -77575,10 +77924,10 @@ const FIN_DATA = {
     0,
     0,
     0,
+    0,
     0
    ],
    "amz_clicks": [
-    3010.0,
     3213.0,
     3970.0,
     3679.0,
@@ -77667,10 +78016,10 @@ const FIN_DATA = {
     3383.0,
     3551.0,
     2955.0,
-    44.0
+    3072.0,
+    49.0
    ],
    "amz_total_sales": [
-    39553,
     32141,
     28417,
     33547,
@@ -77759,10 +78108,10 @@ const FIN_DATA = {
     20945,
     21999,
     20779,
-    6540
+    18837,
+    6516
    ],
    "meta_clicks": [
-    7851.0,
     6064.0,
     6314.0,
     6828.0,
@@ -77850,11 +78199,11 @@ const FIN_DATA = {
     6959.0,
     6368.0,
     6203.0,
-    5295.0,
-    2340.0
+    5304.0,
+    4900.0,
+    2212.0
    ],
    "meta_sales": [
-    4293,
     2519,
     2913,
     2270,
@@ -77942,11 +78291,11 @@ const FIN_DATA = {
     276,
     170,
     204,
-    329,
+    444,
+    0,
     0
    ],
    "ga4_sessions": [
-    976,
     1103,
     9137,
     8189,
@@ -78034,13 +78383,13 @@ const FIN_DATA = {
     4754,
     4096,
     3873,
-    803,
+    1140,
+    975,
     0
    ]
   },
   "cat_ad_daily": {
    "dates": [
-    "2026-08-17",
     "2026-08-18",
     "2026-08-19",
     "2026-08-20",
@@ -78129,11 +78478,11 @@ const FIN_DATA = {
     "2026-11-11",
     "2026-11-12",
     "2026-11-13",
-    "2026-11-14"
+    "2026-11-14",
+    "2026-11-15"
    ],
    "PPSU Straw Cup": {
     "amz_spend": [
-     1962.73,
      2049.38,
      2594.1,
      2409.99,
@@ -78222,10 +78571,10 @@ const FIN_DATA = {
      1676.38,
      1802.39,
      1496.59,
+     1500.43,
      0
     ],
     "amz_clicks": [
-     1973.0,
      2095.0,
      2623.0,
      2470.0,
@@ -78314,10 +78663,10 @@ const FIN_DATA = {
      1948.0,
      2068.0,
      1681.0,
+     1687.0,
      0
     ],
     "amz_sales": [
-     6468.76,
      5999.68,
      7494.2,
      6068.39,
@@ -78406,12 +78755,12 @@ const FIN_DATA = {
      4278.4,
      4774.8,
      3901.9,
+     4410.7,
      0
     ]
    },
    "PPSU Baby Bottle": {
     "amz_spend": [
-     212.35,
      207.03,
      243.12,
      224.18,
@@ -78500,10 +78849,10 @@ const FIN_DATA = {
      300.4,
      332.38,
      312.33,
+     330.24,
      0
     ],
     "amz_clicks": [
-     403.0,
      425.0,
      488.0,
      457.0,
@@ -78592,10 +78941,10 @@ const FIN_DATA = {
      434.0,
      428.0,
      436.0,
+     454.0,
      0
     ],
     "amz_sales": [
-     2206.0,
      2666.99,
      2843.98,
      2440.1,
@@ -78684,12 +79033,12 @@ const FIN_DATA = {
      2168.4,
      1748.3,
      1905.6,
+     1354.3,
      0
     ]
    },
    "Rice Puff": {
     "amz_spend": [
-     120.85,
      163.99,
      204.63,
      127.07,
@@ -78778,10 +79127,10 @@ const FIN_DATA = {
      132.11,
      160.75,
      143.85,
+     173.63,
      0
     ],
     "amz_clicks": [
-     93.0,
      114.0,
      132.0,
      70.0,
@@ -78870,10 +79219,10 @@ const FIN_DATA = {
      147.0,
      174.0,
      157.0,
+     204.0,
      0
     ],
     "amz_sales": [
-     147.6,
      196.8,
      246.0,
      172.2,
@@ -78962,12 +79311,12 @@ const FIN_DATA = {
      79.5,
      208.2,
      208.2,
+     104.1,
      0
     ]
    },
    "Moisturizer": {
     "amz_spend": [
-     11.07,
      5.04,
      11.89,
      0.0,
@@ -79056,10 +79405,10 @@ const FIN_DATA = {
      0,
      0,
      0,
+     0,
      0
     ],
     "amz_clicks": [
-     7.0,
      4.0,
      7.0,
      0.0,
@@ -79067,6 +79416,7 @@ const FIN_DATA = {
      4.0,
      7.0,
      4.0,
+     0,
      0,
      0,
      0,
@@ -79151,7 +79501,6 @@ const FIN_DATA = {
      0
     ],
     "amz_sales": [
-     0.0,
      0.0,
      0.0,
      0.0,
@@ -79240,12 +79589,12 @@ const FIN_DATA = {
      0,
      0,
      0,
+     0,
      0
     ]
    },
    "Alpremio": {
     "amz_spend": [
-     11.53,
      13.68,
      11.89,
      24.27,
@@ -79334,10 +79683,10 @@ const FIN_DATA = {
      0,
      0,
      0,
+     0,
      0
     ],
     "amz_clicks": [
-     19.0,
      21.0,
      18.0,
      34.0,
@@ -79426,10 +79775,10 @@ const FIN_DATA = {
      0,
      0,
      0,
+     0,
      0
     ],
     "amz_sales": [
-     0.0,
      54.9,
      0.0,
      0.0,
@@ -79468,6 +79817,7 @@ const FIN_DATA = {
      0,
      0,
      0.0,
+     0,
      0,
      0,
      0,
@@ -79523,7 +79873,6 @@ const FIN_DATA = {
    },
    "Replacements": {
     "amz_spend": [
-     55.89,
      71.21,
      91.84,
      84.32,
@@ -79612,10 +79961,10 @@ const FIN_DATA = {
      36.13,
      47.6,
      49.96,
+     52.72,
      0
     ],
     "amz_clicks": [
-     106.0,
      137.0,
      171.0,
      153.0,
@@ -79704,10 +80053,10 @@ const FIN_DATA = {
      61.0,
      73.0,
      69.0,
+     67.0,
      0
     ],
     "amz_sales": [
-     794.54,
      989.67,
      1569.68,
      1031.34,
@@ -79796,6 +80145,7 @@ const FIN_DATA = {
      502.0,
      425.3,
      804.6,
+     497.0,
      0
     ]
    }
@@ -79803,7 +80153,6 @@ const FIN_DATA = {
  },
  "search_ranking": {
   "dates": [
-   "2026-08-16",
    "2026-08-17",
    "2026-08-18",
    "2026-08-19",
@@ -79893,7 +80242,8 @@ const FIN_DATA = {
    "2026-11-11",
    "2026-11-12",
    "2026-11-13",
-   "2026-11-14"
+   "2026-11-14",
+   "2026-11-15"
   ],
   "brands": {
    "Naeiae": {
@@ -79965,6 +80315,7 @@ const FIN_DATA = {
     },
     "history": {
      "korean baby food": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80053,10 +80404,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "organic baby snack": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80145,10 +80496,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": 44,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "baby teething wafer": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80237,10 +80588,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": 28,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "baby rice cracker": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80329,10 +80680,10 @@ const FIN_DATA = {
       "2026-08-20": 2,
       "2026-08-19": 2,
       "2026-08-18": 2,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "toddler snack": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80421,10 +80772,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "baby puffs": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80514,10 +80865,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "baby rice puff": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80607,10 +80958,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "baby snack": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80700,8 +81051,7 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      }
     }
    },
@@ -80806,6 +81156,7 @@ const FIN_DATA = {
     },
     "history": {
      "baby cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80895,10 +81246,10 @@ const FIN_DATA = {
       "2026-08-20": 41,
       "2026-08-19": 40,
       "2026-08-18": 39,
-      "2026-08-17": 39,
-      "2026-08-16": 27
+      "2026-08-17": 39
      },
      "kids tumbler": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -80988,10 +81339,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "toddler tumbler": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81081,10 +81432,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": 42
+      "2026-08-17": -1
      },
      "transition cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81174,10 +81525,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "weighted straw cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81267,10 +81618,10 @@ const FIN_DATA = {
       "2026-08-20": 30,
       "2026-08-19": 21,
       "2026-08-18": 32,
-      "2026-08-17": 28,
-      "2026-08-16": 29
+      "2026-08-17": 28
      },
      "ppsu bottle": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81360,10 +81711,10 @@ const FIN_DATA = {
       "2026-08-20": 14,
       "2026-08-19": 14,
       "2026-08-18": 13,
-      "2026-08-17": 16,
-      "2026-08-16": 12
+      "2026-08-17": 16
      },
      "training cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81453,10 +81804,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": 45,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "toddler straw cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81546,10 +81897,10 @@ const FIN_DATA = {
       "2026-08-20": 27,
       "2026-08-19": 29,
       "2026-08-18": 29,
-      "2026-08-17": 30,
-      "2026-08-16": 40
+      "2026-08-17": 30
      },
      "baby straw cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81639,10 +81990,10 @@ const FIN_DATA = {
       "2026-08-20": 41,
       "2026-08-19": 30,
       "2026-08-18": 28,
-      "2026-08-17": 44,
-      "2026-08-16": 43
+      "2026-08-17": 44
      },
      "straw cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81732,10 +82083,10 @@ const FIN_DATA = {
       "2026-08-20": 33,
       "2026-08-19": 33,
       "2026-08-18": 28,
-      "2026-08-17": 34,
-      "2026-08-16": 31
+      "2026-08-17": 34
      },
      "toddler cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81825,10 +82176,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": 41
+      "2026-08-17": -1
      },
      "sippy cup": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -81918,8 +82269,7 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": 43,
-      "2026-08-16": 46
+      "2026-08-17": 43
      }
     }
    },
@@ -81960,6 +82310,7 @@ const FIN_DATA = {
     },
     "history": {
      "baby cream": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -82049,10 +82400,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "baby wash": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -82142,10 +82493,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "baby lotion": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -82235,10 +82586,10 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      },
      "baby wipes": {
+      "2026-11-15": -1,
       "2026-11-14": -1,
       "2026-11-13": -1,
       "2026-11-12": -1,
@@ -82328,8 +82679,7 @@ const FIN_DATA = {
       "2026-08-20": -1,
       "2026-08-19": -1,
       "2026-08-18": -1,
-      "2026-08-17": -1,
-      "2026-08-16": -1
+      "2026-08-17": -1
      }
     }
    }
@@ -82506,7 +82856,7 @@ const FIN_DATA = {
     176739,
     530934,
     554919,
-    200412
+    212031
    ],
    "sales": [
     0,
@@ -82521,7 +82871,7 @@ const FIN_DATA = {
     50344,
     118285,
     105769,
-    70672
+    81944
    ],
    "impressions": [
     0,
@@ -82536,7 +82886,7 @@ const FIN_DATA = {
     582887,
     1912983,
     1735522,
-    474952
+    504292
    ],
    "clicks": [
     0,
@@ -82551,7 +82901,7 @@ const FIN_DATA = {
     1332,
     3441,
     3267,
-    1007
+    1073
    ],
    "roas": [
     0,
@@ -82566,7 +82916,7 @@ const FIN_DATA = {
     0.28,
     0.22,
     0.19,
-    0.35
+    0.39
    ],
    "acos": [
     0,
@@ -82581,7 +82931,7 @@ const FIN_DATA = {
     351.1,
     448.9,
     524.7,
-    283.6
+    258.8
    ],
    "currency": "JPY"
   },
@@ -82615,7 +82965,7 @@ const FIN_DATA = {
      176739,
      423291,
      497669,
-     200412
+     212031
     ],
     "sales": [
      0,
@@ -82630,7 +82980,7 @@ const FIN_DATA = {
      50344,
      107013,
      102496,
-     70672
+     81944
     ]
    },
    "SB": {
@@ -82711,7 +83061,7 @@ const FIN_DATA = {
      959571,
      1192796,
      1502834,
-     460865
+     487498
     ],
     "sales": [
      0,
@@ -82741,7 +83091,7 @@ const FIN_DATA = {
      1564810,
      1557997,
      2116233,
-     663605
+     698968
     ],
     "clicks": [
      0,
@@ -82756,7 +83106,7 @@ const FIN_DATA = {
      155996,
      180686,
      235980,
-     90857
+     95556
     ]
    }
   },
@@ -82804,7 +83154,7 @@ const FIN_DATA = {
     1136310,
     1723730,
     2057753,
-    661277
+    699529
    ],
    "total_ad_sales": [
     0,
@@ -82819,7 +83169,7 @@ const FIN_DATA = {
     50344,
     118285,
     105769,
-    70672
+    81944
    ]
   },
   "weekly": {
@@ -82953,7 +83303,7 @@ const FIN_DATA = {
       125504,
       103886,
       113101,
-      72452
+      84071
      ],
      "sales": [
       5636,
@@ -82967,7 +83317,7 @@ const FIN_DATA = {
       43444,
       25999,
       42499,
-      22900
+      34172
      ],
      "impressions": [
       307333,
@@ -82981,7 +83331,7 @@ const FIN_DATA = {
       378379,
       300138,
       238925,
-      198579
+      227919
      ],
      "clicks": [
       504,
@@ -82995,7 +83345,7 @@ const FIN_DATA = {
       763,
       548,
       568,
-      361
+      427
      ],
      "cpc": [
       180.8,
@@ -83009,7 +83359,7 @@ const FIN_DATA = {
       164.5,
       189.6,
       199.1,
-      200.7
+      196.9
      ],
      "ctr": [
       0.16,
@@ -83023,7 +83373,7 @@ const FIN_DATA = {
       0.2,
       0.18,
       0.24,
-      0.18
+      0.19
      ],
      "roas": [
       0.06,
@@ -83037,7 +83387,7 @@ const FIN_DATA = {
       0.35,
       0.25,
       0.38,
-      0.32
+      0.41
      ]
     },
     "traffic": {
@@ -83053,7 +83403,7 @@ const FIN_DATA = {
       320890,
       275256,
       235095,
-      179740
+      206373
      ],
      "sales": [
       0,
@@ -83081,7 +83431,7 @@ const FIN_DATA = {
       452495,
       394151,
       349112,
-      244111
+      279474
      ],
      "clicks": [
       34284,
@@ -83095,7 +83445,7 @@ const FIN_DATA = {
       50561,
       49604,
       48274,
-      33452
+      38151
      ],
      "cpc": [
       6.1,
@@ -83123,7 +83473,7 @@ const FIN_DATA = {
       11.17,
       12.59,
       13.83,
-      13.7
+      13.65
      ]
     },
     "total_spend": [
@@ -83138,7 +83488,7 @@ const FIN_DATA = {
      446393,
      379142,
      348196,
-     252192
+     290444
     ],
     "total_sales": [
      5636,
@@ -83152,7 +83502,7 @@ const FIN_DATA = {
      43444,
      25999,
      42499,
-     22900
+     34172
     ]
    },
    "content_views": [
@@ -142100,10 +142450,10 @@ const FIN_DATA = {
   },
   "partial_month": {
    "month": "2026-11",
-   "days_elapsed": 13,
+   "days_elapsed": 14,
    "days_in_month": 30,
    "is_partial": true,
-   "multiplier": 2.3077
+   "multiplier": 2.1429
   }
  }
 };
