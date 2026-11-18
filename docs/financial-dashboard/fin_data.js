@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-11-18 14:06 PST",
+ "generated_pst": "2026-11-18 15:35 PST",
  "through_date": "2026-11-17",
  "months": [
   "2025-08",
@@ -67779,7 +67779,7 @@ const FIN_DATA = {
       "name": "GROSMIMI - Taza para Sorber a Prueba de Derrames, PPSU, Sin BPA, 10 Onzas, Etapa"
      },
      {
-      "asin": "B0842D5Z17",
+      "asin": "B07YL2FT96",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
@@ -67787,11 +67787,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B07YL2FT96",
+      "asin": "B08398HJRD",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B08398HJRD",
+      "asin": "B0842D5Z17",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
@@ -67803,11 +67803,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0H2CFQFFN",
+      "asin": "B0H2CG2S1G",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0H2CG2S1G",
+      "asin": "B0H2CFQFFN",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -67907,11 +67907,11 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Taza con popote para bebé, Etapa 1, 6M+, a prueba de derrames | Be"
      },
      {
-      "asin": "B0F9PZPMH8",
+      "asin": "B0F9PZD6QM",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZD6QM",
+      "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -67923,15 +67923,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PY2LBV",
+      "asin": "B0F9PZPMH8",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B07YKKWFTN",
+      "asin": "B082SSPN4X",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
-      "asin": "B082SSPN4X",
+      "asin": "B07YKKWFTN",
       "name": "GROSMIMI Spill Proof no Spill Magic Sippy Cup with Straw with Handle for Baby an"
      },
      {
@@ -68337,7 +68337,11 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H2CQ4LWL",
+      "asin": "B0H2CGC2FB",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0H2CMFCSJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -68345,11 +68349,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0H2CGC2FB",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0H2CMFCSJ",
+      "asin": "B0H2CQ4LWL",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -83158,11 +83158,11 @@ const FIN_DATA = {
     53382714,
     23644307,
     33949307,
-    37633306,
+    37633329,
     14251496,
     6227465,
-    9314343,
-    287,
+    9314345,
+    291,
     0
    ],
    "content_by_creator": {
@@ -107621,7 +107621,7 @@ const FIN_DATA = {
      0,
      0,
      1291,
-     287,
+     291,
      0
     ],
     "tenten_gram_": [
@@ -124809,7 +124809,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     984,
+     987,
      0,
      0,
      0,
@@ -140492,7 +140492,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1595,
+     1597,
      0,
      0
     ],
@@ -140566,6 +140566,20 @@ const FIN_DATA = {
      0,
      0
     ],
+    "shige_mamadaily": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1470,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
     "sayu_mama.96": [
      0,
      0,
@@ -140588,20 +140602,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
-    "shige_mamadaily": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1450,
      0,
      0,
      0,
