@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-11-22 14:06 PST",
+ "generated_pst": "2026-11-22 15:35 PST",
  "through_date": "2026-11-21",
  "months": [
   "2025-08",
@@ -68286,11 +68286,7 @@ const FIN_DATA = {
       "name": "GROSMIMI - Taza mágica sin derrames a prueba de derrames con pajita con asa para"
      },
      {
-      "asin": "B07YL2FT96",
-      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
-     },
-     {
-      "asin": "B08398HJRD",
+      "asin": "B083986L91",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
@@ -68298,7 +68294,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
-      "asin": "B083986L91",
+      "asin": "B08398HJRD",
+      "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
+     },
+     {
+      "asin": "B07YL2FT96",
       "name": "GROSMIMI Baby Straw Cup, Spill-Proof PPSU Sippy Cup with Rotating Handles for Ba"
      },
      {
@@ -68310,11 +68310,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0H2CG2S1G",
+      "asin": "B0H2CFQFFN",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
-      "asin": "B0H2CFQFFN",
+      "asin": "B0H2CG2S1G",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 6 oz, Stage 2 Straw for"
      },
      {
@@ -68390,15 +68390,15 @@ const FIN_DATA = {
       "name": "GROSMIMI PPSU Baby Straw Cup Stage 2, 12M+, Spill-Proof, 6oz (Sugar Bear) | Flip"
      },
      {
+      "asin": "B0F9PVZMR1",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
       "asin": "B0F9PZPMH8",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PY2LBV",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
-      "asin": "B0F9PVZMR1",
+      "asin": "B0F9PZD6QM",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -68406,7 +68406,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZD6QM",
+      "asin": "B0F9PY2LBV",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -68438,19 +68438,19 @@ const FIN_DATA = {
       "name": "Grosmimi PPSU Straw Cup Stage 1, 6M+, Baby Transition Cup, 6oz (Peach) | Babies "
      },
      {
-      "asin": "B08398KZ2B",
-      "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
-     },
-     {
       "asin": "B07YKJ18D5",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
-      "asin": "B0842DMZ3H",
-      "name": "Grosmimi PPSU Straw Cup, Sippy Cup 300ML with Handle for Baby and Toddlers from "
+      "asin": "B08398KZ2B",
+      "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
       "asin": "B083XT642K",
+      "name": "Grosmimi PPSU Straw Cup, Sippy Cup 300ML with Handle for Baby and Toddlers from "
+     },
+     {
+      "asin": "B0842DMZ3H",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 300ML with Handle for Baby and Toddlers from "
      }
     ]
@@ -68844,11 +68844,7 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H2CMFCSJ",
-      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
-     },
-     {
-      "asin": "B0H2CGC2FB",
+      "asin": "B0H2CS5DLJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -68856,7 +68852,11 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0H2CS5DLJ",
+      "asin": "B0H2CMFCSJ",
+      "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
+     },
+     {
+      "asin": "B0H2CGC2FB",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -69191,11 +69191,11 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H32PSCF9",
+      "asin": "B0H32T8XBS",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
-      "asin": "B0H32T8XBS",
+      "asin": "B0H32PSCF9",
       "name": "GROSMIMI Slow Flow Toddler Tumbler Water Bottle BPA Free 10 oz. (Stainless Steel"
      },
      {
@@ -83384,13 +83384,13 @@ const FIN_DATA = {
     62797753,
     56880772,
     73142904,
-    71329108,
+    71329109,
     28784820,
     39972422,
-    52189630,
+    52189640,
     23044430,
     15097256,
-    24063598,
+    24063600,
     13998430,
     17024938
    ],
@@ -114199,7 +114199,7 @@ const FIN_DATA = {
      0,
      53843,
      286,
-     119404,
+     119405,
      229,
      0,
      545,
@@ -126956,7 +126956,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1001,
+     1003,
      0,
      0,
      0,
@@ -143063,6 +143063,20 @@ const FIN_DATA = {
      0,
      0
     ],
+    "grosmimi_jp": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1600,
+     0,
+     0
+    ],
     "yu_2024.09": [
      0,
      0,
@@ -143074,20 +143088,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     0,
-     0
-    ],
-    "grosmimi_jp": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1598,
      0,
      0
     ],
@@ -143133,6 +143133,20 @@ const FIN_DATA = {
      0,
      0
     ],
+    "shige_mamadaily": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1511,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
     "sleep_mw_chinomari": [
      0,
      0,
@@ -143155,20 +143169,6 @@ const FIN_DATA = {
      0,
      0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
-    "shige_mamadaily": [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1503,
      0,
      0,
      0,
