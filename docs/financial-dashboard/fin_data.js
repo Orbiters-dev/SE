@@ -1,5 +1,5 @@
 const FIN_DATA = {
- "generated_pst": "2026-11-27 14:07 PST",
+ "generated_pst": "2026-11-27 15:35 PST",
  "through_date": "2026-11-26",
  "months": [
   "2025-09",
@@ -68612,11 +68612,11 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0F9Q2F89Y",
+      "asin": "B0F9PZGGF2",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
-      "asin": "B0F9PZGGF2",
+      "asin": "B0F9Q2F89Y",
       "name": "GROSMIMI Flip Top Spill Proof Sippy Cup, PPSU, BPA Free, 10 oz, Stage 2 Straw fo"
      },
      {
@@ -68704,15 +68704,15 @@ const FIN_DATA = {
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
-      "asin": "B0F9PZPMH8",
-      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
-     },
-     {
       "asin": "B0F9PVZMR1",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
       "asin": "B0F9PX51FX",
+      "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
+     },
+     {
+      "asin": "B0F9PZPMH8",
       "name": "GROSMIMI Spill Proof Magic Sippy Cup with Straw with Handle for Baby and Toddler"
      },
      {
@@ -68772,11 +68772,11 @@ const FIN_DATA = {
       "name": "Grosmimi PPSU Straw Cup Stage 1, 6M+, Baby Transition Cup, 6oz (Sky Blue) | Babi"
      },
      {
-      "asin": "B08398KZ2B",
+      "asin": "B082SSPN4X",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
-      "asin": "B082SSPN4X",
+      "asin": "B08398KZ2B",
       "name": "Grosmimi PPSU Straw Cup, Sippy Cup 200ML with Handle for Baby and Toddlers from "
      },
      {
@@ -69188,7 +69188,7 @@ const FIN_DATA = {
     "sfr_branded": [],
     "asins": [
      {
-      "asin": "B0H2CS5DLJ",
+      "asin": "B0H2CMFCSJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -69196,7 +69196,7 @@ const FIN_DATA = {
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
-      "asin": "B0H2CMFCSJ",
+      "asin": "B0H2CS5DLJ",
       "name": "GROSMIMI Insulated 316 Stainless Steel Spill Proof Straw Cup, Water bottle with "
      },
      {
@@ -83759,11 +83759,11 @@ const FIN_DATA = {
     73709184,
     34098465,
     46034904,
-    52494774,
+    52494783,
     31698557,
     29384711,
     29290714,
-    24578679,
+    24578680,
     19916045,
     4595070
    ],
@@ -110532,7 +110532,7 @@ const FIN_DATA = {
      0,
      0,
      1291,
-     303,
+     304,
      0,
      0
     ],
@@ -127860,7 +127860,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1021,
+     1024,
      0,
      0,
      0,
@@ -143638,7 +143638,7 @@ const FIN_DATA = {
      0,
      0,
      0,
-     1557,
+     1563,
      0,
      0,
      0,
